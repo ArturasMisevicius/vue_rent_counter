@@ -7,7 +7,6 @@ use App\Models\Meter;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -23,7 +22,7 @@ class ReadingHistoryRelationManager extends RelationManager
         return __('admin.meters.sections.history');
     }
 
-    public function getRelationship(): Relation|Builder
+    public function getRelationship(): Relation
     {
         /** @var Meter $meter */
         $meter = $this->getOwnerRecord();

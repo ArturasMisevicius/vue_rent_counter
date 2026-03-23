@@ -3,12 +3,9 @@
 namespace App\Filament\Resources\Tenants\RelationManagers;
 
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Models\OrganizationActivityLog;
-use App\Models\User;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -24,17 +21,12 @@ class AuditTrailRelationManager extends RelationManager
         return __('admin.tenants.tabs.audit_trail');
     }
 
-    public function getRelationship(): Relation|Builder
+    public function getRelationship(): Relation
     {
         $tenant = $this->getOwnerRecord();
 
-        if (! $tenant instanceof User) {
-            return OrganizationActivityLog::query()->whereKey(-1);
-        }
-
-        return OrganizationActivityLog::query()
+        return $tenant->resourceActivityLogs()
             ->forOrganization($tenant->organization_id)
-            ->forResource($tenant)
             ->withActorSummary()
             ->recent();
     }

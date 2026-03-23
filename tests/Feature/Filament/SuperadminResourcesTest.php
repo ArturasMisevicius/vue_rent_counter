@@ -2,6 +2,7 @@
 
 use App\Enums\OrganizationStatus;
 use App\Enums\PlatformNotificationSeverity;
+use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Pages\TranslationManagement;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Models\Language;
@@ -13,6 +14,7 @@ use App\Models\Translation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 uses(RefreshDatabase::class);
 
@@ -39,7 +41,7 @@ it('allows superadmins to access every platform control plane url', function () 
     $this->actingAs($superadmin);
 
     foreach (platformUrls($organization, $managedUser, $subscription, $notification, $language) as $url) {
-        $this->get($url)->assertSuccessful();
+        $this->get($url)->assertOk();
     }
 });
 
@@ -87,6 +89,49 @@ it('impersonates the primary admin from the organization view page', function ()
     $this->assertAuthenticatedAs($organizationAdmin);
 
     expect(session('impersonator_id'))->toBe($superadmin->id);
+});
+
+it('blocks impersonation when the organization is suspended', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create([
+        'status' => OrganizationStatus::SUSPENDED,
+    ]);
+
+    $organizationAdmin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organization->forceFill([
+        'owner_user_id' => $organizationAdmin->id,
+    ])->save();
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organizations.view', $organization))
+        ->assertDontSeeText('Impersonate Admin');
+
+    expect(fn () => app(StartOrganizationImpersonationAction::class)->handle($superadmin, $organizationAdmin))
+        ->toThrow(AccessDeniedHttpException::class);
+
+    $this->assertAuthenticatedAs($superadmin);
+});
+
+it('maps numeric relation query params to organization relation manager keys', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+
+    $this->actingAs($superadmin);
+
+    Livewire::withQueryParams(['relation' => '1'])
+        ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->assertSet('activeRelationManager', 'users');
+
+    Livewire::withQueryParams(['relation' => '2'])
+        ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->assertSet('activeRelationManager', 'managers');
+
+    Livewire::withQueryParams(['relation' => '3'])
+        ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->assertSet('activeRelationManager', 'subscriptions');
 });
 
 it('saves inline translation edits into the translations table', function () {

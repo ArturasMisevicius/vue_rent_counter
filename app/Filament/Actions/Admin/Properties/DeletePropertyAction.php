@@ -4,6 +4,8 @@ namespace App\Filament\Actions\Admin\Properties;
 
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Models\Property;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class DeletePropertyAction
@@ -14,7 +16,9 @@ class DeletePropertyAction
 
     public function handle(Property $property): void
     {
-        $this->subscriptionLimitGuard->ensureCanWrite($property->organization_id);
+        if (! $this->isSuperadmin()) {
+            $this->subscriptionLimitGuard->ensureCanWrite($property->organization_id);
+        }
 
         if (
             $property->assignments()->exists()
@@ -27,5 +31,12 @@ class DeletePropertyAction
         }
 
         $property->delete();
+    }
+
+    private function isSuperadmin(): bool
+    {
+        $user = Auth::user();
+
+        return $user instanceof User && $user->isSuperadmin();
     }
 }

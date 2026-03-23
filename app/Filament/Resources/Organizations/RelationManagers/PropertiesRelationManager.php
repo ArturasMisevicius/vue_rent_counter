@@ -4,7 +4,18 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Organizations\RelationManagers;
 
+use App\Enums\PropertyType;
+use App\Filament\Actions\Admin\Properties\CreatePropertyAction;
+use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
+use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Models\Building;
+use App\Models\Property;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -54,6 +65,73 @@ class PropertiesRelationManager extends RelationManager
                 TextColumn::make('type')
                     ->label('Type')
                     ->badge(),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Create property')
+                    ->form([
+                        Select::make('building_id')
+                            ->label('Building')
+                            ->options(fn (): array => Building::query()
+                                ->forOrganization($this->getOwnerRecord()->getKey())
+                                ->ordered()
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('unit_number')
+                            ->label('Unit')
+                            ->required()
+                            ->maxLength(50),
+                        Select::make('type')
+                            ->label('Type')
+                            ->options(PropertyType::options())
+                            ->required(),
+                        TextInput::make('floor_area_sqm')
+                            ->label('Floor area (sqm)')
+                            ->numeric()
+                            ->minValue(0),
+                    ])
+                    ->using(fn (array $data): Property => app(CreatePropertyAction::class)->handle($this->getOwnerRecord(), $data)),
+            ])
+            ->recordActions([
+                EditAction::make()
+                    ->form([
+                        Select::make('building_id')
+                            ->label('Building')
+                            ->options(fn (): array => Building::query()
+                                ->forOrganization($this->getOwnerRecord()->getKey())
+                                ->ordered()
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('unit_number')
+                            ->label('Unit')
+                            ->required()
+                            ->maxLength(50),
+                        Select::make('type')
+                            ->label('Type')
+                            ->options(PropertyType::options())
+                            ->required(),
+                        TextInput::make('floor_area_sqm')
+                            ->label('Floor area (sqm)')
+                            ->numeric()
+                            ->minValue(0),
+                    ])
+                    ->using(fn (Property $record, array $data): Property => app(UpdatePropertyAction::class)->handle($record, $data)),
+                DeleteAction::make()
+                    ->using(fn (Property $record) => app(DeletePropertyAction::class)->handle($record)),
             ])
             ->defaultSort('name');
     }

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Organizations\RelationManagers;
 
 use App\Filament\Resources\Organizations\OrganizationResource;
-use App\Models\AuditLog;
 use App\Models\Organization;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -26,13 +24,12 @@ class ActivityLogsRelationManager extends RelationManager
         return 'Activity Logs';
     }
 
-    public function getRelationship(): Relation|Builder
+    public function getRelationship(): Relation
     {
         /** @var Organization $organization */
         $organization = $this->getOwnerRecord();
 
-        return AuditLog::query()
-            ->forOrganization($organization->id)
+        return $organization->auditLogs()
             ->withActorSummary()
             ->recent();
     }

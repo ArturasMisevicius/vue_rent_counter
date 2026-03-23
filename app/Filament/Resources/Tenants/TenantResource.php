@@ -24,6 +24,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class TenantResource extends Resource
 {
@@ -76,7 +77,7 @@ class TenantResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
 
         return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
     }
@@ -91,6 +92,16 @@ class TenantResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()
+                ->tenants()
+                ->withCurrentPropertySummary()
+                ->withOrganizationSummary()
+                ->orderedByName();
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -107,14 +118,14 @@ class TenantResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
 
-        return $user?->isAdmin() || $user?->isManager();
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
     }
 
     public static function canCreate(): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
 
         if (! $user?->isAdmin() && ! $user?->isManager()) {
             return false;
@@ -131,7 +142,11 @@ class TenantResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return $record instanceof User && $record->isTenant();
+        }
 
         return $record instanceof User
             && $record->isTenant()
@@ -171,5 +186,12 @@ class TenantResource extends Resource
             'view' => ViewTenant::route('/{record}'),
             'edit' => EditTenant::route('/{record}/edit'),
         ];
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::guard()->user();
+
+        return $user instanceof User ? $user : null;
     }
 }

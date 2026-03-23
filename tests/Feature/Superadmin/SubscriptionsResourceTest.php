@@ -6,12 +6,14 @@ use App\Enums\SubscriptionStatus;
 use App\Filament\Actions\Superadmin\Subscriptions\CancelSubscriptionAction;
 use App\Filament\Actions\Superadmin\Subscriptions\ExtendSubscriptionAction;
 use App\Filament\Actions\Superadmin\Subscriptions\SuspendSubscriptionAction;
+use App\Filament\Actions\Superadmin\Subscriptions\UpdateSubscriptionExpiryAction;
 use App\Filament\Actions\Superadmin\Subscriptions\UpgradeSubscriptionPlanAction;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
@@ -86,4 +88,18 @@ it('extends upgrades suspends and cancels subscriptions through actions', functi
         ->and($upgraded->property_limit_snapshot)->toBe(SubscriptionPlan::ENTERPRISE->limits()['properties'])
         ->and($suspended->status)->toBe(SubscriptionStatus::SUSPENDED)
         ->and($cancelled->status)->toBe(SubscriptionStatus::CANCELLED);
+});
+
+it('rejects expiry updates that do not actually extend the subscription', function () {
+    $subscription = Subscription::factory()->active()->create([
+        'expires_at' => now()->addMonth()->startOfDay(),
+    ]);
+
+    $originalExpiryDate = $subscription->expires_at?->toDateString();
+
+    expect(fn () => app(UpdateSubscriptionExpiryAction::class)->handle($subscription, [
+        'expires_at' => $originalExpiryDate,
+    ]))->toThrow(ValidationException::class);
+
+    expect($subscription->fresh()->expires_at?->toDateString())->toBe($originalExpiryDate);
 });

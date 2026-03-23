@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\LanguageStatus;
+use App\Models\Language;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -188,4 +190,35 @@ it('falls back to the public homepage when locale switching comes from an extern
             '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect(route('home'));
+});
+
+it('does not allow selecting a disabled locale for guests', function () {
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'native_name' => 'English',
+        'status' => LanguageStatus::ACTIVE,
+        'is_default' => true,
+    ]);
+
+    Language::factory()->create([
+        'code' => 'es',
+        'name' => 'Spanish',
+        'native_name' => 'Español',
+        'status' => LanguageStatus::INACTIVE,
+        'is_default' => false,
+    ]);
+
+    $this->get(route('login'))
+        ->assertSuccessful()
+        ->assertDontSee('value="es"', false);
+
+    $this->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
+        ->from(route('login'))
+        ->post(route('locale.update'), [
+            'locale' => 'es',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
+        ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors(['locale']);
 });

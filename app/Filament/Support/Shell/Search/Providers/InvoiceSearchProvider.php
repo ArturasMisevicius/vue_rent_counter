@@ -127,9 +127,15 @@ final class InvoiceSearchProvider implements GlobalSearchProvider
         if ($user->isSuperadmin()) {
             $routeName = (string) config('tenanto.search.providers.invoices.superadmin_route', 'filament.admin.resources.organizations.view');
 
-            return Route::has($routeName)
-                ? route($routeName, $invoice->organization_id)
-                : null;
+            if (! Route::has($routeName)) {
+                return null;
+            }
+
+            $url = route($routeName, $invoice->organization_id);
+
+            return $routeName === 'filament.admin.resources.organizations.view'
+                ? $url.'?relation=subscriptions'
+                : $url;
         }
 
         $routeName = (string) config('tenanto.search.providers.invoices.route', 'filament.admin.resources.invoices.view');

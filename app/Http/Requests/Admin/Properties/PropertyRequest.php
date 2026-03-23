@@ -19,7 +19,7 @@ class PropertyRequest extends FormRequest
     {
         $user = $this->user();
 
-        return ($user?->isAdmin() || $user?->isManager()) ?? false;
+        return ($user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager()) ?? false;
     }
 
     public function forOrganization(int $organizationId): self

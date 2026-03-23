@@ -56,17 +56,17 @@ class MeterReading extends Model
 
     public function scopeForOrganization(Builder $query, int $organizationId): Builder
     {
-        return $query->where('organization_id', $organizationId);
+        return $query->where('meter_readings.organization_id', $organizationId);
     }
 
     public function scopeForProperty(Builder $query, int $propertyId): Builder
     {
-        return $query->where('property_id', $propertyId);
+        return $query->where('meter_readings.property_id', $propertyId);
     }
 
     public function scopeForMeter(Builder $query, int $meterId): Builder
     {
-        return $query->where('meter_id', $meterId);
+        return $query->where('meter_readings.meter_id', $meterId);
     }
 
     public function scopeBetweenDates(
@@ -77,48 +77,48 @@ class MeterReading extends Model
         $resolvedStart = $startDate instanceof CarbonInterface ? $startDate->toDateString() : $startDate;
         $resolvedEnd = $endDate instanceof CarbonInterface ? $endDate->toDateString() : $endDate;
 
-        return $query->whereBetween('reading_date', [$resolvedStart, $resolvedEnd]);
+        return $query->whereBetween('meter_readings.reading_date', [$resolvedStart, $resolvedEnd]);
     }
 
     public function scopeLatestFirst(Builder $query): Builder
     {
         return $query
-            ->orderByDesc('reading_date')
-            ->orderByDesc('id');
+            ->orderByDesc('meter_readings.reading_date')
+            ->orderByDesc('meter_readings.id');
     }
 
     public function scopeValid(Builder $query): Builder
     {
-        return $query->where('validation_status', MeterReadingValidationStatus::VALID);
+        return $query->where('meter_readings.validation_status', MeterReadingValidationStatus::VALID);
     }
 
     public function scopeComparable(Builder $query): Builder
     {
-        return $query->whereIn('validation_status', MeterReadingValidationStatus::comparableValues());
+        return $query->whereIn('meter_readings.validation_status', MeterReadingValidationStatus::comparableValues());
     }
 
     public function scopePendingReview(Builder $query): Builder
     {
-        return $query->where('validation_status', MeterReadingValidationStatus::PENDING);
+        return $query->where('meter_readings.validation_status', MeterReadingValidationStatus::PENDING);
     }
 
     public function scopeSubmittedBy(Builder $query, int $userId): Builder
     {
-        return $query->where('submitted_by_user_id', $userId);
+        return $query->where('meter_readings.submitted_by_user_id', $userId);
     }
 
     public function scopeBeforeDate(Builder $query, CarbonInterface|string $date): Builder
     {
         $resolvedDate = $date instanceof CarbonInterface ? $date->toDateString() : $date;
 
-        return $query->whereDate('reading_date', '<', $resolvedDate);
+        return $query->whereDate('meter_readings.reading_date', '<', $resolvedDate);
     }
 
     public function scopeBeforeOrOnDate(Builder $query, CarbonInterface|string $date): Builder
     {
         $resolvedDate = $date instanceof CarbonInterface ? $date->toDateString() : $date;
 
-        return $query->whereDate('reading_date', '<=', $resolvedDate);
+        return $query->whereDate('meter_readings.reading_date', '<=', $resolvedDate);
     }
 
     public function scopeWithWorkspaceRelations(Builder $query): Builder

@@ -12,10 +12,12 @@ use App\Filament\Support\Admin\Reports\ConsumptionReportBuilder;
 use App\Filament\Support\Admin\Reports\MeterComplianceReportBuilder;
 use App\Filament\Support\Admin\Reports\OutstandingBalancesReportBuilder;
 use App\Filament\Support\Admin\Reports\RevenueReportBuilder;
+use App\Filament\Widgets\Reports\MeterComplianceStatusChart;
+use App\Filament\Widgets\Reports\RevenueMonthlyTotalsChart;
 use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
-use App\Http\Requests\Admin\Reports\ExportReportRequest;
 use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
 use App\Http\Requests\Admin\Reports\OutstandingBalancesReportRequest;
+use App\Http\Requests\Admin\Reports\ReportExportRequest;
 use App\Http\Requests\Admin\Reports\RevenueReportRequest;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -85,9 +87,41 @@ class ReportsPage extends Page
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
+        $user = request()->user();
 
-        return $user?->isAdminLike() ?? false;
+        return $user instanceof User && $user->isAdminLike();
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        if ($this->organizationId === null) {
+            return [];
+        }
+
+        return [
+            RevenueMonthlyTotalsChart::make([
+                'organizationId' => $this->organizationId,
+                'dateFrom' => $this->dateFrom,
+                'dateTo' => $this->dateTo,
+            ]),
+            MeterComplianceStatusChart::make([
+                'organizationId' => $this->organizationId,
+                'dateFrom' => $this->dateFrom,
+                'dateTo' => $this->dateTo,
+                'buildingId' => $this->buildingId,
+                'propertyId' => $this->propertyId,
+                'tenantId' => $this->tenantId,
+                'meterType' => $this->meterType,
+            ]),
+        ];
+    }
+
+    public function getHeaderWidgetsColumns(): int|array
+    {
+        return [
+            'md' => 1,
+            'xl' => 2,
+        ];
     }
 
     public function updated(string $name): void
@@ -356,8 +390,7 @@ class ReportsPage extends Page
     {
         abort_if($this->organizationId === null, 403);
 
-        /** @var ExportReportRequest $request */
-        $request = new ExportReportRequest;
+        $request = new ReportExportRequest;
         $request->validatePayload([
             ...$this->validatedFilters(),
             'format' => $format,
@@ -431,7 +464,7 @@ class ReportsPage extends Page
 
     private function user(): User
     {
-        $user = auth()->user();
+        $user = request()->user();
 
         abort_unless($user instanceof User, 403);
 

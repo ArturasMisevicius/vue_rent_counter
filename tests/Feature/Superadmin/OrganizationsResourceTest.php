@@ -33,6 +33,10 @@ it('only allows superadmins to reach organizations control-plane pages', functio
         ->assertSeeText($organization->slug);
 
     $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organizations.view', $organization).'?relation=1')
+        ->assertSuccessful();
+
+    $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.edit', $organization))
         ->assertSuccessful()
         ->assertSeeText('Save changes')

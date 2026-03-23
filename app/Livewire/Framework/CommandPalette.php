@@ -42,11 +42,6 @@ final class CommandPalette extends Component
                 'url' => route('filament.admin.pages.dashboard'),
             ],
             [
-                'label' => 'Open framework studio',
-                'description' => 'Review widgets, notifications, and the demo resource.',
-                'url' => route('filament.admin.pages.framework-studio'),
-            ],
-            [
                 'label' => 'Manage framework showcases',
                 'description' => 'Browse the demo Filament CRUD resource.',
                 'url' => route('filament.admin.resources.framework-showcases.index'),

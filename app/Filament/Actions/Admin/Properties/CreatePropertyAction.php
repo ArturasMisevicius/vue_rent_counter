@@ -6,6 +6,8 @@ use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Properties\StorePropertyRequest;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CreatePropertyAction
 {
@@ -15,7 +17,9 @@ class CreatePropertyAction
 
     public function handle(Organization $organization, array $data): Property
     {
-        $this->subscriptionLimitGuard->ensureCanCreateProperty($organization);
+        if (! $this->isSuperadmin()) {
+            $this->subscriptionLimitGuard->ensureCanCreateProperty($organization);
+        }
 
         $validated = $this->validate($organization->id, $data);
 
@@ -39,5 +43,12 @@ class CreatePropertyAction
         unset($validated['subscription_limit']);
 
         return $validated;
+    }
+
+    private function isSuperadmin(): bool
+    {
+        $user = Auth::user();
+
+        return $user instanceof User && $user->isSuperadmin();
     }
 }

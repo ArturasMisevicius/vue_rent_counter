@@ -7,6 +7,8 @@ namespace App\Filament\Support\Admin\Reports;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 
 final class OutstandingBalancesReportBuilder extends AbstractReportBuilder
@@ -25,97 +27,108 @@ final class OutstandingBalancesReportBuilder extends AbstractReportBuilder
     public function build(int $organizationId, CarbonInterface $startDate, CarbonInterface $endDate, array $filters): array
     {
         $statusFilter = (string) ($filters['status_filter'] ?? 'all');
+        $daysOverdueExpression = $this->daysOverdueExpression(
+            Invoice::query()->getConnection()->getDriverName(),
+            'invoices.billing_period_end',
+        );
+        $normalizedPaidExpression = 'CASE WHEN COALESCE(invoices.amount_paid, 0) >= COALESCE(invoices.paid_amount, 0) THEN COALESCE(invoices.amount_paid, 0) ELSE COALESCE(invoices.paid_amount, 0) END';
+        $outstandingExpression = 'CASE WHEN invoices.total_amount - ('.$normalizedPaidExpression.') > 0 THEN invoices.total_amount - ('.$normalizedPaidExpression.') ELSE 0 END';
 
         $rows = Invoice::query()
+            ->from('invoices')
             ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'tenant_user_id',
-                'invoice_number',
-                'status',
-                'currency',
-                'total_amount',
-                'amount_paid',
-                'paid_amount',
-                'billing_period_end',
-                'due_date',
-                'last_reminder_sent_at',
+                'invoices.id as invoice_id',
+                'invoices.invoice_number',
+                'invoices.status',
+                'invoices.currency',
+                'invoices.total_amount',
+                'invoices.amount_paid',
+                'invoices.paid_amount',
+                'invoices.billing_period_end',
+                'invoices.last_reminder_sent_at',
+                'tenants.name as tenant_name',
+                'tenants.email as tenant_email',
+                'properties.name as property_name',
+                'properties.unit_number as property_unit',
+                'buildings.name as building_name',
             ])
-            ->forOrganization($organizationId)
-            ->with([
-                'tenant:id,organization_id,name,email',
-                'property:id,organization_id,building_id,name,unit_number',
-                'property.building:id,organization_id,name',
+            ->addSelect(new Expression($daysOverdueExpression.' AS days_overdue'))
+            ->addSelect(new Expression($outstandingExpression.' AS outstanding_amount'))
+            ->join('users as tenants', function (JoinClause $join): void {
+                $join->on('tenants.id', '=', 'invoices.tenant_user_id');
+                $join->on('tenants.organization_id', '=', 'invoices.organization_id');
+            })
+            ->leftJoin('properties', 'properties.id', '=', 'invoices.property_id')
+            ->leftJoin('buildings', 'buildings.id', '=', 'properties.building_id')
+            ->where('invoices.organization_id', $organizationId)
+            ->whereBetween('invoices.billing_period_end', [
+                $startDate->toDateString(),
+                $endDate->toDateString(),
             ])
-            ->whereDate('billing_period_end', '>=', $startDate->toDateString())
-            ->whereDate('billing_period_end', '<=', $endDate->toDateString())
-            ->whereIn('status', [
+            ->whereIn('invoices.status', [
                 InvoiceStatus::FINALIZED->value,
                 InvoiceStatus::OVERDUE->value,
             ])
             ->when(
                 filled($filters['building_id'] ?? null),
-                fn ($query) => $query->whereHas(
-                    'property',
-                    fn ($propertyQuery) => $propertyQuery->where('building_id', (int) $filters['building_id']),
-                ),
+                fn ($query) => $query->where('properties.building_id', (int) $filters['building_id']),
             )
             ->when(
                 filled($filters['property_id'] ?? null),
-                fn ($query) => $query->where('property_id', (int) $filters['property_id']),
+                fn ($query) => $query->where('invoices.property_id', (int) $filters['property_id']),
             )
             ->when(
                 filled($filters['tenant_id'] ?? null),
-                fn ($query) => $query->where('tenant_user_id', (int) $filters['tenant_id']),
+                fn ($query) => $query->where('invoices.tenant_user_id', (int) $filters['tenant_id']),
             )
             ->when(
                 $statusFilter === InvoiceStatus::FINALIZED->value,
-                fn ($query) => $query->where('status', InvoiceStatus::FINALIZED->value),
+                fn ($query) => $query->where('invoices.status', InvoiceStatus::FINALIZED->value),
             )
+            ->when(
+                ($filters['only_overdue'] ?? false) || $statusFilter === 'overdue',
+                fn ($query) => $query->where(new Expression($daysOverdueExpression), '>', 0),
+            )
+            ->where(new Expression($outstandingExpression), '>', 0)
+            ->orderByDesc('days_overdue')
+            ->orderBy('tenant_email')
             ->get();
 
         /** @var Collection<int, array<string, mixed>> $rows */
         $rowData = $rows
-            ->map(function (Invoice $invoice): array {
-                $normalizedPaid = $this->normalizedPaidAmount($invoice->amount_paid, $invoice->paid_amount);
-                $outstanding = $this->outstandingAmount($invoice->total_amount, $normalizedPaid);
-                $daysOverdue = $this->daysOverdue($invoice->billing_period_end ?? $invoice->due_date);
+            ->map(function (object $row): array {
+                $daysOverdue = (int) ($row->days_overdue ?? 0);
+                $outstanding = (float) ($row->outstanding_amount ?? 0);
                 $isOverdue = $daysOverdue > 0 && $outstanding > 0;
-                $property = $invoice->property;
-                $buildingName = $property?->building?->name;
-                $tenant = $invoice->tenant;
+
+                $propertyLabel = trim(implode(' · ', array_filter([
+                    (string) ($row->property_name ?? ''),
+                    (string) ($row->property_unit ?? ''),
+                    (string) ($row->building_name ?? ''),
+                ])));
+
+                $statusLabel = $row->status instanceof InvoiceStatus
+                    ? $row->status->value
+                    : (string) ($row->status ?? '');
+                $statusTranslationKey = 'admin.invoices.statuses.'.$statusLabel;
 
                 return [
-                    'invoice_id' => (int) $invoice->id,
+                    'invoice_id' => (int) ($row->invoice_id ?? 0),
                     'raw_outstanding' => $outstanding,
                     'raw_days_overdue' => $daysOverdue,
-                    'tenant_name' => (string) ($tenant?->name ?? ''),
-                    'tenant_email' => (string) ($tenant?->email ?? ''),
+                    'tenant_name' => (string) ($row->tenant_name ?? ''),
+                    'tenant_email' => (string) ($row->tenant_email ?? ''),
                     'is_overdue' => $isOverdue,
-                    'invoice_number' => (string) $invoice->invoice_number,
-                    'tenant' => (string) ($tenant?->name ?: __('dashboard.not_available')),
-                    'property' => trim(implode(' · ', array_filter([
-                        (string) ($property?->name ?? ''),
-                        (string) ($property?->unit_number ?? ''),
-                        (string) ($buildingName ?? ''),
-                    ]))) ?: __('dashboard.not_available'),
-                    'period_end' => $this->formatDate($invoice->billing_period_end),
-                    'status' => __('admin.invoices.statuses.'.(string) $invoice->status->value),
+                    'invoice_number' => (string) ($row->invoice_number ?? ''),
+                    'tenant' => (string) (($row->tenant_name ?? '') !== '' ? $row->tenant_name : __('dashboard.not_available')),
+                    'property' => $propertyLabel !== '' ? $propertyLabel : __('dashboard.not_available'),
+                    'period_end' => $this->formatDate($row->billing_period_end ?? null),
+                    'status' => __($statusTranslationKey),
                     'days_overdue' => (string) $daysOverdue,
-                    'outstanding' => $this->formatCurrency($outstanding, (string) ($invoice->currency ?: 'EUR')),
-                    'reminder_sent_at' => $this->formatDate($invoice->last_reminder_sent_at),
+                    'outstanding' => $this->formatCurrency($outstanding, (string) (($row->currency ?? 'EUR') ?: 'EUR')),
+                    'reminder_sent_at' => $this->formatDate($row->last_reminder_sent_at ?? null),
                 ];
             })
-            ->filter(fn (array $row): bool => (float) $row['raw_outstanding'] > 0)
-            ->when(
-                ($filters['only_overdue'] ?? false) || $statusFilter === 'overdue',
-                fn (Collection $rows): Collection => $rows->where('raw_days_overdue', '>', 0),
-            )
-            ->sortBy([
-                ['raw_days_overdue', 'desc'],
-                ['tenant_email', 'asc'],
-            ])
             ->values();
 
         return [
@@ -148,5 +161,14 @@ final class OutstandingBalancesReportBuilder extends AbstractReportBuilder
             'rows' => $rowData->all(),
             'empty_state' => __('admin.reports.empty.outstanding_balances'),
         ];
+    }
+
+    private function daysOverdueExpression(string $driver, string $column): string
+    {
+        return match ($driver) {
+            'pgsql' => "CASE WHEN (CURRENT_DATE - CAST({$column} as date)) > 0 THEN (CURRENT_DATE - CAST({$column} as date)) ELSE 0 END",
+            'sqlite' => "CASE WHEN CAST(julianday(date('now')) - julianday(date({$column})) AS INTEGER) > 0 THEN CAST(julianday(date('now')) - julianday(date({$column})) AS INTEGER) ELSE 0 END",
+            default => "CASE WHEN DATEDIFF(CURDATE(), DATE({$column})) > 0 THEN DATEDIFF(CURDATE(), DATE({$column})) ELSE 0 END",
+        };
     }
 }

@@ -41,6 +41,7 @@ it('renders the forbidden experience when a tenant tries to render the admin das
 
     Livewire::actingAs($tenant)
         ->test(AdminDashboard::class)
+        ->assertStatus(403)
         ->assertSeeText('You do not have permission to view this page')
         ->assertSeeText('403');
 });
@@ -126,7 +127,7 @@ function seedAdminDashboardComponentData(): User
         ->for($dueMeter)
         ->for($admin, 'submittedBy')
         ->create([
-            'reading_date' => now()->subDays(28)->toDateString(),
+            'reading_date' => now()->subDays(31)->toDateString(),
         ]);
 
     $otherOrganization = Organization::factory()->create();

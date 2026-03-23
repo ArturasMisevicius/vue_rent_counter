@@ -17,11 +17,13 @@ use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceHistory extends Component
 {
     use ResolvesTenantWorkspace;
+    use WithPagination;
 
     #[Url(as: 'status')]
     public string $selectedStatus = 'all';
@@ -84,6 +86,9 @@ class InvoiceHistory extends Component
         ]);
 
         $this->selectedStatus = (string) $validated['selectedStatus'];
+        $this->resetPage();
+
+        unset($this->invoices, $this->statusFilter);
     }
 
     #[Computed]
@@ -112,8 +117,14 @@ class InvoiceHistory extends Component
     {
         return app(TenantInvoiceIndexQuery::class)->for(
             $this->tenant,
-            $this->selectedStatusFilter(),
+            $this->statusFilter,
         );
+    }
+
+    #[Computed]
+    public function statusFilter(): ?string
+    {
+        return $this->selectedStatus === 'all' ? null : $this->selectedStatus;
     }
 
     /**
@@ -131,10 +142,5 @@ class InvoiceHistory extends Component
         return app(PaymentInstructionsResolver::class)->resolve(
             $this->tenant->organization?->settings,
         );
-    }
-
-    private function selectedStatusFilter(): ?string
-    {
-        return $this->selectedStatus === 'all' ? null : $this->selectedStatus;
     }
 }

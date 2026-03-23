@@ -12,6 +12,7 @@ use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Livewire\Pages\Dashboard\AdminDashboard;
 use App\Livewire\Pages\Dashboard\TenantDashboard;
 use App\Livewire\Tenant\SubmitReadingPage;
+use App\Livewire\Tenant\TenantDashboard as TenantDashboardWrapper;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -129,6 +130,40 @@ it('refreshes the tenant dashboard when a reading submitted event is received', 
     $component
         ->dispatch('reading.submitted')
         ->assertSeeText('188.500')
+        ->assertSeeText($meter->unit);
+});
+
+it('refreshes the tenant dashboard wrapper when a reading submitted event is received', function () {
+    $fixture = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withReadings()
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $fixture->meters->firstOrFail();
+
+    $component = Livewire::actingAs($fixture->user)
+        ->test(TenantDashboardWrapper::class)
+        ->assertDontSeeText('199.500');
+
+    MeterReading::factory()
+        ->for($fixture->organization)
+        ->for($fixture->property)
+        ->for($meter)
+        ->create([
+            'submitted_by_user_id' => $fixture->user->id,
+            'reading_value' => 199.500,
+            'reading_date' => now()->toDateString(),
+            'validation_status' => MeterReadingValidationStatus::VALID,
+            'submission_method' => MeterReadingSubmissionMethod::TENANT_PORTAL,
+        ]);
+
+    app(DashboardCacheService::class)->touchOrganization($fixture->organization->id);
+
+    $component
+        ->dispatch('reading.submitted')
+        ->assertSeeText('199.500')
         ->assertSeeText($meter->unit);
 });
 

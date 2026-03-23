@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -243,6 +244,36 @@ class User extends Authenticatable implements FilamentUser
     public function organizationActivityLogs(): HasMany
     {
         return $this->hasMany(OrganizationActivityLog::class);
+    }
+
+    public function resourceActivityLogs(): HasMany
+    {
+        return $this->hasMany(OrganizationActivityLog::class, 'resource_id')
+            ->where('resource_type', self::class);
+    }
+
+    public function currentPropertyMeters(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Meter::class,
+            PropertyAssignment::class,
+            'tenant_user_id',
+            'property_id',
+            'id',
+            'property_id',
+        )->whereNull('property_assignments.unassigned_at');
+    }
+
+    public function currentPropertyReadings(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            MeterReading::class,
+            PropertyAssignment::class,
+            'tenant_user_id',
+            'property_id',
+            'id',
+            'property_id',
+        )->whereNull('property_assignments.unassigned_at');
     }
 
     public function superAdminAuditLogs(): HasMany

@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\LanguageStatus;
+use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -57,4 +59,33 @@ it('pulls the locale from the authenticated user even when a guest locale is pre
     ])->actingAs($user)
         ->get('/__test/locale')
         ->assertSee('lt');
+});
+
+it('ignores a disabled authenticated locale and falls back to the default active locale', function () {
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'native_name' => 'English',
+        'status' => LanguageStatus::ACTIVE,
+        'is_default' => true,
+    ]);
+
+    Language::factory()->create([
+        'code' => 'es',
+        'name' => 'Spanish',
+        'native_name' => 'Español',
+        'status' => LanguageStatus::INACTIVE,
+        'is_default' => false,
+    ]);
+
+    Route::middleware(['web', 'auth', 'set.auth.locale'])
+        ->get('/__test/locale-fallback', fn () => response(app()->getLocale()));
+
+    $user = User::factory()->admin()->create([
+        'locale' => 'es',
+    ]);
+
+    $this->actingAs($user)
+        ->get('/__test/locale-fallback')
+        ->assertSee('en');
 });

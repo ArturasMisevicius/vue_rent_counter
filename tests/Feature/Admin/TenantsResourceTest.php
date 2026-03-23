@@ -19,6 +19,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
+use function Pest\Laravel\actingAs;
+
 uses(RefreshDatabase::class);
 
 it('shows organization-scoped tenant resource pages and assignment-aware tenant details', function () {
@@ -74,7 +76,7 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         'tenant_limit_snapshot' => 10,
     ]);
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
         ->assertSeeText('Tenants')
@@ -83,14 +85,14 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         ->assertSeeText($property->name)
         ->assertDontSeeText($otherTenant->name);
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.create'))
         ->assertSuccessful()
         ->assertSeeText('Preferred Language')
         ->assertSeeText('Initial Status')
         ->assertSeeText('Assign Property');
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $tenant))
         ->assertSuccessful()
         ->assertSeeText('Tenant Details')
@@ -102,33 +104,35 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         ->assertSeeText('INV-200001')
         ->assertSeeText('Taylor Tenant');
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.edit', $tenant))
         ->assertSuccessful()
         ->assertSeeText('Save changes')
         ->assertSeeText('Assign Property');
 
-    $this->actingAs($manager)
+    actingAs($manager)
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
         ->assertSeeText($tenant->name);
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $otherTenant))
         ->assertForbidden();
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.edit', $otherTenant))
         ->assertForbidden();
 
-    $this->actingAs($manager)
+    actingAs($manager)
         ->get(route('filament.admin.resources.tenants.create'))
         ->assertSuccessful()
         ->assertSeeText('Assign Property');
 
-    $this->actingAs($superadmin)
+    actingAs($superadmin)
         ->get(route('filament.admin.resources.tenants.index'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertSeeText($tenant->name)
+        ->assertSeeText($otherTenant->name);
 });
 
 it('creates tenants through invitation reuse with optional property assignment and supports updates plus status toggles', function () {
@@ -152,7 +156,7 @@ it('creates tenants through invitation reuse with optional property assignment a
         'tenant_limit_snapshot' => 5,
     ]);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     $tenant = app(CreateTenantAction::class)->handle($admin, [
         'name' => 'Pat Tenant',
@@ -233,7 +237,7 @@ it('keeps the tenant create page reachable at the limit and prevents deleting te
         'status' => UserStatus::ACTIVE,
     ]);
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.resources.tenants.create'))
         ->assertSuccessful();
 

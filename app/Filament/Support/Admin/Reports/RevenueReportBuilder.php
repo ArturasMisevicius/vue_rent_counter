@@ -6,6 +6,8 @@ namespace App\Filament\Support\Admin\Reports;
 
 use App\Models\Invoice;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 
 final class RevenueReportBuilder extends AbstractReportBuilder
@@ -23,106 +25,64 @@ final class RevenueReportBuilder extends AbstractReportBuilder
      */
     public function build(int $organizationId, CarbonInterface $startDate, CarbonInterface $endDate, array $filters): array
     {
-        $invoices = Invoice::query()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'tenant_user_id',
-                'status',
-                'currency',
-                'total_amount',
-                'amount_paid',
-                'paid_amount',
-                'billing_period_end',
+        $baseQuery = Invoice::query()
+            ->from('invoices')
+            ->join('users as tenants', function (JoinClause $join): void {
+                $join->on('tenants.id', '=', 'invoices.tenant_user_id');
+                $join->on('tenants.organization_id', '=', 'invoices.organization_id');
+            })
+            ->leftJoin('properties', 'properties.id', '=', 'invoices.property_id')
+            ->where('invoices.organization_id', $organizationId)
+            ->whereBetween('invoices.billing_period_end', [
+                $startDate->toDateString(),
+                $endDate->toDateString(),
             ])
-            ->forOrganization($organizationId)
-            ->whereDate('billing_period_end', '>=', $startDate->toDateString())
-            ->whereDate('billing_period_end', '<=', $endDate->toDateString())
             ->when(
                 filled($filters['building_id'] ?? null),
-                fn ($query) => $query->whereHas(
-                    'property',
-                    fn ($propertyQuery) => $propertyQuery->where('building_id', (int) $filters['building_id']),
-                ),
+                fn ($query) => $query->where('properties.building_id', (int) $filters['building_id']),
             )
             ->when(
                 filled($filters['property_id'] ?? null),
-                fn ($query) => $query->where('property_id', (int) $filters['property_id']),
+                fn ($query) => $query->where('invoices.property_id', (int) $filters['property_id']),
             )
             ->when(
                 filled($filters['tenant_id'] ?? null),
-                fn ($query) => $query->where('tenant_user_id', (int) $filters['tenant_id']),
+                fn ($query) => $query->where('invoices.tenant_user_id', (int) $filters['tenant_id']),
             )
             ->when(
                 filled($filters['status_filter'] ?? null) && $filters['status_filter'] !== 'all',
-                fn ($query) => $query->where('status', (string) $filters['status_filter']),
-            )
-            ->get()
-            ->filter(fn (Invoice $invoice): bool => filled($invoice->billing_period_end))
-            ->filter(function (Invoice $invoice) use ($startDate, $endDate): bool {
-                $periodEnd = $invoice->billing_period_end;
+                fn ($query) => $query->where('invoices.status', (string) $filters['status_filter']),
+            );
 
-                if ($periodEnd === null) {
-                    return false;
-                }
+        $connectionDriver = $baseQuery->getConnection()->getDriverName();
+        $monthExpression = $this->monthExpression($connectionDriver);
+        $normalizedPaidExpression = 'CASE WHEN COALESCE(invoices.amount_paid, 0) >= COALESCE(invoices.paid_amount, 0) THEN COALESCE(invoices.amount_paid, 0) ELSE COALESCE(invoices.paid_amount, 0) END';
+        $outstandingExpression = 'CASE WHEN invoices.total_amount - ('.$normalizedPaidExpression.') > 0 THEN invoices.total_amount - ('.$normalizedPaidExpression.') ELSE 0 END';
 
-                return $periodEnd->betweenIncluded($startDate->copy()->startOfDay(), $endDate->copy()->endOfDay());
-            });
-
-        /** @var Collection<string, array{month: string, raw_total: float, raw_paid: float, raw_outstanding: float, invoice_count: int, currency: string}> $monthlyBuckets */
-        $monthlyBuckets = collect();
-
-        foreach ($invoices as $invoice) {
-            $month = $this->monthKey($invoice->billing_period_end);
-
-            if ($month === '') {
-                continue;
-            }
-
-            $normalizedPaid = $this->normalizedPaidAmount($invoice->amount_paid, $invoice->paid_amount);
-            $rawTotal = (float) $invoice->total_amount;
-            $rawOutstanding = $this->outstandingAmount($rawTotal, $normalizedPaid);
-
-            if (! $monthlyBuckets->has($month)) {
-                $monthlyBuckets->put($month, [
-                    'month' => $month,
-                    'raw_total' => 0.0,
-                    'raw_paid' => 0.0,
-                    'raw_outstanding' => 0.0,
-                    'invoice_count' => 0,
-                    'currency' => (string) ($invoice->currency ?: 'EUR'),
-                ]);
-            }
-
-            $bucket = $monthlyBuckets->get($month);
-
-            if ($bucket === null) {
-                continue;
-            }
-
-            $bucket['raw_total'] += $rawTotal;
-            $bucket['raw_paid'] += $normalizedPaid;
-            $bucket['raw_outstanding'] += $rawOutstanding;
-            $bucket['invoice_count']++;
-
-            $monthlyBuckets->put($month, $bucket);
-        }
+        $monthlyRows = $baseQuery
+            ->select(new Expression($monthExpression.' AS report_month'))
+            ->addSelect(new Expression('SUM(invoices.total_amount) AS total_invoiced_amount'))
+            ->addSelect(new Expression('SUM('.$normalizedPaidExpression.') AS total_paid_amount'))
+            ->addSelect(new Expression('SUM('.$outstandingExpression.') AS total_outstanding_amount'))
+            ->addSelect(new Expression('COUNT(invoices.id) AS invoice_count'))
+            ->addSelect(new Expression('MIN(invoices.currency) AS report_currency'))
+            ->groupBy(new Expression($monthExpression))
+            ->orderByDesc('report_month')
+            ->get();
 
         /** @var Collection<int, array<string, mixed>> $rows */
-        $rows = $monthlyBuckets
-            ->sortKeysDesc()
-            ->values()
-            ->map(fn (array $row): array => [
-                'month' => (string) $row['month'],
-                'raw_total' => (float) $row['raw_total'],
-                'raw_paid' => (float) $row['raw_paid'],
-                'raw_outstanding' => (float) $row['raw_outstanding'],
-                'invoice_count' => (string) (int) $row['invoice_count'],
-                'total_invoiced' => $this->formatCurrency((float) $row['raw_total'], (string) ($row['currency'] ?: 'EUR')),
-                'total_paid' => $this->formatCurrency((float) $row['raw_paid'], (string) ($row['currency'] ?: 'EUR')),
-                'total_outstanding' => $this->formatCurrency((float) $row['raw_outstanding'], (string) ($row['currency'] ?: 'EUR')),
+        $rows = $monthlyRows
+            ->map(fn (object $row): array => [
+                'month' => (string) ($row->report_month ?? ''),
+                'raw_total' => (float) ($row->total_invoiced_amount ?? 0),
+                'raw_paid' => (float) ($row->total_paid_amount ?? 0),
+                'raw_outstanding' => (float) ($row->total_outstanding_amount ?? 0),
+                'invoice_count' => (string) (int) ($row->invoice_count ?? 0),
+                'total_invoiced' => $this->formatCurrency((float) ($row->total_invoiced_amount ?? 0), (string) (($row->report_currency ?? 'EUR') ?: 'EUR')),
+                'total_paid' => $this->formatCurrency((float) ($row->total_paid_amount ?? 0), (string) (($row->report_currency ?? 'EUR') ?: 'EUR')),
+                'total_outstanding' => $this->formatCurrency((float) ($row->total_outstanding_amount ?? 0), (string) (($row->report_currency ?? 'EUR') ?: 'EUR')),
             ])
+            ->filter(fn (array $row): bool => $row['month'] !== '')
             ->values();
 
         /** @var Collection<int, array<string, mixed>> $rowData */
@@ -159,5 +119,14 @@ final class RevenueReportBuilder extends AbstractReportBuilder
             'rows' => $rowData->all(),
             'empty_state' => __('admin.reports.empty.revenue'),
         ];
+    }
+
+    private function monthExpression(string $driver): string
+    {
+        return match ($driver) {
+            'pgsql' => "to_char(date_trunc('month', invoices.billing_period_end), 'YYYY-MM')",
+            'sqlite' => "strftime('%Y-%m', invoices.billing_period_end)",
+            default => "DATE_FORMAT(invoices.billing_period_end, '%Y-%m')",
+        };
     }
 }

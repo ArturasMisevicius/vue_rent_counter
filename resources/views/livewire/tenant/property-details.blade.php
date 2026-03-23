@@ -15,6 +15,9 @@
                 <div class="space-y-2">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.property.eyebrow') }}</p>
                     <h2 class="font-display text-2xl tracking-tight text-slate-950">{{ $summary['property_name'] }}</h2>
+                    @if ($summary['property_building_name'])
+                        <p class="text-sm font-medium text-slate-700">{{ __('tenant.pages.home.building_label', ['building' => $summary['property_building_name']]) }}</p>
+                    @endif
                     @if ($summary['property_address'])
                         <p class="text-sm text-slate-500">{{ $summary['property_address'] }}</p>
                     @endif

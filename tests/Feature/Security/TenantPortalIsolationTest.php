@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\InvoiceHistory;
 use App\Livewire\Tenant\SubmitMeterReading;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -87,6 +89,14 @@ it('keeps the filament tenant portal and its actions isolated per tenant account
         ->test(InvoiceHistory::class)
         ->call('downloadPdf', $foreignInvoice->id)
         ->assertForbidden();
+
+    expect(fn () => app(SubmitTenantReadingAction::class)->handle(
+        tenant: $tenantA->user,
+        meterId: $foreignMeter->id,
+        readingValue: '245.125',
+        readingDate: now()->toDateString(),
+        notes: null,
+    ))->toThrow(AuthorizationException::class);
 
     Livewire::actingAs($tenantA->user)
         ->test(SubmitMeterReading::class)

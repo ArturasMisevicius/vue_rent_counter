@@ -42,8 +42,6 @@
             </main>
         </div>
 
-        <x-shell.session-expiry-monitor />
-
         @livewireScripts(['nonce' => $cspNonce])
     </body>
 </html>

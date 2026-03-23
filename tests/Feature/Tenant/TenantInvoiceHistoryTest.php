@@ -1,9 +1,11 @@
 <?php
 
+use App\Livewire\Tenant\InvoiceHistory;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
@@ -43,6 +45,21 @@ it('filters the invoice history by unpaid status', function () {
         ->assertSuccessful()
         ->assertSeeText('UNPAID-001')
         ->assertDontSee('>PAID-001<', false);
+});
+
+it('resets pagination to the first page when status filter changes', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->withPaidInvoices(11)
+        ->create();
+
+    Livewire::actingAs($tenant->user)
+        ->withQueryParams(['page' => 2])
+        ->test(InvoiceHistory::class)
+        ->set('selectedStatus', 'unpaid')
+        ->assertSet('paginators.page', 1)
+        ->assertSeeText('UNPAID-001');
 });
 
 it('shows an all-paid-up empty state when the tenant has no unpaid invoices', function () {

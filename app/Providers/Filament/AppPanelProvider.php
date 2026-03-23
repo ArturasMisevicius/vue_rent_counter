@@ -13,6 +13,7 @@ use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Livewire\Shell\Sidebar;
 use App\Livewire\Shell\Topbar;
 use BackedEnum;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -31,6 +32,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -44,6 +46,8 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->favicon('/favicon')
             ->login(fn () => redirect()->route('login'))
+            ->darkMode(false)
+            ->defaultThemeMode(ThemeMode::Light)
             ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => Color::Amber,
@@ -116,6 +120,20 @@ class AppPanelProvider extends PanelProvider
                         visible: fn (): bool => $this->isSuperadmin(),
                     ),
                     $this->navigationItem(
+                        label: __('admin.buildings.plural'),
+                        icon: Heroicon::OutlinedBuildingOffice2,
+                        routeName: 'filament.admin.resources.buildings.index',
+                        activePatterns: ['filament.admin.resources.buildings.*'],
+                        visible: fn (): bool => $this->isSuperadmin(),
+                    ),
+                    $this->navigationItem(
+                        label: __('admin.properties.plural'),
+                        icon: Heroicon::OutlinedHome,
+                        routeName: 'filament.admin.resources.properties.index',
+                        activePatterns: ['filament.admin.resources.properties.*'],
+                        visible: fn (): bool => $this->isSuperadmin(),
+                    ),
+                    $this->navigationItem(
                         label: __('shell.navigation.items.users'),
                         icon: Heroicon::OutlinedUserGroup,
                         routeName: 'filament.admin.resources.users.index',
@@ -155,16 +173,6 @@ class AppPanelProvider extends PanelProvider
                         icon: Heroicon::OutlinedCog6Tooth,
                         routeName: 'filament.admin.pages.system-configuration',
                         activePatterns: ['filament.admin.pages.system-configuration'],
-                        visible: fn (): bool => $this->isSuperadmin(),
-                    ),
-                    $this->navigationItem(
-                        label: 'Framework Studio',
-                        icon: Heroicon::OutlinedCpuChip,
-                        routeName: 'filament.admin.pages.framework-studio',
-                        activePatterns: [
-                            'filament.admin.pages.framework-studio',
-                            'filament.admin.resources.framework-showcases.*',
-                        ],
                         visible: fn (): bool => $this->isSuperadmin(),
                     ),
                 ],
@@ -389,7 +397,7 @@ class AppPanelProvider extends PanelProvider
 
     protected function isAuthenticated(): bool
     {
-        return auth()->check();
+        return Auth::user() !== null;
     }
 
     protected function isSuperadmin(): bool

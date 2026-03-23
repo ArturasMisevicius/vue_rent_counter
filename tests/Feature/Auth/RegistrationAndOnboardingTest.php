@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
+function registrationSessionHistoryCookieName(): string
+{
+    return config('tenanto.auth.session_history_cookie_name', 'tenanto_authenticated_session');
+}
+
 function registerDashboardRouteFixtures(): void
 {
     if (! Route::has('filament.admin.pages.organization-dashboard')) {
@@ -107,6 +112,7 @@ it('registers an admin and redirects to welcome', function () {
 
     $response->assertRedirect(route('welcome.show'));
     $this->assertAuthenticated();
+    $response->assertCookie(registrationSessionHistoryCookieName(), '1');
 
     $user = User::firstOrFail();
 
@@ -126,6 +132,29 @@ it('rejects registration with disposable email domains', function () {
         ->assertSessionHasErrors(['email']);
 
     expect(User::query()->where('email', 'owner@10minutemail.com')->exists())->toBeFalse();
+});
+
+it('rate limits repeated registration submissions', function () {
+    foreach (range(1, 5) as $attempt) {
+        $this->from(route('register'))
+            ->post(route('register.store'), [
+                'name' => '',
+                'email' => '',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+            ])
+            ->assertRedirect(route('register'))
+            ->assertSessionHasErrors(['name', 'email']);
+    }
+
+    $this->from(route('register'))
+        ->post(route('register.store'), [
+            'name' => '',
+            'email' => '',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertTooManyRequests();
 });
 
 it('allows an incomplete admin to view onboarding', function () {

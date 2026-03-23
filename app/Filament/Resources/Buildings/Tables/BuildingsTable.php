@@ -6,6 +6,7 @@ use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -13,6 +14,8 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class BuildingsTable
 {
@@ -44,12 +47,20 @@ class BuildingsTable
             ->filters([
                 SelectFilter::make('city')
                     ->label(__('admin.buildings.columns.city'))
-                    ->options(fn (): array => Building::query()
-                        ->select(['city', 'organization_id'])
-                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
-                        ->orderBy('city')
-                        ->pluck('city', 'city')
-                        ->all()),
+                    ->options(function (): array {
+                        $user = Auth::user();
+                        $isSuperadmin = $user instanceof User && $user->isSuperadmin();
+
+                        return Building::query()
+                            ->select(['city', 'organization_id'])
+                            ->when(
+                                ! $isSuperadmin,
+                                fn ($query) => $query->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                            )
+                            ->orderBy('city')
+                            ->pluck('city', 'city')
+                            ->all();
+                    }),
             ])
             ->emptyStateHeading(__('admin.buildings.empty_state.heading'))
             ->emptyStateDescription(__('admin.buildings.empty_state.description'))
@@ -65,7 +76,15 @@ class BuildingsTable
                 EditAction::make(),
                 DeleteAction::make()
                     ->using(fn (Building $record) => app(DeleteBuildingAction::class)->handle($record))
-                    ->authorize(fn (Building $record): bool => auth()->user()?->can('delete', $record) ?? false),
+                    ->authorize(function (Building $record): bool {
+                        $user = Auth::user();
+
+                        if (! $user instanceof User) {
+                            return false;
+                        }
+
+                        return Gate::forUser($user)->check('delete', $record);
+                    }),
             ])
             ->defaultSort('name');
     }

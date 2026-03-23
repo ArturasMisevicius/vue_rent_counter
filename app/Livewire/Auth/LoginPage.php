@@ -10,6 +10,7 @@ use App\Filament\Support\Auth\LoginRedirector;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -17,6 +18,19 @@ use Livewire\Component;
 
 class LoginPage extends Component
 {
+    public function mount(Request $request): void
+    {
+        $intendedUrl = $this->resolveIntendedUrl($request);
+
+        if ($intendedUrl !== null && ! $request->session()->has('url.intended')) {
+            $request->session()->put('url.intended', $intendedUrl);
+        }
+
+        if ($request->boolean('session_expired') && ! $request->session()->has('auth.session_expired')) {
+            $request->session()->flash('auth.session_expired', __('auth.session_expired'));
+        }
+    }
+
     public function store(
         LoginRequest $request,
         LoginRedirector $loginRedirector,
@@ -81,5 +95,22 @@ class LoginPage extends Component
     public function demoAccounts(): array
     {
         return app(LoginDemoAccountPresenter::class)->accounts() ?: config('tenanto.demo_accounts', []);
+    }
+
+    private function resolveIntendedUrl(Request $request): ?string
+    {
+        $intendedUrl = trim((string) $request->query('intended', ''));
+
+        if (
+            $intendedUrl === ''
+            || strlen($intendedUrl) > 2048
+            || ! str_starts_with($intendedUrl, '/')
+            || str_starts_with($intendedUrl, '//')
+            || preg_match('/[\x00-\x1F\x7F]/', $intendedUrl) === 1
+        ) {
+            return null;
+        }
+
+        return $intendedUrl;
     }
 }

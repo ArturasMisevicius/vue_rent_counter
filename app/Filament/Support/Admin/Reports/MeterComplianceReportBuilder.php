@@ -8,12 +8,11 @@ use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
 use App\Models\Meter;
 use App\Models\MeterReading;
-use App\Models\PropertyAssignment;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
-use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 
 final class MeterComplianceReportBuilder extends AbstractReportBuilder
@@ -33,87 +32,119 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
     {
         $thresholdDays = $this->thresholdDays();
         $statusFilter = (string) ($filters['status_filter'] ?? 'all');
-        $tenantFilter = filled($filters['tenant_id'] ?? null)
-            ? (int) $filters['tenant_id']
-            : null;
+        $latestReadingDates = MeterReading::query()
+            ->from('meter_readings as latest_candidates')
+            ->join('meters as latest_meters', 'latest_meters.id', '=', 'latest_candidates.meter_id')
+            ->where('latest_meters.organization_id', $organizationId)
+            ->whereBetween('latest_candidates.reading_date', [
+                $startDate->toDateString(),
+                $endDate->toDateString(),
+            ])
+            ->select(['latest_candidates.meter_id'])
+            ->addSelect(new Expression('MAX(latest_candidates.reading_date) AS latest_reading_date'))
+            ->groupBy('latest_candidates.meter_id');
+
+        $latestReadingIds = MeterReading::query()
+            ->from('meter_readings as latest_ranked')
+            ->joinSub($latestReadingDates, 'latest_dates', function (JoinClause $join): void {
+                $join->on('latest_dates.meter_id', '=', 'latest_ranked.meter_id');
+                $join->on('latest_dates.latest_reading_date', '=', 'latest_ranked.reading_date');
+            })
+            ->select(['latest_ranked.meter_id'])
+            ->addSelect(new Expression('MAX(latest_ranked.id) AS latest_reading_id'))
+            ->groupBy('latest_ranked.meter_id');
+
+        $latestReadings = MeterReading::query()
+            ->from('meter_readings as latest_readings')
+            ->joinSub($latestReadingIds, 'latest_ids', function (JoinClause $join): void {
+                $join->on('latest_ids.latest_reading_id', '=', 'latest_readings.id');
+            })
+            ->select([
+                'latest_readings.meter_id',
+                'latest_readings.reading_date',
+                'latest_readings.validation_status',
+            ]);
+
+        $driver = Meter::query()->getConnection()->getDriverName();
+        $daysSinceExpression = $this->daysSinceExpression($driver, 'latest_readings.reading_date');
 
         $meters = Meter::query()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'name',
-                'type',
-            ])
-            ->forOrganization($organizationId)
-            ->with([
-                'property:id,organization_id,building_id,name,unit_number',
-                'property.building:id,organization_id,name',
-            ])
+            ->from('meters')
+            ->leftJoinSub($latestReadings, 'latest_readings', function (JoinClause $join): void {
+                $join->on('latest_readings.meter_id', '=', 'meters.id');
+            })
+            ->join('properties', 'properties.id', '=', 'meters.property_id')
+            ->leftJoin('buildings', 'buildings.id', '=', 'properties.building_id')
+            ->leftJoin('property_assignments', function (JoinClause $join): void {
+                $join->on('property_assignments.property_id', '=', 'properties.id');
+                $join->on('property_assignments.organization_id', '=', 'meters.organization_id');
+                $join->whereNull('property_assignments.unassigned_at');
+            })
+            ->leftJoin('users as tenants', function (JoinClause $join): void {
+                $join->on('tenants.id', '=', 'property_assignments.tenant_user_id');
+                $join->on('tenants.organization_id', '=', 'meters.organization_id');
+            })
+            ->where('meters.organization_id', $organizationId)
             ->when(
                 filled($filters['building_id'] ?? null),
-                fn (Builder $query): Builder => $query->whereHas(
-                    'property',
-                    fn (Builder $propertyQuery): Builder => $propertyQuery->where('building_id', (int) $filters['building_id']),
-                ),
+                fn ($query) => $query->where('properties.building_id', (int) $filters['building_id']),
             )
             ->when(
                 filled($filters['property_id'] ?? null),
-                fn (Builder $query): Builder => $query->where('property_id', (int) $filters['property_id']),
+                fn ($query) => $query->where('properties.id', (int) $filters['property_id']),
+            )
+            ->when(
+                filled($filters['tenant_id'] ?? null),
+                fn ($query) => $query->where('property_assignments.tenant_user_id', (int) $filters['tenant_id']),
             )
             ->when(
                 filled($filters['meter_type'] ?? null),
-                fn (Builder $query): Builder => $query->where('type', (string) $filters['meter_type']),
+                fn ($query) => $query->where('meters.type', (string) $filters['meter_type']),
             )
-            ->ordered()
+            ->select([
+                'meters.id as meter_id',
+                'meters.name as meter_name',
+                'meters.type as meter_type',
+                'properties.name as property_name',
+                'properties.unit_number as property_unit',
+                'buildings.name as building_name',
+                'tenants.name as tenant_name',
+                'latest_readings.reading_date as latest_reading_date',
+                'latest_readings.validation_status as latest_validation_status',
+            ])
+            ->addSelect(new Expression($daysSinceExpression.' AS days_since_last_reading'))
+            ->orderByDesc('days_since_last_reading')
+            ->orderBy('meters.name')
             ->get();
-
-        $latestReadingsByMeter = $this->latestReadingsByMeter($organizationId, $meters);
-        $currentAssignmentsByProperty = $this->currentAssignmentsByProperty($organizationId, $meters);
 
         /** @var Collection<int, array<string, mixed>> $rowData */
         $rowData = $meters
-            ->map(function (Meter $meter) use (
-                $latestReadingsByMeter,
-                $currentAssignmentsByProperty,
-                $tenantFilter,
-                $statusFilter,
-                $thresholdDays
-            ): ?array {
-                $latestReading = $latestReadingsByMeter->get($meter->id);
-                $assignment = $meter->property_id !== null
-                    ? $currentAssignmentsByProperty->get($meter->property_id)
+            ->map(function (object $meter) use ($thresholdDays): array {
+                $daysSinceLastReading = isset($meter->days_since_last_reading)
+                    ? (int) $meter->days_since_last_reading
                     : null;
-
-                if ($tenantFilter !== null && (int) ($assignment?->tenant_user_id ?? 0) !== $tenantFilter) {
-                    return null;
-                }
-
-                $daysSinceLastReading = $this->daysSinceLastReading($latestReading?->reading_date);
                 $complianceState = $this->complianceState(
-                    $latestReading?->validation_status,
+                    $meter->latest_validation_status ?? null,
                     $daysSinceLastReading,
                     $thresholdDays,
                 );
 
-                if ($statusFilter !== 'all' && $statusFilter !== $complianceState) {
-                    return null;
-                }
-
-                $meterType = $meter->type;
-                $typeValue = $meterType instanceof MeterType
-                    ? $meterType->value
-                    : (string) $meterType;
-                $typeLabel = MeterType::tryFrom($typeValue)?->label() ?? $typeValue;
+                $meterTypeValue = (string) ($meter->meter_type ?? '');
+                $meterType = MeterType::tryFrom($meterTypeValue);
+                $propertyLabel = trim(implode(' · ', array_filter([
+                    (string) ($meter->property_name ?? ''),
+                    (string) ($meter->property_unit ?? ''),
+                    (string) ($meter->building_name ?? ''),
+                ])));
 
                 return [
-                    'meter_id' => (int) $meter->id,
+                    'meter_id' => (int) ($meter->meter_id ?? 0),
                     'compliance_state' => $complianceState,
-                    'meter' => (string) $meter->name,
-                    'tenant' => (string) ($assignment?->tenant?->name ?: __('dashboard.not_available')),
-                    'property' => $this->propertyLabel($meter->property),
-                    'type' => (string) $typeLabel,
-                    'latest_reading' => $this->formatDate($latestReading?->reading_date),
+                    'meter' => (string) ($meter->meter_name ?? __('dashboard.not_available')),
+                    'tenant' => (string) (($meter->tenant_name ?? '') !== '' ? $meter->tenant_name : __('dashboard.not_available')),
+                    'property' => $propertyLabel !== '' ? $propertyLabel : __('dashboard.not_available'),
+                    'type' => (string) ($meterType?->label() ?? $meterTypeValue),
+                    'latest_reading' => $this->formatDate($meter->latest_reading_date ?? null),
                     'days_since_last_reading' => $daysSinceLastReading === null
                         ? __('dashboard.not_available')
                         : (string) $daysSinceLastReading,
@@ -121,8 +152,10 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
                     'compliance' => __('admin.reports.states.'.$complianceState),
                 ];
             })
-            ->filter()
-            ->sortByDesc('raw_days_since_last_reading')
+            ->when(
+                $statusFilter !== 'all',
+                fn (Collection $rows): Collection => $rows->where('compliance_state', $statusFilter),
+            )
             ->values();
 
         return [
@@ -156,98 +189,13 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
         ];
     }
 
-    /**
-     * @param  Collection<int, Meter>  $meters
-     * @return Collection<int, MeterReading>
-     */
-    private function latestReadingsByMeter(int $organizationId, Collection $meters): Collection
+    private function daysSinceExpression(string $driver, string $column): string
     {
-        $meterIds = $meters->pluck('id')->filter()->values()->all();
-
-        if ($meterIds === []) {
-            return collect();
-        }
-
-        /** @var Collection<int, MeterReading> $readings */
-        $readings = MeterReading::query()
-            ->select([
-                'id',
-                'organization_id',
-                'meter_id',
-                'reading_value',
-                'reading_date',
-                'validation_status',
-            ])
-            ->forOrganization($organizationId)
-            ->whereIn('meter_id', $meterIds)
-            ->orderBy('meter_id')
-            ->orderByDesc('reading_date')
-            ->orderByDesc('id')
-            ->get();
-
-        return $readings
-            ->groupBy('meter_id')
-            ->map(fn (Collection $meterReadings): MeterReading => $meterReadings->first())
-            ->values()
-            ->keyBy('meter_id');
-    }
-
-    /**
-     * @param  Collection<int, Meter>  $meters
-     * @return Collection<int, PropertyAssignment>
-     */
-    private function currentAssignmentsByProperty(int $organizationId, Collection $meters): Collection
-    {
-        $propertyIds = $meters->pluck('property_id')->filter()->unique()->values()->all();
-
-        if ($propertyIds === []) {
-            return collect();
-        }
-
-        /** @var Collection<int, PropertyAssignment> $assignments */
-        $assignments = PropertyAssignment::query()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'tenant_user_id',
-                'assigned_at',
-                'unassigned_at',
-            ])
-            ->forOrganization($organizationId)
-            ->whereIn('property_id', $propertyIds)
-            ->current()
-            ->with([
-                'tenant:id,organization_id,name,email',
-            ])
-            ->orderBy('property_id')
-            ->orderByDesc('assigned_at')
-            ->orderByDesc('id')
-            ->get();
-
-        return $assignments
-            ->groupBy('property_id')
-            ->map(fn (Collection $propertyAssignments): PropertyAssignment => $propertyAssignments->first())
-            ->values()
-            ->keyBy('property_id');
-    }
-
-    private function daysSinceLastReading(CarbonInterface|string|null $readingDate): ?int
-    {
-        if (! filled($readingDate)) {
-            return null;
-        }
-
-        $readingDay = $readingDate instanceof CarbonInterface
-            ? $readingDate->copy()->startOfDay()
-            : Carbon::parse((string) $readingDate)->startOfDay();
-        $today = now()->startOfDay();
-
-        if ($readingDay->greaterThan($today)) {
-            return 0;
-        }
-
-        return $readingDay->diffInDays($today);
+        return match ($driver) {
+            'pgsql' => "CASE WHEN {$column} IS NULL THEN NULL WHEN (CURRENT_DATE - CAST({$column} as date)) > 0 THEN (CURRENT_DATE - CAST({$column} as date)) ELSE 0 END",
+            'sqlite' => "CASE WHEN {$column} IS NULL THEN NULL WHEN CAST(julianday(date('now')) - julianday(date({$column})) AS INTEGER) > 0 THEN CAST(julianday(date('now')) - julianday(date({$column})) AS INTEGER) ELSE 0 END",
+            default => "CASE WHEN {$column} IS NULL THEN NULL WHEN DATEDIFF(CURDATE(), DATE({$column})) > 0 THEN DATEDIFF(CURDATE(), DATE({$column})) ELSE 0 END",
+        };
     }
 
     private function complianceState(

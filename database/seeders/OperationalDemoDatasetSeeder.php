@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DistributionMethod;
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
@@ -10,30 +11,39 @@ use App\Enums\MeterType;
 use App\Enums\OrganizationStatus;
 use App\Enums\PlatformNotificationSeverity;
 use App\Enums\PlatformNotificationStatus;
+use App\Enums\PricingModel;
 use App\Enums\PropertyType;
+use App\Enums\ServiceType;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Support\Geography\BalticReferenceCatalog;
+use App\Models\BillingRecord;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Lease;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
+use App\Models\OrganizationSetting;
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationRecipient;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
 use App\Models\SystemTenant;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Models\UtilityService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class OperationalDemoDatasetSeeder extends Seeder
@@ -97,6 +107,24 @@ class OperationalDemoDatasetSeeder extends Seeder
                 ],
             );
 
+            OrganizationSetting::query()->updateOrCreate(
+                ['organization_id' => $organization->id],
+                [
+                    'billing_contact_name' => sprintf('%s Billing Team', $blueprint['short_name']),
+                    'billing_contact_email' => sprintf('billing-org%02d@tenanto-demo.test', $sequence),
+                    'billing_contact_phone' => sprintf('+370600%04d', 1000 + $sequence),
+                    'payment_instructions' => 'Pay by bank transfer and include your invoice reference.',
+                    'invoice_footer' => 'Thank you for paying on time.',
+                    'notification_preferences' => [
+                        'invoice_reminders' => true,
+                        'payment_receipts' => true,
+                        'reading_deadline_alerts' => true,
+                    ],
+                ],
+            );
+
+            $organizationUtilityServices = $this->upsertOrganizationUtilityServices($organization, $sequence);
+
             $buildings = collect(range(1, 3))->map(function (int $buildingIndex) use ($blueprint, $cities, $organization, $organizationIndex, $sequence): Building {
                 $city = $cities[(($organizationIndex * 3) + ($buildingIndex - 1)) % count($cities)];
 
@@ -157,7 +185,30 @@ class OperationalDemoDatasetSeeder extends Seeder
                     ],
                 );
 
-                collect(range(1, 2))->each(function (int $meterIndex) use ($manager, $organization, $property, $propertyIndex, $sequence, $tenant): void {
+                Lease::query()->updateOrCreate(
+                    [
+                        'organization_id' => $organization->id,
+                        'property_id' => $property->id,
+                        'tenant_user_id' => $tenant->id,
+                    ],
+                    [
+                        'start_date' => Carbon::create(2025, 7, 1)->addDays($propertyIndex)->toDateString(),
+                        'end_date' => Carbon::create(2027, 6, 30)->addDays($propertyIndex)->toDateString(),
+                        'monthly_rent' => 550 + ($propertyIndex * 25),
+                        'deposit' => 900 + ($propertyIndex * 60),
+                        'is_active' => true,
+                    ],
+                );
+
+                $this->upsertPropertyServiceConfigurations(
+                    organization: $organization,
+                    property: $property,
+                    utilityServices: $organizationUtilityServices,
+                );
+
+                $propertyMeters = collect();
+
+                collect(range(1, 2))->each(function (int $meterIndex) use ($manager, $organization, $property, $propertyIndex, $sequence, $tenant, $propertyMeters): void {
                     $meterType = MeterType::cases()[($propertyIndex + $meterIndex - 2) % count(MeterType::cases())];
                     $meter = Meter::query()->updateOrCreate(
                         [
@@ -174,9 +225,12 @@ class OperationalDemoDatasetSeeder extends Seeder
                         ],
                     );
 
-                    collect(range(1, 3))->each(function (int $readingIndex) use ($manager, $meter, $organization, $property, $propertyIndex, $sequence, $tenant): void {
-                        $readingDate = Carbon::create(2026, 1, 1)
-                            ->addMonths($readingIndex - 1)
+                    $propertyMeters->push($meter);
+
+                    collect(range(0, 11))->each(function (int $readingIndex) use ($manager, $meter, $organization, $property, $propertyIndex, $sequence, $meterIndex, $tenant): void {
+                        $readingDate = now()
+                            ->startOfMonth()
+                            ->subMonths(11 - $readingIndex)
                             ->addDays($propertyIndex);
 
                         MeterReading::query()->updateOrCreate(
@@ -187,10 +241,10 @@ class OperationalDemoDatasetSeeder extends Seeder
                             [
                                 'organization_id' => $organization->id,
                                 'property_id' => $property->id,
-                                'submitted_by_user_id' => $readingIndex === 1 ? $manager->id : $tenant->id,
-                                'reading_value' => (($sequence * 100) + ($propertyIndex * 10) + ($readingIndex * 5)) + 0.125,
+                                'submitted_by_user_id' => $readingIndex < 4 ? $manager->id : $tenant->id,
+                                'reading_value' => (($sequence * 100) + ($propertyIndex * 10) + ($meterIndex * 3) + (($readingIndex + 1) * 5)) + 0.125,
                                 'validation_status' => MeterReadingValidationStatus::VALID,
-                                'submission_method' => $readingIndex === 1
+                                'submission_method' => $readingIndex < 4
                                     ? MeterReadingSubmissionMethod::ADMIN_MANUAL
                                     : MeterReadingSubmissionMethod::TENANT_PORTAL,
                                 'notes' => null,
@@ -199,27 +253,50 @@ class OperationalDemoDatasetSeeder extends Seeder
                     });
                 });
 
-                Invoice::query()->updateOrCreate(
-                    [
-                        'invoice_number' => sprintf('DMO-INV-%02d-%02d', $sequence, $propertyIndex),
-                    ],
-                    [
-                        'organization_id' => $organization->id,
-                        'property_id' => $property->id,
-                        'tenant_user_id' => $tenant->id,
-                        'billing_period_start' => Carbon::create(2026, 2, 1)->toDateString(),
-                        'billing_period_end' => Carbon::create(2026, 2, 28)->toDateString(),
-                        'status' => $propertyIndex % 3 === 0 ? InvoiceStatus::PAID : InvoiceStatus::FINALIZED,
-                        'currency' => 'EUR',
-                        'total_amount' => 85 + ($propertyIndex * 7.5),
-                        'amount_paid' => $propertyIndex % 3 === 0 ? 85 + ($propertyIndex * 7.5) : 0,
-                        'due_date' => Carbon::create(2026, 3, 15)->addDays($propertyIndex)->toDateString(),
-                        'finalized_at' => Carbon::create(2026, 3, 1)->addDays($propertyIndex),
-                        'paid_at' => $propertyIndex % 3 === 0 ? Carbon::create(2026, 3, 5)->addDays($propertyIndex) : null,
-                        'document_path' => null,
-                        'notes' => sprintf('Demo invoice for %s', $property->name),
-                    ],
-                );
+                collect(range(0, 2))->each(function (int $invoiceIndex) use ($organization, $property, $tenant, $propertyIndex, $sequence, $organizationUtilityServices, $propertyMeters): void {
+                    $periodStart = now()->startOfMonth()->subMonths(2 - $invoiceIndex);
+                    $periodEnd = $periodStart->copy()->endOfMonth();
+                    $totalAmount = 95 + ($propertyIndex * 7.5) + ($invoiceIndex * 6.25);
+
+                    $status = match ($invoiceIndex) {
+                        0 => InvoiceStatus::PAID,
+                        1 => InvoiceStatus::FINALIZED,
+                        default => InvoiceStatus::OVERDUE,
+                    };
+
+                    $amountPaid = $status === InvoiceStatus::PAID ? $totalAmount : 0;
+
+                    $invoice = Invoice::query()->updateOrCreate(
+                        [
+                            'invoice_number' => sprintf('DMO-INV-%02d-%02d-%02d', $sequence, $propertyIndex, $invoiceIndex + 1),
+                        ],
+                        [
+                            'organization_id' => $organization->id,
+                            'property_id' => $property->id,
+                            'tenant_user_id' => $tenant->id,
+                            'billing_period_start' => $periodStart->toDateString(),
+                            'billing_period_end' => $periodEnd->toDateString(),
+                            'status' => $status,
+                            'currency' => 'EUR',
+                            'total_amount' => $totalAmount,
+                            'amount_paid' => $amountPaid,
+                            'due_date' => $periodEnd->copy()->addDays(14)->toDateString(),
+                            'finalized_at' => $periodEnd->copy()->addDay(),
+                            'paid_at' => $status === InvoiceStatus::PAID ? $periodEnd->copy()->addDays(5) : null,
+                            'document_path' => null,
+                            'notes' => sprintf('Demo invoice %d for %s', $invoiceIndex + 1, $property->name),
+                        ],
+                    );
+
+                    $this->upsertInvoiceDetailRecords(
+                        organization: $organization,
+                        property: $property,
+                        tenant: $tenant,
+                        invoice: $invoice,
+                        utilityServices: $organizationUtilityServices,
+                        meters: $propertyMeters,
+                    );
+                });
 
                 return $property;
             });
@@ -311,6 +388,197 @@ class OperationalDemoDatasetSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    /**
+     * @return Collection<string, UtilityService>
+     */
+    private function upsertOrganizationUtilityServices(Organization $organization, int $sequence): Collection
+    {
+        $definitions = [
+            ServiceType::ELECTRICITY => [
+                'name' => sprintf('Org %02d Electricity', $sequence),
+                'slug' => sprintf('org-%02d-electricity', $sequence),
+                'pricing_model' => PricingModel::CONSUMPTION_BASED,
+                'description' => 'Electricity utility for tenant consumption billing.',
+            ],
+            ServiceType::WATER => [
+                'name' => sprintf('Org %02d Water', $sequence),
+                'slug' => sprintf('org-%02d-water', $sequence),
+                'pricing_model' => PricingModel::HYBRID,
+                'description' => 'Water utility with fixed and variable components.',
+            ],
+            ServiceType::HEATING => [
+                'name' => sprintf('Org %02d Heating', $sequence),
+                'slug' => sprintf('org-%02d-heating', $sequence),
+                'pricing_model' => PricingModel::CONSUMPTION_BASED,
+                'description' => 'Heating utility for seasonal usage.',
+            ],
+        ];
+
+        return collect($definitions)->mapWithKeys(function (array $definition, ServiceType $serviceType) use ($organization): array {
+            $service = UtilityService::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'organization_id' => $organization->id,
+                    'name' => $definition['name'],
+                    'unit_of_measurement' => $serviceType->defaultUnit(),
+                    'default_pricing_model' => $definition['pricing_model'],
+                    'calculation_formula' => null,
+                    'is_global_template' => false,
+                    'created_by_organization_id' => $organization->id,
+                    'configuration_schema' => ['required' => ['rate_schedule']],
+                    'validation_rules' => ['rate_schedule' => 'array'],
+                    'business_logic_config' => ['auto_validation' => true],
+                    'service_type_bridge' => $serviceType,
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                ],
+            );
+
+            return [$serviceType->value => $service];
+        });
+    }
+
+    /**
+     * @param  Collection<string, UtilityService>  $utilityServices
+     */
+    private function upsertPropertyServiceConfigurations(
+        Organization $organization,
+        Property $property,
+        Collection $utilityServices,
+    ): void {
+        $effectiveFrom = now()->startOfMonth();
+
+        foreach ($utilityServices as $serviceType => $utilityService) {
+            ServiceConfiguration::query()->updateOrCreate(
+                [
+                    'organization_id' => $organization->id,
+                    'property_id' => $property->id,
+                    'utility_service_id' => $utilityService->id,
+                    'effective_from' => $effectiveFrom,
+                ],
+                [
+                    'pricing_model' => $utilityService->default_pricing_model,
+                    'rate_schedule' => $this->serviceRateSchedule($serviceType),
+                    'distribution_method' => DistributionMethod::EQUAL,
+                    'is_shared_service' => false,
+                    'effective_until' => null,
+                    'configuration_overrides' => null,
+                    'tariff_id' => null,
+                    'provider_id' => null,
+                    'area_type' => null,
+                    'custom_formula' => null,
+                    'is_active' => true,
+                ],
+            );
+        }
+    }
+
+    /**
+     * @param  Collection<string, UtilityService>  $utilityServices
+     * @param  Collection<int, Meter>  $meters
+     */
+    private function upsertInvoiceDetailRecords(
+        Organization $organization,
+        Property $property,
+        User $tenant,
+        Invoice $invoice,
+        Collection $utilityServices,
+        Collection $meters,
+    ): void {
+        $serviceRows = [
+            ServiceType::ELECTRICITY->value => [
+                'description' => 'Electricity charge',
+                'quantity' => 180.00,
+                'unit' => 'kWh',
+                'unit_price' => 0.1850,
+            ],
+            ServiceType::WATER->value => [
+                'description' => 'Water supply',
+                'quantity' => 9.50,
+                'unit' => 'm3',
+                'unit_price' => 2.0500,
+            ],
+            ServiceType::HEATING->value => [
+                'description' => 'Heating charge',
+                'quantity' => 120.00,
+                'unit' => 'kWh',
+                'unit_price' => 0.4200,
+            ],
+        ];
+
+        $snapshotMeter = $meters->first();
+
+        foreach ($serviceRows as $serviceType => $row) {
+            $utilityService = $utilityServices->get($serviceType);
+
+            if (! $utilityService instanceof UtilityService) {
+                continue;
+            }
+
+            $total = round($row['quantity'] * $row['unit_price'], 2);
+
+            InvoiceItem::query()->updateOrCreate(
+                [
+                    'invoice_id' => $invoice->id,
+                    'description' => $row['description'],
+                ],
+                [
+                    'quantity' => $row['quantity'],
+                    'unit' => $row['unit'],
+                    'unit_price' => $row['unit_price'],
+                    'total' => $total,
+                    'meter_reading_snapshot' => [
+                        'meter_identifier' => $snapshotMeter?->identifier,
+                        'billing_period_start' => $invoice->billing_period_start?->toDateString(),
+                        'billing_period_end' => $invoice->billing_period_end?->toDateString(),
+                    ],
+                ],
+            );
+
+            BillingRecord::query()->updateOrCreate(
+                [
+                    'organization_id' => $organization->id,
+                    'property_id' => $property->id,
+                    'utility_service_id' => $utilityService->id,
+                    'invoice_id' => $invoice->id,
+                    'tenant_user_id' => $tenant->id,
+                    'billing_period_start' => $invoice->billing_period_start,
+                    'billing_period_end' => $invoice->billing_period_end,
+                ],
+                [
+                    'amount' => $total,
+                    'consumption' => $row['quantity'],
+                    'rate' => $row['unit_price'],
+                    'meter_reading_start' => null,
+                    'meter_reading_end' => null,
+                    'notes' => sprintf('Seeded %s billing record', strtolower($row['description'])),
+                ],
+            );
+        }
+    }
+
+    /**
+     * @return array<string, float>
+     */
+    private function serviceRateSchedule(string $serviceType): array
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => [
+                'unit_rate' => 0.185,
+            ],
+            ServiceType::WATER->value => [
+                'fixed_fee' => 1.35,
+                'unit_rate' => 2.05,
+            ],
+            ServiceType::HEATING->value => [
+                'unit_rate' => 0.42,
+            ],
+            default => [
+                'unit_rate' => 0.10,
+            ],
+        };
     }
 
     private function upsertPlatformSuperadmin(): User

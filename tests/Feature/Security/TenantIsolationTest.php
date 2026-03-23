@@ -7,16 +7,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+
 uses(RefreshDatabase::class);
-
-expect()->extend('toBeForbiddenOrRedirectToPanelHomepage', function () {
-    $value = $this->value;
-    $isForbidden = $value->status() === 403;
-    $isRedirectToPanelHomepage = $value->isRedirect()
-        && str_contains((string) $value->headers->get('Location'), route('filament.admin.pages.dashboard'));
-
-    expect($isForbidden || $isRedirectToPanelHomepage)->toBeTrue();
-});
 
 it('keeps the buildings index scoped to the authenticated admin organization', function () {
     $organizationA = Organization::factory()->create();
@@ -34,7 +27,7 @@ it('keeps the buildings index scoped to the authenticated admin organization', f
         'organization_id' => $organizationA->id,
     ]);
 
-    $this->actingAs($adminA)
+    actingAs($adminA)
         ->get(route('filament.admin.resources.buildings.index'))
         ->assertSuccessful()
         ->assertSeeText($buildingA->name)
@@ -51,10 +44,10 @@ it('prevents an admin from viewing another organization building record', functi
         'organization_id' => $organizationA->id,
     ]);
 
-    $response = $this->actingAs($adminA)
+    $response = actingAs($adminA)
         ->get(route('filament.admin.resources.buildings.view', $foreignBuilding));
 
-    expect($response)->toBeForbiddenOrRedirectToPanelHomepage();
+    assertForbiddenOrRedirectToPanelHomepage($response);
 });
 
 it('prevents an admin from viewing another organization tenant record', function () {
@@ -69,13 +62,13 @@ it('prevents an admin from viewing another organization tenant record', function
         'organization_id' => $organizationA->id,
     ]);
 
-    $response = $this->actingAs($adminA)
+    $response = actingAs($adminA)
         ->get(route('filament.admin.resources.tenants.view', $foreignTenant));
 
-    expect($response)->toBeForbiddenOrRedirectToPanelHomepage();
+    assertForbiddenOrRedirectToPanelHomepage($response);
 });
 
-it('ignores injected organization ids when an admin creates a building through the panel', function () {
+it('blocks injected organization ids when an admin creates a building through the panel', function () {
     $organizationA = Organization::factory()->create();
     $organizationB = Organization::factory()->create();
 
@@ -83,7 +76,7 @@ it('ignores injected organization ids when an admin creates a building through t
         'organization_id' => $organizationA->id,
     ]);
 
-    $this->actingAs($adminA);
+    actingAs($adminA);
 
     Livewire::test(CreateBuilding::class)
         ->set('data.organization_id', $organizationB->id)
@@ -94,8 +87,7 @@ it('ignores injected organization ids when an admin creates a building through t
         ->set('data.postal_code', '01100')
         ->set('data.country_code', 'lt')
         ->call('create')
-        ->assertHasNoErrors()
-        ->assertRedirect(route('filament.admin.resources.buildings.index'));
+        ->assertForbidden();
 
     expect(Building::query()
         ->where('name', 'Injected Building')
@@ -105,5 +97,14 @@ it('ignores injected organization ids when an admin creates a building through t
     expect(Building::query()
         ->where('name', 'Injected Building')
         ->where('organization_id', $organizationA->id)
-        ->exists())->toBeTrue();
+        ->exists())->toBeFalse();
 });
+
+function assertForbiddenOrRedirectToPanelHomepage($response): void
+{
+    $isForbidden = $response->status() === 403;
+    $isRedirectToPanelHomepage = $response->isRedirect()
+        && str_contains((string) $response->headers->get('Location'), route('filament.admin.pages.dashboard'));
+
+    expect($isForbidden || $isRedirectToPanelHomepage)->toBeTrue();
+}

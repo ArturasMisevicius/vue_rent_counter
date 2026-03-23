@@ -71,10 +71,13 @@ class TenantHomePresenter
 
         $meters = $property?->meters ?? Collection::make();
         $hasAssignment = $property !== null;
-        $outstandingInvoices = Invoice::query()
-            ->forTenantWorkspace($organizationId, $tenantId)
-            ->outstanding()
-            ->get();
+        $outstandingInvoices = $property
+            ? Invoice::query()
+                ->forTenantWorkspace($organizationId, $tenantId)
+                ->forProperty($property->id)
+                ->outstanding()
+                ->get()
+            : Collection::make();
         $outstandingTotal = $outstandingInvoices->sum(
             fn (Invoice $invoice) => $invoice->outstanding_balance
         );

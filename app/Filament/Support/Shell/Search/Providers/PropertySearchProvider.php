@@ -88,9 +88,15 @@ final class PropertySearchProvider implements GlobalSearchProvider
         if ($user->isSuperadmin()) {
             $routeName = (string) config('tenanto.search.providers.properties.superadmin_route', 'filament.admin.resources.organizations.view');
 
-            return Route::has($routeName)
-                ? route($routeName, $property->organization_id)
-                : null;
+            if (! Route::has($routeName)) {
+                return null;
+            }
+
+            $url = route($routeName, $property->organization_id);
+
+            return $routeName === 'filament.admin.resources.organizations.view'
+                ? $url.'?relation=properties'
+                : $url;
         }
 
         $routeName = (string) config('tenanto.search.providers.properties.route', 'filament.admin.resources.properties.view');

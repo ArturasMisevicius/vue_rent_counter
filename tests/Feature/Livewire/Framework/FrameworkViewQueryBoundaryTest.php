@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 it('keeps framework livewire view components free from direct database queries', function () {
     $frameworkComponentFiles = [
-        base_path('resources/views/pages/framework/⚡showcase.blade.php'),
         base_path('resources/views/components/framework/⚡preview-modal/preview-modal.php'),
     ];
 

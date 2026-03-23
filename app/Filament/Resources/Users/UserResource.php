@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -66,6 +67,12 @@ class UserResource extends Resource
                         ->label('Locale')
                         ->options(config('tenanto.locales', []))
                         ->required(),
+                    TextInput::make('password')
+                        ->label('Password')
+                        ->password()
+                        ->required(fn (string $operation): bool => $operation === 'create')
+                        ->minLength(8)
+                        ->dehydrated(fn (?string $state): bool => filled($state)),
                 ])
                 ->columns(2),
         ]);
@@ -114,6 +121,11 @@ class UserResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge(),
+            ])
+            ->filters([
+                SelectFilter::make('role')
+                    ->label('Role')
+                    ->options(UserRole::options()),
             ])
             ->defaultSort('name');
     }

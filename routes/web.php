@@ -61,15 +61,12 @@ Route::post('/impersonation/stop', [StopImpersonationEndpoint::class, 'stop'])
 
 Route::get('/register', RegisterPage::class)->middleware('guest')->name('register');
 Route::post('/register', [RegisterPage::class, 'store'])
-    ->middleware('guest')
+    ->middleware(['guest', 'throttle:auth-register'])
     ->name('register.store');
 
 Route::get('/welcome', WelcomePage::class)->middleware('auth')->name('welcome.show');
 Route::post('/welcome', [WelcomePage::class, 'store'])->middleware('auth')->name('welcome.store');
 Route::get('/profile', EditProfilePage::class)->middleware('auth')->name('profile.edit');
-Route::livewire('/framework/livewire-showcase', 'pages::framework.showcase')
-    ->middleware('auth')
-    ->name('framework.livewire.showcase');
 
 Route::get('/language/{locale}', SwitchGuestLocaleController::class)->name('language.switch');
 

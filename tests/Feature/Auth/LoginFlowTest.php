@@ -158,6 +158,40 @@ it('restores the intended url after login', function () {
     ])->assertRedirect(route('test.intended'));
 });
 
+it('restores the intended url after a frontend session-expiry prompt redirect', function () {
+    registerLoginDestinationFixtures();
+
+    $user = User::factory()->manager()->create();
+    $intendedPath = route('test.intended', [], false);
+
+    $this->get(route('login', [
+        'session_expired' => 1,
+        'intended' => $intendedPath,
+    ]))
+        ->assertSuccessful()
+        ->assertSeeText(__('auth.session_expired'));
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('test.intended'));
+});
+
+it('ignores external intended targets on the login page', function () {
+    registerLoginDestinationFixtures();
+
+    $user = User::factory()->manager()->create();
+
+    $this->get(route('login', [
+        'intended' => 'https://malicious.test/steal-session',
+    ]))->assertSuccessful();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
+});
+
 it('allows tenant users to enter the unified app panel', function () {
     registerLoginDestinationFixtures();
 

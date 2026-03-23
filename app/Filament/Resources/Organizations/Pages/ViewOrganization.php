@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Organizations\Pages;
 
+use App\Enums\OrganizationStatus;
 use App\Enums\PlatformNotificationSeverity;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
@@ -21,6 +22,36 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewOrganization extends ViewRecord
 {
     protected static string $resource = OrganizationResource::class;
+
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $relation = request()->query('relation');
+
+        if (! is_numeric($relation)) {
+            return;
+        }
+
+        $relationIndex = (int) $relation;
+
+        if ($this->hasCombinedRelationManagerTabsWithContent()) {
+            $relationIndex--;
+        }
+
+        if ($relationIndex < 0) {
+            return;
+        }
+
+        $relationManagerKeys = array_values(array_keys(OrganizationResource::getRelations()));
+        $relationManagerKey = $relationManagerKeys[$relationIndex] ?? null;
+
+        if (! is_string($relationManagerKey)) {
+            return;
+        }
+
+        $this->activeRelationManager = $relationManagerKey;
+    }
 
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
@@ -52,7 +83,7 @@ class ViewOrganization extends ViewRecord
                 ->label('Suspend Organization')
                 ->color('danger')
                 ->visible(fn (): bool => $this->record->status->permitsAccess())
-                ->authorize(fn (): bool => auth()->user()?->can('suspend', $this->record) ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('suspend', $this->record) ?? false)
                 ->requiresConfirmation()
                 ->modalDescription('Suspending this organization revokes active sessions for all associated users.')
                 ->action(function (SuspendOrganizationAction $suspendOrganizationAction): void {
@@ -67,8 +98,8 @@ class ViewOrganization extends ViewRecord
             Action::make('reinstateOrganization')
                 ->label('Reinstate Organization')
                 ->color('success')
-                ->visible(fn (): bool => ! $this->record->status->permitsAccess())
-                ->authorize(fn (): bool => auth()->user()?->can('reinstate', $this->record) ?? false)
+                ->visible(fn (): bool => $this->record->status === OrganizationStatus::SUSPENDED)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('reinstate', $this->record) ?? false)
                 ->requiresConfirmation()
                 ->modalDescription('Reinstating the organization restores access for future sign-ins.')
                 ->action(function (ReinstateOrganizationAction $reinstateOrganizationAction): void {
@@ -83,7 +114,7 @@ class ViewOrganization extends ViewRecord
             Action::make('sendNotification')
                 ->label('Send Notification')
                 ->icon('heroicon-o-bell-alert')
-                ->authorize(fn (): bool => auth()->user()?->can('sendNotification', $this->record) ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('sendNotification', $this->record) ?? false)
                 ->schema([
                     TextInput::make('title')
                         ->label('Title')
@@ -113,15 +144,18 @@ class ViewOrganization extends ViewRecord
             Action::make('impersonateAdmin')
                 ->label('Impersonate Admin')
                 ->icon('heroicon-o-user-circle')
-                ->authorize(fn (): bool => auth()->user()?->can('impersonate', $this->record) ?? false)
+                ->visible(fn (): bool => $this->record->status->permitsAccess())
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('impersonate', $this->record) ?? false)
                 ->requiresConfirmation()
                 ->modalDescription('You will switch into the organization primary admin account until you stop impersonating.')
                 ->action(function (StartOrganizationImpersonationAction $startOrganizationImpersonationAction): void {
                     $admin = $this->resolvePrimaryAdmin();
+                    $impersonator = $this->authenticatedUser();
 
                     abort_if($admin === null, 404, 'No primary admin is available for this organization.');
+                    abort_if($impersonator === null, 403);
 
-                    $startOrganizationImpersonationAction->handle(auth()->user(), $admin);
+                    $startOrganizationImpersonationAction->handle($impersonator, $admin);
 
                     $this->redirect('/app');
                 }),
@@ -147,5 +181,12 @@ class ViewOrganization extends ViewRecord
             ->where('role', UserRole::ADMIN)
             ->orderedByName()
             ->first();
+    }
+
+    private function authenticatedUser(): ?User
+    {
+        $user = auth()->guard()->user();
+
+        return $user instanceof User ? $user : null;
     }
 }

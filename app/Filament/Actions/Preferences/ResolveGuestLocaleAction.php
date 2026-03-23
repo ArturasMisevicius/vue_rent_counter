@@ -2,10 +2,15 @@
 
 namespace App\Filament\Actions\Preferences;
 
+use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Http\Request;
 
 class ResolveGuestLocaleAction
 {
+    public function __construct(
+        private readonly SupportedLocaleOptions $supportedLocaleOptions,
+    ) {}
+
     public function handle(Request $request): string
     {
         return $this->sessionLocale($request)
@@ -22,10 +27,7 @@ class ResolveGuestLocaleAction
 
     private function supportedLocale(mixed $locale): ?string
     {
-        if (
-            is_string($locale) &&
-            in_array($locale, array_keys(config('app.supported_locales', [])), true)
-        ) {
+        if (is_string($locale) && in_array($locale, $this->supportedLocaleOptions->codes(), true)) {
             return $locale;
         }
 
@@ -34,8 +36,6 @@ class ResolveGuestLocaleAction
 
     private function fallbackLocale(): string
     {
-        $fallbackLocale = config('app.fallback_locale', 'en');
-
-        return $this->supportedLocale($fallbackLocale) ?? 'en';
+        return $this->supportedLocaleOptions->fallbackLocale();
     }
 }

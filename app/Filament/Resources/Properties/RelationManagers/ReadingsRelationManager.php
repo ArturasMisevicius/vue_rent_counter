@@ -9,7 +9,6 @@ use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -25,13 +24,12 @@ class ReadingsRelationManager extends RelationManager
         return __('admin.properties.tabs.readings');
     }
 
-    public function getRelationship(): Relation|Builder
+    public function getRelationship(): Relation
     {
         $property = $this->getOwnerRecord();
 
-        return MeterReading::query()
+        return $property->meterReadings()
             ->forOrganization($property->organization_id)
-            ->forProperty($property->getKey())
             ->withWorkspaceRelations()
             ->latestFirst();
     }

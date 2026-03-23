@@ -65,6 +65,7 @@ php artisan serve
 - Keep validation in `app/Http/Requests`
 - Keep actions and support logic in the Filament foundation tree
 - Do not create new classes in `app/Actions` or `app/Support`
+- Do not create or reintroduce a `FrameworkStudio` Filament page or `/app/framework-studio` route in any environment
 - Keep `public/` minimal: no debug PHP probes, no raw debug routes, and no stray `sw.js` without a real PWA feature
 - Run focused Pest tests plus `vendor/bin/pint --dirty` for changed behavior
 - Treat `docs/superpowers/` as historical execution/design context, not the canonical source for current repository counts

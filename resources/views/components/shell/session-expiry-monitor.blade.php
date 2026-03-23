@@ -7,6 +7,7 @@
     data-session-expiry-title="{{ __('auth.session_expired_title') }}"
     data-session-expiry-message="{{ __('auth.session_expired') }}"
     data-session-expiry-action="{{ __('auth.login_button') }}"
+    data-session-expiry-login-url="{{ route('login') }}"
 ></div>
 
 @once
@@ -62,6 +63,19 @@
                 document.body.appendChild(element);
 
                 element.querySelector('[data-session-expiry-dialog-action]')?.addEventListener('click', () => {
+                    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                    const loginUrl = monitor?.dataset.sessionExpiryLoginUrl;
+
+                    if (typeof loginUrl === 'string' && loginUrl !== '') {
+                        const destination = new URL(loginUrl, window.location.origin);
+                        destination.searchParams.set('intended', currentUrl);
+                        destination.searchParams.set('session_expired', '1');
+
+                        window.location.assign(destination.toString());
+
+                        return;
+                    }
+
                     window.location.assign(window.location.href);
                 });
 

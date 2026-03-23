@@ -67,8 +67,9 @@ class PlatformDashboardData
         $expiringSubscriptions = Subscription::query()
             ->forSuperadminControlPlane()
             ->activeLike()
-            ->expiringWithin(30)
-            ->orderBy('expires_at')
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '>=', now())
+            ->reorder('expires_at')
             ->limit(5)
             ->get()
             ->map(fn (Subscription $subscription): array => [

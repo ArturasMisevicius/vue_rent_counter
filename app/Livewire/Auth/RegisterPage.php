@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Filament\Actions\Auth\RegisterAdminAction;
+use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,7 @@ class RegisterPage extends Component
     public function store(
         RegisterRequest $request,
         RegisterAdminAction $registerAdminAction,
+        AuthenticatedSessionHistory $authenticatedSessionHistory,
     ): RedirectResponse {
         $user = $registerAdminAction->handle($request->validated());
 
@@ -21,7 +23,9 @@ class RegisterPage extends Component
 
         $request->session()->regenerate();
 
-        return redirect()->route('welcome.show');
+        return redirect()
+            ->route('welcome.show')
+            ->withCookie($authenticatedSessionHistory->remember());
     }
 
     public function render(): View

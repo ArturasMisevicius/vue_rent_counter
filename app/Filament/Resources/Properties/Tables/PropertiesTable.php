@@ -8,6 +8,7 @@ use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Property;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -15,6 +16,8 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PropertiesTable
 {
@@ -49,12 +52,20 @@ class PropertiesTable
             ->filters([
                 SelectFilter::make('building_id')
                     ->label(__('admin.properties.columns.building'))
-                    ->options(fn (): array => Building::query()
-                        ->select(['id', 'name', 'organization_id'])
-                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
-                        ->orderBy('name')
-                        ->pluck('name', 'id')
-                        ->all()),
+                    ->options(function (): array {
+                        $user = Auth::user();
+                        $isSuperadmin = $user instanceof User && $user->isSuperadmin();
+
+                        return Building::query()
+                            ->select(['id', 'name', 'organization_id'])
+                            ->when(
+                                ! $isSuperadmin,
+                                fn ($query) => $query->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                            )
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->all();
+                    }),
                 SelectFilter::make('type')
                     ->label(__('admin.properties.columns.type'))
                     ->options(PropertyType::options()),
@@ -121,8 +132,16 @@ class PropertiesTable
                         ? [
                             DeleteAction::make()
                                 ->using(fn (Property $record) => app(DeletePropertyAction::class)->handle($record))
-                                ->authorize(fn (Property $record): bool => PropertyResource::canDelete($record)
-                                    && (auth()->user()?->can('delete', $record) ?? false)),
+                                ->authorize(function (Property $record): bool {
+                                    $user = Auth::user();
+
+                                    if (! $user instanceof User) {
+                                        return false;
+                                    }
+
+                                    return PropertyResource::canDelete($record)
+                                        && Gate::forUser($user)->check('delete', $record);
+                                }),
                         ]
                         : []
                 ),

@@ -44,7 +44,7 @@ Verified fallback state on 2026-03-19:
 
 Use the installed skill names below rather than the older shorthand aliases:
 
-- `using-superpowers` first so the current session loads the required skill workflow
+- `superpowers/using-superpowers` first so the current session loads the required skill workflow
 - `laravel-11-12-app-guidelines` instead of `tenanto-laravel-stack`
 - `pest-testing` whenever writing or debugging tests
 - `tailwindcss-development` instead of `tailwind-patterns`

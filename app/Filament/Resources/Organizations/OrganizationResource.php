@@ -8,6 +8,7 @@ use App\Filament\Resources\Organizations\Pages\EditOrganization;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
@@ -71,10 +72,11 @@ class OrganizationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UsersRelationManager::class,
-            SubscriptionsRelationManager::class,
-            PropertiesRelationManager::class,
-            ActivityLogsRelationManager::class,
+            'users' => UsersRelationManager::class,
+            'managers' => ManagersRelationManager::class,
+            'subscriptions' => SubscriptionsRelationManager::class,
+            'properties' => PropertiesRelationManager::class,
+            'activity-logs' => ActivityLogsRelationManager::class,
         ];
     }
 

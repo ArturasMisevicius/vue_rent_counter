@@ -12,6 +12,7 @@ use App\Filament\Resources\Buildings\Schemas\BuildingInfolist;
 use App\Filament\Resources\Buildings\Tables\BuildingsTable;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -20,6 +21,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class BuildingResource extends Resource
 {
@@ -68,7 +70,7 @@ class BuildingResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
 
         return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
     }
@@ -80,18 +82,34 @@ class BuildingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
+        $user = self::currentUser();
 
-        return $user?->isAdmin() || $user?->isManager();
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
     }
 
     public static function canCreate(): bool
     {
-        return static::canViewAny() && app(OrganizationContext::class)->currentOrganizationId() !== null;
+        if (! static::canViewAny()) {
+            return false;
+        }
+
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return true;
+        }
+
+        return app(OrganizationContext::class)->currentOrganizationId() !== null;
     }
 
     public static function canView(Model $record): bool
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return true;
+        }
+
         return $record instanceof Building
             && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
             && static::canViewAny();
@@ -112,6 +130,12 @@ class BuildingResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()->forSuperadminControlPlane();
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -124,6 +148,13 @@ class BuildingResource extends Resource
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getModel()::query();
+    }
+
+    protected static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 
     public static function getRelations(): array

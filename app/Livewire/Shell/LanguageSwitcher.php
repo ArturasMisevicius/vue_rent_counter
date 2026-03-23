@@ -19,7 +19,13 @@ class LanguageSwitcher extends Component
 
     public function mount(): void
     {
-        $this->currentLocale = auth()->user()?->locale ?? app()->getLocale();
+        $supportedLocaleOptions = app(SupportedLocaleOptions::class);
+        $userLocale = auth()->guard()->user()?->locale;
+
+        $this->currentLocale = is_string($userLocale)
+            && in_array($userLocale, $supportedLocaleOptions->codes(), true)
+            ? $userLocale
+            : $supportedLocaleOptions->fallbackLocale();
     }
 
     public function changeLocale(
@@ -30,7 +36,7 @@ class LanguageSwitcher extends Component
             'locale' => $locale,
         ]);
 
-        $user = auth()->user();
+        $user = auth()->guard()->user();
 
         if ($user === null) {
             return;

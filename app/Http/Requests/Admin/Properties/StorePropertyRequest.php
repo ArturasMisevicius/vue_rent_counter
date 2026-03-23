@@ -22,6 +22,12 @@ class StorePropertyRequest extends PropertyRequest
      */
     public function rules(): array
     {
+        $user = $this->user();
+
+        if ($user?->isSuperadmin()) {
+            return parent::rules();
+        }
+
         return [
             ...parent::rules(),
             'subscription_limit' => [new WithinPropertyLimit(app(SubscriptionChecker::class))],

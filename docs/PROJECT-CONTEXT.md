@@ -54,6 +54,7 @@ These counts are useful for orientation, but they are a point-in-time snapshot a
 - Do not create new classes in:
   - `app/Actions`
   - `app/Support`
+- Do not create or reintroduce a `FrameworkStudio` Filament page or `/app/framework-studio` route
 - Keep authorization explicit through policies, Filament authorization hooks, and route or component boundaries
 - Keep new and touched PHP files on strict typing and explicit return types where possible, even if some older files still need modernization
 

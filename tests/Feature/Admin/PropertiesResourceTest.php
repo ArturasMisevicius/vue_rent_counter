@@ -7,6 +7,8 @@ use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Models\Building;
+use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -17,7 +19,7 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
-it('shows organization-scoped properties resource pages and occupancy details', function () {
+it('shows properties resource pages with workspace scoping and superadmin control-plane access', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create([
         'name' => 'North Hall',
@@ -54,6 +56,8 @@ it('shows organization-scoped properties resource pages and occupancy details', 
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
+
+    $superadmin = User::factory()->superadmin()->create();
 
     Subscription::factory()->for($organization)->active()->create([
         'property_limit_snapshot' => 10,
@@ -104,6 +108,21 @@ it('shows organization-scoped properties resource pages and occupancy details', 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.properties.edit', $otherProperty))
         ->assertNotFound();
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.properties.index'))
+        ->assertSuccessful()
+        ->assertSeeText($property->name)
+        ->assertSeeText($otherProperty->name);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.properties.view', $otherProperty))
+        ->assertSuccessful();
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.properties.create'))
+        ->assertSuccessful()
+        ->assertSeeText('Organization');
 });
 
 it('creates properties within limits and keeps assignment history during reassign and unassign flows', function () {
@@ -203,4 +222,49 @@ it('keeps the property create page reachable at the limit and prevents deleting 
         ->toThrow(ValidationException::class);
 
     expect(Property::query()->whereKey($propertyAtLimit->id)->exists())->toBeTrue();
+});
+
+it('allows superadmin to create properties even when organization limits are reached', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $superadmin = User::factory()->superadmin()->create();
+
+    Subscription::factory()->for($organization)->active()->create([
+        'property_limit_snapshot' => 1,
+    ]);
+
+    Property::factory()->for($organization)->for($building)->create();
+
+    $this->actingAs($superadmin);
+
+    $property = app(CreatePropertyAction::class)->handle($organization, [
+        'building_id' => $building->id,
+        'name' => 'Control Plane Property',
+        'unit_number' => 'CP-01',
+        'type' => PropertyType::OFFICE,
+        'floor_area_sqm' => 120,
+    ]);
+
+    expect($property)
+        ->organization_id->toBe($organization->id)
+        ->name->toBe('Control Plane Property');
+});
+
+it('keeps property meter readings queries unambiguous when joining meters', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+
+    MeterReading::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($meter)
+        ->create();
+
+    $readingsCount = $property->meterReadings()
+        ->forOrganization($property->organization_id)
+        ->count();
+
+    expect($readingsCount)->toBe(1);
 });

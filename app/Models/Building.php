@@ -28,6 +28,19 @@ class Building extends Model
         'updated_at',
     ];
 
+    private const CONTROL_PLANE_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'postal_code',
+        'country_code',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
@@ -65,6 +78,16 @@ class Building extends Model
         return $query
             ->select(self::WORKSPACE_COLUMNS)
             ->forOrganization($organizationId)
+            ->withPropertyCount()
+            ->withMeterCount()
+            ->ordered();
+    }
+
+    public function scopeForSuperadminControlPlane(Builder $query): Builder
+    {
+        return $query
+            ->select(self::CONTROL_PLANE_COLUMNS)
+            ->with('organization:id,name')
             ->withPropertyCount()
             ->withMeterCount()
             ->ordered();

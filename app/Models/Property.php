@@ -29,6 +29,18 @@ class Property extends Model
         'updated_at',
     ];
 
+    private const CONTROL_PLANE_COLUMNS = [
+        'id',
+        'organization_id',
+        'building_id',
+        'name',
+        'unit_number',
+        'type',
+        'floor_area_sqm',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'building_id',
@@ -96,6 +108,16 @@ class Property extends Model
             ->forOrganization($organizationId)
             ->withWorkspaceSummary()
             ->withAssignmentHistory()
+            ->ordered();
+    }
+
+    public function scopeForSuperadminControlPlane(Builder $query): Builder
+    {
+        return $query
+            ->select(self::CONTROL_PLANE_COLUMNS)
+            ->withWorkspaceSummary()
+            ->withAssignmentHistory()
+            ->with('organization:id,name')
             ->ordered();
     }
 

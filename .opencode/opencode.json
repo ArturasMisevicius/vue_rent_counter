@@ -1,4 +1,5 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "permission": {
     "read": {
       "/Users/andrejprus/Herd/tenanto/.opencode/get-shit-done/*": "allow"

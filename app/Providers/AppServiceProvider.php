@@ -129,6 +129,12 @@ class AppServiceProvider extends ServiceProvider
                 'password-reset|'.$this->throttleKey($request).'|'.$token,
             );
         });
+
+        RateLimiter::for('auth-register', function (Request $request): Limit {
+            return Limit::perMinute(5)->by(
+                'auth-register|'.$this->throttleKey($request),
+            );
+        });
     }
 
     private function configureSecurityRateLimiters(): void

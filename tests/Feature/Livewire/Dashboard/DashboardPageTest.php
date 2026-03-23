@@ -18,7 +18,8 @@ it('renders the parent dashboard livewire component from the filament dashboard 
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Revenue by Plan')
-        ->assertSeeText('Expiring Subscriptions');
+        ->assertSeeText('Expiring Subscriptions')
+        ->assertSeeText('Total Properties');
 });
 
 it('renders the superadmin dashboard through the parent dashboard page component', function () {
@@ -27,7 +28,8 @@ it('renders the superadmin dashboard through the parent dashboard page component
     Livewire::actingAs($superadmin)
         ->test(DashboardPage::class)
         ->assertSeeText('Revenue by Plan')
-        ->assertSeeText('Expiring Subscriptions');
+        ->assertSeeText('Expiring Subscriptions')
+        ->assertSeeText('Organizations · Properties · Managers');
 });
 
 it('renders the admin dashboard through the parent dashboard page component', function () {

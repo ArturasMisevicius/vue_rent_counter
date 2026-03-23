@@ -5,12 +5,10 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Meter;
-use App\Models\User;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -26,18 +24,12 @@ class MetersRelationManager extends RelationManager
         return __('admin.tenants.tabs.meters');
     }
 
-    public function getRelationship(): Relation|Builder
+    public function getRelationship(): Relation
     {
         $tenant = $this->getOwnerRecord();
-        $propertyId = $this->resolveCurrentPropertyId($tenant);
 
-        if ($propertyId === null) {
-            return Meter::query()->whereKey(-1);
-        }
-
-        return Meter::query()
+        return $tenant->currentPropertyMeters()
             ->forOrganization($tenant->organization_id)
-            ->forProperty($propertyId)
             ->withWorkspaceSummary()
             ->ordered();
     }
@@ -73,14 +65,5 @@ class MetersRelationManager extends RelationManager
                     ->url(fn (Meter $record): string => MeterResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('name');
-    }
-
-    private function resolveCurrentPropertyId(User $tenant): ?int
-    {
-        if ($tenant->relationLoaded('currentPropertyAssignment')) {
-            return $tenant->currentPropertyAssignment?->property_id;
-        }
-
-        return $tenant->currentPropertyAssignment()->value('property_id');
     }
 }

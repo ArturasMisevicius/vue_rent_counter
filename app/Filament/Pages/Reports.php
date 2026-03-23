@@ -12,6 +12,18 @@ class Reports extends ReportsPage
 
     protected static ?string $navigationLabel = null;
 
+    protected static string|\UnitEnum|null $navigationGroup = null;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.reports');
+    }
+
+    public static function canAccess(): bool
+    {
+        return parent::canAccess();
+    }
+
     public function getTitle(): string
     {
         return __('admin.reports.title');

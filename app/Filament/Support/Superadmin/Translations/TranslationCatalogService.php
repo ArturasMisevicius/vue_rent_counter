@@ -42,16 +42,11 @@ class TranslationCatalogService
 
         $groups = collect($this->localeDirectories())
             ->flatMap(fn (string $locale): array => array_map(
-                fn (string $file): array => [$locale, $file],
+                fn (string $file): string => basename($file, '.php'),
                 glob($this->path($locale).'/*.php') ?: [],
             ))
-            ->mapWithKeys(function (array $pair): array {
-                [$locale, $file] = $pair;
-                $group = basename($file, '.php');
-
-                return [$group => true];
-            })
-            ->keys();
+            ->unique()
+            ->values();
 
         return $groups
             ->flatMap(function (string $group): Collection {
@@ -153,12 +148,12 @@ class TranslationCatalogService
         }
 
         $handle = fopen($path, 'w');
-        fputcsv($handle, ['group', 'key', 'locale']);
+        fputcsv($handle, ['group', 'key', 'locale', 'value']);
 
         foreach ($this->rows() as $row) {
             foreach ($targetLocales as $targetLocale) {
                 if (blank($row->values[$targetLocale] ?? null)) {
-                    fputcsv($handle, [$row->group, $row->key, $targetLocale]);
+                    fputcsv($handle, [$row->group, $row->key, $targetLocale, '']);
                 }
             }
         }

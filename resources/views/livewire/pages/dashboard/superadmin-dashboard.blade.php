@@ -15,6 +15,11 @@
         @endforeach
     </section>
 
+    <section class="space-y-6">
+        @livewire(\App\Filament\Widgets\Superadmin\PropertiesAndManagersStatsOverview::class, [], key('superadmin-properties-managers-stats'))
+        @livewire(\App\Filament\Widgets\Superadmin\OrganizationsPropertiesManagersWidget::class, [], key('superadmin-organizations-properties-managers'))
+    </section>
+
     <section class="grid gap-6 xl:grid-cols-2">
         <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.platform_sections.revenue_by_plan') }}</h3>

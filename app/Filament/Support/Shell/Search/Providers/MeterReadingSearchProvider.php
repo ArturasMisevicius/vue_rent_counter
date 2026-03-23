@@ -120,9 +120,15 @@ final class MeterReadingSearchProvider implements GlobalSearchProvider
         if ($user->isSuperadmin()) {
             $routeName = (string) config('tenanto.search.providers.readings.superadmin_route', 'filament.admin.resources.organizations.view');
 
-            return Route::has($routeName)
-                ? route($routeName, $reading->organization_id)
-                : null;
+            if (! Route::has($routeName)) {
+                return null;
+            }
+
+            $url = route($routeName, $reading->organization_id);
+
+            return $routeName === 'filament.admin.resources.organizations.view'
+                ? $url.'?relation=properties'
+                : $url;
         }
 
         $routeName = (string) config('tenanto.search.providers.readings.route', 'filament.admin.resources.meter-readings.view');

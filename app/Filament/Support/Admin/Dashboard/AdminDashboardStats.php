@@ -7,7 +7,6 @@ use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
-use App\Models\Property;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -282,6 +281,7 @@ class AdminDashboardStats
                     ?? $meter->created_at;
 
                 $dueDate = $baseDate->copy()->addDays(30);
+                $daysWithoutReading = $baseDate->copy()->startOfDay()->diffInDays(now()->startOfDay());
                 $unitNumber = $meter->property?->unit_number;
                 $propertyName = (string) ($meter->property?->name ?? __('dashboard.not_available'));
 
@@ -291,10 +291,11 @@ class AdminDashboardStats
                         ? $propertyName.' · '.$unitNumber
                         : $propertyName,
                     'due_label' => $this->formatDueLabel($dueDate),
+                    'days_without_reading' => $daysWithoutReading,
                     'due_sort' => $dueDate->timestamp,
                 ];
             })
-            ->filter(fn (array $deadline): bool => $deadline['due_sort'] <= now()->addDays(14)->timestamp)
+            ->filter(fn (array $deadline): bool => $deadline['days_without_reading'] > 30)
             ->sortBy('due_sort')
             ->take($limit)
             ->map(fn (array $deadline): array => [

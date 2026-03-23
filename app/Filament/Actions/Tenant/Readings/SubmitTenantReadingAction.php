@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Actions\Tenant\Readings;
 
 use App\Enums\MeterReadingSubmissionMethod;
@@ -10,7 +12,6 @@ use App\Models\MeterReading;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 
 class SubmitTenantReadingAction
 {
@@ -32,9 +33,7 @@ class SubmitTenantReadingAction
         $workspace = $this->workspaceResolver->resolveFor($tenant);
 
         if (! $workspace->isTenant() || $workspace->organizationId === null || $workspace->propertyId === null) {
-            throw ValidationException::withMessages([
-                'meter_id' => __('tenant.pages.readings.unauthorized_meter'),
-            ]);
+            throw new AuthorizationException(__('tenant.pages.readings.unauthorized_meter'));
         }
 
         $meter = Meter::query()
@@ -46,9 +45,11 @@ class SubmitTenantReadingAction
                     ->forOrganization($workspace->organizationId)
                     ->current(),
             ])
-            ->forOrganization($workspace->organizationId)
-            ->forProperty($workspace->propertyId)
             ->findOrFail($meterId);
+
+        if ($meter->organization_id !== $workspace->organizationId || $meter->property_id !== $workspace->propertyId) {
+            throw new AuthorizationException(__('tenant.pages.readings.unauthorized_meter'));
+        }
 
         Gate::forUser($tenant)->authorize('view', $meter);
 

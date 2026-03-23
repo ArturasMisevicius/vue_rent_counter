@@ -1,8 +1,11 @@
 <?php
 
 use App\Filament\Support\Geography\BalticReferenceCatalog;
+use App\Models\BillingRecord;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Lease;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
@@ -10,11 +13,13 @@ use App\Models\PlatformNotificationRecipient;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Models\UtilityService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -41,6 +46,11 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     $meterCount = Meter::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $readingCount = MeterReading::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $invoiceCount = Invoice::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $invoiceItemCount = InvoiceItem::query()->whereHas('invoice', fn ($query) => $query->whereIn('organization_id', $demoOrganizationIds))->count();
+    $billingRecordCount = BillingRecord::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $leaseCount = Lease::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $serviceConfigurationCount = ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $utilityServiceCount = UtilityService::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $subscriptionCount = Subscription::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $projectCount = Project::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $taskAssignmentCount = TaskAssignment::query()->whereIn('task_id', $demoTaskIds)->count();
@@ -56,6 +66,11 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         + $meterCount
         + $readingCount
         + $invoiceCount
+        + $invoiceItemCount
+        + $billingRecordCount
+        + $leaseCount
+        + $serviceConfigurationCount
+        + $utilityServiceCount
         + $projectCount
         + $demoTasks->count()
         + $taskAssignmentCount
@@ -69,8 +84,13 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($propertyCount)->toBe(80)
         ->and($assignmentCount)->toBe(80)
         ->and($meterCount)->toBe(160)
-        ->and($readingCount)->toBe(480)
-        ->and($invoiceCount)->toBe(80)
+        ->and($readingCount)->toBe(1920)
+        ->and($invoiceCount)->toBe(240)
+        ->and($invoiceItemCount)->toBe(720)
+        ->and($billingRecordCount)->toBe(720)
+        ->and($leaseCount)->toBe(80)
+        ->and($serviceConfigurationCount)->toBe(240)
+        ->and($utilityServiceCount)->toBe(30)
         ->and($projectCount)->toBe(10)
         ->and($demoTasks->count())->toBe(20)
         ->and($taskAssignmentCount)->toBe(20)
@@ -78,6 +98,12 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($recipientCount)->toBe(10)
         ->and($datasetTotal)->toBeGreaterThanOrEqual(1000)
         ->and(User::query()->where('email', 'like', '%@tenanto-demo.test')->pluck('locale')->unique()->sort()->values()->all())->toEqual(['en', 'lt', 'ru']);
+
+    $firstDemoMeter = Meter::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->firstOrFail();
+
+    expect(MeterReading::query()->forMeter($firstDemoMeter->id)->count())->toBe(12);
 
     $cityMap = collect(BalticReferenceCatalog::cities())
         ->mapWithKeys(fn (array $city): array => [$city['name'] => $city['country_code']]);

@@ -28,6 +28,9 @@ it('renders the superadmin dashboard component for superadmins', function () {
         ->assertSeeText('Expiring Subscriptions')
         ->assertSeeText('Recent Security Violations')
         ->assertSeeText('Recently Created Organizations')
+        ->assertSeeText('Total Properties')
+        ->assertSeeText('Active Managers')
+        ->assertSeeText('Organizations · Properties · Managers')
         ->assertSeeText('Repeated failed login attempts')
         ->assertSeeText('Aurora Offices')
         ->assertSeeText('Harbor Homes')
@@ -39,6 +42,7 @@ it('renders the forbidden experience when a workspace admin tries to render the 
 
     Livewire::actingAs($admin)
         ->test(SuperadminDashboard::class)
+        ->assertStatus(403)
         ->assertSeeText('You do not have permission to view this page')
         ->assertSeeText('403');
 });

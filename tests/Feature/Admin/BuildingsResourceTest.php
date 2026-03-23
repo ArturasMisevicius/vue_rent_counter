@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
-it('shows organization-scoped buildings resource pages to admin and manager users', function () {
+it('shows buildings resource pages to admin and manager users and grants superadmin control-plane access', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create([
         'name' => 'North Hall',
@@ -78,7 +78,18 @@ it('shows organization-scoped buildings resource pages to admin and manager user
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.buildings.index'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertSeeText($building->name)
+        ->assertSeeText($otherBuilding->name);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.buildings.view', $otherBuilding))
+        ->assertSuccessful();
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.buildings.create'))
+        ->assertSuccessful()
+        ->assertSeeText('Organization');
 });
 
 it('creates, updates, and blocks deletion of buildings when properties exist', function () {
@@ -125,4 +136,37 @@ it('creates, updates, and blocks deletion of buildings when properties exist', f
     app(DeleteBuildingAction::class)->handle($emptyBuilding);
 
     expect(Building::query()->whereKey($emptyBuilding->id)->exists())->toBeFalse();
+});
+
+it('allows superadmin to create and update buildings through admin actions', function () {
+    $organization = Organization::factory()->create();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    $created = app(CreateBuildingAction::class)->handle($organization, [
+        'name' => 'Control Plane Tower',
+        'address_line_1' => 'Platform Street 1',
+        'address_line_2' => null,
+        'city' => 'Vilnius',
+        'postal_code' => '01100',
+        'country_code' => 'lt',
+    ]);
+
+    expect($created)
+        ->organization_id->toBe($organization->id)
+        ->country_code->toBe('LT');
+
+    $updated = app(UpdateBuildingAction::class)->handle($created, [
+        'name' => 'Control Plane Tower Annex',
+        'address_line_1' => 'Platform Street 2',
+        'address_line_2' => 'Block A',
+        'city' => 'Kaunas',
+        'postal_code' => '44200',
+        'country_code' => 'LT',
+    ]);
+
+    expect($updated)
+        ->name->toBe('Control Plane Tower Annex')
+        ->city->toBe('Kaunas');
 });

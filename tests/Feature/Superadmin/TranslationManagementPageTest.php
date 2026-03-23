@@ -88,6 +88,7 @@ PHP);
     expect($lithuanianTranslations['welcome'])->toBe('Sveiki')
         ->and($lithuanianTranslations['goodbye'])->toBe('Viso gero')
         ->and(File::exists($exportPath))->toBeTrue()
+        ->and(File::get($exportPath))->toContain('group,key,locale,value')
         ->and(File::get($exportPath))->toContain('messages,goodbye,lt');
 
     File::deleteDirectory($sandbox);

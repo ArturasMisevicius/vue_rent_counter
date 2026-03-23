@@ -23,6 +23,7 @@ class TenantPropertyPresenter
                 'has_assignment' => false,
                 'property_name' => null,
                 'property_address' => null,
+                'property_building_name' => null,
                 'assigned_since' => null,
                 'meters' => [],
             ];
@@ -57,6 +58,7 @@ class TenantPropertyPresenter
                 'has_assignment' => false,
                 'property_name' => null,
                 'property_address' => null,
+                'property_building_name' => null,
                 'assigned_since' => null,
                 'meters' => [],
             ];
@@ -66,6 +68,7 @@ class TenantPropertyPresenter
             'has_assignment' => true,
             'property_name' => $property->name,
             'property_address' => $property->address,
+            'property_building_name' => $property->building?->name,
             'assigned_since' => optional($tenant->currentPropertyAssignment?->assigned_at)?->format('Y-m-d'),
             'meters' => $property->meters->map(fn ($meter) => [
                 'id' => $meter->id,
