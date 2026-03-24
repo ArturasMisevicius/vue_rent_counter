@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\InvoiceStatus;
+use App\Enums\UserStatus;
 use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
 use App\Livewire\Pages\Dashboard\AdminDashboard;
 use App\Models\Building;
@@ -18,23 +19,34 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('renders the admin dashboard component for admin users', function () {
+it('renders the admin dashboard component for admin users with the new contract', function () {
     $admin = seedAdminDashboardComponentData();
 
     Livewire::actingAs($admin)
         ->test(AdminDashboard::class)
         ->assertSeeText('Total Properties')
         ->assertSeeText('Active Tenants')
-        ->assertSeeText('Draft Invoices')
+        ->assertSeeText('Pending Invoices')
         ->assertSeeText('Revenue This Month')
         ->assertSeeText('Subscription Usage')
+        ->assertSeeText('Properties')
+        ->assertSeeText('Tenants')
+        ->assertSeeText('Upgrade Plan')
         ->assertSeeText('Recent Invoices')
         ->assertSeeText('Upcoming Reading Deadlines')
-        ->assertSeeText('INV-DRAFT-001')
-        ->assertSeeText('INV-PAID-001')
-        ->assertSeeText('Water Meter A1')
+        ->assertSeeText('EUR 321.45')
+        ->assertSeeText('WM-A1')
         ->assertDontSeeText('INV-OUTSIDE-001')
-        ->assertSeeHtml('wire:poll.visible.15s="refreshDashboardOnInterval"');
+        ->assertSeeHtml('wire:poll.visible.30s="refreshDashboardOnInterval"');
+});
+
+it('does not render subscription usage for managers', function () {
+    $manager = seedAdminDashboardComponentData(role: 'manager');
+
+    Livewire::actingAs($manager)
+        ->test(AdminDashboard::class)
+        ->assertDontSeeText('Subscription Usage')
+        ->assertDontSeeText('Upgrade Plan');
 });
 
 it('renders the forbidden experience when a tenant tries to render the admin dashboard component', function () {
@@ -76,18 +88,16 @@ it('refreshes translated admin dashboard copy when the shell locale changes', fu
         ->assertSeeText(__('dashboard.organization_metrics.total_properties', [], 'lt'));
 });
 
-function seedAdminDashboardComponentData(): User
+function seedAdminDashboardComponentData(string $role = 'admin'): User
 {
     $organization = Organization::factory()->create();
-    $admin = User::factory()->admin()->create([
+    $user = User::factory()->{$role}()->create([
         'organization_id' => $organization->id,
     ]);
 
     Subscription::factory()->for($organization)->active()->create([
-        'property_limit_snapshot' => 10,
-        'tenant_limit_snapshot' => 25,
-        'meter_limit_snapshot' => 50,
-        'invoice_limit_snapshot' => 100,
+        'property_limit_snapshot' => 2,
+        'tenant_limit_snapshot' => 2,
     ]);
 
     $building = Building::factory()->for($organization)->create();
@@ -103,6 +113,7 @@ function seedAdminDashboardComponentData(): User
         ->tenant()
         ->create([
             'organization_id' => $organization->id,
+            'status' => UserStatus::ACTIVE,
         ]);
 
     foreach ($tenants as $index => $tenant) {
@@ -121,6 +132,8 @@ function seedAdminDashboardComponentData(): User
             'invoice_number' => 'INV-DRAFT-001',
             'status' => InvoiceStatus::DRAFT,
             'finalized_at' => null,
+            'billing_period_start' => now()->startOfMonth(),
+            'billing_period_end' => now()->endOfMonth(),
         ]);
 
     Invoice::factory()
@@ -128,11 +141,14 @@ function seedAdminDashboardComponentData(): User
         ->for($properties[1])
         ->for($tenants[1], 'tenant')
         ->create([
-            'invoice_number' => 'INV-PAID-001',
-            'status' => InvoiceStatus::PAID,
+            'invoice_number' => 'INV-FINALIZED-001',
+            'status' => InvoiceStatus::FINALIZED,
             'total_amount' => 321.45,
-            'amount_paid' => 321.45,
-            'paid_at' => now(),
+            'amount_paid' => 0,
+            'paid_at' => null,
+            'finalized_at' => now()->subDay(),
+            'billing_period_start' => now()->subMonth()->startOfMonth(),
+            'billing_period_end' => now()->subMonth()->endOfMonth(),
         ]);
 
     $dueMeter = Meter::factory()
@@ -140,15 +156,16 @@ function seedAdminDashboardComponentData(): User
         ->for($properties[0])
         ->create([
             'name' => 'Water Meter A1',
+            'identifier' => 'WM-A1',
         ]);
 
     MeterReading::factory()
         ->for($organization)
         ->for($properties[0])
         ->for($dueMeter)
-        ->for($admin, 'submittedBy')
+        ->for($user, 'submittedBy')
         ->create([
-            'reading_date' => now()->subDays(31)->toDateString(),
+            'reading_date' => now()->subDays(34)->toDateString(),
         ]);
 
     $otherOrganization = Organization::factory()->create();
@@ -170,5 +187,5 @@ function seedAdminDashboardComponentData(): User
             'paid_at' => now(),
         ]);
 
-    return $admin;
+    return $user;
 }

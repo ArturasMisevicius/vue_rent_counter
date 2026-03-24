@@ -21,4 +21,5 @@ enum PropertyType: string implements HasLabel
     case GARAGE = 'garage';
     case PARKING = 'parking';
     case STORAGE = 'storage';
+    case OTHER = 'other';
 }

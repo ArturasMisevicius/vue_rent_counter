@@ -122,6 +122,64 @@ class ServiceConfiguration extends Model
         ]);
     }
 
+    public function scopeWithIndexRelations(Builder $query, bool $includeOrganization = false): Builder
+    {
+        $query->withPricingRelations();
+
+        if (! $includeOrganization) {
+            return $query;
+        }
+
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
+    public function scopeForWorkspaceIndex(Builder $query, bool $isSuperadmin, ?int $organizationId): Builder
+    {
+        $query = $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations($isSuperadmin)
+            ->ordered();
+
+        if ($isSuperadmin) {
+            return $query;
+        }
+
+        if ($organizationId === null) {
+            return $query->whereKey(-1);
+        }
+
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForPropertyValue(Builder $query, int|string|null $propertyId): Builder
+    {
+        if (blank($propertyId)) {
+            return $query;
+        }
+
+        return $query->where('property_id', $propertyId);
+    }
+
+    public function scopeForActiveValue(Builder $query, bool|int|string|null $isActive): Builder
+    {
+        if ($isActive === null || $isActive === '') {
+            return $query;
+        }
+
+        return $query->where('is_active', filter_var($isActive, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+    }
+
     public function scopeEffectiveOn(Builder $query, ?\DateTimeInterface $date = null): Builder
     {
         $effectiveOn = $date ?? now();

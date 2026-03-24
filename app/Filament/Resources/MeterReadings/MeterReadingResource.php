@@ -94,20 +94,10 @@ class MeterReadingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->withWorkspaceRelations()
-                ->latestFirst();
-        }
-
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
-        return parent::getEloquentQuery()->forAdminWorkspace($organizationId);
+        return parent::getEloquentQuery()
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canView(Model $record): bool

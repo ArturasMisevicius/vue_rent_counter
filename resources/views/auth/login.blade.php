@@ -88,17 +88,17 @@
         @if (($demoAccounts ?? []) !== [])
             <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
                 <div class="mb-4 space-y-1">
-                    <h2 class="font-display text-2xl tracking-tight text-slate-950">Demo Accounts</h2>
-                    <p class="text-sm text-slate-600">Use these seeded credentials for role-based system testing. Click a username to autofill the login form.</p>
+                    <h2 class="font-display text-2xl tracking-tight text-slate-950">{{ __('auth.demo_accounts.heading') }}</h2>
+                    <p class="text-sm text-slate-600">{{ __('auth.demo_accounts.description') }}</p>
                 </div>
 
                 <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
                     <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
                         <thead class="bg-slate-50 text-slate-600">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">Username</th>
-                                <th class="px-4 py-3 font-semibold">Password</th>
-                                <th class="px-4 py-3 font-semibold">Role</th>
+                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.username') }}</th>
+                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.password') }}</th>
+                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.role') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 text-slate-700">
@@ -123,7 +123,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-4 py-4 text-sm text-slate-500">No demo accounts are available yet.</td>
+                                    <td colspan="3" class="px-4 py-4 text-sm text-slate-500">{{ __('auth.demo_accounts.empty') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>

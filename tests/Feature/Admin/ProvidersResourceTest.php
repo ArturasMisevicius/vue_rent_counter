@@ -4,12 +4,16 @@ use App\Enums\ServiceType;
 use App\Filament\Actions\Admin\Providers\CreateProviderAction;
 use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
 use App\Filament\Actions\Admin\Providers\UpdateProviderAction;
+use App\Filament\Resources\Providers\Pages\ListProviders;
 use App\Models\Organization;
 use App\Models\Provider;
 use App\Models\Tariff;
 use App\Models\User;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -49,8 +53,16 @@ it('shows organization-scoped provider resource pages to admin and manager users
     get(route('filament.admin.resources.providers.index'))
         ->assertSuccessful()
         ->assertSeeText('Providers')
+        ->assertSeeText('New Provider')
+        ->assertSeeText('Provider Name')
+        ->assertSeeText('Code')
+        ->assertSeeText('Type')
+        ->assertSeeText('Contact Email')
+        ->assertSeeText('Tariff Count')
         ->assertSeeText($provider->name)
         ->assertSeeText('Electricity')
+        ->assertSeeText('billing@ignitis.example')
+        ->assertDontSeeText('+37060000000')
         ->assertDontSeeText($otherProvider->name);
 
     actingAs($admin);
@@ -146,4 +158,81 @@ it('creates, updates, and blocks deletion of providers with related tariffs', fu
     app(DeleteProviderAction::class)->handle($deletableProvider);
 
     expect(Provider::query()->whereKey($deletableProvider->id)->exists())->toBeFalse();
+});
+
+it('shows organization context on the providers list for superadmins while keeping admins scoped', function () {
+    $organizationA = Organization::factory()->create([
+        'name' => 'Northwind Estates',
+    ]);
+    $organizationB = Organization::factory()->create([
+        'name' => 'Aurora Towers',
+    ]);
+
+    $providerA = Provider::factory()->forOrganization($organizationA)->create([
+        'name' => 'Ignitis',
+        'service_type' => ServiceType::ELECTRICITY,
+        'contact_info' => [
+            'email' => 'billing@ignitis.example',
+            'phone' => '+37060000001',
+        ],
+    ]);
+
+    $providerB = Provider::factory()->forOrganization($organizationB)->create([
+        'name' => 'Elektrum',
+        'service_type' => ServiceType::WATER,
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organizationA->id,
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    Tariff::factory()->for($providerA)->create();
+    $deletableProvider = Provider::factory()->forOrganization($organizationA)->create([
+        'name' => 'Vilniaus Energija',
+        'service_type' => ServiceType::HEATING,
+        'contact_info' => [
+            'email' => 'support@ve.example',
+        ],
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.providers.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Providers')
+        ->assertSeeText($providerA->name)
+        ->assertDontSeeText($providerB->name);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.providers.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Providers')
+        ->assertSeeText($providerA->name)
+        ->assertSeeText($providerB->name)
+        ->assertSeeText($organizationA->name)
+        ->assertSeeText($organizationB->name);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListProviders::class)
+        ->assertActionVisible('create')
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
+        ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() === 'Provider Name')
+        ->assertTableColumnExists('provider_code', fn (TextColumn $column): bool => $column->getLabel() === 'Code')
+        ->assertTableColumnExists('service_type', fn (TextColumn $column): bool => $column->getLabel() === 'Type')
+        ->assertTableColumnExists('contact_info.email', fn (TextColumn $column): bool => $column->getLabel() === 'Contact Email')
+        ->assertTableColumnExists('tariffs_count', fn (TextColumn $column): bool => $column->getLabel() === 'Tariff Count')
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Organization')
+        ->assertTableColumnStateSet('organization.name', $organizationA->name, $providerA)
+        ->assertTableColumnStateSet('organization.name', $organizationB->name, $providerB)
+        ->assertTableColumnStateSet('service_type', ServiceType::ELECTRICITY->getLabel(), $providerA)
+        ->assertTableColumnStateSet('contact_info.email', 'billing@ignitis.example', $providerA)
+        ->assertCanSeeTableRecords([$providerA, $providerB])
+        ->assertTableActionExists('view', record: $providerA)
+        ->assertTableActionExists('edit', record: $providerA)
+        ->assertTableActionDisabled('delete', record: $providerA)
+        ->assertTableActionEnabled('delete', record: $deletableProvider)
+        ->filterTable('organization', (string) $organizationA->getKey())
+        ->assertCanSeeTableRecords([$providerA])
+        ->assertCanNotSeeTableRecords([$providerB]);
 });

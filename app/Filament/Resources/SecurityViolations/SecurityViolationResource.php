@@ -4,12 +4,12 @@ namespace App\Filament\Resources\SecurityViolations;
 
 use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\SecurityViolations\Pages\ListSecurityViolations;
+use App\Filament\Resources\SecurityViolations\Schemas\SecurityViolationTable;
 use App\Models\SecurityViolation;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -25,22 +25,7 @@ class SecurityViolationResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('summary')
-                    ->label('Summary')
-                    ->searchable(),
-                TextColumn::make('ip_address')
-                    ->label('IP Address')
-                    ->searchable(),
-                TextColumn::make('severity')
-                    ->label('Severity')
-                    ->badge(),
-                TextColumn::make('organization.name')
-                    ->label('Organization')
-                    ->searchable(),
-            ])
-            ->defaultSort('occurred_at', 'desc');
+        return SecurityViolationTable::configure($table);
     }
 
     public static function getModelLabel(): string
@@ -58,20 +43,7 @@ class SecurityViolationResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'user_id',
-                'type',
-                'severity',
-                'ip_address',
-                'summary',
-                'occurred_at',
-            ])
-            ->with([
-                'organization:id,name',
-            ]);
+        return parent::getEloquentQuery()->forSuperadminFeed();
     }
 
     public static function getRelations(): array

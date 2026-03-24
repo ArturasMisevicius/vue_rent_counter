@@ -149,6 +149,15 @@ class Project extends Model
         ]);
     }
 
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query
+            ->withPlanningRelations()
+            ->with([
+                'organization:id,name',
+            ]);
+    }
+
     public function scopeWithWorkCounts(Builder $query): Builder
     {
         return $query->withCount([
@@ -167,5 +176,23 @@ class Project extends Model
             ->withPlanningRelations()
             ->withWorkCounts()
             ->ordered();
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations()
+            ->withWorkCounts()
+            ->ordered();
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->forOrganization((int) $organizationId);
     }
 }

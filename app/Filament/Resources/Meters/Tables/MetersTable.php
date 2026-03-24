@@ -9,6 +9,7 @@ use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Meter;
+use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -18,6 +19,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class MetersTable
@@ -26,6 +28,10 @@ class MetersTable
     {
         return $table
             ->columns([
+                TextColumn::make('organization.name')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.meters.columns.name'))
                     ->searchable()
@@ -58,11 +64,17 @@ class MetersTable
                     ->toggleable(),
             ])
             ->filters([
+                SelectFilter::make('organization')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
                 SelectFilter::make('building_id')
                     ->label(__('admin.meters.fields.building'))
-                    ->query(fn ($query, array $data) => $query->when($data['value'] ?? null, function ($query, $buildingId): void {
-                        $query->whereHas('property', fn ($query) => $query->where('building_id', $buildingId));
-                    }))
                     ->options(function (): array {
                         $query = Building::query()->select(['id', 'name', 'organization_id']);
 
@@ -77,9 +89,11 @@ class MetersTable
 
                         return $query
                             ->orderBy('name')
+                            ->orderBy('id')
                             ->pluck('name', 'id')
                             ->all();
-                    }),
+                    })
+                    ->query(fn (Builder $query, array $data): Builder => $query->forBuildingValue($data['value'] ?? null)),
                 SelectFilter::make('property_id')
                     ->label(__('admin.meters.fields.property'))
                     ->options(function (): array {
@@ -96,15 +110,19 @@ class MetersTable
 
                         return $query
                             ->orderBy('name')
+                            ->orderBy('id')
                             ->pluck('name', 'id')
                             ->all();
-                    }),
+                    })
+                    ->query(fn (Builder $query, array $data): Builder => $query->forPropertyValue($data['value'] ?? null)),
                 SelectFilter::make('type')
                     ->label(__('admin.meters.fields.type'))
-                    ->options(MeterType::options()),
+                    ->options(MeterType::options())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forTypeValue($data['value'] ?? null)),
                 SelectFilter::make('status')
                     ->label(__('admin.meters.fields.status'))
-                    ->options(MeterStatus::options()),
+                    ->options(MeterStatus::options())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forStatusValue($data['value'] ?? null)),
             ])
             ->emptyStateHeading(__('admin.meters.empty_state.heading'))
             ->emptyStateDescription(__('admin.meters.empty_state.description'))
@@ -128,5 +146,12 @@ class MetersTable
                     }),
             ])
             ->defaultSort('name');
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

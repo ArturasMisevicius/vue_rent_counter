@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Tenants\Pages;
 
 use App\Filament\Resources\Tenants\TenantResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 
 class ListTenants extends ListRecords
@@ -22,9 +22,7 @@ class ListTenants extends ListRecords
                 TenantResource::makeSubscriptionInfoAction(
                     name: 'create',
                     resource: 'tenants',
-                    label: __('filament-actions::create.single.label', [
-                        'label' => TenantResource::getModelLabel(),
-                    ]),
+                    label: __('admin.tenants.actions.new_tenant'),
                 ),
             ];
         }
@@ -34,7 +32,11 @@ class ListTenants extends ListRecords
         }
 
         return [
-            CreateAction::make(),
+            Action::make('create')
+                ->label(__('admin.tenants.actions.new_tenant'))
+                ->url(TenantResource::getUrl('create'))
+                ->icon('heroicon-m-plus')
+                ->button(),
         ];
     }
 }

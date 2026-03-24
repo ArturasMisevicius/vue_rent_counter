@@ -22,6 +22,7 @@ class AuditLogFactory extends Factory
             'subject_type' => Organization::class,
             'subject_id' => 1,
             'description' => fake()->sentence(),
+            'ip_address' => fake()->ipv4(),
             'metadata' => ['source' => 'factory'],
             'occurred_at' => now()->subMinutes(fake()->numberBetween(1, 120)),
         ];

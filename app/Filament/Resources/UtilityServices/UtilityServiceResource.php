@@ -71,54 +71,10 @@ class UtilityServiceResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->select([
-                    'id',
-                    'organization_id',
-                    'name',
-                    'slug',
-                    'unit_of_measurement',
-                    'default_pricing_model',
-                    'is_global_template',
-                    'service_type_bridge',
-                    'description',
-                    'is_active',
-                    'created_at',
-                    'updated_at',
-                ])
-                ->ordered()
-                ->withCount('serviceConfigurations');
-        }
-
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
         return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'slug',
-                'unit_of_measurement',
-                'default_pricing_model',
-                'is_global_template',
-                'service_type_bridge',
-                'description',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
-            ->where(function (Builder $query) use ($organizationId): void {
-                $query
-                    ->where('organization_id', $organizationId)
-                    ->orWhere('is_global_template', true);
-            })
-            ->withCount('serviceConfigurations');
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canView(Model $record): bool

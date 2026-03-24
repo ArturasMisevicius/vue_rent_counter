@@ -95,11 +95,7 @@ class TenantResource extends Resource
         $user = self::currentUser();
 
         if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->tenants()
-                ->withCurrentPropertySummary()
-                ->withOrganizationSummary()
-                ->orderedByName();
+            return parent::getEloquentQuery()->forTenantControlPlane();
         }
 
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
@@ -113,7 +109,7 @@ class TenantResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getModel()::query();
+        return parent::getModel()::query()->tenants();
     }
 
     public static function canViewAny(): bool

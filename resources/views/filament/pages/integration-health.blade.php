@@ -19,40 +19,37 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse ($checks as $check)
-                            @php
-                                $circuitBreakerTripped = data_get($check->details, 'circuit_breaker_tripped', false) || ($check->status?->value ?? null) === 'failed';
-                            @endphp
-                            <tr wire:key="integration-health-{{ $check->id }}">
+                            <tr wire:key="integration-health-{{ $check['id'] }}">
                                 <td class="px-4 py-4 align-top">
-                                    <p class="font-semibold text-slate-950">{{ $check->label }}</p>
-                                    <p class="text-xs uppercase tracking-[0.2em] text-slate-500">{{ $check->key }}</p>
+                                    <p class="font-semibold text-slate-950">{{ $check['label'] }}</p>
+                                    <p class="text-xs uppercase tracking-[0.2em] text-slate-500">{{ $check['key'] }}</p>
                                 </td>
                                 <td class="px-4 py-4 align-top">
-                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ ($check->status?->value ?? null) === 'healthy' ? 'bg-emerald-100 text-emerald-700' : (($check->status?->value ?? null) === 'degraded' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">
-                                        {{ $check->status?->label() ?? $check->status }}
+                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $check['status_badge_class'] }}">
+                                        {{ $check['status_label'] }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 align-top text-slate-600">
-                                    <p>{{ $check->summary }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $check->response_time_ms ?? 0 }} ms</p>
+                                    <p>{{ $check['summary'] }}</p>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $check['response_time_label'] }}</p>
                                 </td>
                                 <td class="px-4 py-4 align-top text-slate-600">
-                                    {{ $check->checked_at?->diffForHumans() ?? 'Never' }}
+                                    {{ $check['checked_at_label'] }}
                                 </td>
                                 <td class="px-4 py-4 align-top">
                                     <div class="flex flex-wrap gap-2">
                                         <button
                                             type="button"
-                                            wire:click="checkNow({{ $check->id }})"
+                                            wire:click="checkNow({{ $check['id'] }})"
                                             class="inline-flex items-center rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                                         >
                                             Check Now
                                         </button>
 
-                                        @if ($circuitBreakerTripped)
+                                        @if ($check['can_reset_circuit_breaker'])
                                             <button
                                                 type="button"
-                                                wire:click="resetCircuitBreaker({{ $check->id }})"
+                                                wire:click="resetCircuitBreaker({{ $check['id'] }})"
                                                 class="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:border-amber-400 hover:bg-amber-100"
                                             >
                                                 Reset Circuit Breaker
@@ -90,25 +87,25 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse ($recentViolations as $violation)
-                            <tr wire:key="security-violation-{{ $violation->id }}">
+                            <tr wire:key="security-violation-{{ $violation['id'] }}">
                                 <td class="px-4 py-4 align-top">
-                                    <p class="font-semibold text-slate-950">{{ $violation->summary }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $violation->type?->label() ?? $violation->type }}</p>
+                                    <p class="font-semibold text-slate-950">{{ $violation['summary'] }}</p>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $violation['type_label'] }}</p>
                                 </td>
                                 <td class="px-4 py-4 align-top">
-                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ ($violation->severity?->value ?? null) === 'critical' || ($violation->severity?->value ?? null) === 'high' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700' }}">
-                                        {{ $violation->severity?->label() ?? $violation->severity }}
+                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $violation['severity_badge_class'] }}">
+                                        {{ $violation['severity_label'] }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 align-top text-slate-600">
-                                    {{ $violation->organization?->name ?? 'Platform' }}
+                                    {{ $violation['organization_name'] }}
                                 </td>
                                 <td class="px-4 py-4 align-top text-slate-600">
-                                    <p>{{ data_get($violation->metadata, 'url', 'Unknown source') }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $violation->ip_address ?? 'No IP captured' }}</p>
+                                    <p>{{ $violation['source_label'] }}</p>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $violation['ip_address_label'] }}</p>
                                 </td>
                                 <td class="px-4 py-4 align-top text-slate-600">
-                                    {{ $violation->occurred_at?->diffForHumans() ?? 'Unknown' }}
+                                    {{ $violation['occurred_at_label'] }}
                                 </td>
                             </tr>
                         @empty

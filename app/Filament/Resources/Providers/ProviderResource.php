@@ -74,31 +74,10 @@ class ProviderResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->select([
-                    'id',
-                    'organization_id',
-                    'name',
-                    'service_type',
-                    'contact_info',
-                    'created_at',
-                    'updated_at',
-                ])
-                ->ordered()
-                ->withCount(['tariffs', 'serviceConfigurations']);
-        }
-
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
         return parent::getEloquentQuery()
-            ->forOrganization($organizationId)
-            ->withCount(['tariffs', 'serviceConfigurations']);
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canView(Model $record): bool

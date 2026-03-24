@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Tenants;
 
-use App\Enums\UserStatus;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
+use App\Models\Property;
 use App\Rules\WithinTenantLimit;
 use App\Services\SubscriptionChecker;
 use Illuminate\Foundation\Http\FormRequest;
@@ -40,14 +40,29 @@ class StoreTenantRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
+            'phone' => ['nullable', 'string', 'max:255'],
             'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
-            'status' => ['required', Rule::enum(UserStatus::class)],
             'property_id' => [
                 'nullable',
                 'integer',
                 Rule::exists('properties', 'id')->where(
                     fn ($query) => $query->where('organization_id', $this->organizationId),
                 ),
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (blank($value) || $this->organizationId === null) {
+                        return;
+                    }
+
+                    $property = Property::query()
+                        ->availableForTenantAssignment($this->organizationId)
+                        ->find($value);
+
+                    if ($property === null) {
+                        $fail(__('validation.exists', [
+                            'attribute' => $this->translateAttribute('property'),
+                        ]));
+                    }
+                },
             ],
             'unit_area_sqm' => ['nullable', 'numeric', 'min:0'],
             'subscription_limit' => [new WithinTenantLimit(app(SubscriptionChecker::class))],
@@ -67,10 +82,9 @@ class StoreTenantRequest extends FormRequest
             'email.max' => ['max.string', 'email', ['max' => 255]],
             'email.unique' => ['unique', 'email'],
             'email.disposable_email' => ['disposable_email', 'email'],
+            'phone.max' => ['max.string', 'phone', ['max' => 255]],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
-            'status.required' => ['required', 'status'],
-            'status.enum' => ['enum', 'status'],
             'property_id.integer' => ['integer', 'property'],
             'property_id.exists' => ['exists', 'property'],
             'unit_area_sqm.numeric' => ['numeric', 'unit_area_sqm'],
@@ -89,8 +103,8 @@ class StoreTenantRequest extends FormRequest
             ...$this->translatedAttributes([
                 'name',
                 'email',
+                'phone',
                 'locale',
-                'status',
                 'unit_area_sqm',
             ]),
         ];
@@ -101,6 +115,7 @@ class StoreTenantRequest extends FormRequest
         $this->trimStrings([
             'name',
             'email',
+            'phone',
             'locale',
             'property_id',
             'unit_area_sqm',

@@ -1,8 +1,15 @@
 <?php
 
+use App\Filament\Resources\Attachments\AttachmentResource;
 use App\Filament\Resources\AuditLogs\AuditLogResource;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\CommentReactions\CommentReactionResource;
+use App\Filament\Resources\Comments\CommentResource;
 use App\Filament\Resources\FrameworkShowcases\FrameworkShowcaseResource;
+use App\Filament\Resources\InvoiceEmailLogs\InvoiceEmailLogResource;
+use App\Filament\Resources\InvoiceItems\InvoiceItemResource;
+use App\Filament\Resources\InvoicePayments\InvoicePaymentResource;
+use App\Filament\Resources\InvoiceReminderLogs\InvoiceReminderLogResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Languages\LanguageResource;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
@@ -15,12 +22,15 @@ use App\Filament\Resources\PropertyAssignments\PropertyAssignmentResource;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Filament\Resources\SecurityViolations\SecurityViolationResource;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
+use App\Filament\Resources\SubscriptionPayments\SubscriptionPaymentResource;
+use App\Filament\Resources\SubscriptionRenewals\SubscriptionRenewalResource;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Filament\Resources\Tags\TagResource;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\TaskAssignments\TaskAssignmentResource;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Resources\TimeEntries\TimeEntryResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use Illuminate\Support\Facades\File;
@@ -28,6 +38,10 @@ use Illuminate\Support\Str;
 
 it('keeps every Filament resource mapped to regression coverage and its expected pages', function () {
     $coverageMatrix = [
+        AttachmentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
         AuditLogResource::class => [
             'pages' => ['index'],
             'test' => 'tests/Feature/Superadmin/AuditLogsResourceTest.php',
@@ -36,12 +50,36 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/BuildingsResourceTest.php',
         ],
+        CommentReactionResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
+        CommentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
+        ],
         FrameworkShowcaseResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Filament/FrameworkStudioTest.php',
         ],
+        InvoiceEmailLogResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
+        ],
+        InvoiceItemResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
+        InvoicePaymentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
+        ],
+        InvoiceReminderLogResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
+        ],
         InvoiceResource::class => [
-            'pages' => ['index', 'view', 'edit'],
+            'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/InvoicesResourceTest.php',
         ],
         LanguageResource::class => [
@@ -66,7 +104,7 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         ],
         ProjectResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+            'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
         ],
         PropertyResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
@@ -88,13 +126,21 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/TariffsAndProvidersTest.php',
         ],
+        SubscriptionPaymentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
+        ],
+        SubscriptionRenewalResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
+        ],
         SubscriptionResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/SubscriptionsResourceTest.php',
         ],
         TagResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+            'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
         ],
         TariffResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
@@ -106,11 +152,15 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         ],
         TaskResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+            'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
         ],
         TenantResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/TenantsResourceTest.php',
+        ],
+        TimeEntryResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
         ],
         UtilityServiceResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

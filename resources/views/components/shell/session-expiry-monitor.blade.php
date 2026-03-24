@@ -22,6 +22,9 @@
             const selector = '[data-session-expiry-monitor]';
             const activityEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
             const maxDelay = 2147483647;
+            const fallbackTitle = @js(__('auth.session_expired_title'));
+            const fallbackMessage = @js(__('auth.session_expired'));
+            const fallbackAction = @js(__('auth.login_button'));
             let timeoutId = null;
             let monitor = null;
             let isExpired = false;
@@ -91,9 +94,9 @@
                 clearTimer();
 
                 const element = dialog();
-                const title = monitor.dataset.sessionExpiryTitle ?? 'Session expired';
-                const message = monitor.dataset.sessionExpiryMessage ?? '';
-                const action = monitor.dataset.sessionExpiryAction ?? 'Log In';
+                const title = monitor.dataset.sessionExpiryTitle ?? fallbackTitle;
+                const message = monitor.dataset.sessionExpiryMessage ?? fallbackMessage;
+                const action = monitor.dataset.sessionExpiryAction ?? fallbackAction;
 
                 element.querySelector('[data-session-expiry-dialog-title]')?.replaceChildren(document.createTextNode(title));
                 element.querySelector('[data-session-expiry-dialog-message]')?.replaceChildren(document.createTextNode(message));

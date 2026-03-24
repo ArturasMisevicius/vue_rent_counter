@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Properties\RelationManagers;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Invoice;
+use App\Services\Billing\InvoicePdfService;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -33,27 +35,35 @@ class InvoicesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('invoice_number')
                     ->label(__('admin.invoices.columns.invoice_number'))
+                    ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('tenant.name')
-                    ->label(__('admin.invoices.columns.tenant'))
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('billing_period')
+                    ->label(__('admin.invoices.columns.billing_period'))
+                    ->state(fn (Invoice $record): string => collect([
+                        $record->billing_period_start?->format('M j, Y'),
+                        $record->billing_period_end?->format('M j, Y'),
+                    ])->filter()->implode(' - ')),
+                TextColumn::make('total_amount')
+                    ->label(__('admin.invoices.columns.amount'))
+                    ->state(fn (Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
                 TextColumn::make('status')
                     ->label(__('admin.invoices.columns.status'))
                     ->badge(),
-                TextColumn::make('total_amount')
-                    ->label(__('admin.invoices.columns.total_amount'))
-                    ->formatStateUsing(fn ($state, Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $state, 2)))
-                    ->sortable(),
-                TextColumn::make('due_date')
-                    ->label(__('admin.invoices.columns.due_date'))
-                    ->date()
-                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label(__('admin.invoices.columns.issued_date'))
+                    ->date('F j, Y'),
+                TextColumn::make('paid_at')
+                    ->label(__('admin.invoices.columns.paid_date'))
+                    ->state(fn (Invoice $record): string => $record->paid_at?->format('F j, Y') ?? '—'),
             ])
             ->recordActions([
                 ViewAction::make()
+                    ->label(__('admin.actions.view'))
                     ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record])),
+                Action::make('downloadPdf')
+                    ->label(__('admin.invoices.actions.download_pdf'))
+                    ->action(fn (Invoice $record, InvoicePdfService $invoicePdfService) => $invoicePdfService->streamDownload($record)),
             ])
             ->defaultSort('billing_period_start', 'desc');
     }

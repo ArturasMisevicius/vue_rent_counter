@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Buildings\Pages;
 
+use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Models\Building;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Components\Tabs\Tab;
 
 class ViewBuilding extends ViewRecord
 {
@@ -25,7 +28,12 @@ class ViewBuilding extends ViewRecord
 
     public function getTitle(): string
     {
-        return __('admin.buildings.view_title');
+        return $this->record->name;
+    }
+
+    public function getSubheading(): ?string
+    {
+        return $this->record->address;
     }
 
     public function getContentTabLabel(): ?string
@@ -33,13 +41,16 @@ class ViewBuilding extends ViewRecord
         return __('admin.buildings.tabs.overview');
     }
 
-    public function getContentTabComponent(): Tab
+    protected function getHeaderActions(): array
     {
-        $tab = parent::getContentTabComponent();
-        $meterCount = $this->record->getAttribute('meters_count');
-
-        return $meterCount === null
-            ? $tab
-            : $tab->badge((string) $meterCount);
+        return [
+            EditAction::make()
+                ->label(__('admin.actions.edit')),
+            DeleteAction::make()
+                ->label(__('admin.actions.delete'))
+                ->using(fn (Building $record) => app(DeleteBuildingAction::class)->handle($record))
+                ->disabled(fn (Building $record): bool => ! $record->canBeDeletedFromAdminWorkspace())
+                ->tooltip(fn (Building $record): ?string => $record->adminDeletionBlockedReason()),
+        ];
     }
 }

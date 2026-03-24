@@ -2,6 +2,8 @@
 
 use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Resources\Tenants\Pages\ViewTenant;
+use App\Filament\Resources\Tenants\RelationManagers\InvoicesRelationManager;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;
@@ -9,6 +11,7 @@ use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -45,10 +48,12 @@ it('keeps historical invoices visible after a tenant is unassigned', function ()
         ->assertSuccessful()
         ->assertSeeText('INV-HISTORY-001');
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tenants.view', $tenant))
-        ->assertSuccessful()
-        ->assertSeeText('INV-HISTORY-001');
+    Livewire::actingAs($admin)
+        ->test(InvoicesRelationManager::class, [
+            'ownerRecord' => $tenant,
+            'pageClass' => ViewTenant::class,
+        ])
+        ->assertCanSeeTableRecords([$invoice]);
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.invoices.index'))

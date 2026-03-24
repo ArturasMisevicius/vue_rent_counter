@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\InvoiceEmailLogFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,20 @@ class InvoiceEmailLog extends Model
     /** @use HasFactory<InvoiceEmailLogFactory> */
     use HasFactory;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'invoice_id',
+        'organization_id',
+        'sent_by_user_id',
+        'recipient_email',
+        'subject',
+        'status',
+        'personal_message',
+        'sent_at',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'invoice_id',
         'organization_id',
@@ -19,6 +34,7 @@ class InvoiceEmailLog extends Model
         'recipient_email',
         'subject',
         'status',
+        'personal_message',
         'sent_at',
     ];
 
@@ -42,5 +58,38 @@ class InvoiceEmailLog extends Model
     public function sentBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by_user_id');
+    }
+
+    public function scopeLatestFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('sent_at')
+            ->orderByDesc('id');
+    }
+
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'invoice:id,organization_id,invoice_number',
+            'organization:id,name',
+            'sentBy:id,name,email',
+        ]);
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations()
+            ->latestFirst();
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->where('organization_id', (int) $organizationId);
     }
 }

@@ -16,9 +16,11 @@ use App\Models\InvoicePayment;
 use App\Models\Organization;
 use App\Models\PropertyAssignment;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class InvoiceService
 {
@@ -48,6 +50,77 @@ final class InvoiceService
             }
 
             return $invoice->fresh(['invoiceItems', 'payments']);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    public function createDraft(
+        Organization $organization,
+        PropertyAssignment $assignment,
+        array $validated,
+        ?User $actor = null,
+    ): Invoice {
+        return DB::transaction(function () use ($organization, $assignment, $validated, $actor): Invoice {
+            $items = $this->normalizeLineItems(
+                $this->mergeAdjustmentItems(
+                    is_array($validated['items'] ?? null) ? $validated['items'] : [],
+                    is_array($validated['adjustments'] ?? null) ? $validated['adjustments'] : [],
+                ),
+            );
+            $totalAmount = $this->sumLineItems($items);
+            $billingPeriodStart = CarbonImmutable::parse((string) $validated['billing_period_start'])->toDateString();
+            $billingPeriodEnd = CarbonImmutable::parse((string) $validated['billing_period_end'])->toDateString();
+            $dueDate = filled($validated['due_date'] ?? null)
+                ? CarbonImmutable::parse((string) $validated['due_date'])->toDateString()
+                : CarbonImmutable::parse($billingPeriodEnd)->addDays(14)->toDateString();
+            $invoice = Invoice::query()->create([
+                'organization_id' => $organization->id,
+                'property_id' => $assignment->property_id,
+                'tenant_user_id' => $assignment->tenant_user_id,
+                'invoice_number' => 'INV-TEMP-'.Str::uuid(),
+                'billing_period_start' => $billingPeriodStart,
+                'billing_period_end' => $billingPeriodEnd,
+                'status' => InvoiceStatus::DRAFT,
+                'currency' => 'EUR',
+                'total_amount' => $totalAmount,
+                'amount_paid' => $this->calculator->money('0'),
+                'paid_amount' => $this->calculator->money('0'),
+                'due_date' => $dueDate,
+                'items' => $items,
+                'snapshot_data' => $items,
+                'snapshot_created_at' => now(),
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            $invoice->update([
+                'invoice_number' => $this->formattedInvoiceNumber($invoice),
+            ]);
+
+            $this->syncInvoiceItems($invoice, $items);
+
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
+
+            $this->auditLogger->record(
+                AuditLogAction::CREATED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.created',
+                    ],
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Invoice created',
+            );
+
+            DB::afterCommit(function () use ($organization): void {
+                $this->dashboardCacheService->touchOrganization($organization->id);
+            });
+
+            return $freshInvoice;
         });
     }
 
@@ -371,15 +444,57 @@ final class InvoiceService
             return [
                 'utility_service_id' => $resolvedItem['utility_service_id'] ?? null,
                 'description' => (string) ($resolvedItem['description'] ?? ''),
+                'period' => filled($resolvedItem['period'] ?? null)
+                    ? (string) $resolvedItem['period']
+                    : null,
                 'quantity' => $this->calculator->quantity($quantity),
                 'unit' => $resolvedItem['unit'] ?? null,
                 'unit_price' => $this->calculator->rate($unitPrice),
                 'total' => $this->calculator->money($total),
                 'consumption' => $this->calculator->quantity($resolvedItem['consumption'] ?? $quantity),
                 'rate' => $this->calculator->rate($resolvedItem['rate'] ?? $unitPrice),
+                'is_adjustment' => (bool) ($resolvedItem['is_adjustment'] ?? false),
                 'meter_reading_snapshot' => $resolvedItem['meter_reading_snapshot'] ?? null,
             ];
         }, $items));
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, array<string, mixed>>  $adjustments
+     * @return array<int, array<string, mixed>>
+     */
+    private function mergeAdjustmentItems(array $items, array $adjustments): array
+    {
+        $normalizedAdjustments = collect($adjustments)
+            ->filter(function (mixed $adjustment): bool {
+                if (! is_array($adjustment)) {
+                    return false;
+                }
+
+                return filled($adjustment['label'] ?? null)
+                    || filled($adjustment['amount'] ?? null);
+            })
+            ->map(function (array $adjustment): array {
+                $amount = $adjustment['amount'] ?? 0;
+
+                return [
+                    'description' => (string) ($adjustment['label'] ?? __('admin.invoices.fields.adjustment')),
+                    'period' => null,
+                    'quantity' => '1',
+                    'unit' => null,
+                    'unit_price' => $amount,
+                    'rate' => $amount,
+                    'total' => $amount,
+                    'consumption' => '1',
+                    'is_adjustment' => true,
+                    'meter_reading_snapshot' => null,
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [...$items, ...$normalizedAdjustments];
     }
 
     /**
@@ -454,5 +569,10 @@ final class InvoiceService
                 $items,
             ),
         );
+    }
+
+    private function formattedInvoiceNumber(Invoice $invoice): string
+    {
+        return sprintf('INV-%s-%04d', now()->format('Y'), $invoice->id);
     }
 }

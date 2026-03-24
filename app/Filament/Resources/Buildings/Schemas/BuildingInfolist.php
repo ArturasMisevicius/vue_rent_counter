@@ -12,34 +12,25 @@ class BuildingInfolist
     {
         return $schema
             ->components([
-                Section::make(__('admin.buildings.sections.details'))
+                Section::make(__('admin.buildings.sections.information'))
                     ->schema([
                         TextEntry::make('name')
-                            ->label(__('admin.buildings.fields.name')),
-                        TextEntry::make('address_line_1')
-                            ->label(__('admin.buildings.fields.address_line_1')),
-                        TextEntry::make('address_line_2')
-                            ->label(__('admin.buildings.fields.address_line_2'))
-                            ->default(__('admin.buildings.empty.address_line_2')),
-                        TextEntry::make('city')
-                            ->label(__('admin.buildings.fields.city')),
-                        TextEntry::make('postal_code')
-                            ->label(__('admin.buildings.fields.postal_code')),
-                        TextEntry::make('country_code')
-                            ->label(__('admin.buildings.fields.country_code')),
+                            ->label(__('admin.buildings.fields.building_name')),
+                        TextEntry::make('address')
+                            ->label(__('admin.buildings.fields.full_address')),
                     ])
-                    ->columns(2),
-                Section::make(__('admin.buildings.sections.activity'))
+                    ->columns(1),
+                Section::make(__('admin.buildings.sections.summary'))
                     ->schema([
                         TextEntry::make('properties_count')
                             ->label(__('admin.buildings.fields.properties_count')),
                         TextEntry::make('meters_count')
                             ->label(__('admin.buildings.fields.meters_count')),
-                        TextEntry::make('updated_at')
-                            ->label(__('admin.buildings.fields.updated_at'))
-                            ->dateTime(),
+                        TextEntry::make('created_at')
+                            ->label(__('admin.buildings.fields.created_at'))
+                            ->date('F j, Y'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
             ]);
     }
 }

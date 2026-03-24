@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Superadmin\SystemConfiguration;
 
+use App\Filament\Support\Superadmin\SystemConfiguration\SystemSettingCatalog;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,7 +23,8 @@ class UpdateSystemSettingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['required', 'string'],
+            'key' => ['nullable', 'string'],
+            'value' => app(SystemSettingCatalog::class)->validationRulesFor((string) $this->input('key')),
         ];
     }
 
@@ -48,8 +50,10 @@ class UpdateSystemSettingRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->trimStrings([
-            'value',
-        ]);
+        if (is_string($this->input('value'))) {
+            $this->trimStrings([
+                'value',
+            ]);
+        }
     }
 }

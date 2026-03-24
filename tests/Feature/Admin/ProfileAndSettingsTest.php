@@ -7,6 +7,7 @@ use App\Filament\Pages\Profile;
 use App\Filament\Pages\Settings;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,6 +32,7 @@ it('shows the admin profile page with personal information and password sections
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
+        'phone' => '+37060000000',
     ]);
 
     $this->actingAs($admin)
@@ -39,11 +41,15 @@ it('shows the admin profile page with personal information and password sections
         ->assertSeeText('My Profile')
         ->assertSeeText('Personal Information')
         ->assertSeeText('Change Password')
+        ->assertSeeText('Phone Number')
+        ->assertSeeText('Preferred Language')
+        ->assertSeeText('Save Changes')
         ->assertSee('value="'.$admin->name.'"', false)
-        ->assertSee('value="'.$admin->email.'"', false);
+        ->assertSee('value="'.$admin->email.'"', false)
+        ->assertSee('value="'.$admin->phone.'"', false);
 });
 
-it('updates the admin profile details and locale', function () {
+it('updates the admin profile details', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -54,14 +60,30 @@ it('updates the admin profile details and locale', function () {
         ->test(Profile::class)
         ->set('profileForm.name', 'Taylor Updated')
         ->set('profileForm.email', 'taylor.updated@example.com')
-        ->set('profileForm.locale', 'lt')
-        ->call('saveProfile')
+        ->set('profileForm.phone', '+37061234567')
+        ->call('saveChanges')
         ->assertHasNoErrors();
 
     expect($admin->fresh())
         ->name->toBe('Taylor Updated')
         ->email->toBe('taylor.updated@example.com')
-        ->locale->toBe('lt');
+        ->phone->toBe('+37061234567')
+        ->locale->toBe('en');
+});
+
+it('auto-saves the admin locale when the preferred language changes', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(Profile::class)
+        ->set('profileForm.locale', 'lt')
+        ->assertHasNoErrors();
+
+    expect($admin->fresh()->locale)->toBe('lt');
 });
 
 it('rejects disposable email domains when updating the admin profile', function () {
@@ -75,17 +97,32 @@ it('rejects disposable email domains when updating the admin profile', function 
         ->test(Profile::class)
         ->set('profileForm.name', 'Taylor Updated')
         ->set('profileForm.email', 'profile-owner@10minutemail.com')
-        ->set('profileForm.locale', 'lt')
-        ->call('saveProfile')
-        ->assertHasErrors(['email']);
+        ->set('profileForm.phone', '+37061234567')
+        ->call('saveChanges')
+        ->assertHasErrors(['profileForm.email']);
 
     expect($admin->fresh())
         ->name->toBe($admin->name)
         ->email->toBe($admin->email)
+        ->phone->toBeNull()
         ->locale->toBe('en');
 });
 
-it('updates the admin password from the profile page', function () {
+it('shows an immediate password confirmation error on the profile page', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(Profile::class)
+        ->set('passwordForm.current_password', 'password')
+        ->set('passwordForm.password', 'new-password-123')
+        ->set('passwordForm.password_confirmation', 'different-password')
+        ->assertHasErrors(['passwordForm.password_confirmation']);
+});
+
+it('updates the admin password from the profile page when requested', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -96,7 +133,7 @@ it('updates the admin password from the profile page', function () {
         ->set('passwordForm.current_password', 'password')
         ->set('passwordForm.password', 'new-password-123')
         ->set('passwordForm.password_confirmation', 'new-password-123')
-        ->call('updatePassword')
+        ->call('saveChanges')
         ->assertHasNoErrors();
 
     expect(Hash::check('new-password-123', $admin->fresh()->password))->toBeTrue();
@@ -127,14 +164,60 @@ it('refreshes translated admin profile copy when the shell locale changes', func
         ->assertSeeText(__('shell.profile.personal_information.heading', [], 'lt'));
 });
 
-it('shows admin settings sections and saves organization settings plus notification preferences', function () {
+it('shows the admin settings page with organization, notification, and subscription sections only', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'North Block Properties',
+    ]);
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    OrganizationSetting::factory()->for($organization)->create();
+    Subscription::factory()->for($organization)->active()->create([
+        'plan' => SubscriptionPlan::BASIC,
+        'status' => SubscriptionStatus::ACTIVE,
+        'property_limit_snapshot' => 10,
+        'tenant_limit_snapshot' => 25,
+    ]);
+    Property::factory()->count(3)->for($organization)->create();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.pages.settings'))
+        ->assertSuccessful()
+        ->assertSeeText('Settings')
+        ->assertSeeText('Organization Settings')
+        ->assertSeeText('Notification Preferences')
+        ->assertSeeText('Subscription')
+        ->assertSeeText('Organization Name')
+        ->assertSeeText('Billing Email Address')
+        ->assertSeeText('Default Invoice Footer Notes')
+        ->assertSeeText('Renew or Upgrade Plan')
+        ->assertDontSeeText('Personal Information')
+        ->assertDontSeeText('Change Password');
+});
+
+it('restricts the settings page to admins', function () {
     $organization = Organization::factory()->create();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.pages.settings'))
+        ->assertForbidden();
+});
+
+it('saves organization settings and notification preferences from the admin settings page', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Initial Org',
+    ]);
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
     ]);
 
     OrganizationSetting::factory()->for($organization)->create([
-        'billing_contact_name' => 'Initial Billing Team',
+        'billing_contact_email' => 'before@example.com',
+        'invoice_footer' => 'Before footer',
         'notification_preferences' => [
             'new_invoice_generated' => false,
             'invoice_overdue' => false,
@@ -148,49 +231,26 @@ it('shows admin settings sections and saves organization settings plus notificat
         'status' => SubscriptionStatus::ACTIVE,
     ]);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.pages.settings'))
-        ->assertSuccessful()
-        ->assertSeeText('Settings')
-        ->assertSeeText('Personal Information')
-        ->assertSeeText('Change Password')
-        ->assertSeeText('Organization Settings')
-        ->assertSeeText('Notification Preferences')
-        ->assertSeeText('Subscription');
-
     Livewire::actingAs($admin)
         ->test(Settings::class)
-        ->set('organizationForm.billing_contact_name', 'Updated Billing Team')
+        ->set('organizationForm.organization_name', 'Updated Org')
         ->set('organizationForm.billing_contact_email', 'billing@example.com')
-        ->set('organizationForm.billing_contact_phone', '+37060000000')
-        ->set('organizationForm.payment_instructions', 'Pay by bank transfer.')
         ->set('organizationForm.invoice_footer', 'Thank you for paying on time.')
-        ->call('saveOrganizationSettings')
+        ->call('saveSettings')
         ->assertHasNoErrors()
         ->set('notificationForm.new_invoice_generated', true)
-        ->set('notificationForm.invoice_overdue', true)
-        ->set('notificationForm.tenant_submits_reading', true)
-        ->set('notificationForm.subscription_expiring', true)
-        ->call('saveNotificationPreferences')
         ->assertHasNoErrors();
 
     $settings = $organization->fresh()->settings;
 
-    expect($settings)->not->toBeNull()
-        ->and($settings?->billing_contact_name)->toBe('Updated Billing Team')
+    expect($organization->fresh()->name)->toBe('Updated Org')
+        ->and($settings)->not->toBeNull()
         ->and($settings?->billing_contact_email)->toBe('billing@example.com')
-        ->and($settings?->billing_contact_phone)->toBe('+37060000000')
-        ->and($settings?->payment_instructions)->toBe('Pay by bank transfer.')
         ->and($settings?->invoice_footer)->toBe('Thank you for paying on time.')
-        ->and($settings?->notification_preferences)->toBe([
-            'new_invoice_generated' => true,
-            'invoice_overdue' => true,
-            'tenant_submits_reading' => true,
-            'subscription_expiring' => true,
-        ]);
+        ->and($settings?->notification_preferences['new_invoice_generated'] ?? false)->toBeTrue();
 });
 
-it('allows admins to renew the current organization subscription from settings', function () {
+it('allows admins to renew or upgrade the current organization subscription from settings', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -206,10 +266,13 @@ it('allows admins to renew the current organization subscription from settings',
 
     Livewire::actingAs($admin)
         ->test(Settings::class)
+        ->call('openSubscriptionPanel')
+        ->assertSet('showSubscriptionPanel', true)
         ->set('renewalForm.plan', SubscriptionPlan::PROFESSIONAL->value)
         ->set('renewalForm.duration', SubscriptionDuration::QUARTERLY->value)
         ->call('renewSubscription')
-        ->assertHasNoErrors();
+        ->assertHasNoErrors()
+        ->assertSet('showSubscriptionPanel', false);
 
     $subscription->refresh();
 

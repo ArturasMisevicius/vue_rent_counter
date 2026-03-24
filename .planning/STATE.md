@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-stopped_at: Phase 4 complete and verified; Phase 5 is the next local milestone phase after the external Phase 1 blocker
-last_updated: "2026-03-24T01:56:48Z"
+status: blocked
+stopped_at: All executable phases are complete locally; waiting on Phase 01-05 remote branch-protection enforcement
+last_updated: "2026-03-24T04:59:00Z"
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 6
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 11
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Tenanto must deliver tenant-safe utility billing and property management workflows on a clean, consistent application foundation that the team can evolve confidently.
-**Current focus:** Phase 05 — billing-lifecycle-canonicalization
+**Current focus:** External blocker — Phase 01-05 remote branch-protection enforcement
 
 ## Current Position
 
-Phase: 04 (mutation-governance-and-async-pipelines) — COMPLETE
-Plan: 1 of 1 (completed)
+Phase: 01 (safety-freeze-and-guardrails) — BLOCKED AT 01-05
+Plan: 5 of 5 (external checkpoint pending)
 
 ## Performance Metrics
 
@@ -75,19 +75,15 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
-- Phase 05: canonicalize overdue semantics, billing preview/finalization parity, shared money rules, and invoice explainability now that mutation governance is complete.
-- 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
-- 2026-03-19: finish the shared design-system migration by adding the missing tenant bottom navigation component, wiring it into the tenant-facing Filament pages, and verifying the shared component namespaces remain clean.
 
 ### Blockers/Concerns
 
 - Phase 01 remains skipped in local autonomous mode because branch-protection enforcement still requires a repo admin or admin-scoped GitHub credentials.
+- A local validation audit reran the executable Phase 1 through Phase 6 bundles on 2026-03-24; all local checks passed and the remaining blocker is still the remote `01-05` checkpoint.
 - Session bootstrap was verified on 2026-03-19, but test execution still needs safer isolation because direct `php artisan test` runs are honoring cached sqlite file config instead of the `:memory:` PHPUnit setting; a parallel verification run left `database/database.sqlite` malformed.
-- Phase 5 execution still needs careful handling because billing behavior remains concentrated in a few large orchestration services with a wide regression surface.
-- Phase 6 execution still needs environment-aware validation for queue workers, dependency probes, and backup/restore readiness.
 
 ## Session Continuity
 
-Last session: 2026-03-24T01:56:48Z
-Stopped at: Phase 4 complete and verified; Phase 5 is next after the external Phase 01 blocker skip
-Resume file: .planning/phases/05-billing-lifecycle-canonicalization/05-01-PLAN.md
+Last session: 2026-03-24T02:45:17Z
+Stopped at: All executable phases are complete locally; the remaining milestone blocker is Phase 01-05 remote branch-protection enforcement
+Resume file: .planning/phases/01-safety-freeze-and-guardrails/01-05-PLAN.md

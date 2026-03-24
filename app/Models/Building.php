@@ -93,6 +93,40 @@ class Building extends Model
             ->ordered();
     }
 
+    public function getAddressAttribute(): string
+    {
+        return $this->formattedAddress();
+    }
+
+    public function formattedAddress(): string
+    {
+        return collect([
+            $this->address_line_1,
+            $this->address_line_2,
+            $this->city,
+            $this->postal_code,
+            $this->country_code,
+        ])->filter(fn (?string $part): bool => filled($part))->implode(', ');
+    }
+
+    public function canBeDeletedFromAdminWorkspace(): bool
+    {
+        $propertiesCount = $this->getAttribute('properties_count');
+
+        if (is_numeric($propertiesCount)) {
+            return (int) $propertiesCount === 0;
+        }
+
+        return ! $this->properties()->exists();
+    }
+
+    public function adminDeletionBlockedReason(): ?string
+    {
+        return $this->canBeDeletedFromAdminWorkspace()
+            ? null
+            : __('admin.buildings.messages.delete_blocked');
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);

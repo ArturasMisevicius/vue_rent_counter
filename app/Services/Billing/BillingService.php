@@ -12,6 +12,7 @@ use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
 use App\Filament\Support\Admin\Invoices\InvoiceEligibilityWindow;
+use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
 use App\Models\Invoice;
@@ -54,6 +55,7 @@ final class BillingService implements BillingServiceInterface
                 'tenant_user_id' => $assignment->tenant_user_id,
                 'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
                 'property_name' => (string) ($assignment->property?->name ?? ''),
+                'unit_area_sqm' => $assignment->unit_area_sqm,
                 'items' => $lineItems['items'],
                 'total' => $lineItems['total_amount'],
             ];
@@ -62,6 +64,30 @@ final class BillingService implements BillingServiceInterface
         return [
             'valid' => $valid,
             'skipped' => $prepared['skipped'],
+        ];
+    }
+
+    public function previewInvoiceDraft(Organization $organization, array $attributes): array
+    {
+        $periodStart = $this->normalizeDate($attributes['billing_period_start'])->startOfDay();
+        $periodEnd = $this->normalizeDate($attributes['billing_period_end'])->endOfDay();
+        $assignment = $this->invoiceAssignment(
+            $organization,
+            (int) $attributes['tenant_user_id'],
+            $periodStart,
+            $periodEnd,
+        );
+
+        $this->ensureCanCreateInvoiceForPeriod($organization, $assignment, $periodStart, $periodEnd);
+
+        $lineItems = $this->buildLineItemPayload($assignment, $periodStart, $periodEnd);
+
+        return [
+            'property_id' => $assignment->property_id,
+            'property_name' => (string) ($assignment->property?->name ?? ''),
+            'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
+            'items' => $lineItems['items'],
+            'total_amount' => $lineItems['total_amount'],
         ];
     }
 
@@ -93,6 +119,30 @@ final class BillingService implements BillingServiceInterface
             'created' => $created,
             'skipped' => $prepared['skipped'],
         ];
+    }
+
+    public function createDraft(Organization $organization, array $attributes, ?User $actor = null): Invoice
+    {
+        $normalized = $this->normalizeDraftAttributes($attributes);
+
+        /** @var CreateInvoiceDraftRequest $request */
+        $request = new CreateInvoiceDraftRequest;
+        $validated = $request->validatePayload([
+            ...$normalized,
+            'organization_id' => $normalized['organization_id'] ?? $organization->id,
+        ], $actor ?? auth()->user());
+        $periodStart = $this->normalizeDate($validated['billing_period_start'])->startOfDay();
+        $periodEnd = $this->normalizeDate($validated['billing_period_end'])->endOfDay();
+        $assignment = $this->invoiceAssignment(
+            $organization,
+            (int) $validated['tenant_user_id'],
+            $periodStart,
+            $periodEnd,
+        );
+
+        $this->ensureCanCreateInvoiceForPeriod($organization, $assignment, $periodStart, $periodEnd);
+
+        return $this->invoiceService->createDraft($organization, $assignment, $validated, $actor);
     }
 
     public function saveDraft(Invoice $invoice, array $attributes): Invoice
@@ -232,6 +282,7 @@ final class BillingService implements BillingServiceInterface
                     'property_id' => $assignment->property_id,
                     'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
                     'property_name' => (string) ($assignment->property?->name ?? ''),
+                    'unit_area_sqm' => $assignment->unit_area_sqm,
                     'reason' => 'already_billed',
                 ];
 
@@ -247,6 +298,7 @@ final class BillingService implements BillingServiceInterface
                     'property_id' => $assignment->property_id,
                     'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
                     'property_name' => (string) ($assignment->property?->name ?? ''),
+                    'unit_area_sqm' => $assignment->unit_area_sqm,
                     'reason' => 'ineligible_meter_readings',
                 ];
 
@@ -359,6 +411,87 @@ final class BillingService implements BillingServiceInterface
         return [$assignments, $existingInvoiceKeys];
     }
 
+    private function invoiceAssignment(
+        Organization $organization,
+        int $tenantUserId,
+        CarbonImmutable $periodStart,
+        CarbonImmutable $periodEnd,
+    ): PropertyAssignment {
+        $assignment = PropertyAssignment::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'unit_area_sqm',
+                'assigned_at',
+                'unassigned_at',
+            ])
+            ->forOrganization($organization->id)
+            ->forTenant($tenantUserId)
+            ->activeDuring($periodStart, $periodEnd)
+            ->with([
+                'tenant:id,organization_id,name,email',
+                'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
+                'property.serviceConfigurations' => fn ($query) => $query
+                    ->select([
+                        'id',
+                        'organization_id',
+                        'property_id',
+                        'utility_service_id',
+                        'pricing_model',
+                        'rate_schedule',
+                        'distribution_method',
+                        'effective_from',
+                        'effective_until',
+                        'configuration_overrides',
+                        'tariff_id',
+                        'provider_id',
+                        'is_shared_service',
+                        'custom_formula',
+                        'is_active',
+                    ])
+                    ->activeOn($periodEnd)
+                    ->with([
+                        'utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge',
+                        'tariff:id,provider_id,name,configuration',
+                    ]),
+                'property.meters' => fn ($query) => $query
+                    ->select([
+                        'id',
+                        'organization_id',
+                        'property_id',
+                        'name',
+                        'type',
+                    ])
+                    ->with([
+                        'readings' => fn ($readingQuery) => $readingQuery
+                            ->select([
+                                'id',
+                                'organization_id',
+                                'property_id',
+                                'meter_id',
+                                'reading_value',
+                                'reading_date',
+                                'validation_status',
+                            ])
+                            ->comparable()
+                            ->beforeOrOnDate($periodEnd)
+                            ->latestFirst(),
+                    ]),
+            ])
+            ->latestAssignedFirst()
+            ->first();
+
+        if ($assignment instanceof PropertyAssignment) {
+            return $assignment;
+        }
+
+        throw ValidationException::withMessages([
+            'tenant_user_id' => __('admin.invoices.messages.assignment_required'),
+        ]);
+    }
+
     private function invoiceKey(int $propertyId, int $tenantId): string
     {
         return $propertyId.':'.$tenantId;
@@ -414,6 +547,29 @@ final class BillingService implements BillingServiceInterface
         }
 
         return $attributes;
+    }
+
+    private function ensureCanCreateInvoiceForPeriod(
+        Organization $organization,
+        PropertyAssignment $assignment,
+        CarbonImmutable $periodStart,
+        CarbonImmutable $periodEnd,
+    ): void {
+        $hasExistingInvoice = Invoice::query()
+            ->select(['id'])
+            ->forOrganization($organization->id)
+            ->forProperty($assignment->property_id)
+            ->forTenant($assignment->tenant_user_id)
+            ->forBillingPeriod($periodStart, $periodEnd)
+            ->exists();
+
+        if (! $hasExistingInvoice) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'tenant_user_id' => __('admin.invoices.messages.invoice_exists_for_period'),
+        ]);
     }
 
     /**
@@ -520,6 +676,7 @@ final class BillingService implements BillingServiceInterface
         return [
             'utility_service_id' => $configuration->utility_service_id,
             'description' => (string) ($configuration->utilityService?->name ?? ''),
+            'period' => $this->billingPeriodLabel($periodStart, $periodEnd),
             'quantity' => $this->calculator->quantity($quantity),
             'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
             'unit_price' => $this->calculator->rate($pricing['unit_rate']),
@@ -802,6 +959,7 @@ final class BillingService implements BillingServiceInterface
                 'period_start' => $periodStart->toDateString(),
                 'period_end' => $periodEnd->toDateString(),
             ]),
+            'period' => $this->billingPeriodLabel($periodStart, $periodEnd),
             'quantity' => $this->calculator->quantity('1'),
             'unit' => null,
             'unit_price' => $this->calculator->rate('0'),
@@ -816,5 +974,10 @@ final class BillingService implements BillingServiceInterface
             'total_amount' => $this->calculator->money('0'),
             'billable' => true,
         ];
+    }
+
+    private function billingPeriodLabel(CarbonImmutable $periodStart, CarbonImmutable $periodEnd): string
+    {
+        return $periodStart->format('F Y').' - '.$periodEnd->format('F Y');
     }
 }

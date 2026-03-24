@@ -40,6 +40,7 @@ class MeterReadingForm
                                     return $query->where('organization_id', $organizationId);
                                 },
                             )
+                            ->default(fn (): ?int => request()->integer('meter') ?: null)
                             ->searchable()
                             ->preload()
                             ->required(),

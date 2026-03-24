@@ -13,7 +13,8 @@ class ListProviders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label(__('admin.providers.actions.new_provider')),
         ];
     }
 }

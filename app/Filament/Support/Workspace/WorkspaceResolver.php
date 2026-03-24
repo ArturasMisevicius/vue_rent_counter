@@ -19,7 +19,11 @@ final class WorkspaceResolver
         $request = request();
 
         if ($request instanceof Request) {
-            return $this->resolveForRequest($request);
+            $workspace = $this->resolveForRequest($request);
+
+            if ($workspace instanceof WorkspaceContext) {
+                return $workspace;
+            }
         }
 
         $user = Auth::user();

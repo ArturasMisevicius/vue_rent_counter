@@ -16,8 +16,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Workspace Boundary and Role Contracts** - Make workspace resolution and role authority explicit before protected data access.
 - [x] **Phase 3: Surface and Read Path Unification** - Converge navigation, entry paths, and workspace-aware read models across supported surfaces.
 - [x] **Phase 4: Mutation Governance and Async Pipelines** - Standardize validated write paths, auditability, and queued side effects.
-- [ ] **Phase 5: Billing Lifecycle Canonicalization** - Make billing rules, invoice behavior, and money semantics consistent everywhere.
-- [ ] **Phase 6: Operational Hardening and Recovery** - Prove the cleaned-up application can be monitored, recovered, and shipped safely.
+- [x] **Phase 5: Billing Lifecycle Canonicalization** - Make billing rules, invoice behavior, and money semantics consistent everywhere.
+- [x] **Phase 6: Operational Hardening and Recovery** - Prove the cleaned-up application can be monitored, recovered, and shipped safely.
 - [x] **Phase 7: Consolidate, clean, and standardize full application stack** - Remove policy/validation drift, eliminate leftover public entrypoints, and standardize controller/request, Livewire, and Filament flows.
 
 ## Phase Details
@@ -95,7 +95,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] `05-01-PLAN.md` — Canonicalize overdue semantics, billing parity, money policy, eligibility rules, and invoice explainability.
+- [x] `05-01-PLAN.md` — Canonicalize overdue semantics, billing parity, money policy, eligibility rules, and invoice explainability.
 
 ### Phase 6: Operational Hardening and Recovery
 **Goal**: The modernized application can be monitored, recovered, and released with trustworthy operational evidence.
@@ -107,7 +107,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] `06-01-PLAN.md` — Replace false-positive health probes, add backup/restore readiness, and publish release evidence.
+- [x] `06-01-PLAN.md` — Replace false-positive health probes, add backup/restore readiness, and publish release evidence.
 
 ## Progress
 
@@ -117,8 +117,8 @@ Plans:
 | 2. Workspace Boundary and Role Contracts | 1/1 | Complete | 2026-03-19 |
 | 3. Surface and Read Path Unification | 1/1 | Complete | 2026-03-24 |
 | 4. Mutation Governance and Async Pipelines | 1/1 | Complete | 2026-03-24 |
-| 5. Billing Lifecycle Canonicalization | 0/1 | Planned | - |
-| 6. Operational Hardening and Recovery | 0/1 | Planned | - |
+| 5. Billing Lifecycle Canonicalization | 1/1 | Complete | 2026-03-24 |
+| 6. Operational Hardening and Recovery | 1/1 | Complete | 2026-03-24 |
 | 7. Consolidate, clean, and standardize full application stack | 2/2 | Complete | 2026-03-24 |
 
 ### Phase 7: Consolidate, clean, and standardize full application stack
@@ -143,3 +143,6 @@ Plans:
 - Verified the unified `/app` entrypoint, shared navigation source-of-truth, shared read-model inventory, and tenant invoice resource consistency as the completed Phase 3 contract.
 - Added `tests/Feature/Architecture/MutationPipelineInventoryTest.php` and verified the representative mutation entrypoints still delegate to shared action/service seams as the first explicit Phase 4 guard.
 - Completed Phase 4 by attaching invoice governance capture at the shared billing seam, adding tenant/admin meter-reading parity coverage, and moving reminders, invoice emails, and report exports onto queued jobs verified by the new async regression suite.
+- Completed Phase 5 by canonicalizing due-date-first overdue behavior, preview/finalization parity, deterministic money allocation, billing eligibility rules, and the shared tenant/admin/PDF invoice explainability contract.
+- Completed Phase 6 by replacing config-only health probes with runtime-aware checks and publishing executable backup/restore plus release-readiness runbooks and console evidence commands.
+- Reconciled stale validation artifacts by rerunning the executable Phase 1 through Phase 6 local bundles and updating validation or requirement status tracking to match the verified local state; the only remaining milestone blocker is remote Phase `01-05` branch-protection enforcement.

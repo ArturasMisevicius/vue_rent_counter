@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
-use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
+use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
+use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Http\Requests\Admin\Tenants\ReassignTenantRequest;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,6 +22,8 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewTenant extends ViewRecord
 {
     protected static string $resource = TenantResource::class;
+
+    private ?OrganizationInvitation $latestInvitation = null;
 
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
@@ -37,7 +40,12 @@ class ViewTenant extends ViewRecord
 
     public function getTitle(): string
     {
-        return __('admin.tenants.view_title');
+        return $this->record->name;
+    }
+
+    public function getSubheading(): ?string
+    {
+        return $this->record->email;
     }
 
     public function getContentTabLabel(): ?string
@@ -54,97 +62,126 @@ class ViewTenant extends ViewRecord
                         TenantResource::makeSubscriptionInfoAction(
                             name: 'edit',
                             resource: 'tenants',
-                            label: __('filament-actions::edit.single.label', [
-                                'label' => TenantResource::getModelLabel(),
-                            ]),
+                            label: __('admin.actions.edit'),
                         ),
                     ]
                     : (
                         TenantResource::canEdit($this->record)
-                            ? [EditAction::make()]
+                            ? [
+                                EditAction::make()
+                                    ->label(__('admin.actions.edit')),
+                            ]
                             : []
                     )
             ),
             ...(
                 TenantResource::canEdit($this->record)
                     ? [
-                        Action::make('reassignProperty')
-                            ->label(__('admin.tenants.actions.reassign_property'))
+                        ...(
+                            $this->canResendInvitation()
+                                ? [
+                                    Action::make('resendInvitation')
+                                        ->label(__('admin.tenants.actions.resend_invitation'))
+                                        ->action(function (ResendOrganizationInvitationAction $resendOrganizationInvitationAction): void {
+                                            $actor = auth()->user();
+
+                                            abort_if(! $actor instanceof User, 403);
+
+                                            $invitation = $this->latestInvitation();
+
+                                            abort_if($invitation === null, 404);
+
+                                            $this->latestInvitation = $resendOrganizationInvitationAction->handle($actor, $invitation);
+
+                                            Notification::make()
+                                                ->success()
+                                                ->title(__('admin.tenants.messages.invitation_resent'))
+                                                ->send();
+                                        }),
+                                ]
+                                : []
+                        ),
+                        Action::make('assignProperty')
+                            ->label($this->record->currentPropertyAssignment === null
+                                ? __('admin.tenants.actions.assign_to_property')
+                                : __('admin.tenants.actions.reassign_property'))
                             ->slideOver()
-                            ->modalDescription(__('admin.tenants.messages.reassign_property_warning'))
+                            ->modalDescription($this->record->currentPropertyAssignment === null
+                                ? null
+                                : __('admin.tenants.messages.reassign_property_warning'))
                             ->schema([
                                 Select::make('property_id')
                                     ->label(__('admin.tenants.fields.property'))
                                     ->options(fn (): array => $this->availablePropertyOptions())
                                     ->searchable()
-                                    ->required(),
+                                    ->preload()
+                                    ->live()
+                                    ->required()
+                                    ->afterStateUpdated(function (mixed $state, callable $set): void {
+                                        $property = $this->findProperty($state);
+
+                                        $set('unit_area_sqm', $property?->floor_area_sqm !== null
+                                            ? (float) $property->floor_area_sqm
+                                            : null);
+                                    }),
                                 TextInput::make('unit_area_sqm')
                                     ->label(__('admin.tenants.fields.unit_area_sqm'))
                                     ->numeric()
-                                    ->minValue(0),
+                                    ->minValue(0)
+                                    ->default(fn (): ?float => $this->record->currentPropertyAssignment?->unit_area_sqm !== null
+                                        ? (float) $this->record->currentPropertyAssignment->unit_area_sqm
+                                        : ($this->record->currentProperty?->floor_area_sqm !== null
+                                            ? (float) $this->record->currentProperty->floor_area_sqm
+                                            : null)),
                             ])
                             ->action(function (array $data, AssignTenantToPropertyAction $assignTenantToPropertyAction): void {
-                                /** @var ReassignTenantRequest $request */
-                                $request = app(ReassignTenantRequest::class);
-                                $validated = $request
-                                    ->forOrganization($this->record->organization_id)
-                                    ->validatePayload($data);
+                                $property = $this->findProperty($data['property_id'] ?? null);
 
-                                $property = Property::query()
-                                    ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number', 'type', 'floor_area_sqm'])
-                                    ->where('organization_id', $this->record->organization_id)
-                                    ->findOrFail($validated['property_id']);
+                                abort_if($property === null, 404);
 
                                 $assignTenantToPropertyAction->handle(
                                     $property,
                                     $this->record,
-                                    $validated['unit_area_sqm'] !== null ? (float) $validated['unit_area_sqm'] : null,
+                                    isset($data['unit_area_sqm']) ? (float) $data['unit_area_sqm'] : null,
                                 );
 
                                 $this->refreshRecord();
 
                                 Notification::make()
-                                    ->title(__('admin.tenants.messages.property_reassigned'))
                                     ->success()
+                                    ->title(__('admin.tenants.messages.property_reassigned'))
                                     ->send();
                             }),
-                    ]
-                    : []
-            ),
-            ...(
-                TenantResource::canMutateSubscriptionScopedRecords()
-                    ? [
-                        Action::make('resendInvitation')
-                            ->label(__('admin.tenants.actions.resend_invitation'))
-                            ->visible(fn (): bool => $this->record->status === UserStatus::INACTIVE && $this->latestInvitation() !== null)
+                        Action::make('toggleStatus')
+                            ->label($this->record->status === UserStatus::ACTIVE
+                                ? __('admin.tenants.actions.deactivate')
+                                : __('admin.tenants.actions.reactivate'))
+                            ->color($this->record->status === UserStatus::ACTIVE ? 'warning' : 'success')
                             ->requiresConfirmation()
-                            ->action(function (ResendOrganizationInvitationAction $resendOrganizationInvitationAction): void {
-                                $invitation = $this->latestInvitation();
-
-                                abort_if($invitation === null, 404);
-
-                                $resendOrganizationInvitationAction->handle(auth()->user(), $invitation);
+                            ->modalDescription($this->record->status === UserStatus::ACTIVE
+                                ? __('admin.tenants.messages.deactivate_confirmation')
+                                : __('admin.tenants.messages.reactivate_confirmation'))
+                            ->action(function (ToggleTenantStatusAction $toggleTenantStatusAction): void {
+                                $updatedTenant = $toggleTenantStatusAction->handle($this->record);
+                                $this->refreshRecord();
 
                                 Notification::make()
-                                    ->title(__('admin.tenants.messages.invitation_resent'))
                                     ->success()
+                                    ->title($updatedTenant->status === UserStatus::ACTIVE
+                                        ? __('admin.tenants.messages.tenant_reactivated')
+                                        : __('admin.tenants.messages.tenant_deactivated'))
                                     ->send();
                             }),
+                        DeleteAction::make()
+                            ->label(__('admin.actions.delete'))
+                            ->using(fn (User $record) => app(DeleteTenantAction::class)->handle($record))
+                            ->authorize(fn (User $record): bool => TenantResource::canDelete($record))
+                            ->disabled(fn (User $record): bool => ! $record->canBeDeletedFromAdminWorkspace())
+                            ->tooltip(fn (User $record): ?string => $record->adminDeletionBlockedReason()),
                     ]
                     : []
             ),
         ];
-    }
-
-    private function latestInvitation(): ?OrganizationInvitation
-    {
-        return OrganizationInvitation::query()
-            ->forAcceptancePortal()
-            ->forOrganization($this->record->organization_id)
-            ->where('email', $this->record->email)
-            ->where('role', UserRole::TENANT)
-            ->latestExpiryFirst()
-            ->first();
     }
 
     /**
@@ -153,23 +190,70 @@ class ViewTenant extends ViewRecord
     private function availablePropertyOptions(): array
     {
         return Property::query()
-            ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number'])
-            ->where('organization_id', $this->record->organization_id)
-            ->with(['building:id,name'])
-            ->orderBy('name')
+            ->availableForTenantAssignment($this->record->organization_id, $this->record->id)
             ->get()
             ->mapWithKeys(fn (Property $property): array => [
-                $property->id => trim($property->name.' '.$property->unit_number.' '.$property->building?->name),
+                $property->id => $property->tenantAssignmentLabel(),
             ])
             ->all();
     }
 
+    private function findProperty(mixed $propertyId): ?Property
+    {
+        if (blank($propertyId)) {
+            return null;
+        }
+
+        return Property::query()
+            ->availableForTenantAssignment($this->record->organization_id, $this->record->id)
+            ->find($propertyId);
+    }
+
     private function refreshRecord(): void
     {
-        $record = User::query()
-            ->withTenantWorkspaceSummary($this->record->organization_id)
+        $this->record = TenantResource::getEloquentQuery()
             ->findOrFail($this->record->getKey());
+    }
 
-        $this->record = $record;
+    private function canResendInvitation(): bool
+    {
+        return $this->record->status === UserStatus::INACTIVE
+            && $this->latestInvitation() !== null;
+    }
+
+    private function latestInvitation(): ?OrganizationInvitation
+    {
+        if ($this->latestInvitation instanceof OrganizationInvitation) {
+            return $this->latestInvitation;
+        }
+
+        $organizationId = $this->record->organization_id;
+
+        if ($organizationId === null || blank($this->record->email)) {
+            return null;
+        }
+
+        $this->latestInvitation = OrganizationInvitation::query()
+            ->select([
+                'id',
+                'organization_id',
+                'inviter_user_id',
+                'email',
+                'role',
+                'full_name',
+                'token',
+                'expires_at',
+                'accepted_at',
+                'created_at',
+                'updated_at',
+            ])
+            ->forOrganization($organizationId)
+            ->where('email', $this->record->email)
+            ->where('role', $this->record->role)
+            ->whereNull('accepted_at')
+            ->latest('id')
+            ->first();
+
+        return $this->latestInvitation;
     }
 }

@@ -118,6 +118,7 @@ return [
         'garage' => 'Garažas',
         'parking' => 'Parkavimo vieta',
         'storage' => 'Sandėliukas',
+        'other' => 'Kita',
     ],
     'security_violation_severity' => [
         'low' => 'Žema',

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('lets managers use the shared app dashboard and workspace resources', function () {
+it('lets managers use the shared app dashboard and workspace resources without admin-only settings', function () {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
@@ -28,7 +28,9 @@ it('lets managers use the shared app dashboard and workspace resources', functio
         ->assertSuccessful()
         ->assertSee('data-shell-group="properties"', false)
         ->assertSee(route('filament.admin.resources.buildings.index'), false)
-        ->assertSee(route('filament.admin.resources.properties.index'), false);
+        ->assertSee(route('filament.admin.resources.properties.index'), false)
+        ->assertSee(route('filament.admin.pages.profile'), false)
+        ->assertDontSee(route('filament.admin.pages.settings'), false);
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.buildings.index'))
@@ -42,9 +44,7 @@ it('lets managers use the shared app dashboard and workspace resources', functio
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.settings'))
-        ->assertSuccessful()
-        ->assertDontSeeText('Subscription')
-        ->assertDontSeeText('Organization Settings');
+        ->assertForbidden();
 });
 
 it('does not expose any legacy manager-prefixed route surface', function (string $path) {

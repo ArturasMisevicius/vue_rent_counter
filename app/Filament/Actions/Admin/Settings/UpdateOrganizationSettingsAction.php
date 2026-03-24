@@ -14,10 +14,8 @@ class UpdateOrganizationSettingsAction
 
     /**
      * @param  array{
-     *     billing_contact_name: string|null,
+     *     organization_name: string,
      *     billing_contact_email: string|null,
-     *     billing_contact_phone: string|null,
-     *     payment_instructions: string|null,
      *     invoice_footer: string|null
      * }  $attributes
      */
@@ -25,11 +23,18 @@ class UpdateOrganizationSettingsAction
     {
         $this->subscriptionLimitGuard->ensureCanWrite($organization);
 
+        $organization->forceFill([
+            'name' => $attributes['organization_name'],
+        ])->save();
+
         return OrganizationSetting::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
             ],
-            $attributes,
+            [
+                'billing_contact_email' => $attributes['billing_contact_email'],
+                'invoice_footer' => $attributes['invoice_footer'],
+            ],
         );
     }
 }

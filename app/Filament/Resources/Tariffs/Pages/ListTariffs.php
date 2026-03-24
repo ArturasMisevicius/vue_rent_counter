@@ -13,7 +13,8 @@ class ListTariffs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label(__('admin.tariffs.actions.new_tariff')),
         ];
     }
 }

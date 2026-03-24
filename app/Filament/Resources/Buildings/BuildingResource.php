@@ -6,6 +6,7 @@ use App\Filament\Resources\Buildings\Pages\CreateBuilding;
 use App\Filament\Resources\Buildings\Pages\EditBuilding;
 use App\Filament\Resources\Buildings\Pages\ListBuildings;
 use App\Filament\Resources\Buildings\Pages\ViewBuilding;
+use App\Filament\Resources\Buildings\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Buildings\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Buildings\Schemas\BuildingForm;
 use App\Filament\Resources\Buildings\Schemas\BuildingInfolist;
@@ -161,6 +162,7 @@ class BuildingResource extends Resource
     {
         return [
             PropertiesRelationManager::class,
+            MetersRelationManager::class,
         ];
     }
 

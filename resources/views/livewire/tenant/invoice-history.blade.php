@@ -30,41 +30,19 @@
 
         <div class="space-y-4">
             @forelse ($invoices as $invoice)
-                <article wire:key="tenant-invoice-{{ $invoice->id }}" class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
-                    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div class="space-y-2">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ $invoice->invoice_number }}</h3>
-                                <x-shared.status-badge :status="$invoice->status" :model="$invoice" />
-                            </div>
+                <div wire:key="tenant-invoice-{{ $invoice->id }}" class="space-y-4">
+                    <x-shared.invoice-summary :invoice="$invoice" :presentation="$invoicePresentations[$invoice->id] ?? null" />
 
-                            <p class="text-sm text-slate-500">
-                                {{ __('tenant.pages.invoices.period', [
-                                    'start' => $invoice->billing_period_start->format('Y-m-d'),
-                                    'end' => $invoice->billing_period_end->format('Y-m-d'),
-                                ]) }}
-                            </p>
-
-                            @if ($invoice->property)
-                                <p class="text-sm text-slate-500">{{ $invoice->property->name }} · {{ $invoice->property->address }}</p>
-                            @endif
-                        </div>
-
-                        <div class="space-y-2 text-left md:text-right">
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.invoices.balance_due') }}</p>
-                            <p class="font-display text-3xl tracking-tight text-slate-950">{{ $invoice->currency }} {{ number_format((float) $invoice->outstanding_balance, 2) }}</p>
-                            <p class="text-sm text-slate-500">{{ __('tenant.pages.invoices.total', ['amount' => number_format((float) $invoice->total_amount, 2)]) }}</p>
-
-                            <button
-                                type="button"
-                                wire:click="downloadPdf({{ $invoice->id }})"
-                                class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white"
-                            >
-                                {{ __('tenant.actions.download_pdf') }}
-                            </button>
-                        </div>
+                    <div class="flex justify-end">
+                        <button
+                            type="button"
+                            wire:click="downloadPdf({{ $invoice->id }})"
+                            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                        >
+                            {{ __('tenant.actions.download_pdf') }}
+                        </button>
                     </div>
-                </article>
+                </div>
             @empty
                 @if ($selectedStatus === 'unpaid')
                     <x-shared.empty-state

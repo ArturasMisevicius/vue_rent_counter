@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Tenants\RelationManagers;
 
+use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\MeterReading;
+use App\Models\MeterReading as MeterReadingModel;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -29,6 +32,39 @@ class ReadingsRelationManager extends RelationManager
         $tenant = $this->getOwnerRecord();
 
         return $tenant->currentPropertyReadings()
+            ->select([
+                'meter_readings.id',
+                'meter_readings.organization_id',
+                'meter_readings.property_id',
+                'meter_readings.meter_id',
+                'meter_readings.submitted_by_user_id',
+                'meter_readings.reading_value',
+                'meter_readings.reading_date',
+                'meter_readings.validation_status',
+                'meter_readings.submission_method',
+                'meter_readings.notes',
+                'meter_readings.created_at',
+                'meter_readings.updated_at',
+            ])
+            ->selectSub(
+                MeterReadingModel::query()
+                    ->from('meter_readings as previous_meter_readings')
+                    ->select('previous_meter_readings.reading_value')
+                    ->whereColumn('previous_meter_readings.meter_id', 'meter_readings.meter_id')
+                    ->where(function (Builder $query): void {
+                        $query
+                            ->whereColumn('previous_meter_readings.reading_date', '<', 'meter_readings.reading_date')
+                            ->orWhere(function (Builder $sameDayQuery): void {
+                                $sameDayQuery
+                                    ->whereColumn('previous_meter_readings.reading_date', 'meter_readings.reading_date')
+                                    ->whereColumn('previous_meter_readings.id', '<', 'meter_readings.id');
+                            });
+                    })
+                    ->orderByDesc('previous_meter_readings.reading_date')
+                    ->orderByDesc('previous_meter_readings.id')
+                    ->limit(1),
+                'previous_reading_value',
+            )
             ->forOrganization($tenant->organization_id)
             ->withWorkspaceRelations()
             ->latestFirst();
@@ -38,28 +74,47 @@ class ReadingsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('meter.name')
-                    ->label(__('admin.meter_readings.columns.meter'))
+                TextColumn::make('meter.identifier')
+                    ->label(__('admin.tenants.readings.columns.meter'))
+                    ->state(fn (MeterReading $record): string => (string) ($record->meter?->identifier ?: $record->meter?->name ?: '—'))
                     ->searchable()
-                    ->sortable(),
-                TextColumn::make('property.name')
-                    ->label(__('admin.meter_readings.columns.property'))
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('reading_value')
-                    ->label(__('admin.meter_readings.columns.reading_value'))
-                    ->formatStateUsing(fn ($state): string => rtrim(rtrim(number_format((float) $state, 3, '.', ''), '0'), '.'))
                     ->sortable(),
                 TextColumn::make('reading_date')
-                    ->label(__('admin.meter_readings.columns.reading_date'))
-                    ->date()
+                    ->label(__('admin.tenants.readings.columns.reading_date'))
+                    ->date('M j, Y')
                     ->sortable(),
+                TextColumn::make('reading_value')
+                    ->label(__('admin.tenants.readings.columns.value'))
+                    ->state(fn (MeterReading $record): string => rtrim(rtrim(number_format((float) $record->reading_value, 3, '.', ''), '0'), '.').' '.($record->meter?->unit ?? ''))
+                    ->sortable(),
+                TextColumn::make('consumption_since_previous')
+                    ->label(__('admin.tenants.readings.columns.consumption'))
+                    ->state(function (MeterReading $record): string {
+                        $previousValue = $record->getAttribute('previous_reading_value');
+
+                        if ($previousValue === null) {
+                            return '—';
+                        }
+
+                        $consumption = (float) $record->reading_value - (float) $previousValue;
+
+                        return rtrim(rtrim(number_format($consumption, 3, '.', ''), '0'), '.').' '.($record->meter?->unit ?? '');
+                    }),
                 TextColumn::make('validation_status')
-                    ->label(__('admin.meter_readings.columns.validation_status'))
+                    ->label(__('admin.tenants.readings.columns.status'))
                     ->badge(),
+                TextColumn::make('submittedBy.name')
+                    ->label(__('admin.tenants.readings.columns.submitted_by'))
+                    ->default('—'),
+                TextColumn::make('submission_method')
+                    ->label(__('admin.tenants.readings.columns.submission_method'))
+                    ->state(fn (MeterReading $record): string => $record->submission_method === MeterReadingSubmissionMethod::TENANT_PORTAL
+                        ? __('admin.tenants.readings.submission_methods.tenant')
+                        : __('admin.tenants.readings.submission_methods.admin')),
             ])
             ->recordActions([
                 ViewAction::make()
+                    ->label(__('admin.actions.view'))
                     ->url(fn (MeterReading $record): string => MeterReadingResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('reading_date', 'desc');

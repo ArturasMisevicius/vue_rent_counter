@@ -25,6 +25,7 @@ class SendInvoiceEmailRequest extends FormRequest
     {
         return [
             'recipient_email' => ['required', 'email'],
+            'personal_message' => ['nullable', 'string'],
         ];
     }
 
@@ -46,6 +47,7 @@ class SendInvoiceEmailRequest extends FormRequest
     {
         return $this->translatedAttributes([
             'recipient_email',
+            'personal_message',
         ]);
     }
 
@@ -53,6 +55,7 @@ class SendInvoiceEmailRequest extends FormRequest
     {
         $this->trimStrings([
             'recipient_email',
+            'personal_message',
         ]);
     }
 }

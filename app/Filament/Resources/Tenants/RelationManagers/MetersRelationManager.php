@@ -29,6 +29,19 @@ class MetersRelationManager extends RelationManager
         $tenant = $this->getOwnerRecord();
 
         return $tenant->currentPropertyMeters()
+            ->select([
+                'meters.id',
+                'meters.organization_id',
+                'meters.property_id',
+                'meters.name',
+                'meters.identifier',
+                'meters.type',
+                'meters.status',
+                'meters.unit',
+                'meters.installed_at',
+                'meters.created_at',
+                'meters.updated_at',
+            ])
             ->forOrganization($tenant->organization_id)
             ->withWorkspaceSummary()
             ->ordered();
@@ -38,32 +51,33 @@ class MetersRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label(__('admin.meters.columns.name'))
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('identifier')
-                    ->label(__('admin.meters.columns.identifier'))
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('property.name')
-                    ->label(__('admin.meters.columns.property'))
+                    ->label(__('admin.tenants.meters.columns.serial_number'))
+                    ->state(fn (Meter $record): string => (string) ($record->identifier ?: $record->name))
+                    ->url(fn (Meter $record): string => MeterResource::getUrl('view', ['record' => $record]))
+                    ->fontFamily('mono')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
-                    ->label(__('admin.meters.columns.type'))
+                    ->label(__('admin.tenants.meters.columns.meter_type'))
                     ->badge(),
                 TextColumn::make('status')
-                    ->label(__('admin.meters.columns.status'))
+                    ->label(__('admin.tenants.meters.columns.status'))
                     ->badge(),
+                TextColumn::make('latestReading.reading_date')
+                    ->label(__('admin.tenants.meters.columns.last_reading_date'))
+                    ->state(fn (Meter $record): string => $record->latestReading?->reading_date?->format('F j, Y') ?? __('admin.tenants.empty.no_readings_yet')),
                 TextColumn::make('latestReading.reading_value')
-                    ->label(__('admin.meters.columns.latest_reading'))
-                    ->default(__('admin.meters.empty.readings')),
+                    ->label(__('admin.tenants.meters.columns.last_value'))
+                    ->state(fn (Meter $record): string => $record->latestReading !== null
+                        ? rtrim(rtrim(number_format((float) $record->latestReading->reading_value, 3, '.', ''), '0'), '.').' '.($record->unit ?? '')
+                        : '—'),
             ])
             ->recordActions([
                 ViewAction::make()
+                    ->label(__('admin.actions.view'))
                     ->url(fn (Meter $record): string => MeterResource::getUrl('view', ['record' => $record])),
             ])
-            ->defaultSort('name');
+            ->defaultSort('identifier');
     }
 }

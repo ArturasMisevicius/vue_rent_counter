@@ -16,6 +16,13 @@ class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
 
+    protected static bool $canCreateAnother = false;
+
+    public function getTitle(): string
+    {
+        return __('admin.tenants.titles.new');
+    }
+
     protected function authorizeAccess(): void
     {
         abort_unless(TenantResource::canViewAny(), 403);
@@ -68,6 +75,24 @@ class CreateTenant extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return TenantResource::getUrl('index');
+        return TenantResource::getUrl('view', [
+            'record' => $this->record,
+        ]);
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->label(__('admin.tenants.actions.save_tenant'));
+    }
+
+    protected function getCreatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title(__('admin.tenants.messages.tenant_created'))
+            ->body(__('admin.tenants.messages.invitation_sent', [
+                'email' => (string) $this->record?->email,
+            ]));
     }
 }

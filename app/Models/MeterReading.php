@@ -124,11 +124,30 @@ class MeterReading extends Model
     public function scopeWithWorkspaceRelations(Builder $query): Builder
     {
         return $query->with([
-            'meter:id,organization_id,property_id,name',
+            'meter:id,organization_id,property_id,name,identifier,unit',
             'meter.property:id,organization_id,building_id,name',
             'property:id,organization_id,building_id,name',
             'property.building:id,organization_id,name',
             'submittedBy:id,name',
+        ]);
+    }
+
+    public function scopeWithIndexRelations(Builder $query, bool $includeOrganization = false): Builder
+    {
+        $query->with([
+            'meter:id,organization_id,property_id,name,identifier,unit',
+            'meter.property:id,organization_id,building_id,name',
+            'property:id,organization_id,building_id,name',
+            'property.building:id,organization_id,name',
+            'submittedBy:id,name',
+        ]);
+
+        if (! $includeOrganization) {
+            return $query;
+        }
+
+        return $query->with([
+            'organization:id,name',
         ]);
     }
 
@@ -139,6 +158,42 @@ class MeterReading extends Model
             ->forOrganization($organizationId)
             ->withWorkspaceRelations()
             ->latestFirst();
+    }
+
+    public function scopeForWorkspaceIndex(Builder $query, bool $isSuperadmin, ?int $organizationId): Builder
+    {
+        $query = $query
+            ->select(self::WORKSPACE_COLUMNS)
+            ->withIndexRelations($isSuperadmin)
+            ->latestFirst();
+
+        if ($isSuperadmin) {
+            return $query;
+        }
+
+        if ($organizationId === null) {
+            return $query->whereKey(-1);
+        }
+
+        return $query->forOrganization($organizationId);
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->where('meter_readings.organization_id', $organizationId);
+    }
+
+    public function scopeForValidationStatusValue(Builder $query, int|string|null $validationStatus): Builder
+    {
+        if (blank($validationStatus)) {
+            return $query;
+        }
+
+        return $query->where('meter_readings.validation_status', $validationStatus);
     }
 
     public function organization(): BelongsTo

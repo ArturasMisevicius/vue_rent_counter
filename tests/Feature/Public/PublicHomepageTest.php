@@ -7,25 +7,30 @@ uses(RefreshDatabase::class);
 it('renders the tester-first public homepage', function () {
     $this->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Property operations platform, presented as a guided testing lab.')
-        ->assertSeeText('Login')
-        ->assertSeeText('Register')
+        ->assertSee('href="'.route('login').'"', false)
+        ->assertSee('href="'.route('register').'"', false)
+        ->assertSee('min-h-screen bg-brand-ink text-white antialiased', false)
+        ->assertSee('bg-[radial-gradient(circle_at_top', false)
+        ->assertSeeText(__('landing.hero.title', [], 'en'))
+        ->assertSeeText(__('landing.cta.login', [], 'en'))
+        ->assertSeeText(__('landing.cta.register', [], 'en'))
         ->assertSeeText('Superadmin')
         ->assertSeeText('Admin')
         ->assertSeeText('Manager')
         ->assertSeeText('Tenant')
-        ->assertSeeText('For system testers')
-        ->assertSeeText('Switch between English, Lithuanian, and Russian.')
-        ->assertSeeText('What Tenanto is growing into')
-        ->assertSeeText('Cross-cutting behavioral rules')
-        ->assertSeeText('Ready to explore the public flow?');
+        ->assertSeeText(__('landing.tester.heading', [], 'en'))
+        ->assertSeeText(__('landing.tester.items.0', [], 'en'))
+        ->assertSeeText(__('landing.roadmap.heading', [], 'en'))
+        ->assertSeeText(__('landing.roadmap.items.4.title', [], 'en'))
+        ->assertSeeText(__('landing.cta.heading', [], 'en'));
 });
 
-it('renders the homepage locale switcher with all supported guest locales', function () {
+it('renders the homepage locale switcher with configured guest locales', function () {
     $this->get('/')
         ->assertSuccessful()
         ->assertSee('value="en"', false)
         ->assertSee('value="lt"', false)
+        ->assertSee('value="es"', false)
         ->assertSee('value="ru"', false);
 });
 
@@ -34,7 +39,7 @@ it('renders the homepage in lithuanian when the guest locale is lt', function ()
         'guest_locale' => 'lt',
     ])->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Turto operacijų platforma, pateikta kaip kryptinga testavimo erdvė.');
+        ->assertSeeText(__('landing.hero.title', [], 'lt'));
 });
 
 it('falls back to english when the guest locale is unsupported', function () {
@@ -42,9 +47,9 @@ it('falls back to english when the guest locale is unsupported', function () {
         'guest_locale' => 'de',
     ])->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Property operations platform, presented as a guided testing lab.')
-        ->assertSeeText('Login')
-        ->assertSeeText('Register');
+        ->assertSeeText(__('landing.hero.title', [], 'en'))
+        ->assertSeeText(__('landing.cta.login', [], 'en'))
+        ->assertSeeText(__('landing.cta.register', [], 'en'));
 });
 
 it('renders the homepage in russian when the guest locale is ru', function () {
@@ -52,9 +57,19 @@ it('renders the homepage in russian when the guest locale is ru', function () {
         'guest_locale' => 'ru',
     ])->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Платформа операций с недвижимостью, представленная как управляемая тестовая среда.')
-        ->assertSeeText('Войти')
-        ->assertSeeText('Регистрация');
+        ->assertSeeText(__('landing.hero.title', [], 'ru'))
+        ->assertSeeText(__('landing.cta.login', [], 'ru'))
+        ->assertSeeText(__('landing.cta.register', [], 'ru'));
+});
+
+it('renders the homepage in spanish when the guest locale is es', function () {
+    $this->withSession([
+        'guest_locale' => 'es',
+    ])->get('/')
+        ->assertSuccessful()
+        ->assertSeeText(__('landing.hero.title', [], 'es'))
+        ->assertSeeText(__('landing.cta.login', [], 'es'))
+        ->assertSeeText(__('landing.cta.register', [], 'es'));
 });
 
 it('links the favicon on public and guest pages', function () {

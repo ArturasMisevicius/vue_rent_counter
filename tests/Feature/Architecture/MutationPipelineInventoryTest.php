@@ -21,6 +21,13 @@ it('keeps representative mutation entrypoints delegated to shared request, actio
             'GenerateBulkInvoicesRequest',
             'validatePayload(',
         ],
+        'app/Filament/Actions/Admin/Invoices/CreateInvoiceDraftAction.php' => [
+            'CreateInvoiceDraftRequest',
+            'validatePayload(',
+            'BillingServiceInterface',
+            'SubscriptionLimitGuard',
+            'billingService->createDraft(',
+        ],
         'app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php' => [
             'StoreMeterReadingRequest',
             'validatePayload(',

@@ -1,7 +1,7 @@
 ---
 phase: 1
 slug: safety-freeze-and-guardrails
-status: draft
+status: blocked
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-03-19
@@ -39,16 +39,16 @@ created: 2026-03-19
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 01-01-01 | 01 | 1 | SEC-05 | feature + architecture | `php artisan test tests/Feature/Security/NoPublicDebugFilesTest.php tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php --compact` | ❌ planned | ⬜ pending |
-| 01-02-01 | 02 | 1 | SEC-05 | feature + architecture | `php artisan test tests/Feature/Public/PwaIntegrationTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php --compact` | ❌ planned | ⬜ pending |
-| 01-02-02 | 02 | 1 | SEC-05 | architecture | `php artisan test tests/Feature/Public/PwaIntegrationTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php --compact` | ❌ planned | ⬜ pending |
-| 01-03-01 | 03 | 2 | SEC-05 | feature | `php artisan test tests/Feature/Security/SecurityHeadersTest.php tests/Feature/Security/CspReportRateLimitTest.php --compact` | ❌ planned | ⬜ pending |
-| 01-04-01 | 04 | 3 | GOV-03, OPS-04 | formatting + architecture/inventory | `vendor/bin/pint --test app config database routes tests resources/views bootstrap/app.php && php artisan test tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php tests/Feature/Architecture/FilamentFoundationPlacementTest.php tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php --compact` | ❌ planned | ⬜ pending |
-| 01-04-02 | 04 | 3 | GOV-03, OPS-04 | integration | `composer guard:phase1` | ⚠ depends on 01-04-01 | ⬜ pending |
-| 01-05-01 | 05 | 4 | GOV-03 | blocking post-merge checkpoint | `Manual prerequisite: workflow is merged to remote \`main\` and has one successful \`Phase 1 Guardrails\` run` | ⚠ external remote run required | ⬜ pending |
-| 01-05-02 | 05 | 4 | GOV-03 | integration | `if command -v gh >/dev/null 2>&1; then gh api repos/ArturasMisevicius/vue_rent_counter/branches/main/protection --jq '.required_status_checks.checks[]?.context'; else curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer \${GITHUB_TOKEN:?GITHUB_TOKEN is required when gh is unavailable}" https://api.github.com/repos/ArturasMisevicius/vue_rent_counter/branches/main/protection; fi \| rg 'Phase 1 Guardrails'` | ⚠ external auth/tooling may be required | ⬜ pending |
+| 01-01-01 | 01 | 1 | SEC-05 | feature + architecture | `php artisan test tests/Feature/Security/NoPublicDebugFilesTest.php tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php --compact` | ✅ verified | ✅ complete |
+| 01-02-01 | 02 | 1 | SEC-05 | feature + architecture | `php artisan test tests/Feature/Public/PwaIntegrationTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php --compact` | ✅ verified | ✅ complete |
+| 01-02-02 | 02 | 1 | SEC-05 | architecture | `php artisan test tests/Feature/Public/PwaIntegrationTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php --compact` | ✅ verified | ✅ complete |
+| 01-03-01 | 03 | 2 | SEC-05 | feature | `php artisan test tests/Feature/Security/SecurityHeadersTest.php tests/Feature/Security/CspReportRateLimitTest.php --compact` | ✅ verified | ✅ complete |
+| 01-04-01 | 04 | 3 | GOV-03, OPS-04 | formatting + architecture/inventory | `vendor/bin/pint --test app config database routes tests resources/views bootstrap/app.php && php artisan test tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php tests/Feature/Architecture/FilamentFoundationPlacementTest.php tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php --compact` | ✅ verified | ✅ complete |
+| 01-04-02 | 04 | 3 | GOV-03, OPS-04 | integration | `composer guard:phase1` | ✅ verified | ✅ complete |
+| 01-05-01 | 05 | 4 | GOV-03 | blocking post-merge checkpoint | `Manual prerequisite: workflow is merged to remote \`main\` and has one successful \`Phase 1 Guardrails\` run` | ⚠ external remote run required | ⚠ blocked external |
+| 01-05-02 | 05 | 4 | GOV-03 | integration | `if command -v gh >/dev/null 2>&1; then gh api repos/ArturasMisevicius/vue_rent_counter/branches/main/protection --jq '.required_status_checks.checks[]?.context'; else curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer \${GITHUB_TOKEN:?GITHUB_TOKEN is required when gh is unavailable}" https://api.github.com/repos/ArturasMisevicius/vue_rent_counter/branches/main/protection; fi \| rg 'Phase 1 Guardrails'` | ⚠ external auth/tooling may be required | ⚠ blocked external |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: ⬜ pending · ✅ complete · ❌ red · ⚠ blocked external*
 
 ---
 
@@ -63,7 +63,7 @@ Existing phase plans create the missing verification assets in execution order; 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
 | Task `01-05-01`: first successful remote workflow run exists on `main` | GOV-03 | The required status check cannot be configured until the workflow has been merged and run once on the remote branch | Merge the workflow change, wait for one successful `Phase 1 Guardrails` run on remote `main`, then resume execution for Task `01-05-02` |
-| Authentication or tooling fallback for Task `01-05-02` | GOV-03 | Branch protection is planned as API/CLI automation first, but the executor may still hit a missing `gh` install or missing GitHub auth gate at runtime | If the automation step cannot authenticate or lacks CLI tooling, complete the prompted auth/tooling step, then let the executor rerun the dual-path API verification command |
+| Authentication or tooling fallback for Task `01-05-02` | GOV-03 | Branch protection is planned as API/CLI automation first, but the executor may still hit a missing `gh` install or missing GitHub auth gate at runtime | If the automation step cannot authenticate or lacks CLI tooling, run `php artisan ops:phase1-guardrails-branch-protection` on an authorized machine to print the exact endpoint, payload, apply, and verify commands, then execute the printed remote commands after credentials are available |
 
 ---
 
@@ -77,4 +77,4 @@ Existing phase plans create the missing verification assets in execution order; 
 - [x] Feedback latency < 120s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** local automated verification complete on 2026-03-24; remote branch-protection checkpoint still blocked pending GitHub access and first remote `main` workflow run

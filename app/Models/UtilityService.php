@@ -129,4 +129,70 @@ class UtilityService extends Model
             ->visibleToOrganization($organizationId)
             ->ordered();
     }
+
+    public function scopeWithIndexRelations(Builder $query, bool $includeOrganization = false): Builder
+    {
+        if (! $includeOrganization) {
+            return $query;
+        }
+
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
+    public function scopeForWorkspaceIndex(Builder $query, bool $isSuperadmin, ?int $organizationId): Builder
+    {
+        $query = $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations($isSuperadmin)
+            ->withCount('serviceConfigurations')
+            ->ordered();
+
+        if ($isSuperadmin) {
+            return $query;
+        }
+
+        if ($organizationId === null) {
+            return $query->whereKey(-1);
+        }
+
+        return $query->visibleToOrganization($organizationId);
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForServiceTypeValue(Builder $query, ?string $serviceType): Builder
+    {
+        if (blank($serviceType)) {
+            return $query;
+        }
+
+        return $query->where('service_type_bridge', $serviceType);
+    }
+
+    public function scopeForGlobalTemplateValue(Builder $query, bool|int|string|null $isGlobalTemplate): Builder
+    {
+        if ($isGlobalTemplate === null || $isGlobalTemplate === '') {
+            return $query;
+        }
+
+        return $query->where('is_global_template', filter_var($isGlobalTemplate, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+    }
+
+    public function scopeForActiveValue(Builder $query, bool|int|string|null $isActive): Builder
+    {
+        if ($isActive === null || $isActive === '') {
+            return $query;
+        }
+
+        return $query->where('is_active', filter_var($isActive, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+    }
 }

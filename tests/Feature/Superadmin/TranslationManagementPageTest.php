@@ -1,8 +1,10 @@
 <?php
 
+use App\Enums\LanguageStatus;
 use App\Filament\Actions\Superadmin\Translations\ExportMissingTranslationsAction;
 use App\Filament\Actions\Superadmin\Translations\ImportTranslationsAction;
 use App\Filament\Actions\Superadmin\Translations\UpdateTranslationValueAction;
+use App\Filament\Pages\TranslationManagement;
 use App\Filament\Support\Superadmin\Translations\TranslationCatalogService;
 use App\Models\Language;
 use App\Models\Organization;
@@ -11,10 +13,11 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('shows translation management only to superadmins', function () {
+it('shows translation management only to superadmins and only renders active locale columns', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
@@ -26,6 +29,21 @@ it('shows translation management only to superadmins', function () {
         'name' => 'English',
         'native_name' => 'English',
         'is_default' => true,
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+
+    Language::factory()->create([
+        'code' => 'lt',
+        'name' => 'Lithuanian',
+        'native_name' => 'Lietuviu',
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+
+    Language::factory()->create([
+        'code' => 'qx',
+        'name' => 'Inactive Test Locale',
+        'native_name' => 'Inactive Test Locale',
+        'status' => LanguageStatus::INACTIVE,
     ]);
 
     Translation::query()->create([
@@ -33,6 +51,8 @@ it('shows translation management only to superadmins', function () {
         'key' => 'login_title',
         'values' => [
             'en' => 'Sign in',
+            'lt' => 'Prisijungti',
+            'qx' => 'Do not expose this',
         ],
     ]);
 
@@ -40,11 +60,84 @@ it('shows translation management only to superadmins', function () {
         ->get(route('filament.admin.pages.translation-management'))
         ->assertSuccessful()
         ->assertSeeText('Translation Management')
-        ->assertSeeText('auth.login_title');
+        ->assertSeeText('Review the catalog across active locales and edit values inline.')
+        ->assertSeeText('Export Missing CSV')
+        ->assertSeeText('Import CSV')
+        ->assertSeeText('auth.login_title')
+        ->assertSeeText('EN')
+        ->assertSeeText('LT')
+        ->assertSee('draftValues.auth.login_title.en', false)
+        ->assertSee('draftValues.auth.login_title.lt', false)
+        ->assertDontSee('draftValues.auth.login_title.qx', false)
+        ->assertDontSeeText('Do not expose this');
 
     $this->actingAs($admin)
         ->get(route('filament.admin.pages.translation-management'))
         ->assertForbidden();
+});
+
+it('shows the empty state when no active languages are configured', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    Language::factory()->create([
+        'code' => 'qx',
+        'name' => 'Inactive Test Locale',
+        'native_name' => 'Inactive Test Locale',
+        'status' => LanguageStatus::INACTIVE,
+    ]);
+
+    Translation::query()->create([
+        'group' => 'messages',
+        'key' => 'welcome',
+        'values' => [
+            'qx' => 'Hidden value',
+        ],
+    ]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.pages.translation-management'))
+        ->assertSuccessful()
+        ->assertSeeText('No languages are configured yet.')
+        ->assertDontSee('draftValues.messages.welcome.qx', false);
+});
+
+it('updates translation values inline on the page', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $this->actingAs($superadmin);
+
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'native_name' => 'English',
+        'is_default' => true,
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+
+    Language::factory()->create([
+        'code' => 'lt',
+        'name' => 'Lithuanian',
+        'native_name' => 'Lietuviu',
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+
+    Translation::query()->create([
+        'group' => 'messages',
+        'key' => 'welcome',
+        'values' => [
+            'en' => 'Welcome',
+            'lt' => '',
+        ],
+    ]);
+
+    Livewire::test(TranslationManagement::class)
+        ->set('draftValues.messages.welcome.en', 'Welcome back')
+        ->call('saveValue', 'messages', 'welcome', 'en');
+
+    expect(Translation::query()->where('group', 'messages')->where('key', 'welcome')->firstOrFail()->values)
+        ->toMatchArray([
+            'en' => 'Welcome back',
+            'lt' => '',
+        ]);
 });
 
 it('updates imports and exports translation files inside a filesystem sandbox', function () {

@@ -2,6 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\Shell\Notifications\DatabaseNotificationFeed;
+use App\Filament\Support\Shell\Notifications\DatabaseNotificationPresenter;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 class PlatformNotifications extends Page
@@ -12,9 +15,59 @@ class PlatformNotifications extends Page
 
     protected string $view = 'filament.pages.platform-notifications';
 
+    public ?string $statusMessage = null;
+
     public function getTitle(): string
     {
         return 'Platform Notifications';
+    }
+
+    protected function getViewData(): array
+    {
+        $feed = app(DatabaseNotificationFeed::class);
+        $user = auth()->user();
+
+        return [
+            'notifications' => $feed->presentFor($user, app(DatabaseNotificationPresenter::class), 25),
+            'unreadCount' => $feed->unreadCount($user),
+            'totalCount' => $feed->totalCount($user),
+        ];
+    }
+
+    public function openNotification(string $notificationId): void
+    {
+        abort_unless(static::canAccess(), 403);
+
+        $notification = app(DatabaseNotificationFeed::class)->findNotification(auth()->user(), $notificationId);
+
+        if ($notification === null) {
+            return;
+        }
+
+        if ($notification->read_at === null) {
+            $notification->markAsRead();
+        }
+
+        $this->statusMessage = 'Notification opened.';
+
+        $destination = app(DatabaseNotificationPresenter::class)->present($notification)['url'];
+
+        if ($destination !== null) {
+            $this->redirect($destination, navigate: str_starts_with($destination, '/'));
+        }
+    }
+
+    public function markAllAsRead(): void
+    {
+        abort_unless(static::canAccess(), 403);
+
+        app(DatabaseNotificationFeed::class)->markAllAsRead(auth()->user());
+        $this->statusMessage = 'All notifications marked as read.';
+
+        Notification::make()
+            ->title($this->statusMessage)
+            ->success()
+            ->send();
     }
 
     public static function canAccess(): bool

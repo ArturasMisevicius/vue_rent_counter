@@ -22,6 +22,7 @@ class InvoiceEmailLogFactory extends Factory
             'recipient_email' => fake()->safeEmail(),
             'subject' => 'Invoice ready',
             'status' => 'sent',
+            'personal_message' => null,
             'sent_at' => now(),
         ];
     }

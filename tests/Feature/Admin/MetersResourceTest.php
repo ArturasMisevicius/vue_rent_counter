@@ -6,14 +6,18 @@ use App\Filament\Actions\Admin\Meters\CreateMeterAction;
 use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
 use App\Filament\Actions\Admin\Meters\ToggleMeterStatusAction;
 use App\Filament\Actions\Admin\Meters\UpdateMeterAction;
+use App\Filament\Resources\Meters\Pages\ListMeters;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -154,4 +158,72 @@ it('reactivates actionable meter statuses but leaves retired meters unchanged', 
 
     expect($reactivated->status)->toBe(MeterStatus::ACTIVE)
         ->and($unchanged->status)->toBe(MeterStatus::RETIRED);
+});
+
+it('shows organization context on the meters list for superadmins while keeping admins scoped', function () {
+    $organizationA = Organization::factory()->create([
+        'name' => 'Northwind Estates',
+    ]);
+    $organizationB = Organization::factory()->create([
+        'name' => 'Aurora Towers',
+    ]);
+
+    $buildingA = Building::factory()->for($organizationA)->create([
+        'name' => 'North Hall',
+    ]);
+    $buildingB = Building::factory()->for($organizationB)->create([
+        'name' => 'Aurora Block',
+    ]);
+
+    $propertyA = Property::factory()->for($organizationA)->for($buildingA)->create([
+        'name' => 'A-12',
+    ]);
+    $propertyB = Property::factory()->for($organizationB)->for($buildingB)->create([
+        'name' => 'B-24',
+    ]);
+
+    $meterA = Meter::factory()->for($organizationA)->for($propertyA)->create([
+        'name' => 'North Meter',
+        'type' => MeterType::WATER,
+        'status' => MeterStatus::ACTIVE,
+    ]);
+    $meterB = Meter::factory()->for($organizationB)->for($propertyB)->create([
+        'name' => 'Aurora Meter',
+        'type' => MeterType::ELECTRICITY,
+        'status' => MeterStatus::INACTIVE,
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organizationA->id,
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.meters.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Meters')
+        ->assertSeeText($meterA->name)
+        ->assertDontSeeText($meterB->name);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.meters.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Meters')
+        ->assertSeeText($meterA->name)
+        ->assertSeeText($meterB->name)
+        ->assertSeeText($organizationA->name)
+        ->assertSeeText($organizationB->name);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListMeters::class)
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Organization')
+        ->assertTableColumnStateSet('organization.name', $organizationA->name, $meterA)
+        ->assertTableColumnStateSet('organization.name', $organizationB->name, $meterB)
+        ->assertTableColumnStateSet('type', MeterType::WATER, $meterA)
+        ->assertCanSeeTableRecords([$meterA, $meterB])
+        ->filterTable('organization', (string) $organizationA->getKey())
+        ->assertCanSeeTableRecords([$meterA])
+        ->assertCanNotSeeTableRecords([$meterB]);
 });

@@ -76,6 +76,7 @@ class AuditLogger
             'subject_type' => $subject::class,
             'subject_id' => $subject->getKey(),
             'description' => $description ?? class_basename($subject).' '.$action->value,
+            'ip_address' => request()->ip(),
             'metadata' => $sanitizedMetadata,
             'occurred_at' => now(),
         ]);

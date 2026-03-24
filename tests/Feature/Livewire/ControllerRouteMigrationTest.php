@@ -25,8 +25,11 @@ use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Tests\Support\TenantPortalFactory;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 uses(RefreshDatabase::class);
 
@@ -57,7 +60,7 @@ it('renders migrated public and nested tenant routes through the expected livewi
                 'email' => 'reset-route@example.com',
             ]);
 
-            $token = Password::broker()->createToken($user);
+            $token = Str::random(64);
 
             return $test->get(route('password.reset', [
                 'token' => $token,
@@ -122,12 +125,14 @@ it('renders tenant property and profile routes without legacy livewire page wrap
         ->withMeters(1)
         ->create();
 
-    $this->actingAs($tenant->user)
-        ->get(route('filament.admin.pages.tenant-property-details'))
+    actingAs($tenant->user);
+
+    get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful();
 
-    $this->actingAs($tenant->user)
-        ->get(route('filament.admin.pages.profile'))
+    actingAs($tenant->user);
+
+    get(route('filament.admin.pages.profile'))
         ->assertSuccessful();
 });
 
@@ -137,8 +142,9 @@ it('keeps shared profile routing as a redirect into the appropriate destination'
         'organization_id' => $organization->id,
     ]);
 
-    $this->actingAs($tenant)
-        ->get(route('profile.edit'))
+    actingAs($tenant);
+
+    get(route('profile.edit'))
         ->assertRedirect(route('filament.admin.pages.profile'));
 });
 

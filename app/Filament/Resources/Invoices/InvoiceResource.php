@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Invoices;
 
+use App\Filament\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
 use App\Filament\Resources\Invoices\Pages\ViewInvoice;
@@ -87,12 +88,6 @@ class InvoiceResource extends Resource
     {
         $user = static::currentUser();
 
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->withAdminWorkspaceRelations()
-                ->latestBillingFirst();
-        }
-
         if ($user?->isTenant()) {
             $workspace = app(WorkspaceResolver::class)->resolveFor($user);
 
@@ -106,12 +101,8 @@ class InvoiceResource extends Resource
 
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
         return parent::getEloquentQuery()
-            ->forAdminWorkspace($organizationId);
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canViewAny(): bool
@@ -164,6 +155,7 @@ class InvoiceResource extends Resource
     {
         return [
             'index' => ListInvoices::route('/'),
+            'create' => CreateInvoice::route('/create'),
             'view' => ViewInvoice::route('/{record}'),
             'edit' => EditInvoice::route('/{record}/edit'),
         ];

@@ -22,6 +22,7 @@ class Property extends Model
         'organization_id',
         'building_id',
         'name',
+        'floor',
         'unit_number',
         'type',
         'floor_area_sqm',
@@ -34,6 +35,7 @@ class Property extends Model
         'organization_id',
         'building_id',
         'name',
+        'floor',
         'unit_number',
         'type',
         'floor_area_sqm',
@@ -45,6 +47,7 @@ class Property extends Model
         'organization_id',
         'building_id',
         'name',
+        'floor',
         'unit_number',
         'type',
         'floor_area_sqm',
@@ -54,6 +57,7 @@ class Property extends Model
     {
         return [
             'type' => PropertyType::class,
+            'floor' => 'integer',
             'floor_area_sqm' => 'decimal:2',
         ];
     }
@@ -121,6 +125,40 @@ class Property extends Model
             ->ordered();
     }
 
+    public function scopeAvailableForTenantAssignment(
+        Builder $query,
+        int $organizationId,
+        ?int $tenantId = null,
+    ): Builder {
+        return $query
+            ->select([
+                'id',
+                'organization_id',
+                'building_id',
+                'name',
+                'floor',
+                'unit_number',
+                'type',
+                'floor_area_sqm',
+            ])
+            ->where('organization_id', $organizationId)
+            ->with([
+                'building:id,organization_id,name',
+            ])
+            ->where(function (Builder $propertyQuery) use ($tenantId): void {
+                $propertyQuery
+                    ->whereDoesntHave('currentAssignment')
+                    ->when(
+                        $tenantId !== null,
+                        fn (Builder $tenantPropertyQuery): Builder => $tenantPropertyQuery->orWhereHas(
+                            'currentAssignment',
+                            fn (Builder $assignmentQuery): Builder => $assignmentQuery->where('tenant_user_id', $tenantId),
+                        ),
+                    );
+            })
+            ->ordered();
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -175,13 +213,77 @@ class Property extends Model
         return $this->currentAssignment?->tenant;
     }
 
+    public function isOccupied(): bool
+    {
+        return $this->currentAssignment !== null;
+    }
+
+    public function occupancyStatusLabel(): string
+    {
+        return $this->isOccupied()
+            ? __('admin.properties.statuses.occupied')
+            : __('admin.properties.statuses.vacant');
+    }
+
+    public function floorDisplay(): string
+    {
+        return match (true) {
+            $this->floor === 0 => __('admin.properties.floor.ground'),
+            $this->floor !== null => (string) $this->floor,
+            default => '—',
+        };
+    }
+
+    public function areaDisplay(): string
+    {
+        if ($this->floor_area_sqm === null) {
+            return '—';
+        }
+
+        return rtrim(rtrim(number_format((float) $this->floor_area_sqm, 2, '.', ''), '0'), '.').' m²';
+    }
+
+    public function tenantAssignmentLabel(): string
+    {
+        $parts = array_filter([
+            $this->name,
+            $this->unit_number,
+            $this->building?->name,
+        ]);
+
+        return implode(' · ', $parts);
+    }
+
+    public function canBeDeletedFromAdminWorkspace(): bool
+    {
+        if ($this->currentAssignment !== null) {
+            return false;
+        }
+
+        return ! (
+            $this->assignments()->exists()
+            || $this->meters()->exists()
+            || $this->invoices()->exists()
+        );
+    }
+
+    public function adminDeletionBlockedReason(): ?string
+    {
+        if ($this->currentAssignment !== null) {
+            return __('admin.properties.messages.delete_blocked_active_tenant');
+        }
+
+        return $this->canBeDeletedFromAdminWorkspace()
+            ? null
+            : __('admin.properties.messages.delete_blocked');
+    }
+
     public function getAddressAttribute(): string
     {
         $building = $this->building;
         $parts = array_filter([
-            $building?->address_line_1,
-            $this->unit_number ? 'Unit '.$this->unit_number : null,
-            $building?->city,
+            $building?->name,
+            $building?->address,
         ]);
 
         return implode(', ', $parts);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use Closure;
@@ -27,6 +28,7 @@ class User extends Authenticatable implements FilamentUser
         'organization_id',
         'name',
         'email',
+        'phone',
         'role',
         'status',
         'locale',
@@ -40,6 +42,7 @@ class User extends Authenticatable implements FilamentUser
         'organization_id',
         'name',
         'email',
+        'phone',
         'role',
         'status',
         'locale',
@@ -56,6 +59,7 @@ class User extends Authenticatable implements FilamentUser
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'role',
         'status',
         'locale',
@@ -135,8 +139,22 @@ class User extends Authenticatable implements FilamentUser
     {
         return $query->with([
             'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
-            'currentPropertyAssignment.property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
+            'currentPropertyAssignment.property:id,organization_id,building_id,name,floor,unit_number,type,floor_area_sqm',
             'currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
+        ]);
+    }
+
+    public function scopeWithPaidInvoiceSummary(Builder $query): Builder
+    {
+        return $query->withSum([
+            'invoices as tenant_total_paid_amount' => fn (Builder $invoiceQuery): Builder => $invoiceQuery->where('status', InvoiceStatus::PAID),
+        ], 'amount_paid');
+    }
+
+    public function scopeWithTenantDeletionSummary(Builder $query): Builder
+    {
+        return $query->withExists([
+            'invoices as tenant_delete_has_invoices',
         ]);
     }
 
@@ -147,6 +165,20 @@ class User extends Authenticatable implements FilamentUser
             ->forOrganization($organizationId)
             ->tenants()
             ->withCurrentPropertySummary()
+            ->withPaidInvoiceSummary()
+            ->withTenantDeletionSummary()
+            ->orderedByName();
+    }
+
+    public function scopeForTenantControlPlane(Builder $query): Builder
+    {
+        return $query
+            ->select(self::TENANT_WORKSPACE_COLUMNS)
+            ->tenants()
+            ->withCurrentPropertySummary()
+            ->withPaidInvoiceSummary()
+            ->withTenantDeletionSummary()
+            ->withOrganizationSummary()
             ->orderedByName();
     }
 
@@ -380,6 +412,56 @@ class User extends Authenticatable implements FilamentUser
     public function getCurrentPropertyAttribute(): ?Property
     {
         return $this->currentPropertyAssignment?->property;
+    }
+
+    public function currentUnitAreaDisplay(): string
+    {
+        $unitArea = $this->currentPropertyAssignment?->unit_area_sqm;
+
+        if ($unitArea === null) {
+            return '—';
+        }
+
+        return rtrim(rtrim(number_format((float) $unitArea, 2, '.', ''), '0'), '.').' m²';
+    }
+
+    public function totalPaidAmount(): float
+    {
+        $value = $this->getAttribute('tenant_total_paid_amount');
+
+        if ($value !== null) {
+            return (float) $value;
+        }
+
+        return (float) $this->invoices()
+            ->select(['id', 'tenant_user_id', 'amount_paid', 'status'])
+            ->where('status', InvoiceStatus::PAID)
+            ->sum('amount_paid');
+    }
+
+    public function totalPaidDisplay(string $currency = 'EUR'): string
+    {
+        return sprintf('%s %s', $currency, number_format($this->totalPaidAmount(), 2));
+    }
+
+    public function canBeDeletedFromAdminWorkspace(): bool
+    {
+        $hasInvoices = $this->getAttribute('tenant_delete_has_invoices');
+
+        if ($hasInvoices !== null) {
+            return ! (bool) $hasInvoices;
+        }
+
+        return ! $this->invoices()
+            ->select(['id', 'tenant_user_id'])
+            ->exists();
+    }
+
+    public function adminDeletionBlockedReason(): ?string
+    {
+        return $this->canBeDeletedFromAdminWorkspace()
+            ? null
+            : __('admin.tenants.messages.delete_blocked');
     }
 
     private function hasSuperadminDeletionInvoiceBlocker(): bool

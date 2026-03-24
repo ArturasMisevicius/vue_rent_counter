@@ -4,8 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Filament\Actions\Superadmin\Integration\ResetIntegrationCircuitBreakerAction;
 use App\Filament\Actions\Superadmin\Integration\RunIntegrationHealthChecksAction;
+use App\Filament\Support\Superadmin\Integration\IntegrationHealthPageData;
 use App\Models\IntegrationHealthCheck;
-use App\Models\SecurityViolation;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -29,40 +29,7 @@ class IntegrationHealth extends Page
 
     protected function getViewData(): array
     {
-        return [
-            'checks' => IntegrationHealthCheck::query()
-                ->select([
-                    'id',
-                    'key',
-                    'label',
-                    'status',
-                    'summary',
-                    'details',
-                    'response_time_ms',
-                    'checked_at',
-                ])
-                ->orderBy('label')
-                ->get(),
-            'recentViolations' => SecurityViolation::query()
-                ->select([
-                    'id',
-                    'organization_id',
-                    'user_id',
-                    'type',
-                    'severity',
-                    'ip_address',
-                    'summary',
-                    'metadata',
-                    'occurred_at',
-                ])
-                ->with([
-                    'organization:id,name',
-                ])
-                ->orderByDesc('occurred_at')
-                ->orderByDesc('id')
-                ->limit(5)
-                ->get(),
-        ];
+        return app(IntegrationHealthPageData::class)->viewData();
     }
 
     public static function canAccess(): bool
@@ -75,7 +42,7 @@ class IntegrationHealth extends Page
         abort_unless(static::canAccess(), 403);
 
         $check = IntegrationHealthCheck::query()
-            ->select(['id', 'key', 'label', 'status', 'summary', 'details', 'response_time_ms', 'checked_at'])
+            ->forOperationsPage()
             ->findOrFail($checkId);
 
         app(RunIntegrationHealthChecksAction::class)->handle($check->key);
@@ -91,7 +58,7 @@ class IntegrationHealth extends Page
         abort_unless(static::canAccess(), 403);
 
         $check = IntegrationHealthCheck::query()
-            ->select(['id', 'key', 'label', 'status', 'summary', 'details', 'response_time_ms', 'checked_at'])
+            ->forOperationsPage()
             ->findOrFail($checkId);
 
         app(ResetIntegrationCircuitBreakerAction::class)->handle($check);

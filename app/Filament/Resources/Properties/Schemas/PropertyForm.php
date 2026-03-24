@@ -20,7 +20,7 @@ class PropertyForm
     {
         return $schema
             ->components([
-                Section::make(__('admin.properties.sections.details'))
+                Section::make(__('admin.properties.sections.information'))
                     ->schema([
                         Select::make('organization_id')
                             ->label(__('superadmin.organizations.singular'))
@@ -71,19 +71,29 @@ class PropertyForm
                             ->preload()
                             ->required(),
                         TextInput::make('name')
-                            ->label(__('admin.properties.fields.name'))
+                            ->label(__('admin.properties.fields.property_name'))
                             ->required()
                             ->maxLength(255),
+                        TextInput::make('floor')
+                            ->label(__('admin.properties.fields.floor'))
+                            ->numeric()
+                            ->minValue(0),
                         TextInput::make('unit_number')
                             ->label(__('admin.properties.fields.unit_number'))
-                            ->required()
                             ->maxLength(50),
                         Select::make('type')
                             ->label(__('admin.properties.fields.type'))
-                            ->options(PropertyType::options())
+                            ->options([
+                                PropertyType::APARTMENT->value => PropertyType::APARTMENT->label(),
+                                PropertyType::HOUSE->value => PropertyType::HOUSE->label(),
+                                PropertyType::OFFICE->value => PropertyType::OFFICE->label(),
+                                PropertyType::COMMERCIAL->value => PropertyType::COMMERCIAL->label(),
+                                PropertyType::STORAGE->value => PropertyType::STORAGE->label(),
+                                PropertyType::OTHER->value => PropertyType::OTHER->label(),
+                            ])
                             ->required(),
                         TextInput::make('floor_area_sqm')
-                            ->label(__('admin.properties.fields.floor_area_sqm'))
+                            ->label(__('admin.properties.fields.area_square_meters'))
                             ->numeric()
                             ->minValue(0),
                     ])

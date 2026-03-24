@@ -9,9 +9,9 @@ class DeleteProviderAction
 {
     public function handle(Provider $provider): void
     {
-        if ($provider->tariffs()->exists() || $provider->serviceConfigurations()->exists()) {
+        if (! $provider->canBeDeletedFromAdminWorkspace()) {
             throw ValidationException::withMessages([
-                'provider' => __('admin.providers.messages.delete_blocked'),
+                'provider' => $provider->adminDeletionBlockedReason(),
             ]);
         }
 

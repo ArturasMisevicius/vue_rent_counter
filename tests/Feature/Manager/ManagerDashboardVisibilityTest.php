@@ -28,7 +28,9 @@ it('does not show subscription usage bars to managers', function () {
     ]);
 
     $building = Building::factory()->for($organization)->create();
-    $property = Property::factory()->for($organization)->for($building)->create();
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => 'North Unit',
+    ]);
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
         'name' => 'Taylor Tenant',
@@ -53,7 +55,7 @@ it('does not show subscription usage bars to managers', function () {
         ->for($organization)
         ->for($property)
         ->create([
-            'name' => 'Manager Meter',
+            'identifier' => 'MTR-300001',
         ]);
 
     MeterReading::factory()
@@ -71,8 +73,10 @@ it('does not show subscription usage bars to managers', function () {
         ->assertSeeText('Total Properties')
         ->assertSeeText('Recent Invoices')
         ->assertSeeText('Upcoming Reading Deadlines')
-        ->assertSeeText('INV-300001')
-        ->assertSeeText('Manager Meter')
+        ->assertSeeText('Taylor Tenant')
+        ->assertSeeText('North Unit')
+        ->assertSeeText('Process Payment')
+        ->assertSeeText('MTR-300001')
         ->assertDontSeeText('Subscription Usage')
         ->assertDontSeeText('1 / 10');
 });

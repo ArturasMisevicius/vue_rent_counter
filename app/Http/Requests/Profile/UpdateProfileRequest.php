@@ -34,6 +34,7 @@ class UpdateProfileRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($this->user()?->id),
                 'disposable_email',
             ],
+            'phone' => ['nullable', 'string', 'max:255'],
             'locale' => [
                 'required',
                 'string',
@@ -55,6 +56,7 @@ class UpdateProfileRequest extends FormRequest
             'email.max' => ['max.string', 'email', ['max' => 255]],
             'email.unique' => ['unique', 'email'],
             'email.disposable_email' => ['disposable_email', 'email'],
+            'phone.max' => ['max.string', 'phone'],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
         ]);
@@ -68,6 +70,7 @@ class UpdateProfileRequest extends FormRequest
         return $this->translatedAttributes([
             'name',
             'email',
+            'phone',
             'locale',
         ]);
     }
@@ -77,7 +80,12 @@ class UpdateProfileRequest extends FormRequest
         $this->trimStrings([
             'name',
             'email',
+            'phone',
             'locale',
+        ]);
+
+        $this->emptyStringsToNull([
+            'phone',
         ]);
     }
 }

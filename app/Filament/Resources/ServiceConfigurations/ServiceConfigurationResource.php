@@ -71,69 +71,10 @@ class ServiceConfigurationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->select([
-                    'id',
-                    'organization_id',
-                    'property_id',
-                    'utility_service_id',
-                    'pricing_model',
-                    'rate_schedule',
-                    'distribution_method',
-                    'is_shared_service',
-                    'effective_from',
-                    'effective_until',
-                    'tariff_id',
-                    'provider_id',
-                    'area_type',
-                    'custom_formula',
-                    'is_active',
-                    'created_at',
-                    'updated_at',
-                ])
-                ->with([
-                    'property:id,organization_id,building_id,name,unit_number',
-                    'utilityService:id,organization_id,name,unit_of_measurement',
-                    'provider:id,organization_id,name',
-                    'tariff:id,provider_id,name',
-                ]);
-        }
-
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
         return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'utility_service_id',
-                'pricing_model',
-                'rate_schedule',
-                'distribution_method',
-                'is_shared_service',
-                'effective_from',
-                'effective_until',
-                'tariff_id',
-                'provider_id',
-                'area_type',
-                'custom_formula',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'property:id,organization_id,building_id,name,unit_number',
-                'utilityService:id,organization_id,name,unit_of_measurement',
-                'provider:id,organization_id,name',
-                'tariff:id,provider_id,name',
-            ]);
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canView(Model $record): bool

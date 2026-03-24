@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
+use App\Models\Invoice;
+use App\Services\Billing\InvoicePresentationService;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 
 class InvoiceInfolist
@@ -45,6 +48,9 @@ class InvoiceInfolist
                         TextEntry::make('amount_paid')
                             ->label(__('admin.invoices.fields.amount_paid'))
                             ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format($record->normalized_paid_amount, 2))),
+                        TextEntry::make('outstanding_amount')
+                            ->label(__('admin.invoices.status_summaries.outstanding'))
+                            ->state(fn ($record): string => app(InvoicePresentationService::class)->present($record)['outstanding_amount_display']),
                         TextEntry::make('document_path')
                             ->label(__('admin.invoices.fields.document_path'))
                             ->default(__('admin.invoices.empty.document_path')),
@@ -63,6 +69,11 @@ class InvoiceInfolist
                             }),
                     ])
                     ->columns(2),
+                View::make('filament.resources.invoices.explainability')
+                    ->viewData(fn (Invoice $record): array => [
+                        'invoice' => $record,
+                        'presentation' => app(InvoicePresentationService::class)->present($record),
+                    ]),
             ]);
     }
 }

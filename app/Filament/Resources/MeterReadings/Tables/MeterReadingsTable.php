@@ -7,6 +7,8 @@ use App\Filament\Actions\Admin\MeterReadings\RejectMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ValidateMeterReadingAction;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Models\MeterReading;
+use App\Models\Organization;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -15,6 +17,8 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class MeterReadingsTable
 {
@@ -22,6 +26,10 @@ class MeterReadingsTable
     {
         return $table
             ->columns([
+                TextColumn::make('organization.name')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->toggleable(),
                 TextColumn::make('meter.name')
                     ->label(__('admin.meter_readings.columns.meter'))
                     ->searchable()
@@ -46,9 +54,19 @@ class MeterReadingsTable
                     ->badge(),
             ])
             ->filters([
+                SelectFilter::make('organization')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
                 SelectFilter::make('validation_status')
                     ->label(__('admin.meter_readings.columns.validation_status'))
-                    ->options(MeterReadingValidationStatus::options()),
+                    ->options(MeterReadingValidationStatus::options())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forValidationStatusValue($data['value'] ?? null)),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -90,5 +108,12 @@ class MeterReadingsTable
                     }),
             ])
             ->defaultSort('reading_date', 'desc');
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

@@ -7,6 +7,7 @@ use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Organization;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\Auth;
 class CreateBuilding extends CreateRecord
 {
     protected static string $resource = BuildingResource::class;
+
+    protected static bool $canCreateAnother = false;
+
+    public function getTitle(): string
+    {
+        return __('admin.buildings.titles.new');
+    }
 
     protected function handleRecordCreation(array $data): Model
     {
@@ -48,6 +56,14 @@ class CreateBuilding extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return BuildingResource::getUrl('index');
+        return BuildingResource::getUrl('view', [
+            'record' => $this->record,
+        ]);
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->label(__('admin.buildings.actions.save_building'));
     }
 }

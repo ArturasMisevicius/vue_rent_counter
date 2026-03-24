@@ -16,6 +16,10 @@ class Subscription extends Model
     /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
 
+    private const WARNING_THRESHOLD = 80;
+
+    private const DANGER_THRESHOLD = 95;
+
     private const CONTROL_PLANE_COLUMNS = [
         'id',
         'organization_id',
@@ -94,7 +98,10 @@ class Subscription extends Model
     public function scopeWithOrganizationSummary(Builder $query): Builder
     {
         return $query->with([
-            'organization:id,name',
+            'organization' => fn (BelongsTo $organizationQuery): BelongsTo => $organizationQuery
+                ->select(['id', 'name'])
+                ->withCount('properties')
+                ->withTenantCount(),
         ]);
     }
 
@@ -140,5 +147,83 @@ class Subscription extends Model
             'meter_limit_snapshot' => $limits['meters'],
             'invoice_limit_snapshot' => $limits['invoices'],
         ]);
+    }
+
+    public function propertyLimit(): int
+    {
+        return $this->property_limit_snapshot ?? $this->plan->limits()['properties'];
+    }
+
+    public function tenantLimit(): int
+    {
+        return $this->tenant_limit_snapshot ?? $this->plan->limits()['tenants'];
+    }
+
+    public function propertiesUsedCount(): int
+    {
+        return (int) ($this->organization?->properties_count ?? 0);
+    }
+
+    public function tenantsUsedCount(): int
+    {
+        return (int) ($this->organization?->tenants_count ?? 0);
+    }
+
+    public function propertiesUsedSummary(): string
+    {
+        return sprintf('%d of %d', $this->propertiesUsedCount(), $this->propertyLimit());
+    }
+
+    public function tenantsUsedSummary(): string
+    {
+        return sprintf('%d of %d', $this->tenantsUsedCount(), $this->tenantLimit());
+    }
+
+    public function hasReachedPropertyLimit(): bool
+    {
+        return $this->propertiesUsedCount() >= $this->propertyLimit();
+    }
+
+    public function hasReachedTenantLimit(): bool
+    {
+        return $this->tenantsUsedCount() >= $this->tenantLimit();
+    }
+
+    public function propertyUsagePercent(): int
+    {
+        return $this->usagePercent($this->propertiesUsedCount(), $this->propertyLimit());
+    }
+
+    public function tenantUsagePercent(): int
+    {
+        return $this->usagePercent($this->tenantsUsedCount(), $this->tenantLimit());
+    }
+
+    public function propertyUsageTone(): string
+    {
+        return $this->usageTone($this->propertyUsagePercent());
+    }
+
+    public function tenantUsageTone(): string
+    {
+        return $this->usageTone($this->tenantUsagePercent());
+    }
+
+    private function usagePercent(int $used, int $limit): int
+    {
+        if ($limit <= 0) {
+            return 0;
+        }
+
+        return min((int) round(($used / $limit) * 100), 100);
+    }
+
+    private function usageTone(int $percent): string
+    {
+        return match (true) {
+            $percent >= self::DANGER_THRESHOLD => 'danger',
+            $percent >= self::WARNING_THRESHOLD => 'warning',
+            default => 'neutral',
+        };
     }
 }

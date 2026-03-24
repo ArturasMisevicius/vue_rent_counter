@@ -73,22 +73,24 @@ return [
         'description' => 'Review your account identity, preferred language, and signed-in context from one shared destination.',
         'personal_information' => [
             'heading' => 'Personal Information',
-            'description' => 'Keep your display name, email address, and preferred language up to date.',
+            'description' => 'Keep your full name, email address, phone number, and preferred language up to date.',
         ],
         'password' => [
             'heading' => 'Change Password',
-            'description' => 'Set a new password for your account and confirm it before saving.',
+            'description' => 'Update your password only when you need to change it.',
+            'note' => 'Leave all password fields empty to keep your current password.',
         ],
         'fields' => [
-            'name' => 'Name',
-            'email' => 'Email',
-            'locale' => 'Language',
+            'name' => 'Full Name',
+            'email' => 'Email Address',
+            'phone' => 'Phone Number',
+            'locale' => 'Preferred Language',
             'current_password' => 'Current Password',
             'password' => 'New Password',
             'password_confirmation' => 'Confirm New Password',
         ],
         'actions' => [
-            'save' => 'Save Profile',
+            'save' => 'Save Changes',
             'update_password' => 'Update Password',
         ],
         'messages' => [
@@ -98,63 +100,55 @@ return [
     ],
     'settings' => [
         'title' => 'Settings',
+        'actions' => [
+            'save' => 'Save Changes',
+        ],
         'organization' => [
             'heading' => 'Organization Settings',
-            'description' => 'Manage billing contacts and the payment details shown to future users.',
+            'description' => 'Manage the organization details used across billing and account operations.',
             'fields' => [
-                'billing_contact_name' => 'Billing Contact Name',
-                'billing_contact_email' => 'Billing Contact Email',
-                'billing_contact_phone' => 'Billing Contact Phone',
-                'payment_instructions' => 'Payment Instructions',
-                'invoice_footer' => 'Invoice Footer',
+                'organization_name' => 'Organization Name',
+                'billing_contact_email' => 'Billing Email Address',
+                'invoice_footer' => 'Default Invoice Footer Notes',
             ],
-            'actions' => [
-                'save' => 'Save Organization Settings',
+            'help' => [
+                'billing_contact_email' => 'This email receives billing-related notifications.',
             ],
         ],
         'notifications' => [
             'heading' => 'Notification Preferences',
             'description' => 'Choose which operational emails admins should receive for this organization.',
             'fields' => [
-                'new_invoice_generated' => 'New invoice generated',
-                'invoice_overdue' => 'Invoice overdue',
-                'tenant_submits_reading' => 'Tenant submits reading',
-                'subscription_expiring' => 'Subscription expiring',
-            ],
-            'help' => [
-                'new_invoice_generated' => 'Email admins when a newly generated invoice is finalized.',
-                'invoice_overdue' => 'Email admins when overdue invoice reminder workflows are triggered.',
-                'tenant_submits_reading' => 'Email admins when a tenant submits a fresh meter reading.',
-                'subscription_expiring' => 'Email admins before the current subscription expires.',
-            ],
-            'actions' => [
-                'save' => 'Save Notification Preferences',
+                'new_invoice_generated' => 'Notify me when a new invoice is generated',
+                'invoice_overdue' => 'Notify me when an invoice becomes overdue',
+                'tenant_submits_reading' => 'Notify me when a tenant submits a meter reading',
+                'subscription_expiring' => 'Notify me when my subscription is about to expire',
             ],
         ],
         'subscription' => [
             'heading' => 'Subscription',
-            'description' => 'Renew the current plan and refresh usage limits for the organization.',
+            'description' => 'Review the active plan and current usage before renewing or upgrading.',
             'fields' => [
+                'current_plan' => 'Current Plan',
+                'status' => 'Subscription Status',
+                'expiry_date' => 'Subscription Expiry Date',
                 'plan' => 'Plan',
                 'duration' => 'Duration',
             ],
-            'plans' => [
-                'basic' => 'Basic',
-                'professional' => 'Professional',
-                'enterprise' => 'Enterprise',
-            ],
-            'durations' => [
-                'monthly' => 'Monthly',
-                'quarterly' => 'Quarterly',
-                'yearly' => 'Yearly',
+            'usage_summary' => ':used of :limit :label used',
+            'limit_reached' => 'The :label limit has been reached.',
+            'panel' => [
+                'heading' => 'Renew or Upgrade Plan',
+                'description' => 'Select a new plan and duration to continue with updated limits.',
             ],
             'actions' => [
-                'renew' => 'Renew Subscription',
+                'renew_upgrade' => 'Renew or Upgrade Plan',
+                'cancel' => 'Cancel',
+                'confirm' => 'Renew or Upgrade Plan',
             ],
         ],
         'messages' => [
             'organization_saved' => 'Organization settings have been updated.',
-            'notifications_saved' => 'Notification preferences have been updated.',
             'subscription_renewed' => 'Subscription has been renewed.',
         ],
     ],

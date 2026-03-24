@@ -31,6 +31,10 @@ class TenantInvoiceIndexQuery
             $workspace->propertyId,
         );
 
+        $query->with([
+            'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+        ]);
+
         match ($status) {
             'unpaid', 'outstanding' => $query->outstanding(),
             'paid' => $query->where('status', InvoiceStatus::PAID),

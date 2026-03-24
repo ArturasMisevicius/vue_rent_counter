@@ -1,48 +1,37 @@
 @props([
     'invoice',
+    'presentation' => null,
 ])
 
 @php
     /** @var \App\Models\Invoice $invoice */
-    $lineItems = $invoice->relationLoaded('invoiceItems')
-        ? $invoice->invoiceItems
-        : collect($invoice->items ?? []);
-
-    $payments = $invoice->relationLoaded('payments')
-        ? $invoice->payments
-        : collect();
-
-    $subtotal = $lineItems->sum(function ($item): float {
-        if ($item instanceof \App\Models\InvoiceItem) {
-            return (float) $item->total;
-        }
-
-        return (float) ($item['amount'] ?? $item['total'] ?? 0);
-    });
-
-    $paidAmount = $invoice->normalized_paid_amount ?? max((float) $invoice->amount_paid, (float) $invoice->paid_amount);
-    $outstandingBalance = $invoice->outstanding_balance ?? max(0, (float) $invoice->total_amount - $paidAmount);
+    $presentation = is_array($presentation) ? $presentation : [];
+    $lineItems = $presentation['items'] ?? [];
+    $payments = $presentation['payments'] ?? [];
 @endphp
 
 <article class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur sm:p-8">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div class="space-y-3">
             <div class="flex flex-wrap items-center gap-3">
-                <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ $invoice->invoice_number }}</h2>
+                <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ $presentation['invoice_number'] ?? $invoice->invoice_number }}</h2>
                 <x-shared.status-badge :status="$invoice->status" :model="$invoice" />
             </div>
 
             <div class="grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                <p>{{ __('tenant.pages.invoices.period', ['start' => $invoice->billing_period_start?->format('Y-m-d'), 'end' => $invoice->billing_period_end?->format('Y-m-d')]) }}</p>
-                <p>{{ __('admin.invoices.fields.due_date') }}: {{ $invoice->due_date?->format('Y-m-d') ?? '—' }}</p>
-                <p>{{ __('tenant.navigation.property') }}: {{ $invoice->property?->name ?? '—' }}</p>
-                <p>{{ __('admin.invoices.fields.tenant') }}: {{ $invoice->tenant?->name ?? '—' }}</p>
+                <p>{{ __('tenant.pages.invoices.period', ['start' => $presentation['billing_period_start_display'] ?? '—', 'end' => $presentation['billing_period_end_display'] ?? '—']) }}</p>
+                <p>{{ __('admin.invoices.fields.due_date') }}: {{ $presentation['due_date_display'] ?? '—' }}</p>
+                <p>{{ __('tenant.navigation.property') }}: {{ $presentation['property_name'] ?? '—' }}</p>
+                <p>{{ __('admin.invoices.fields.tenant') }}: {{ $presentation['tenant_name'] ?? '—' }}</p>
+                @if (filled($presentation['building_name'] ?? null))
+                    <p>{{ __('admin.invoices.fields.building') }}: {{ $presentation['building_name'] }}</p>
+                @endif
             </div>
         </div>
 
         <div class="grid gap-3 sm:min-w-64">
-            <x-shared.stat-card :label="__('admin.invoices.fields.total_amount')" :value="$invoice->currency.' '.number_format((float) $invoice->total_amount, 2)" icon="heroicon-m-banknotes" />
-            <x-shared.stat-card :label="__('admin.invoices.fields.amount_paid')" :value="$invoice->currency.' '.number_format($paidAmount, 2)" :trend="__('tenant.pages.invoices.balance_due', ['amount' => number_format($outstandingBalance, 2)])" icon="heroicon-m-check-badge" />
+            <x-shared.stat-card :label="__('admin.invoices.fields.total_amount')" :value="$presentation['total_amount_display'] ?? '—'" icon="heroicon-m-banknotes" />
+            <x-shared.stat-card :label="__('admin.invoices.fields.amount_paid')" :value="$presentation['paid_amount_display'] ?? '—'" :trend="__('tenant.pages.invoices.balance_due', ['amount' => $presentation['outstanding_amount_display'] ?? '—'])" icon="heroicon-m-check-badge" />
         </div>
     </div>
 
@@ -64,20 +53,11 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
                     @forelse ($lineItems as $item)
-                        @php
-                            $description = $item instanceof \App\Models\InvoiceItem ? $item->description : ($item['description'] ?? __('dashboard.not_available'));
-                            $quantity = $item instanceof \App\Models\InvoiceItem ? $item->quantity : ($item['quantity'] ?? 1);
-                            $unit = $item instanceof \App\Models\InvoiceItem ? $item->unit : ($item['unit'] ?? null);
-                            $unitPrice = $item instanceof \App\Models\InvoiceItem ? $item->unit_price : ($item['unit_price'] ?? null);
-                            $lineTotal = $item instanceof \App\Models\InvoiceItem ? $item->total : ($item['amount'] ?? $item['total'] ?? 0);
-                        @endphp
                         <tr>
-                            <td class="px-4 py-4 text-slate-700">{{ $description }}</td>
-                            <td class="px-4 py-4 text-slate-600">{{ rtrim(rtrim(number_format((float) $quantity, 3, '.', ''), '0'), '.') }}{{ $unit ? ' '.$unit : '' }}</td>
-                            <td class="px-4 py-4 text-slate-600">
-                                {{ $unitPrice !== null ? $invoice->currency.' '.number_format((float) $unitPrice, 4) : '—' }}
-                            </td>
-                            <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ $invoice->currency }} {{ number_format((float) $lineTotal, 2) }}</td>
+                            <td class="px-4 py-4 text-slate-700">{{ $item['description'] ?? __('dashboard.not_available') }}</td>
+                            <td class="px-4 py-4 text-slate-600">{{ $item['quantity'] ?? '—' }}{{ filled($item['unit'] ?? null) ? ' '.$item['unit'] : '' }}</td>
+                            <td class="px-4 py-4 text-slate-600">{{ $item['unit_price_display'] ?? '—' }}</td>
+                            <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ ($presentation['currency'] ?? '').' '.($item['total_display'] ?? '—') }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -101,15 +81,15 @@
             <dl class="grid gap-3 text-sm text-slate-600">
                 <div class="flex items-center justify-between gap-4">
                     <dt>{{ __('admin.invoices.fields.subtotal') }}</dt>
-                    <dd class="font-semibold text-slate-950">{{ $invoice->currency }} {{ number_format((float) $subtotal, 2) }}</dd>
+                    <dd class="font-semibold text-slate-950">{{ $presentation['subtotal_display'] ?? '—' }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4">
                     <dt>{{ __('admin.invoices.fields.amount_paid') }}</dt>
-                    <dd class="font-semibold text-slate-950">{{ $invoice->currency }} {{ number_format($paidAmount, 2) }}</dd>
+                    <dd class="font-semibold text-slate-950">{{ $presentation['paid_amount_display'] ?? '—' }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-t border-slate-200 pt-3">
                     <dt class="font-semibold text-slate-950">{{ __('tenant.pages.invoices.balance_due') }}</dt>
-                    <dd class="font-display text-2xl tracking-tight text-slate-950">{{ $invoice->currency }} {{ number_format($outstandingBalance, 2) }}</dd>
+                    <dd class="font-display text-2xl tracking-tight text-slate-950">{{ $presentation['outstanding_amount_display'] ?? '—' }}</dd>
                 </div>
             </dl>
         </div>
@@ -124,20 +104,20 @@
                 <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <p class="font-semibold text-slate-950">{{ $payment->method?->label() ?? __('dashboard.not_available') }}</p>
-                            <p class="text-sm text-slate-500">{{ $payment->paid_at?->format('Y-m-d H:i') ?? '—' }}</p>
+                            <p class="font-semibold text-slate-950">{{ $payment['method_label'] ?? __('dashboard.not_available') }}</p>
+                            <p class="text-sm text-slate-500">{{ $payment['paid_at_display'] ?? '—' }}</p>
                         </div>
-                        <p class="font-semibold text-slate-950">{{ $invoice->currency }} {{ number_format((float) $payment->amount, 2) }}</p>
+                        <p class="font-semibold text-slate-950">{{ $payment['amount_display'] ?? '—' }}</p>
                     </div>
 
-                    @if ($payment->reference || $payment->notes)
+                    @if (filled($payment['reference'] ?? null) || filled($payment['notes'] ?? null))
                         <div class="mt-3 space-y-1 text-sm text-slate-600">
-                            @if ($payment->reference)
-                                <p>{{ __('admin.invoices.fields.payment_reference') }}: {{ $payment->reference }}</p>
+                            @if (filled($payment['reference'] ?? null))
+                                <p>{{ __('admin.invoices.fields.payment_reference') }}: {{ $payment['reference'] }}</p>
                             @endif
 
-                            @if ($payment->notes)
-                                <p>{{ $payment->notes }}</p>
+                            @if (filled($payment['notes'] ?? null))
+                                <p>{{ $payment['notes'] }}</p>
                             @endif
                         </div>
                     @endif

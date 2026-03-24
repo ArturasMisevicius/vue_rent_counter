@@ -18,6 +18,22 @@ class Comment extends Model
 
     use SoftDeletes;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'organization_id',
+        'commentable_type',
+        'commentable_id',
+        'user_id',
+        'parent_id',
+        'body',
+        'is_internal',
+        'is_pinned',
+        'edited_at',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'commentable_type',
@@ -94,5 +110,31 @@ class Comment extends Model
         return $query
             ->orderByDesc('created_at')
             ->orderByDesc('id');
+    }
+
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+            'user:id,name,email',
+            'parent:id,body',
+        ]);
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations()
+            ->latestFirst();
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->forOrganization((int) $organizationId);
     }
 }

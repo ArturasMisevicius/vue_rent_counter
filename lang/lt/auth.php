@@ -30,6 +30,16 @@ return [
     'register_link' => 'Registruotis',
     'no_account_prompt' => 'Neturite paskyros?',
     'has_account_prompt' => 'Jau turite paskyrą?',
+    'demo_accounts' => [
+        'heading' => 'Demonstracinės paskyros',
+        'description' => 'Naudokite šiuos užpildytus prisijungimo duomenis skirtingų vaidmenų testavimui. Spustelėkite naudotojo vardą, kad prisijungimo forma būtų užpildyta automatiškai.',
+        'empty' => 'Demonstracinių paskyrų dar nėra.',
+        'columns' => [
+            'username' => 'Naudotojo vardas',
+            'password' => 'Slaptažodis',
+            'role' => 'Vaidmuo',
+        ],
+    ],
     'invalid_credentials' => 'Neteisingas el. pašto adresas arba slaptažodis. Bandykite dar kartą.',
     'reset_link_generic' => 'Jei paskyra su šiuo el. paštu egzistuoja, slaptažodžio atkūrimo nuoroda buvo išsiųsta.',
     'session_expired_title' => 'Sesija baigėsi',

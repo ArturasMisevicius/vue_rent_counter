@@ -20,6 +20,13 @@ class CreateProperty extends CreateRecord
 {
     protected static string $resource = PropertyResource::class;
 
+    protected static bool $canCreateAnother = false;
+
+    public function getTitle(): string
+    {
+        return __('admin.properties.titles.new');
+    }
+
     protected function authorizeAccess(): void
     {
         abort_unless(PropertyResource::canViewAny(), 403);
@@ -97,6 +104,14 @@ class CreateProperty extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return PropertyResource::getUrl('index');
+        return PropertyResource::getUrl('view', [
+            'record' => $this->record,
+        ]);
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->label(__('admin.properties.actions.save_property'));
     }
 }

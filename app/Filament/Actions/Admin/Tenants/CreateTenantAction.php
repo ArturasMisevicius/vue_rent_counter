@@ -38,8 +38,9 @@ class CreateTenantAction
                 'organization_id' => $actor->organization_id,
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'role' => UserRole::TENANT,
-                'status' => $validated['status'],
+                'status' => UserStatus::INACTIVE,
                 'locale' => $validated['locale'],
                 'password' => Str::random(32),
             ]);
@@ -68,8 +69,8 @@ class CreateTenantAction
      * @return array{
      *     name: string,
      *     email: string,
+     *     phone: string|null,
      *     locale: string,
-     *     status: UserStatus,
      *     property_id: int|null,
      *     unit_area_sqm: float|int|null,
      *     property: Property|null
@@ -88,7 +89,7 @@ class CreateTenantAction
 
         if ($validated['property_id'] !== null) {
             $property = Property::query()
-                ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number', 'type', 'floor_area_sqm'])
+                ->select(['id', 'organization_id', 'building_id', 'name', 'floor', 'unit_number', 'type', 'floor_area_sqm'])
                 ->where('organization_id', $organizationId)
                 ->find($validated['property_id']);
         }

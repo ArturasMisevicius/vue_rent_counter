@@ -23,6 +23,7 @@ class SendInvoiceEmailJob implements ShouldQueue
         public int $invoiceId,
         public int $actorId,
         public string $recipientEmail,
+        public ?string $personalMessage = null,
     ) {}
 
     public function handle(): void
@@ -43,6 +44,7 @@ class SendInvoiceEmailJob implements ShouldQueue
             'subject' => __('admin.invoices.messages.email_subject', ['number' => $invoice->invoice_number]),
             'status' => 'sent',
             'sent_at' => now(),
+            'personal_message' => $this->personalMessage,
         ]);
     }
 }

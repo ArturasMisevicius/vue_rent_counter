@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Tenants\Schemas;
 
-use App\Models\Invoice;
+use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -14,55 +14,67 @@ class TenantInfolist
     {
         return $schema
             ->components([
-                Section::make(__('admin.tenants.sections.details'))
+                Section::make(__('admin.tenants.sections.summary'))
+                    ->schema([
+                        TextEntry::make('currentPropertyAssignment.property.name')
+                            ->label(__('admin.tenants.fields.property'))
+                            ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
+                            ->url(fn (User $record): ?string => $record->currentProperty !== null
+                                ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
+                                : null),
+                        TextEntry::make('current_unit_area')
+                            ->label(__('admin.tenants.fields.unit_area'))
+                            ->state(fn (User $record): string => $record->currentUnitAreaDisplay()),
+                        TextEntry::make('status')
+                            ->label(__('admin.tenants.fields.account_status'))
+                            ->badge(),
+                        TextEntry::make('total_paid')
+                            ->label(__('admin.tenants.fields.total_paid'))
+                            ->state(fn (User $record): string => $record->totalPaidDisplay()),
+                    ])
+                    ->columns(4),
+                Section::make(__('admin.tenants.sections.personal_information'))
                     ->schema([
                         TextEntry::make('name')
-                            ->label(__('admin.tenants.fields.name')),
+                            ->label(__('admin.tenants.fields.full_name')),
                         TextEntry::make('email')
-                            ->label(__('admin.tenants.fields.email')),
+                            ->label(__('admin.tenants.fields.email_address')),
+                        TextEntry::make('phone')
+                            ->label(__('admin.tenants.fields.phone_number'))
+                            ->default('—'),
+                        TextEntry::make('current_unit_area_profile')
+                            ->label(__('admin.tenants.fields.unit_area'))
+                            ->state(fn (User $record): string => $record->currentUnitAreaDisplay()),
                         TextEntry::make('locale')
-                            ->label(__('admin.tenants.fields.locale')),
-                        TextEntry::make('status')
-                            ->label(__('admin.tenants.fields.status'))
-                            ->badge(),
+                            ->label(__('admin.tenants.fields.preferred_language'))
+                            ->state(fn (User $record): string => (string) (config('tenanto.locales')[$record->locale] ?? $record->locale)),
+                        TextEntry::make('created_at')
+                            ->label(__('admin.tenants.fields.account_created'))
+                            ->state(fn (User $record): string => $record->created_at?->format('F j, Y g:i A') ?? '—'),
+                        TextEntry::make('last_login_at')
+                            ->label(__('admin.tenants.fields.last_login'))
+                            ->state(fn (User $record): string => $record->last_login_at?->format('F j, Y g:i A') ?? __('admin.tenants.empty.never')),
                     ])
                     ->columns(2),
-                Section::make(__('admin.tenants.sections.current_property'))
+                Section::make(__('admin.tenants.sections.property_assignment'))
                     ->schema([
                         TextEntry::make('currentPropertyAssignment.property.name')
                             ->label(__('admin.tenants.fields.current_property'))
-                            ->default(__('admin.tenants.empty.property')),
+                            ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
+                            ->url(fn (User $record): ?string => $record->currentProperty !== null
+                                ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
+                                : null),
                         TextEntry::make('currentPropertyAssignment.property.building.name')
                             ->label(__('admin.tenants.fields.building'))
-                            ->default(__('admin.tenants.empty.property')),
+                            ->default('—'),
+                        TextEntry::make('currentPropertyAssignment.property.floor')
+                            ->label(__('admin.tenants.fields.floor'))
+                            ->state(fn (User $record): string => $record->currentProperty?->floorDisplay() ?? '—'),
                         TextEntry::make('currentPropertyAssignment.assigned_at')
                             ->label(__('admin.tenants.fields.assigned_since'))
-                            ->dateTime()
-                            ->placeholder(__('admin.tenants.empty.never')),
+                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->format('F j, Y') ?? '—'),
                     ])
-                    ->columns(3),
-                Section::make(__('admin.tenants.sections.invoice_history'))
-                    ->schema([
-                        TextEntry::make('invoice_history')
-                            ->label(__('admin.tenants.fields.invoice_history'))
-                            ->state(function (User $record): string {
-                                $invoices = $record->relationLoaded('invoices')
-                                    ? $record->invoices
-                                    : Invoice::query()
-                                        ->select(['id', 'organization_id', 'tenant_user_id', 'invoice_number', 'due_date'])
-                                        ->forOrganization($record->organization_id)
-                                        ->forTenant($record->id)
-                                        ->latestBillingFirst()
-                                        ->get();
-
-                                $history = $invoices
-                                    ->sortByDesc('due_date')
-                                    ->map(fn (Invoice $invoice): string => $invoice->invoice_number)
-                                    ->implode("\n");
-
-                                return $history !== '' ? $history : __('admin.tenants.empty.invoices');
-                            }),
-                    ]),
+                    ->columns(2),
             ]);
     }
 }

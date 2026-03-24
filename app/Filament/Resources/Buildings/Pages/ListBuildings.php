@@ -18,7 +18,8 @@ class ListBuildings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label(__('admin.buildings.actions.new_building')),
         ];
     }
 }

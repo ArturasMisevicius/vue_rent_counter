@@ -92,7 +92,6 @@ final class AdminDashboard extends Component
                 'total_properties' => 0,
                 'active_tenants' => 0,
                 'pending_invoices' => 0,
-                'draft_invoices' => 0,
                 'revenue_this_month' => 'EUR 0.00',
             ],
             'subscription_usage' => [],

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
+use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Property;
-use App\Models\PropertyAssignment;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -14,57 +14,57 @@ class PropertyInfolist
     {
         return $schema
             ->components([
-                Section::make(__('admin.properties.sections.details'))
+                Section::make(__('admin.properties.sections.summary'))
                     ->schema([
-                        TextEntry::make('building.name')
-                            ->label(__('admin.properties.fields.building')),
-                        TextEntry::make('name')
-                            ->label(__('admin.properties.fields.name')),
-                        TextEntry::make('unit_number')
-                            ->label(__('admin.properties.fields.unit_number')),
-                        TextEntry::make('type')
-                            ->label(__('admin.properties.fields.type'))
-                            ->badge(),
+                        TextEntry::make('floor')
+                            ->label(__('admin.properties.fields.floor'))
+                            ->state(fn (Property $record): string => $record->floorDisplay()),
                         TextEntry::make('floor_area_sqm')
-                            ->label(__('admin.properties.fields.floor_area_sqm')),
+                            ->label(__('admin.properties.fields.area'))
+                            ->state(fn (Property $record): string => $record->areaDisplay()),
+                        TextEntry::make('currentAssignment.tenant.name')
+                            ->label(__('admin.properties.fields.tenant'))
+                            ->state(fn (Property $record): string => $record->currentAssignment?->tenant?->name ?? __('admin.properties.empty.vacant'))
+                            ->url(fn (Property $record): ?string => $record->currentAssignment?->tenant !== null
+                                ? TenantResource::getUrl('view', ['record' => $record->currentAssignment->tenant])
+                                : null),
+                        TextEntry::make('meters_count')
+                            ->label(__('admin.properties.fields.meter_count')),
                     ])
-                    ->columns(2),
-                Section::make(__('admin.properties.sections.current_occupancy'))
+                    ->columns(4),
+                Section::make(__('admin.properties.sections.tenant_details'))
                     ->schema([
                         TextEntry::make('currentAssignment.tenant.name')
-                            ->label(__('admin.properties.fields.current_tenant'))
-                            ->default(__('admin.properties.empty.unassigned')),
+                            ->label(__('admin.tenants.fields.name'))
+                            ->default(__('admin.properties.empty.no_tenant_assigned')),
+                        TextEntry::make('currentAssignment.tenant.email')
+                            ->label(__('admin.tenants.fields.email'))
+                            ->default('—'),
+                        TextEntry::make('currentAssignment.tenant.phone')
+                            ->label(__('admin.tenants.fields.phone'))
+                            ->default('—'),
+                        TextEntry::make('currentAssignment.unit_area_sqm')
+                            ->label(__('admin.tenants.fields.unit_area_sqm'))
+                            ->state(fn (Property $record): string => $record->currentAssignment?->unit_area_sqm !== null
+                                ? rtrim(rtrim(number_format((float) $record->currentAssignment->unit_area_sqm, 2, '.', ''), '0'), '.').' m²'
+                                : '—'),
+                        TextEntry::make('currentAssignment.tenant.status')
+                            ->label(__('admin.tenants.fields.status'))
+                            ->badge()
+                            ->default('—'),
                         TextEntry::make('currentAssignment.assigned_at')
-                            ->label(__('admin.properties.fields.assigned_since'))
-                            ->state(
-                                fn (Property $record): string => $record->currentAssignment?->assigned_at?->format('Y-m-d H:i')
-                                    ?? __('admin.properties.empty.unassigned'),
-                            ),
+                            ->label(__('admin.properties.fields.date_assigned'))
+                            ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->format('F j, Y') ?? '—'),
                     ])
-                    ->columns(2),
-                Section::make(__('admin.properties.sections.assignment_history'))
+                    ->columns(2)
+                    ->visible(fn (Property $record): bool => $record->currentAssignment !== null),
+                Section::make(__('admin.properties.sections.tenant_details'))
                     ->schema([
-                        TextEntry::make('assignment_history')
-                            ->label(__('admin.properties.fields.assignment_history'))
-                            ->state(function (Property $record): string {
-                                $history = $record->assignments
-                                    ->sortByDesc('assigned_at')
-                                    ->map(function (PropertyAssignment $assignment): string {
-                                        $tenantName = $assignment->tenant?->name ?? __('admin.properties.empty.unassigned');
-                                        $assignedAt = $assignment->assigned_at?->format('Y-m-d');
-                                        $unassignedAt = $assignment->unassigned_at?->format('Y-m-d');
-
-                                        return collect([
-                                            $tenantName,
-                                            $assignedAt ? __('admin.properties.history.assigned_on', ['date' => $assignedAt]) : null,
-                                            $unassignedAt ? __('admin.properties.history.unassigned_on', ['date' => $unassignedAt]) : null,
-                                        ])->filter()->implode(' · ');
-                                    })
-                                    ->implode("\n");
-
-                                return $history !== '' ? $history : __('admin.properties.empty.no_history');
-                            }),
-                    ]),
+                        TextEntry::make('tenant_empty')
+                            ->hiddenLabel()
+                            ->state(__('admin.properties.empty.no_tenant_assigned')),
+                    ])
+                    ->visible(fn (Property $record): bool => $record->currentAssignment === null),
             ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Comments\Tables;
 
+use App\Models\Organization;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,8 +11,10 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CommentsTable
 {
@@ -20,6 +23,7 @@ class CommentsTable
         return $table
             ->columns([
                 TextColumn::make('organization.name')
+                    ->label('Organization')
                     ->searchable(),
                 TextColumn::make('commentable_type')
                     ->formatStateUsing(fn (?string $state): string => $state ? class_basename($state) : '-')
@@ -57,6 +61,14 @@ class CommentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('organization')
+                    ->label('Organization')
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
                 TrashedFilter::make(),
             ])
             ->recordActions([

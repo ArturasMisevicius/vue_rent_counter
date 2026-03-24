@@ -19,10 +19,27 @@ interface BillingServiceInterface
     public function previewBulkInvoices(Organization $organization, array $attributes): array;
 
     /**
+     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string}  $attributes
+     * @return array{
+     *     property_id: int,
+     *     property_name: string,
+     *     tenant_name: string,
+     *     items: array<int, array<string, mixed>>,
+     *     total_amount: string
+     * }
+     */
+    public function previewInvoiceDraft(Organization $organization, array $attributes): array;
+
+    /**
      * @param  array{billing_period_start: string, billing_period_end: string, due_date?: string}  $attributes
      * @return array{created: Collection<int, Invoice>, skipped: array<int, array{tenant_id: int, property_id: int, reason: string}>}
      */
     public function generateBulkInvoices(Organization $organization, array $attributes, ?User $actor = null): array;
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function createDraft(Organization $organization, array $attributes, ?User $actor = null): Invoice;
 
     /**
      * @param  array<string, mixed>  $attributes

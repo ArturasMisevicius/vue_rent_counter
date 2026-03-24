@@ -118,6 +118,7 @@ return [
         'garage' => 'Garage',
         'parking' => 'Parking',
         'storage' => 'Storage',
+        'other' => 'Other',
     ],
     'security_violation_severity' => [
         'low' => 'Low',

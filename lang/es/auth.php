@@ -32,6 +32,16 @@ return [
     'login_link' => 'Log In',
     'login_subtitle' => 'Log in to your account',
     'login_title' => 'Welcome back',
+    'demo_accounts' => [
+        'heading' => 'Cuentas de demostración',
+        'description' => 'Use estas credenciales precargadas para probar el sistema por rol. Haga clic en un usuario para autocompletar el formulario de acceso.',
+        'empty' => 'Todavía no hay cuentas de demostración disponibles.',
+        'columns' => [
+            'username' => 'Usuario',
+            'password' => 'Contraseña',
+            'role' => 'Rol',
+        ],
+    ],
     'new_password_label' => 'New Password',
     'no_account_prompt' => 'Don\'t have an account?',
     'password' => 'The provided password is incorrect.',

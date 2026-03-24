@@ -44,7 +44,8 @@ class PropertyRequest extends FormRequest
                 ),
             ],
             'name' => ['required', 'string', 'max:255'],
-            'unit_number' => ['required', 'string', 'max:50'],
+            'floor' => ['nullable', 'integer', 'min:0'],
+            'unit_number' => ['nullable', 'string', 'max:50'],
             'type' => ['required', Rule::enum(PropertyType::class)],
             'floor_area_sqm' => ['nullable', 'numeric', 'min:0'],
         ];
@@ -61,7 +62,8 @@ class PropertyRequest extends FormRequest
             'building_id.exists' => ['exists', 'building'],
             'name.required' => ['required', 'name'],
             'name.max' => ['max.string', 'name', ['max' => 255]],
-            'unit_number.required' => ['required', 'unit_number'],
+            'floor.integer' => ['integer', 'floor'],
+            'floor.min' => ['min.numeric', 'floor', ['min' => 0]],
             'unit_number.max' => ['max.string', 'unit_number', ['max' => 50]],
             'type.required' => ['required', 'property_type'],
             'type.enum' => ['enum', 'property_type'],
@@ -80,6 +82,7 @@ class PropertyRequest extends FormRequest
             'type' => $this->translateAttribute('property_type'),
             ...$this->translatedAttributes([
                 'name',
+                'floor',
                 'unit_number',
                 'floor_area_sqm',
             ]),
@@ -91,12 +94,15 @@ class PropertyRequest extends FormRequest
         $this->trimStrings([
             'building_id',
             'name',
+            'floor',
             'unit_number',
             'type',
             'floor_area_sqm',
         ]);
 
         $this->emptyStringsToNull([
+            'floor',
+            'unit_number',
             'floor_area_sqm',
         ]);
 

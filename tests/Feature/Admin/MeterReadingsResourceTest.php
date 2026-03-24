@@ -7,6 +7,7 @@ use App\Filament\Actions\Admin\MeterReadings\ImportMeterReadingsAction;
 use App\Filament\Actions\Admin\MeterReadings\RejectMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ValidateMeterReadingAction;
+use App\Filament\Resources\MeterReadings\Pages\ListMeterReadings;
 use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Meter;
@@ -14,8 +15,11 @@ use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -194,4 +198,71 @@ it('revalidates pending rows and returns an import preview with invalid rows', f
         ->and($preview['invalid'])->toHaveCount(1)
         ->and($preview['valid'][0]['status'])->toBe(MeterReadingValidationStatus::VALID->value)
         ->and($preview['invalid'][0]['errors'])->toHaveKey('reading_value');
+});
+
+it('shows organization context on the meter readings list for superadmins while keeping admins scoped', function () {
+    $organizationA = Organization::factory()->create([
+        'name' => 'Northwind Estates',
+    ]);
+    $organizationB = Organization::factory()->create([
+        'name' => 'Aurora Towers',
+    ]);
+
+    $buildingA = Building::factory()->for($organizationA)->create();
+    $buildingB = Building::factory()->for($organizationB)->create();
+
+    $propertyA = Property::factory()->for($organizationA)->for($buildingA)->create([
+        'name' => 'A-12',
+    ]);
+    $propertyB = Property::factory()->for($organizationB)->for($buildingB)->create([
+        'name' => 'B-24',
+    ]);
+
+    $meterA = Meter::factory()->for($organizationA)->for($propertyA)->create([
+        'name' => 'North Meter',
+    ]);
+    $meterB = Meter::factory()->for($organizationB)->for($propertyB)->create([
+        'name' => 'Aurora Meter',
+    ]);
+
+    $readingA = MeterReading::factory()->for($organizationA)->for($propertyA)->for($meterA)->create([
+        'validation_status' => MeterReadingValidationStatus::VALID,
+    ]);
+    $readingB = MeterReading::factory()->for($organizationB)->for($propertyB)->for($meterB)->create([
+        'validation_status' => MeterReadingValidationStatus::FLAGGED,
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organizationA->id,
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.meter-readings.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Meter Readings')
+        ->assertSeeText($meterA->name)
+        ->assertDontSeeText($meterB->name);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.meter-readings.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Meter Readings')
+        ->assertSeeText($meterA->name)
+        ->assertSeeText($meterB->name)
+        ->assertSeeText($organizationA->name)
+        ->assertSeeText($organizationB->name);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListMeterReadings::class)
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Organization')
+        ->assertTableColumnStateSet('organization.name', $organizationA->name, $readingA)
+        ->assertTableColumnStateSet('organization.name', $organizationB->name, $readingB)
+        ->assertTableColumnStateSet('validation_status', MeterReadingValidationStatus::VALID, $readingA)
+        ->assertCanSeeTableRecords([$readingA, $readingB])
+        ->filterTable('organization', (string) $organizationA->getKey())
+        ->assertCanSeeTableRecords([$readingA])
+        ->assertCanNotSeeTableRecords([$readingB]);
 });

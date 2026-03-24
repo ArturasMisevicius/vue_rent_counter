@@ -115,6 +115,15 @@ class Task extends Model
         ]);
     }
 
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query
+            ->withPlanningRelations()
+            ->with([
+                'organization:id,name',
+            ]);
+    }
+
     public function scopeForWorkspaceSummary(Builder $query, int $organizationId): Builder
     {
         return $query
@@ -122,5 +131,22 @@ class Task extends Model
             ->forOrganization($organizationId)
             ->withPlanningRelations()
             ->ordered();
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->withIndexRelations()
+            ->ordered();
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->forOrganization((int) $organizationId);
     }
 }

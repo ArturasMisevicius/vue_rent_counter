@@ -20,7 +20,7 @@ it('renders the global search field in the shared topbar', function () {
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSee('data-shell-search="global"', false)
-        ->assertSeeText('Search anything');
+        ->assertSeeText(__('shell.search.placeholder'));
 });
 
 it('renders a valid alpine selector expression for search result navigation', function () {
@@ -50,7 +50,7 @@ it('shows model type group labels for admins and clears on escape', function () 
         ->test(GlobalSearch::class)
         ->set('query', 'mar')
         ->assertSet('open', true)
-        ->assertSee('Buildings')
+        ->assertSee(__('shell.search.groups.buildings'))
         ->dispatch('shell-search-dismissed')
         ->assertSet('open', false)
         ->assertSet('query', '');
@@ -69,8 +69,8 @@ it('reuses the admin organization search groups for managers', function () {
         ->test(GlobalSearch::class)
         ->set('query', 'mar')
         ->assertSet('open', true)
-        ->assertSee('Buildings')
-        ->assertDontSee('Organizations');
+        ->assertSee(__('shell.search.groups.buildings'))
+        ->assertDontSee(__('shell.search.groups.organizations'));
 });
 
 it('keeps the query string in sync with the validated search term', function () {

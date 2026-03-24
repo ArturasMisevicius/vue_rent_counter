@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Tasks\Tables;
 
+use App\Models\Organization;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TasksTable
 {
@@ -16,6 +19,7 @@ class TasksTable
         return $table
             ->columns([
                 TextColumn::make('organization.name')
+                    ->label('Organization')
                     ->searchable(),
                 TextColumn::make('project.name')
                     ->searchable(),
@@ -50,7 +54,14 @@ class TasksTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('organization')
+                    ->label('Organization')
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
             ])
             ->recordActions([
                 ViewAction::make(),

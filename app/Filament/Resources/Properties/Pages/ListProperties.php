@@ -22,9 +22,7 @@ class ListProperties extends ListRecords
                 PropertyResource::makeSubscriptionInfoAction(
                     name: 'create',
                     resource: 'properties',
-                    label: __('filament-actions::create.single.label', [
-                        'label' => PropertyResource::getModelLabel(),
-                    ]),
+                    label: __('admin.properties.actions.new_property'),
                 ),
             ];
         }
@@ -34,7 +32,8 @@ class ListProperties extends ListRecords
         }
 
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label(__('admin.properties.actions.new_property')),
         ];
     }
 }

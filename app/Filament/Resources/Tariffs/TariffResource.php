@@ -74,49 +74,10 @@ class TariffResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return parent::getEloquentQuery()
-                ->select([
-                    'id',
-                    'provider_id',
-                    'remote_id',
-                    'name',
-                    'configuration',
-                    'active_from',
-                    'active_until',
-                    'created_at',
-                    'updated_at',
-                ])
-                ->with([
-                    'provider:id,organization_id,name,service_type',
-                ])
-                ->withCount('serviceConfigurations');
-        }
-
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        if ($organizationId === null) {
-            return parent::getEloquentQuery()->whereKey(-1);
-        }
-
         return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'provider_id',
-                'remote_id',
-                'name',
-                'configuration',
-                'active_from',
-                'active_until',
-                'created_at',
-                'updated_at',
-            ])
-            ->whereHas('provider', fn (Builder $query) => $query->where('organization_id', $organizationId))
-            ->with([
-                'provider:id,organization_id,name,service_type',
-            ])
-            ->withCount('serviceConfigurations');
+            ->forWorkspaceIndex($user?->isSuperadmin() ?? false, $organizationId);
     }
 
     public static function canView(Model $record): bool

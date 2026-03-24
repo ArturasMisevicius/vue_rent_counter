@@ -54,6 +54,13 @@ $adminAccountNavigation = [
     ],
 ];
 
+$managerAccountNavigation = [
+    [
+        'route' => 'filament.admin.pages.profile',
+        'label' => 'shell.navigation.items.profile',
+    ],
+];
+
 return [
     'auth' => [
         'session_history_cookie_name' => 'tenanto_authenticated_session',
@@ -254,13 +261,58 @@ return [
                 'admin' => [
                     'properties' => [
                         [
-                            'route' => 'filament.admin.pages.dashboard',
-                            'label' => 'dashboard.title',
-                            'active_patterns' => [
-                                'filament.admin.pages.dashboard',
-                                'filament.admin.pages.organization-dashboard',
-                            ],
+                            'route' => 'filament.admin.resources.buildings.index',
+                            'label' => 'admin.buildings.plural',
                         ],
+                        [
+                            'route' => 'filament.admin.resources.properties.index',
+                            'label' => 'admin.properties.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.tenants.index',
+                            'label' => 'admin.tenants.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.meters.index',
+                            'label' => 'admin.meters.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.meter-readings.index',
+                            'label' => 'admin.meter_readings.plural',
+                        ],
+                    ],
+                    'billing' => [
+                        [
+                            'route' => 'filament.admin.resources.invoices.index',
+                            'label' => 'admin.invoices.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.tariffs.index',
+                            'label' => 'admin.tariffs.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.providers.index',
+                            'label' => 'admin.providers.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.service-configurations.index',
+                            'label' => 'admin.service_configurations.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.utility-services.index',
+                            'label' => 'admin.utility_services.plural',
+                        ],
+                    ],
+                    'reports' => [
+                        [
+                            'route' => 'filament.admin.pages.reports',
+                            'label' => 'shell.navigation.items.reports',
+                        ],
+                    ],
+                    'account' => $adminAccountNavigation,
+                ],
+                'manager' => [
+                    'properties' => [
                         [
                             'route' => 'filament.admin.resources.buildings.index',
                             'label' => 'admin.buildings.plural',
@@ -288,12 +340,12 @@ return [
                             'label' => 'admin.invoices.plural',
                         ],
                         [
-                            'route' => 'filament.admin.resources.providers.index',
-                            'label' => 'admin.providers.plural',
-                        ],
-                        [
                             'route' => 'filament.admin.resources.tariffs.index',
                             'label' => 'admin.tariffs.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.providers.index',
+                            'label' => 'admin.providers.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.service-configurations.index',
@@ -310,7 +362,7 @@ return [
                             'label' => 'shell.navigation.items.reports',
                         ],
                     ],
-                    'account' => $adminAccountNavigation,
+                    'account' => $managerAccountNavigation,
                 ],
                 'tenant' => [
                     'my_home' => [

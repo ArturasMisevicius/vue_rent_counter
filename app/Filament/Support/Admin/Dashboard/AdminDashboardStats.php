@@ -3,10 +3,14 @@
 namespace App\Filament\Support\Admin\Dashboard;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
+use App\Models\Subscription;
+use App\Models\SystemConfiguration;
+use App\Models\SystemSetting;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,21 +27,34 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
-     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
-     *     subscription_usage: array<int, array{label: string, value: string}>,
+     *     subscription_usage: array<int, array{
+     *         key: string,
+     *         label: string,
+     *         used: int,
+     *         limit: int,
+     *         summary: string,
+     *         percent: int,
+     *         tone: string,
+     *         limit_reached: bool,
+     *         message: string
+     *     }>,
      *     recent_invoices: array<int, array{
-     *         number: string,
+     *         id: int,
      *         tenant: string,
      *         property: string,
+     *         billing_period: string,
      *         amount: string,
-     *         status: string
+     *         status: string,
+     *         can_process_payment: bool
      *     }>,
      *     upcoming_reading_deadlines: array<int, array{
-     *         meter_name: string,
+     *         meter_id: int,
+     *         meter_identifier: string,
      *         property_name: string,
-     *         due_label: string
+     *         due_label: string,
+     *         tone: string
      *     }>
      * }
      */
@@ -65,7 +82,6 @@ class AdminDashboardStats
      *     total_properties: int,
      *     active_tenants: int,
      *     pending_invoices: int,
-     *     draft_invoices: int,
      *     revenue_this_month: string
      * }
      */
@@ -84,11 +100,13 @@ class AdminDashboardStats
 
     /**
      * @return array<int, array{
-     *     number: string,
+     *     id: int,
      *     tenant: string,
      *     property: string,
+     *     billing_period: string,
      *     amount: string,
-     *     status: string
+     *     status: string,
+     *     can_process_payment: bool
      * }>
      */
     public function recentInvoicesFor(User $user, int $limit = 10): array
@@ -98,9 +116,11 @@ class AdminDashboardStats
 
     /**
      * @return array<int, array{
-     *     meter_name: string,
+     *     meter_id: int,
+     *     meter_identifier: string,
      *     property_name: string,
-     *     due_label: string
+     *     due_label: string,
+     *     tone: string
      * }>
      */
     public function upcomingReadingDeadlinesFor(User $user, int $limit = 10): array
@@ -119,21 +139,34 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
-     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
-     *     subscription_usage: array<int, array{label: string, value: string}>,
+     *     subscription_usage: array<int, array{
+     *         key: string,
+     *         label: string,
+     *         used: int,
+     *         limit: int,
+     *         summary: string,
+     *         percent: int,
+     *         tone: string,
+     *         limit_reached: bool,
+     *         message: string
+     *     }>,
      *     recent_invoices: array<int, array{
-     *         number: string,
+     *         id: int,
      *         tenant: string,
      *         property: string,
+     *         billing_period: string,
      *         amount: string,
-     *         status: string
+     *         status: string,
+     *         can_process_payment: bool
      *     }>,
      *     upcoming_reading_deadlines: array<int, array{
-     *         meter_name: string,
+     *         meter_id: int,
+     *         meter_identifier: string,
      *         property_name: string,
-     *         due_label: string
+     *         due_label: string,
+     *         tone: string
      *     }>
      * }
      */
@@ -146,9 +179,9 @@ class AdminDashboardStats
                 'properties',
                 'meters',
                 'invoices',
+                'users as tenants_count' => fn (Builder $query): Builder => $query->where('role', UserRole::TENANT),
                 'propertyAssignments as active_tenants_count' => fn (Builder $query): Builder => $query->current(),
-                'invoices as pending_invoices_count' => fn (Builder $query): Builder => $query->pendingAttention(),
-                'invoices as draft_invoices_count' => fn (Builder $query): Builder => $query->where('status', InvoiceStatus::DRAFT),
+                'invoices as pending_invoices_count' => fn (Builder $query): Builder => $query->where('status', InvoiceStatus::DRAFT),
             ])
             ->withSum([
                 'invoices as revenue_this_month' => fn (Builder $query): Builder => $query->paidBetween(
@@ -165,44 +198,20 @@ class AdminDashboardStats
             return $this->emptyDashboard();
         }
 
+        $subscription = $organization->currentSubscription;
+
+        if ($subscription !== null) {
+            $subscription->setRelation('organization', $organization);
+        }
+
         return [
             'metrics' => [
                 'total_properties' => (int) $organization->properties_count,
                 'active_tenants' => (int) $organization->active_tenants_count,
                 'pending_invoices' => (int) $organization->pending_invoices_count,
-                'draft_invoices' => (int) $organization->draft_invoices_count,
                 'revenue_this_month' => $this->formatCurrency((float) ($organization->revenue_this_month ?? 0)),
             ],
-            'subscription_usage' => [
-                [
-                    'label' => __('dashboard.organization_usage.properties'),
-                    'value' => $this->formatUsage(
-                        (int) $organization->properties_count,
-                        $organization->currentSubscription?->property_limit_snapshot,
-                    ),
-                ],
-                [
-                    'label' => __('dashboard.organization_usage.tenants'),
-                    'value' => $this->formatUsage(
-                        (int) $organization->active_tenants_count,
-                        $organization->currentSubscription?->tenant_limit_snapshot,
-                    ),
-                ],
-                [
-                    'label' => __('dashboard.organization_usage.meters'),
-                    'value' => $this->formatUsage(
-                        (int) $organization->meters_count,
-                        $organization->currentSubscription?->meter_limit_snapshot,
-                    ),
-                ],
-                [
-                    'label' => __('dashboard.organization_usage.invoices'),
-                    'value' => $this->formatUsage(
-                        (int) $organization->invoices_count,
-                        $organization->currentSubscription?->invoice_limit_snapshot,
-                    ),
-                ],
-            ],
+            'subscription_usage' => $this->buildSubscriptionUsage($subscription),
             'recent_invoices' => $this->buildRecentInvoices($organizationId, $invoiceLimit),
             'upcoming_reading_deadlines' => $this->buildUpcomingReadingDeadlines($organizationId, $deadlineLimit),
         ];
@@ -210,11 +219,13 @@ class AdminDashboardStats
 
     /**
      * @return array<int, array{
-     *     number: string,
+     *     id: int,
      *     tenant: string,
      *     property: string,
+     *     billing_period: string,
      *     amount: string,
-     *     status: string
+     *     status: string,
+     *     can_process_payment: bool
      * }>
      */
     private function buildRecentInvoices(int $organizationId, int $limit): array
@@ -248,13 +259,19 @@ class AdminDashboardStats
                 $unitNumber = $invoice->property?->unit_number;
 
                 return [
+                    'id' => (int) $invoice->getKey(),
                     'number' => (string) $invoice->invoice_number,
                     'tenant' => (string) ($invoice->tenant?->name ?? __('dashboard.not_available')),
                     'property' => filled($unitNumber)
                         ? $propertyName.' · '.$unitNumber
                         : $propertyName,
+                    'billing_period' => $this->formatBillingPeriod(
+                        $invoice->billing_period_start,
+                        $invoice->billing_period_end,
+                    ),
                     'amount' => $this->formatCurrency((float) $invoice->total_amount),
                     'status' => $invoice->effectiveStatus()->label(),
+                    'can_process_payment' => $invoice->status === InvoiceStatus::FINALIZED,
                 ];
             })
             ->all();
@@ -262,15 +279,19 @@ class AdminDashboardStats
 
     /**
      * @return array<int, array{
-     *     meter_name: string,
+     *     meter_id: int,
+     *     meter_identifier: string,
      *     property_name: string,
-     *     due_label: string
+     *     due_label: string,
+     *     tone: string
      * }>
      */
     private function buildUpcomingReadingDeadlines(int $organizationId, int $limit): array
     {
+        $thresholdDays = $this->readingThresholdDays();
+
         return Meter::query()
-            ->select(['id', 'organization_id', 'property_id', 'name', 'installed_at', 'created_at'])
+            ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'installed_at', 'created_at'])
             ->forOrganization($organizationId)
             ->active()
             ->with([
@@ -279,36 +300,97 @@ class AdminDashboardStats
             ])
             ->ordered()
             ->get()
-            ->map(function (Meter $meter): array {
+            ->map(function (Meter $meter) use ($thresholdDays): array {
                 $baseDate = $meter->latestReading?->reading_date
                     ?? $meter->installed_at
                     ?? $meter->created_at;
 
-                $dueDate = $baseDate->copy()->addDays(30);
-                $daysWithoutReading = $baseDate->copy()->startOfDay()->diffInDays(now()->startOfDay());
+                $dueDate = $baseDate->copy()->addDays($thresholdDays);
+                $daysUntilDue = (int) now()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
                 $unitNumber = $meter->property?->unit_number;
                 $propertyName = (string) ($meter->property?->name ?? __('dashboard.not_available'));
 
                 return [
-                    'meter_name' => (string) $meter->name,
+                    'meter_id' => (int) $meter->getKey(),
+                    'meter_identifier' => (string) ($meter->identifier ?: $meter->name),
                     'property_name' => filled($unitNumber)
                         ? $propertyName.' · '.$unitNumber
                         : $propertyName,
                     'due_label' => $this->formatDueLabel($dueDate),
-                    'days_without_reading' => $daysWithoutReading,
+                    'days_until_due' => $daysUntilDue,
+                    'tone' => $this->deadlineTone($daysUntilDue),
                     'due_sort' => $dueDate->timestamp,
                 ];
             })
-            ->filter(fn (array $deadline): bool => $deadline['days_without_reading'] > 30)
+            ->filter(fn (array $deadline): bool => $deadline['days_until_due'] <= 14)
             ->sortBy('due_sort')
             ->take($limit)
             ->map(fn (array $deadline): array => [
-                'meter_name' => $deadline['meter_name'],
+                'meter_id' => $deadline['meter_id'],
+                'meter_identifier' => $deadline['meter_identifier'],
                 'property_name' => $deadline['property_name'],
                 'due_label' => $deadline['due_label'],
+                'tone' => $deadline['tone'],
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, array{
+     *     key: string,
+     *     label: string,
+     *     used: int,
+     *     limit: int,
+     *     summary: string,
+     *     percent: int,
+     *     tone: string,
+     *     limit_reached: bool,
+     *     message: string
+     * }>
+     */
+    private function buildSubscriptionUsage(?Subscription $subscription): array
+    {
+        if ($subscription === null) {
+            return [];
+        }
+
+        return [
+            [
+                'key' => 'properties',
+                'label' => __('dashboard.organization_usage.properties'),
+                'used' => $subscription->propertiesUsedCount(),
+                'limit' => $subscription->propertyLimit(),
+                'summary' => __('dashboard.organization_usage.usage_summary', [
+                    'used' => $subscription->propertiesUsedCount(),
+                    'limit' => $subscription->propertyLimit(),
+                    'label' => strtolower(__('dashboard.organization_usage.properties')),
+                ]),
+                'percent' => $subscription->propertyUsagePercent(),
+                'tone' => $subscription->propertyUsageTone(),
+                'limit_reached' => $subscription->hasReachedPropertyLimit(),
+                'message' => __('dashboard.organization_usage.limit_reached', [
+                    'label' => strtolower(__('dashboard.organization_usage.properties')),
+                ]),
+            ],
+            [
+                'key' => 'tenants',
+                'label' => __('dashboard.organization_usage.tenants'),
+                'used' => $subscription->tenantsUsedCount(),
+                'limit' => $subscription->tenantLimit(),
+                'summary' => __('dashboard.organization_usage.usage_summary', [
+                    'used' => $subscription->tenantsUsedCount(),
+                    'limit' => $subscription->tenantLimit(),
+                    'label' => strtolower(__('dashboard.organization_usage.tenants')),
+                ]),
+                'percent' => $subscription->tenantUsagePercent(),
+                'tone' => $subscription->tenantUsageTone(),
+                'limit_reached' => $subscription->hasReachedTenantLimit(),
+                'message' => __('dashboard.organization_usage.limit_reached', [
+                    'label' => strtolower(__('dashboard.organization_usage.tenants')),
+                ]),
+            ],
+        ];
     }
 
     /**
@@ -317,21 +399,34 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
-     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
-     *     subscription_usage: array<int, array{label: string, value: string}>,
+     *     subscription_usage: array<int, array{
+     *         key: string,
+     *         label: string,
+     *         used: int,
+     *         limit: int,
+     *         summary: string,
+     *         percent: int,
+     *         tone: string,
+     *         limit_reached: bool,
+     *         message: string
+     *     }>,
      *     recent_invoices: array<int, array{
-     *         number: string,
+     *         id: int,
      *         tenant: string,
      *         property: string,
+     *         billing_period: string,
      *         amount: string,
-     *         status: string
+     *         status: string,
+     *         can_process_payment: bool
      *     }>,
      *     upcoming_reading_deadlines: array<int, array{
-     *         meter_name: string,
+     *         meter_id: int,
+     *         meter_identifier: string,
      *         property_name: string,
-     *         due_label: string
+     *         due_label: string,
+     *         tone: string
      *     }>
      * }
      */
@@ -342,7 +437,6 @@ class AdminDashboardStats
                 'total_properties' => 0,
                 'active_tenants' => 0,
                 'pending_invoices' => 0,
-                'draft_invoices' => 0,
                 'revenue_this_month' => $this->formatCurrency(0),
             ],
             'subscription_usage' => [],
@@ -354,11 +448,6 @@ class AdminDashboardStats
     private function formatCurrency(float $amount): string
     {
         return 'EUR '.number_format($amount, 2, '.', '');
-    }
-
-    private function formatUsage(int $current, ?int $limit): string
-    {
-        return $current.' / '.($limit ?? '—');
     }
 
     private function formatDueLabel(CarbonInterface $dueDate): string
@@ -378,5 +467,56 @@ class AdminDashboardStats
         return __('dashboard.organization_deadlines.due_in_days', [
             'days' => $days,
         ]);
+    }
+
+    private function formatBillingPeriod(?CarbonInterface $periodStart, ?CarbonInterface $periodEnd): string
+    {
+        $from = $periodStart?->translatedFormat('F Y') ?? __('dashboard.not_available');
+        $to = $periodEnd?->translatedFormat('F Y') ?? __('dashboard.not_available');
+
+        return __('dashboard.organization_invoice_period', [
+            'from' => $from,
+            'to' => $to,
+        ]);
+    }
+
+    private function deadlineTone(int $daysUntilDue): string
+    {
+        return match (true) {
+            $daysUntilDue < 0 => 'danger',
+            $daysUntilDue <= 3 => 'warning',
+            default => 'neutral',
+        };
+    }
+
+    private function readingThresholdDays(): int
+    {
+        $systemSetting = SystemSetting::query()
+            ->select(['id', 'key', 'value'])
+            ->where('key', 'reports.meter_compliance.threshold_days')
+            ->first();
+
+        if ($systemSetting !== null) {
+            $value = is_array($systemSetting->value) ? ($systemSetting->value['value'] ?? null) : null;
+
+            if (is_numeric($value)) {
+                return max((int) $value, 1);
+            }
+        }
+
+        $systemConfiguration = SystemConfiguration::query()
+            ->select(['id', 'key', 'value'])
+            ->where('key', 'reports.meter_compliance.threshold_days')
+            ->first();
+
+        if ($systemConfiguration !== null) {
+            $value = is_array($systemConfiguration->value) ? ($systemConfiguration->value['value'] ?? null) : null;
+
+            if (is_numeric($value)) {
+                return max((int) $value, 1);
+            }
+        }
+
+        return 30;
     }
 }

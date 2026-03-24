@@ -99,7 +99,8 @@ class NavigationBuilder
     {
         return match (true) {
             $user->isSuperadmin() => 'superadmin',
-            $user->isAdmin(), $user->isManager() => 'admin',
+            $user->isAdmin() => 'admin',
+            $user->isManager() => 'manager',
             $user->isTenant() => 'tenant',
             default => null,
         };

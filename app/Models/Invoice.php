@@ -158,7 +158,18 @@ class Invoice extends Model
 
     public function scopeOverdue(Builder $query): Builder
     {
-        $today = now()->toDateString();
+        return $query
+            ->whereOverdueAsOf()
+            ->orderBy('due_date')
+            ->orderBy('billing_period_end')
+            ->orderBy('id');
+    }
+
+    public function scopeWhereOverdueAsOf(Builder $query, CarbonInterface|string|null $asOf = null): Builder
+    {
+        $today = $asOf instanceof CarbonInterface
+            ? $asOf->copy()->startOfDay()->toDateString()
+            : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay()->toDateString();
 
         return $query
             ->whereIn('status', InvoiceStatus::outstandingValues())
@@ -174,10 +185,35 @@ class Invoice extends Model
                             ->whereNull('due_date')
                             ->whereDate('billing_period_end', '<', $today);
                     });
-            })
-            ->orderBy('due_date')
-            ->orderBy('billing_period_end')
-            ->orderBy('id');
+            });
+    }
+
+    public function scopeWhereNotOverdueAsOf(Builder $query, CarbonInterface|string|null $asOf = null): Builder
+    {
+        $today = $asOf instanceof CarbonInterface
+            ? $asOf->copy()->startOfDay()->toDateString()
+            : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay()->toDateString();
+
+        return $query->where(function (Builder $notOverdueQuery) use ($today): void {
+            $notOverdueQuery
+                ->where(function (Builder $dueDateQuery) use ($today): void {
+                    $dueDateQuery
+                        ->whereNotNull('due_date')
+                        ->whereDate('due_date', '>=', $today);
+                })
+                ->orWhere(function (Builder $fallbackQuery) use ($today): void {
+                    $fallbackQuery
+                        ->whereNull('due_date')
+                        ->whereDate('billing_period_end', '>=', $today);
+                });
+        });
+    }
+
+    public function scopeAwaitingPayment(Builder $query, CarbonInterface|string|null $asOf = null): Builder
+    {
+        return $query
+            ->where('status', InvoiceStatus::FINALIZED)
+            ->whereNotOverdueAsOf($asOf);
     }
 
     public function scopePaidBetween(
@@ -213,11 +249,26 @@ class Invoice extends Model
         ]);
     }
 
+    public function scopeWithIndexRelations(Builder $query, bool $includeOrganization = false): Builder
+    {
+        $query->withAdminWorkspaceRelations();
+
+        if (! $includeOrganization) {
+            return $query;
+        }
+
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
     public function scopeWithTenantWorkspaceRelations(Builder $query): Builder
     {
         return $query->with([
+            'tenant:id,organization_id,name,email',
             'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
             'property.building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
+            'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
         ]);
     }
 
@@ -246,6 +297,129 @@ class Invoice extends Model
             )
             ->withTenantWorkspaceRelations()
             ->latestBillingFirst();
+    }
+
+    public function scopeForWorkspaceIndex(Builder $query, bool $isSuperadmin, ?int $organizationId): Builder
+    {
+        $query = $query
+            ->select(self::ADMIN_WORKSPACE_COLUMNS)
+            ->withIndexRelations($isSuperadmin)
+            ->latestBillingFirst();
+
+        if ($isSuperadmin) {
+            return $query;
+        }
+
+        if ($organizationId === null) {
+            return $query->whereKey(-1);
+        }
+
+        return $query->forOrganization($organizationId);
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForPropertyValue(Builder $query, int|string|null $propertyId): Builder
+    {
+        if (blank($propertyId)) {
+            return $query;
+        }
+
+        return $query->where('property_id', $propertyId);
+    }
+
+    public function scopeForIdValues(Builder $query, array|string|null $invoiceIds): Builder
+    {
+        $resolvedIds = collect(is_array($invoiceIds) ? $invoiceIds : explode(',', (string) $invoiceIds))
+            ->filter(fn (mixed $value): bool => is_numeric($value))
+            ->map(fn (mixed $value): int => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($resolvedIds === []) {
+            return $query;
+        }
+
+        return $query->whereIn('id', $resolvedIds);
+    }
+
+    public function scopeSearchTenantName(Builder $query, ?string $search): Builder
+    {
+        $term = trim((string) $search);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->whereHas(
+            'tenant',
+            fn (Builder $tenantQuery): Builder => $tenantQuery->where('name', 'like', "%{$term}%"),
+        );
+    }
+
+    public function scopeForBillingPeriodRange(Builder $query, ?string $from, ?string $to): Builder
+    {
+        $query
+            ->when(
+                filled($from),
+                fn (Builder $rangeQuery): Builder => $rangeQuery->whereDate('billing_period_start', '>=', (string) $from),
+            )
+            ->when(
+                filled($to),
+                fn (Builder $rangeQuery): Builder => $rangeQuery->whereDate('billing_period_end', '<=', (string) $to),
+            );
+
+        return $query;
+    }
+
+    public function scopeForEffectiveStatusValues(
+        Builder $query,
+        array|string|null $statuses,
+        CarbonInterface|string|null $asOf = null,
+    ): Builder {
+        $resolvedStatuses = collect(is_array($statuses) ? $statuses : [$statuses])
+            ->filter(fn (mixed $value): bool => filled($value))
+            ->map(fn (mixed $value): string => (string) $value)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($resolvedStatuses === []) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $statusQuery) use ($resolvedStatuses, $asOf): void {
+            foreach ($resolvedStatuses as $statusValue) {
+                $status = InvoiceStatus::tryFrom($statusValue);
+
+                if (! $status instanceof InvoiceStatus) {
+                    continue;
+                }
+
+                $statusQuery->orWhere(function (Builder $candidateQuery) use ($status, $asOf): void {
+                    match ($status) {
+                        InvoiceStatus::DRAFT => $candidateQuery->where('status', InvoiceStatus::DRAFT),
+                        InvoiceStatus::FINALIZED => $candidateQuery
+                            ->where('status', InvoiceStatus::FINALIZED)
+                            ->whereNotOverdueAsOf($asOf),
+                        InvoiceStatus::PARTIALLY_PAID => $candidateQuery
+                            ->where('status', InvoiceStatus::PARTIALLY_PAID)
+                            ->whereNotOverdueAsOf($asOf),
+                        InvoiceStatus::PAID => $candidateQuery->where('status', InvoiceStatus::PAID),
+                        InvoiceStatus::OVERDUE => $candidateQuery->whereOverdueAsOf($asOf),
+                        InvoiceStatus::VOID => $candidateQuery->where('status', InvoiceStatus::VOID),
+                    };
+                });
+            }
+        });
     }
 
     public function organization(): BelongsTo
@@ -419,6 +593,50 @@ class Invoice extends Model
         }
 
         return $status;
+    }
+
+    public function canViewFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() !== InvoiceStatus::DRAFT;
+    }
+
+    public function canEditFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() === InvoiceStatus::DRAFT;
+    }
+
+    public function canFinalizeFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() === InvoiceStatus::DRAFT;
+    }
+
+    public function canBeDeletedFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() === InvoiceStatus::DRAFT;
+    }
+
+    public function canProcessPaymentFromAdminWorkspace(): bool
+    {
+        return in_array($this->effectiveStatus(), [
+            InvoiceStatus::FINALIZED,
+            InvoiceStatus::PARTIALLY_PAID,
+            InvoiceStatus::OVERDUE,
+        ], true);
+    }
+
+    public function canSendEmailFromAdminWorkspace(): bool
+    {
+        return in_array($this->effectiveStatus(), [
+            InvoiceStatus::FINALIZED,
+            InvoiceStatus::PARTIALLY_PAID,
+            InvoiceStatus::PAID,
+            InvoiceStatus::OVERDUE,
+        ], true);
+    }
+
+    public function canSendReminderFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() === InvoiceStatus::OVERDUE;
     }
 
     /**

@@ -160,8 +160,10 @@ it('shows recorded security violations in the superadmin security resource and i
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.security-violations.index'))
         ->assertSuccessful()
-        ->assertSeeText($violation->summary)
-        ->assertSeeText('Northwind Estates');
+        ->assertSeeText(SecurityViolationType::RATE_LIMIT->label())
+        ->assertSeeText(SecurityViolationSeverity::HIGH->label())
+        ->assertSeeText('/login')
+        ->assertSeeText('Threat model probe');
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.integration-health'))

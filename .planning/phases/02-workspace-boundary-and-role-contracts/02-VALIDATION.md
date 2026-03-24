@@ -1,7 +1,7 @@
 ---
 phase: 2
 slug: workspace-boundary-and-role-contracts
-status: draft
+status: complete
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-03-19
@@ -36,12 +36,12 @@ created: 2026-03-19
 
 | Task ID | Plan | Requirement | Test Type | Automated Command | Status |
 |---------|------|-------------|-----------|-------------------|--------|
-| 02-01-01 | 01 | SEC-01 | feature | `php artisan test tests/Feature/Security/WorkspaceContextResolutionTest.php --compact` | ⬜ pending |
-| 02-01-02 | 01 | SEC-02, SEC-03 | feature | `php artisan test tests/Feature/Security/RoleAuthorityContractTest.php tests/Feature/Admin/ManagerPolicyParityTest.php --compact` | ⬜ pending |
-| 02-01-03 | 01 | SEC-04 | feature | `php artisan test tests/Feature/Security/TenantPropertyBoundaryContractTest.php tests/Feature/Tenant/TenantAccessIsolationTest.php tests/Feature/Security/TenantPortalIsolationTest.php --compact` | ⬜ pending |
-| 02-01-04 | 01 | SEC-01..SEC-04 | architecture + regression | `php artisan test tests/Feature/Architecture/WorkspaceBoundaryInventoryTest.php tests/Feature/Security/WorkspaceContextResolutionTest.php tests/Feature/Security/RoleAuthorityContractTest.php tests/Feature/Security/TenantPropertyBoundaryContractTest.php --compact` | ⬜ pending |
+| 02-01-01 | 01 | SEC-01 | feature | `php artisan test tests/Feature/Security/WorkspaceContextResolutionTest.php --compact` | ✅ complete |
+| 02-01-02 | 01 | SEC-02, SEC-03 | feature | `php artisan test tests/Feature/Security/RoleAuthorityContractTest.php tests/Feature/Admin/ManagerPolicyParityTest.php --compact` | ✅ complete |
+| 02-01-03 | 01 | SEC-04 | feature | `php artisan test tests/Feature/Security/TenantPropertyBoundaryContractTest.php tests/Feature/Tenant/TenantAccessIsolationTest.php tests/Feature/Security/TenantPortalIsolationTest.php --compact` | ✅ complete |
+| 02-01-04 | 01 | SEC-01..SEC-04 | architecture + regression | `php artisan test tests/Feature/Architecture/WorkspaceBoundaryInventoryTest.php tests/Feature/Security/WorkspaceContextResolutionTest.php tests/Feature/Security/RoleAuthorityContractTest.php tests/Feature/Security/TenantPropertyBoundaryContractTest.php --compact` | ✅ complete |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠ flaky*
+*Status: ⬜ pending · ✅ complete · ❌ red · ⚠ flaky*
 
 ---
 
@@ -52,4 +52,4 @@ created: 2026-03-19
 - [x] No manual-only verifications are required for the initial implementation pass
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** local automated verification complete on 2026-03-24

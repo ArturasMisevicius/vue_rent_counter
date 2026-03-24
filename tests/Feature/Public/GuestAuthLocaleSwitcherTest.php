@@ -138,6 +138,23 @@ it('applies the guest locale to the invitation page', function () {
         ->assertSeeText(__('auth.invitation_title', [], 'ru'));
 });
 
+it('applies the guest locale to the demo accounts block on the login page', function () {
+    User::factory()->superadmin()->create([
+        'email' => 'superadmin@example.com',
+    ]);
+
+    $this->withSession([
+        'guest_locale' => 'ru',
+    ])->get(route('login'))
+        ->assertSuccessful()
+        ->assertSeeText(__('auth.login_title', [], 'ru'))
+        ->assertSeeText(__('auth.demo_accounts.heading', [], 'ru'))
+        ->assertSeeText(__('auth.demo_accounts.description', [], 'ru'))
+        ->assertSeeText(__('auth.demo_accounts.columns.username', [], 'ru'))
+        ->assertSeeText(__('auth.demo_accounts.columns.password', [], 'ru'))
+        ->assertSeeText(__('auth.demo_accounts.columns.role', [], 'ru'));
+});
+
 it('keeps the previous valid guest locale when an unsupported locale is submitted', function () {
     $this->withSession([
         '_token' => GUEST_LOCALE_CSRF_TOKEN,

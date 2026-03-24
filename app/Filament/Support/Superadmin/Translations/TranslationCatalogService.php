@@ -74,8 +74,10 @@ class TranslationCatalogService
             return $this->localeDirectories();
         }
 
+        $hasConfiguredLanguages = Language::query()->exists();
+
         $languageLocales = Language::query()
-            ->select(['id', 'code', 'name', 'native_name', 'status', 'is_default'])
+            ->active()
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->pluck('code')
@@ -84,7 +86,7 @@ class TranslationCatalogService
             ->values()
             ->all();
 
-        if ($languageLocales !== []) {
+        if ($hasConfiguredLanguages) {
             return $languageLocales;
         }
 

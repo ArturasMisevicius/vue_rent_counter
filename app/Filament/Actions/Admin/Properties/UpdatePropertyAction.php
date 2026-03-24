@@ -28,7 +28,7 @@ class UpdatePropertyAction
     }
 
     /**
-     * @return array{name: string, building_id: int, unit_number: string, type: string, floor_area_sqm: float|int|null}
+     * @return array{name: string, building_id: int, floor: int|null, unit_number: string|null, type: string, floor_area_sqm: float|int|null}
      */
     private function validate(int $organizationId, array $data): array
     {

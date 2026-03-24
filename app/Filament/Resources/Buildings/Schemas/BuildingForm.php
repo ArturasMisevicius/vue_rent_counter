@@ -17,7 +17,7 @@ class BuildingForm
     {
         return $schema
             ->components([
-                Section::make(__('admin.buildings.sections.details'))
+                Section::make(__('admin.buildings.sections.information'))
                     ->schema([
                         Select::make('organization_id')
                             ->label(__('superadmin.organizations.singular'))
@@ -49,31 +49,15 @@ class BuildingForm
                                     && app(OrganizationContext::class)->currentOrganizationId() === null;
                             }),
                         TextInput::make('name')
-                            ->label(__('admin.buildings.fields.name'))
+                            ->label(__('admin.buildings.fields.building_name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('address_line_1')
-                            ->label(__('admin.buildings.fields.address_line_1'))
+                            ->label(__('admin.buildings.fields.full_address'))
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('address_line_2')
-                            ->label(__('admin.buildings.fields.address_line_2'))
-                            ->maxLength(255),
-                        TextInput::make('city')
-                            ->label(__('admin.buildings.fields.city'))
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('postal_code')
-                            ->label(__('admin.buildings.fields.postal_code'))
-                            ->required()
-                            ->maxLength(20),
-                        TextInput::make('country_code')
-                            ->label(__('admin.buildings.fields.country_code'))
-                            ->required()
-                            ->minLength(2)
-                            ->maxLength(2),
                     ])
-                    ->columns(2),
+                    ->columns(1),
             ]);
     }
 }

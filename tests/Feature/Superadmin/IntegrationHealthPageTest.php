@@ -1,18 +1,23 @@
 <?php
 
 use App\Enums\IntegrationHealthStatus;
-use App\Filament\Actions\Superadmin\Integration\ResetIntegrationCircuitBreakerAction;
-use App\Filament\Actions\Superadmin\Integration\RunIntegrationHealthChecksAction;
+use App\Enums\SecurityViolationSeverity;
+use App\Enums\SecurityViolationType;
+use App\Filament\Pages\IntegrationHealth;
 use App\Models\IntegrationHealthCheck;
 use App\Models\Organization;
+use App\Models\SecurityViolation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('shows integration health cards with polling only to superadmins', function () {
+it('renders the integration health operations page only to superadmins', function () {
     $superadmin = User::factory()->superadmin()->create();
-    $organization = Organization::factory()->create();
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+    ]);
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
     ]);
@@ -20,25 +25,71 @@ it('shows integration health cards with polling only to superadmins', function (
     IntegrationHealthCheck::factory()->create([
         'key' => 'database',
         'label' => 'Database',
+        'status' => IntegrationHealthStatus::HEALTHY,
+        'summary' => 'Database connection healthy.',
+        'response_time_ms' => 23,
+        'checked_at' => now()->subMinutes(5),
     ]);
 
     IntegrationHealthCheck::factory()->create([
         'key' => 'queue',
         'label' => 'Queue',
+        'status' => IntegrationHealthStatus::FAILED,
+        'summary' => 'Queue worker is paused.',
+        'response_time_ms' => 0,
+        'details' => [
+            'circuit_breaker_tripped' => true,
+        ],
+        'checked_at' => now()->subMinutes(2),
     ]);
 
-    IntegrationHealthCheck::factory()->create([
-        'key' => 'mail',
-        'label' => 'Mail',
+    SecurityViolation::factory()->create([
+        'organization_id' => $organization->id,
+        'type' => SecurityViolationType::DATA_ACCESS,
+        'severity' => SecurityViolationSeverity::HIGH,
+        'summary' => 'CSP report blocked inline script',
+        'ip_address' => '203.0.113.20',
+        'metadata' => [
+            'source' => 'csp-report',
+            'url' => 'https://app.example.test/dashboard',
+        ],
+        'occurred_at' => now()->subHour(),
+    ]);
+
+    SecurityViolation::factory()->create([
+        'organization_id' => null,
+        'type' => SecurityViolationType::RATE_LIMIT,
+        'severity' => SecurityViolationSeverity::MEDIUM,
+        'summary' => 'Repeated login bursts',
+        'ip_address' => '203.0.113.21',
+        'metadata' => [],
+        'occurred_at' => now()->subMinutes(30),
     ]);
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.integration-health'))
         ->assertSuccessful()
         ->assertSeeText('Integration Health')
+        ->assertSeeText('Platform probes refresh automatically every 30 seconds.')
+        ->assertSeeText('Integration')
+        ->assertSeeText('Status')
+        ->assertSeeText('Summary')
+        ->assertSeeText('Checked')
+        ->assertSeeText('Actions')
         ->assertSeeText('Database')
         ->assertSeeText('Queue')
-        ->assertSeeText('Mail')
+        ->assertSeeText('Database connection healthy.')
+        ->assertSeeText('Queue worker is paused.')
+        ->assertSeeText('23 ms')
+        ->assertSeeText('Check Now')
+        ->assertSeeText('Reset Circuit Breaker')
+        ->assertSeeText('Recent Security Violations')
+        ->assertSeeText('Recent platform security events recorded by the application.')
+        ->assertSeeText('CSP report blocked inline script')
+        ->assertSeeText('csp-report')
+        ->assertSeeText('203.0.113.20')
+        ->assertSeeText('Northwind Towers')
+        ->assertSeeText('Platform')
         ->assertSee('wire:poll.30s', false);
 
     $this->actingAs($admin)
@@ -46,21 +97,43 @@ it('shows integration health cards with polling only to superadmins', function (
         ->assertForbidden();
 });
 
-it('runs health probes and resets failed checks', function () {
-    app(RunIntegrationHealthChecksAction::class)->handle();
+it('runs checks and resets circuit breakers from the page actions', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $this->actingAs($superadmin);
 
-    $failed = IntegrationHealthCheck::query()
-        ->where('key', 'queue')
-        ->firstOrFail();
-
-    $failed->update([
-        'status' => IntegrationHealthStatus::FAILED,
-        'summary' => 'Queue worker is paused.',
+    $databaseCheck = IntegrationHealthCheck::factory()->create([
+        'key' => 'database',
+        'label' => 'Database',
+        'status' => IntegrationHealthStatus::UNKNOWN,
+        'summary' => '',
+        'checked_at' => null,
+        'response_time_ms' => null,
+        'details' => [],
     ]);
 
-    $reset = app(ResetIntegrationCircuitBreakerAction::class)->handle($failed->fresh());
+    $failedCheck = IntegrationHealthCheck::factory()->create([
+        'key' => 'queue',
+        'label' => 'Queue',
+        'status' => IntegrationHealthStatus::FAILED,
+        'summary' => 'Circuit breaker open.',
+        'details' => [
+            'circuit_breaker_tripped' => true,
+        ],
+        'checked_at' => now()->subMinutes(10),
+        'response_time_ms' => 0,
+    ]);
 
-    expect(IntegrationHealthCheck::query()->count())->toBeGreaterThanOrEqual(3)
-        ->and($reset->status)->toBe(IntegrationHealthStatus::HEALTHY)
-        ->and($reset->summary)->toContain('reset');
+    Livewire::test(IntegrationHealth::class)
+        ->call('checkNow', $databaseCheck->id)
+        ->assertNotified();
+
+    expect($databaseCheck->fresh()->status)->not->toBe(IntegrationHealthStatus::UNKNOWN)
+        ->and($databaseCheck->fresh()->checked_at)->not->toBeNull();
+
+    Livewire::test(IntegrationHealth::class)
+        ->call('resetCircuitBreaker', $failedCheck->id)
+        ->assertNotified();
+
+    expect($failedCheck->fresh()->status)->toBe(IntegrationHealthStatus::HEALTHY)
+        ->and(data_get($failedCheck->fresh()->details, 'reset_manually'))->toBeTrue();
 });

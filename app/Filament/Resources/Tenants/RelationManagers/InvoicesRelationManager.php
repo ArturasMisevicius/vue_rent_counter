@@ -2,10 +2,16 @@
 
 namespace App\Filament\Resources\Tenants\RelationManagers;
 
+use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Invoice;
+use App\Services\Billing\InvoicePdfService;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -32,28 +38,61 @@ class InvoicesRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAdminWorkspaceRelations()->latestBillingFirst())
             ->columns([
                 TextColumn::make('invoice_number')
-                    ->label(__('admin.invoices.columns.invoice_number'))
+                    ->label(__('admin.tenants.invoices.columns.invoice_number'))
+                    ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('property.name')
-                    ->label(__('admin.invoices.columns.property'))
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->label(__('admin.invoices.columns.status'))
-                    ->badge(),
+                TextColumn::make('billing_period')
+                    ->label(__('admin.tenants.invoices.columns.billing_period'))
+                    ->state(fn (Invoice $record): string => collect([
+                        $record->billing_period_start?->format('M j, Y'),
+                        $record->billing_period_end?->format('M j, Y'),
+                    ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
-                    ->label(__('admin.invoices.columns.total_amount'))
-                    ->formatStateUsing(fn ($state, Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $state, 2)))
-                    ->sortable(),
-                TextColumn::make('due_date')
-                    ->label(__('admin.invoices.columns.due_date'))
-                    ->date()
-                    ->sortable(),
+                    ->label(__('admin.tenants.invoices.columns.total_amount'))
+                    ->state(fn (Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
+                TextColumn::make('status')
+                    ->label(__('admin.tenants.invoices.columns.status'))
+                    ->badge(),
+                TextColumn::make('created_at')
+                    ->label(__('admin.tenants.invoices.columns.issued_date'))
+                    ->date('F j, Y'),
+                TextColumn::make('paid_at')
+                    ->label(__('admin.tenants.invoices.columns.paid_date'))
+                    ->state(fn (Invoice $record): string => $record->paid_at?->format('F j, Y') ?? '—'),
             ])
             ->recordActions([
                 ViewAction::make()
+                    ->label(__('admin.actions.view'))
                     ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record])),
+                Action::make('downloadPdf')
+                    ->label(__('admin.invoices.actions.download_pdf'))
+                    ->action(fn (Invoice $record, InvoicePdfService $invoicePdfService) => $invoicePdfService->streamDownload($record)),
+                Action::make('sendEmail')
+                    ->label(__('admin.tenants.invoices.actions.send_invoice_email'))
+                    ->schema([
+                        TextInput::make('recipient_email')
+                            ->label(__('admin.invoices.fields.recipient_email'))
+                            ->email()
+                            ->required()
+                            ->default(fn (Invoice $record): string => (string) ($record->tenant?->email ?? '')),
+                        Textarea::make('personal_message')
+                            ->label(__('admin.tenants.invoices.fields.personal_message'))
+                            ->rows(4),
+                    ])
+                    ->action(function (Invoice $record, array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
+                        $sendInvoiceEmailAction->handle(
+                            $record,
+                            auth()->user(),
+                            $data['recipient_email'] ?? null,
+                            $data['personal_message'] ?? null,
+                        );
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin.invoices.messages.email_queued'))
+                            ->send();
+                    }),
             ])
             ->defaultSort('billing_period_start', 'desc');
     }

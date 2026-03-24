@@ -6,6 +6,7 @@ use App\Enums\TariffType;
 use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\Organization;
 use App\Models\Provider;
 use App\Models\Tariff;
 use App\Models\User;
@@ -13,8 +14,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class TariffsTable
@@ -23,6 +26,10 @@ class TariffsTable
     {
         return $table
             ->columns([
+                TextColumn::make('provider.organization.name')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.tariffs.columns.name'))
                     ->searchable()
@@ -31,24 +38,38 @@ class TariffsTable
                     ->label(__('admin.tariffs.columns.provider'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('provider.service_type')
-                    ->label(__('admin.tariffs.columns.service_type'))
+                TextColumn::make('tariff_type')
+                    ->label(__('admin.tariffs.columns.type'))
                     ->badge(),
-                TextColumn::make('configuration_summary')
-                    ->label(__('admin.tariffs.columns.configuration'))
-                    ->state(fn (Tariff $record): string => self::formatConfiguration($record->configuration)),
+                TextColumn::make('rate_display')
+                    ->label(__('admin.tariffs.columns.rate'))
+                    ->weight('medium'),
                 TextColumn::make('active_from')
                     ->label(__('admin.tariffs.columns.active_from'))
-                    ->dateTime()
+                    ->date('F j, Y')
                     ->sortable(),
                 TextColumn::make('active_until')
                     ->label(__('admin.tariffs.columns.active_until'))
                     ->state(
-                        fn (Tariff $record): string => $record->active_until?->format('Y-m-d H:i') ?? __('admin.tariffs.empty.active_until'),
+                        fn (Tariff $record): string => $record->active_until?->format('F j, Y') ?? __('admin.tariffs.empty.ongoing'),
                     )
+                    ->color(fn (Tariff $record): ?string => $record->active_until === null ? 'gray' : null)
                     ->sortable(),
+                TextColumn::make('status_display')
+                    ->label(__('admin.tariffs.columns.status'))
+                    ->badge()
+                    ->color(fn (Tariff $record): string => $record->isCurrentlyActive() ? 'success' : 'gray'),
             ])
             ->filters([
+                SelectFilter::make('organization')
+                    ->label(__('superadmin.organizations.singular'))
+                    ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
                 SelectFilter::make('provider_id')
                     ->label(__('admin.tariffs.fields.provider'))
                     ->options(function (): array {
@@ -65,47 +86,47 @@ class TariffsTable
 
                         return $query
                             ->orderBy('name')
+                            ->orderBy('id')
                             ->pluck('name', 'id')
                             ->all();
-                    }),
+                    })
+                    ->placeholder(__('admin.tariffs.filters.all_providers'))
+                    ->query(fn (Builder $query, array $data): Builder => $query->forProviderValue($data['value'] ?? null)),
                 SelectFilter::make('configuration_type')
                     ->label(__('admin.tariffs.fields.type'))
-                    ->query(fn ($query, array $data) => $query->when($data['value'] ?? null, fn ($query, $type) => $query->where('configuration->type', $type)))
-                    ->options(TariffType::options()),
+                    ->options(TariffType::options())
+                    ->placeholder(__('admin.tariffs.filters.all_types'))
+                    ->query(fn (Builder $query, array $data): Builder => $query->forConfigurationTypeValue($data['value'] ?? null)),
+                SelectFilter::make('status')
+                    ->label(__('admin.tariffs.columns.status'))
+                    ->options([
+                        'active' => __('admin.tariffs.statuses.active'),
+                        'inactive' => __('admin.tariffs.statuses.inactive'),
+                    ])
+                    ->placeholder(__('admin.tariffs.filters.all_statuses'))
+                    ->query(fn (Builder $query, array $data): Builder => $query->forStatusValue($data['value'] ?? null)),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label(__('admin.actions.view')),
+                EditAction::make()
+                    ->label(__('admin.actions.edit')),
                 DeleteAction::make()
+                    ->label(__('admin.actions.delete'))
                     ->using(fn (Tariff $record) => app(DeleteTariffAction::class)->handle($record))
-                    ->authorize(fn (Tariff $record): bool => TariffResource::canDelete($record)),
+                    ->authorize(fn (Tariff $record): bool => TariffResource::canDelete($record))
+                    ->disabled(fn (Tariff $record): bool => ! $record->canBeDeletedFromAdminWorkspace())
+                    ->tooltip(fn (Tariff $record): ?string => $record->adminDeletionBlockedReason()),
             ])
+            ->deferFilters(false)
+            ->filtersLayout(FiltersLayout::AboveContent)
             ->defaultSort('active_from', 'desc');
     }
 
-    /**
-     * @param  array<string, mixed>|null  $configuration
-     */
-    private static function formatConfiguration(?array $configuration): string
+    private static function currentUser(): ?User
     {
-        if ($configuration === null || $configuration === []) {
-            return __('admin.tariffs.empty.configuration');
-        }
+        $user = Auth::user();
 
-        $parts = [];
-
-        if (isset($configuration['type'])) {
-            $parts[] = TariffType::tryFrom((string) $configuration['type'])?->label() ?? (string) $configuration['type'];
-        }
-
-        if (filled($configuration['currency'] ?? null)) {
-            $parts[] = (string) $configuration['currency'];
-        }
-
-        if (filled($configuration['rate'] ?? null)) {
-            $parts[] = number_format((float) $configuration['rate'], 4);
-        }
-
-        return $parts !== [] ? implode(' · ', $parts) : __('admin.tariffs.empty.configuration');
+        return $user instanceof User ? $user : null;
     }
 }

@@ -42,24 +42,18 @@ it('retains platform authority for the superadmin role even when the legacy flag
         ->and(Gate::forUser($superadmin)->allows('view', $subscription))->toBeTrue();
 });
 
-it('forbids managers from mutating organization billing settings', function () {
+it('forbids managers from accessing organization billing settings', function () {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
 
-    Livewire::actingAs($manager)
-        ->test(Settings::class)
-        ->set('organizationForm.billing_contact_name', 'Manager Override')
-        ->set('organizationForm.billing_contact_email', 'manager@example.com')
-        ->set('organizationForm.billing_contact_phone', '+37060000000')
-        ->set('organizationForm.payment_instructions', 'Forbidden')
-        ->set('organizationForm.invoice_footer', 'Forbidden')
-        ->call('saveOrganizationSettings')
+    $this->actingAs($manager)
+        ->get(route('filament.admin.pages.settings'))
         ->assertForbidden();
 });
 
-it('forbids managers from renewing the organization subscription from settings', function () {
+it('forbids managers from mounting the admin settings livewire surface', function () {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
@@ -67,6 +61,5 @@ it('forbids managers from renewing the organization subscription from settings',
 
     Livewire::actingAs($manager)
         ->test(Settings::class)
-        ->call('renewSubscription')
         ->assertForbidden();
 });

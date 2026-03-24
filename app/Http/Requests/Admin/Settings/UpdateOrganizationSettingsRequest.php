@@ -22,10 +22,8 @@ class UpdateOrganizationSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'billing_contact_name' => ['nullable', 'string', 'max:255'],
+            'organization_name' => ['required', 'string', 'max:255'],
             'billing_contact_email' => ['nullable', 'email', 'max:255'],
-            'billing_contact_phone' => ['nullable', 'string', 'max:255'],
-            'payment_instructions' => ['nullable', 'string'],
             'invoice_footer' => ['nullable', 'string'],
         ];
     }
@@ -36,10 +34,10 @@ class UpdateOrganizationSettingsRequest extends FormRequest
     public function messages(): array
     {
         return $this->translatedMessages([
+            'organization_name.required' => ['required', 'organization_name'],
+            'organization_name.max' => ['max.string', 'organization_name', ['max' => 255]],
             'billing_contact_email.email' => ['email', 'billing_contact_email'],
-            'billing_contact_name.max' => ['max.string', 'billing_contact_name', ['max' => 255]],
             'billing_contact_email.max' => ['max.string', 'billing_contact_email', ['max' => 255]],
-            'billing_contact_phone.max' => ['max.string', 'billing_contact_phone', ['max' => 255]],
         ]);
     }
 
@@ -49,10 +47,8 @@ class UpdateOrganizationSettingsRequest extends FormRequest
     public function attributes(): array
     {
         return $this->translatedAttributes([
-            'billing_contact_name',
+            'organization_name',
             'billing_contact_email',
-            'billing_contact_phone',
-            'payment_instructions',
             'invoice_footer',
         ]);
     }
@@ -60,18 +56,13 @@ class UpdateOrganizationSettingsRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->trimStrings([
-            'billing_contact_name',
+            'organization_name',
             'billing_contact_email',
-            'billing_contact_phone',
-            'payment_instructions',
             'invoice_footer',
         ]);
 
         $this->emptyStringsToNull([
-            'billing_contact_name',
             'billing_contact_email',
-            'billing_contact_phone',
-            'payment_instructions',
             'invoice_footer',
         ]);
     }

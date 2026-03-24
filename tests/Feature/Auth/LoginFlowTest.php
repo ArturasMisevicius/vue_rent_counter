@@ -42,15 +42,24 @@ function registerLoginDestinationFixtures(): void
 it('renders the login page', function () {
     registerLoginDestinationFixtures();
 
+    User::factory()->superadmin()->create([
+        'email' => 'superadmin@example.com',
+    ]);
+
     $this->get(route('login'))
         ->assertSuccessful()
-        ->assertSeeText('Welcome back')
-        ->assertSeeText('Log in to your account')
-        ->assertSeeText('Email Address')
-        ->assertSeeText('Password')
-        ->assertSeeText('Forgot your password?')
-        ->assertSeeText("Don't have an account?")
-        ->assertSeeText('Register');
+        ->assertSeeText(__('auth.login_title'))
+        ->assertSeeText(__('auth.login_subtitle'))
+        ->assertSeeText(__('auth.email_label'))
+        ->assertSeeText(__('auth.password_label'))
+        ->assertSeeText(__('auth.forgot_password_link'))
+        ->assertSeeText(__('auth.no_account_prompt'))
+        ->assertSeeText(__('auth.register_link'))
+        ->assertSeeText(__('auth.demo_accounts.heading'))
+        ->assertSeeText(__('auth.demo_accounts.description'))
+        ->assertSeeText(__('auth.demo_accounts.columns.username'))
+        ->assertSeeText(__('auth.demo_accounts.columns.password'))
+        ->assertSeeText(__('auth.demo_accounts.columns.role'));
 });
 
 it('keeps the email and shows a generic message when login fails', function () {
@@ -106,8 +115,8 @@ it('redirects unauthenticated admin panel access to the public login page', func
     $this->followingRedirects()
         ->get('/app')
         ->assertSuccessful()
-        ->assertSeeText('Welcome back')
-        ->assertSeeText('Log in to your account');
+        ->assertSeeText(__('auth.login_title'))
+        ->assertSeeText(__('auth.login_subtitle'));
 });
 
 it('redirects users to the unified app entrypoint for their role context', function (Closure $userFactory, string $expectedRoute) {

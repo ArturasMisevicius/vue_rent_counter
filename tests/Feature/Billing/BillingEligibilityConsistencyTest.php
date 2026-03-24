@@ -3,15 +3,12 @@
 declare(strict_types=1);
 
 use App\Enums\DistributionMethod;
-use App\Enums\MeterReadingValidationStatus;
-use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
 use App\Filament\Support\Admin\Invoices\BulkInvoicePreviewBuilder;
 use App\Models\Building;
-use App\Models\Meter;
-use App\Models\MeterReading;
+use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -20,45 +17,108 @@ use App\Models\ServiceConfiguration;
 use App\Models\Tariff;
 use App\Models\User;
 use App\Models\UtilityService;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('skips billing candidates when the period-ending reading is not comparable', function (): void {
+it('applies the same assignment eligibility window to preview and generation', function (): void {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
     ]);
     $building = Building::factory()->for($organization)->create();
-    $property = Property::factory()->for($organization)->for($building)->create([
-        'name' => 'A-1',
-    ]);
-    $tenant = User::factory()->tenant()->create([
-        'organization_id' => $organization->id,
-        'name' => 'Nora Tenant',
-    ]);
-
-    PropertyAssignment::factory()
-        ->for($organization)
-        ->for($property)
-        ->for($tenant, 'tenant')
-        ->create();
-
     $provider = Provider::factory()->for($organization)->create([
         'service_type' => ServiceType::WATER,
     ]);
-    $tariff = Tariff::factory()->for($provider)->create([
+    $tariff = Tariff::factory()->for($provider)->flat()->create([
         'configuration' => [
             'type' => 'flat',
             'currency' => 'EUR',
-            'rate' => 1.75,
+            'rate' => 25.00,
         ],
     ]);
     $utilityService = UtilityService::factory()->for($organization)->create([
         'name' => 'Water',
-        'unit_of_measurement' => 'm3',
-        'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'unit_of_measurement' => 'month',
+        'default_pricing_model' => PricingModel::FLAT,
         'service_type_bridge' => ServiceType::WATER,
+    ]);
+
+    $billingPeriodStart = now()->startOfMonth()->toDateString();
+    $billingPeriodEnd = now()->endOfMonth()->toDateString();
+    $dueDate = now()->endOfMonth()->addDays(14)->toDateString();
+
+    $eligible = createBillingEligibilityAssignment(
+        $organization,
+        $building,
+        $provider,
+        $tariff,
+        $utilityService,
+        'A-1',
+        now()->subMonth(),
+        null,
+    );
+
+    createBillingEligibilityAssignment(
+        $organization,
+        $building,
+        $provider,
+        $tariff,
+        $utilityService,
+        'A-2',
+        now()->addMonth(),
+        null,
+    );
+
+    createBillingEligibilityAssignment(
+        $organization,
+        $building,
+        $provider,
+        $tariff,
+        $utilityService,
+        'A-3',
+        now()->subMonths(3),
+        now()->subMonth()->subDay(),
+    );
+
+    $attributes = [
+        'billing_period_start' => $billingPeriodStart,
+        'billing_period_end' => $billingPeriodEnd,
+        'due_date' => $dueDate,
+    ];
+
+    $preview = app(BulkInvoicePreviewBuilder::class)->handle($organization, $attributes);
+    $result = app(GenerateBulkInvoicesAction::class)->handle($organization, $attributes, $admin);
+
+    $expectedAssignmentKey = $eligible->property_id.':'.$eligible->tenant_user_id;
+
+    expect(collect($preview['valid'])->pluck('assignment_key')->all())->toBe([$expectedAssignmentKey])
+        ->and($preview['skipped'])->toBe([])
+        ->and($result['created'])->toHaveCount(1)
+        ->and($result['skipped'])->toBe([])
+        ->and($result['created']->sole()->property_id.':'.$result['created']->sole()->tenant_user_id)
+        ->toBe($expectedAssignmentKey)
+        ->and(Invoice::query()->forOrganization($organization->id)->count())->toBe(1);
+});
+
+function createBillingEligibilityAssignment(
+    Organization $organization,
+    Building $building,
+    Provider $provider,
+    Tariff $tariff,
+    UtilityService $utilityService,
+    string $propertyName,
+    CarbonInterface $assignedAt,
+    ?CarbonInterface $unassignedAt,
+): PropertyAssignment {
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Tenant '.$propertyName,
+        'email' => strtolower($propertyName).'@example.test',
+    ]);
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => $propertyName,
     ]);
 
     ServiceConfiguration::factory()
@@ -68,43 +128,20 @@ it('skips billing candidates when the period-ending reading is not comparable', 
         ->for($provider)
         ->for($tariff)
         ->create([
-            'pricing_model' => PricingModel::CONSUMPTION_BASED,
-            'distribution_method' => DistributionMethod::BY_CONSUMPTION,
-            'rate_schedule' => ['unit_rate' => 1.75],
+            'pricing_model' => PricingModel::FLAT,
+            'distribution_method' => DistributionMethod::EQUAL,
+            'rate_schedule' => [
+                'unit_rate' => 25.00,
+            ],
+            'is_shared_service' => false,
         ]);
 
-    $meter = Meter::factory()->for($organization)->for($property)->create([
-        'type' => MeterType::WATER,
-    ]);
-
-    $periodStart = now()->startOfMonth();
-    $periodEnd = now()->endOfMonth();
-
-    MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
-        'reading_value' => 50,
-        'reading_date' => $periodStart->copy()->subDay()->toDateString(),
-        'validation_status' => MeterReadingValidationStatus::VALID,
-    ]);
-
-    MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
-        'reading_value' => 60,
-        'reading_date' => $periodEnd->toDateString(),
-        'validation_status' => MeterReadingValidationStatus::REJECTED,
-    ]);
-
-    $attributes = [
-        'billing_period_start' => $periodStart->toDateString(),
-        'billing_period_end' => $periodEnd->toDateString(),
-        'due_date' => $periodEnd->copy()->addDays(14)->toDateString(),
-    ];
-
-    $preview = app(BulkInvoicePreviewBuilder::class)->handle($organization, $attributes);
-    $generated = app(GenerateBulkInvoicesAction::class)->handle($organization, $attributes, $admin);
-
-    expect($preview['valid'])->toBeEmpty()
-        ->and($preview['skipped'])->toHaveCount(1)
-        ->and($preview['skipped'][0]['reason'])->toBe('ineligible_meter_readings')
-        ->and($generated['created'])->toBeEmpty()
-        ->and($generated['skipped'])->toHaveCount(1)
-        ->and($generated['skipped'][0]['reason'])->toBe('ineligible_meter_readings');
-});
+    return PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => $assignedAt,
+            'unassigned_at' => $unassignedAt,
+        ]);
+}

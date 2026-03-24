@@ -30,6 +30,16 @@ return [
     'register_link' => 'Register',
     'no_account_prompt' => "Don't have an account?",
     'has_account_prompt' => 'Already have an account?',
+    'demo_accounts' => [
+        'heading' => 'Demo Accounts',
+        'description' => 'Use these seeded credentials for role-based system testing. Click a username to autofill the login form.',
+        'empty' => 'No demo accounts are available yet.',
+        'columns' => [
+            'username' => 'Username',
+            'password' => 'Password',
+            'role' => 'Role',
+        ],
+    ],
     'invalid_credentials' => 'The email or password you entered is incorrect. Please try again.',
     'reset_link_generic' => 'If an account with that email exists, a reset link has been sent.',
     'session_expired_title' => 'Session expired',

@@ -42,6 +42,15 @@ class CommentResource extends Resource
         return CommentsTable::configure($table);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ])
+            ->forSuperadminIndex();
+    }
+
     public static function getRelations(): array
     {
         return [

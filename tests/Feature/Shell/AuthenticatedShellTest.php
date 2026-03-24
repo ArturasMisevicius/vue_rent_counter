@@ -12,12 +12,12 @@ it('renders tenant pages inside the authenticated shell', function () {
     $this->actingAs($tenant)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Search anything')
-        ->assertSeeText('Home')
-        ->assertSeeText('Profile')
+        ->assertSeeText(__('shell.search.placeholder'))
+        ->assertSeeText(__('tenant.navigation.home'))
+        ->assertSeeText(__('shell.navigation.items.profile'))
         ->assertSee('data-shell-nav="sidebar"', false)
-        ->assertDontSeeText('Buildings')
-        ->assertDontSeeText('Organizations');
+        ->assertDontSeeText(__('admin.buildings.plural'))
+        ->assertDontSeeText(__('superadmin.organizations.plural'));
 });
 
 it('does not register echo listeners when broadcasting is configured to log', function () {
@@ -38,18 +38,29 @@ it('renders role-aware shared chrome around organization admin pages', function 
     $this->actingAs($admin)
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Search anything')
+        ->assertSeeText(__('shell.search.placeholder'))
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="properties"', false)
         ->assertSee('data-shell-group="billing"', false)
         ->assertSee('data-shell-group="reports"', false)
         ->assertSee('data-shell-group="account"', false)
-        ->assertSeeText('Buildings')
-        ->assertSeeText('Properties')
-        ->assertSeeText('Settings')
+        ->assertSeeText(__('admin.buildings.plural'))
+        ->assertSeeText(__('admin.properties.plural'))
+        ->assertSeeText(__('shell.navigation.items.reports'))
+        ->assertSeeText(__('shell.navigation.groups.account'))
+        ->assertSeeText(__('shell.navigation.items.settings'))
+        ->assertSeeText(__('dashboard.logout_button'))
         ->assertSee(route('filament.admin.resources.buildings.index'), false)
         ->assertSee(route('filament.admin.resources.properties.index'), false)
-        ->assertSee('data-shell-current="filament.admin.pages.dashboard"', false)
+        ->assertDontSeeText(__('superadmin.organizations.plural'))
+        ->assertDontSeeText(__('shell.navigation.items.users'))
+        ->assertDontSeeText(__('shell.navigation.items.subscriptions'))
+        ->assertDontSeeText(__('shell.navigation.items.translations'))
+        ->assertDontSeeText(__('shell.navigation.items.audit_logs'))
+        ->assertDontSeeText(__('shell.navigation.items.platform_notifications'))
+        ->assertDontSeeText(__('shell.navigation.items.languages'))
+        ->assertDontSeeText(__('shell.navigation.items.security_violations'))
+        ->assertDontSeeText(__('shell.navigation.items.integration_health'))
         ->assertDontSee('data-shell-group="platform"', false);
 });
 
@@ -59,7 +70,7 @@ it('renders platform navigation for superadmins without organization navigation'
     $response = $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Search anything')
+        ->assertSeeText(__('shell.search.placeholder'))
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="platform"', false)
         ->assertSee('data-shell-group="properties"', false)
@@ -70,12 +81,12 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSee(route('filament.admin.resources.service-configurations.index'), false)
         ->assertSee(route('filament.admin.resources.utility-services.index'), false)
         ->assertSee(route('filament.admin.pages.platform-notifications'), false)
-        ->assertSeeText('Platform')
-        ->assertSeeText('Properties')
-        ->assertSeeText('Billing')
-        ->assertSeeText('Reports')
-        ->assertSeeText('Account')
-        ->assertSeeText('Logout');
+        ->assertSeeText(__('shell.navigation.groups.platform'))
+        ->assertSeeText(__('shell.navigation.groups.properties'))
+        ->assertSeeText(__('shell.navigation.groups.billing'))
+        ->assertSeeText(__('shell.navigation.groups.reports'))
+        ->assertSeeText(__('shell.navigation.groups.account'))
+        ->assertSeeText(__('dashboard.logout_button'));
 
     $content = $response->getContent();
 
@@ -84,7 +95,23 @@ it('renders platform navigation for superadmins without organization navigation'
     assertSidebarGroupLabels($content, 'platform', [
         'Organizations',
         'Users',
+        'Organization Users',
         'Subscriptions',
+        'Projects',
+        'Tasks',
+        'Task Assignments',
+        'Time Entries',
+        'Comments',
+        'Comment Reactions',
+        'Attachments',
+        'Tags',
+        'Property Assignments',
+        'Invoice Items',
+        'Invoice Payments',
+        'Invoice Reminder Logs',
+        'Invoice Email Logs',
+        'Subscription Payments',
+        'Subscription Renewals',
         'System Configuration',
         'Audit Logs',
         'Platform Notifications',
@@ -134,7 +161,23 @@ it('renders localized superadmin sidebar labels from the authenticated user loca
     assertSidebarGroupLabels($content, 'platform', [
         __('superadmin.organizations.plural', [], 'lt'),
         __('shell.navigation.items.users', [], 'lt'),
+        __('shell.navigation.items.organization_users', [], 'lt'),
         __('shell.navigation.items.subscriptions', [], 'lt'),
+        __('shell.navigation.items.projects', [], 'lt'),
+        __('shell.navigation.items.tasks', [], 'lt'),
+        __('shell.navigation.items.task_assignments', [], 'lt'),
+        __('shell.navigation.items.time_entries', [], 'lt'),
+        __('shell.navigation.items.comments', [], 'lt'),
+        __('shell.navigation.items.comment_reactions', [], 'lt'),
+        __('shell.navigation.items.attachments', [], 'lt'),
+        __('shell.navigation.items.tags', [], 'lt'),
+        __('shell.navigation.items.property_assignments', [], 'lt'),
+        __('shell.navigation.items.invoice_items', [], 'lt'),
+        __('shell.navigation.items.invoice_payments', [], 'lt'),
+        __('shell.navigation.items.invoice_reminder_logs', [], 'lt'),
+        __('shell.navigation.items.invoice_email_logs', [], 'lt'),
+        __('shell.navigation.items.subscription_payments', [], 'lt'),
+        __('shell.navigation.items.subscription_renewals', [], 'lt'),
         __('shell.navigation.items.system_configuration', [], 'lt'),
         __('shell.navigation.items.audit_logs', [], 'lt'),
         __('shell.navigation.items.platform_notifications', [], 'lt'),
@@ -159,7 +202,6 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     $content = $response->getContent();
 
     assertSidebarGroupLabels($content, 'properties', [
-        __('dashboard.title', [], 'lt'),
         __('admin.buildings.plural', [], 'lt'),
         __('admin.properties.plural', [], 'lt'),
         __('admin.tenants.plural', [], 'lt'),
@@ -169,10 +211,19 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
 
     assertSidebarGroupLabels($content, 'billing', [
         __('admin.invoices.plural', [], 'lt'),
-        __('admin.providers.plural', [], 'lt'),
         __('admin.tariffs.plural', [], 'lt'),
+        __('admin.providers.plural', [], 'lt'),
         __('admin.service_configurations.plural', [], 'lt'),
         __('admin.utility_services.plural', [], 'lt'),
+    ]);
+
+    assertSidebarGroupLabels($content, 'reports', [
+        __('shell.navigation.items.reports', [], 'lt'),
+    ]);
+
+    assertSidebarGroupLabels($content, 'account', [
+        __('shell.navigation.items.profile', [], 'lt'),
+        __('shell.navigation.items.settings', [], 'lt'),
     ]);
 });
 

@@ -14,7 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('lets managers access the same organization workspace routes as admins', function () {
+it('lets managers access the organization workspace routes except admin-only settings', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();
     $property = Property::factory()->for($organization)->for($building)->create();
@@ -47,7 +47,7 @@ it('lets managers access the same organization workspace routes as admins', func
         ->assertSee('data-shell-group="reports"', false)
         ->assertSee('data-shell-group="account"', false)
         ->assertSeeText('Profile')
-        ->assertSeeText('Settings')
+        ->assertDontSeeText('Settings')
         ->assertDontSee('data-shell-group="platform"', false);
 
     $this->actingAs($manager)
@@ -56,7 +56,7 @@ it('lets managers access the same organization workspace routes as admins', func
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.settings'))
-        ->assertSuccessful();
+        ->assertForbidden();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.reports'))

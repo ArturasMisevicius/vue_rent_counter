@@ -16,9 +16,9 @@ class DeleteTenantAction
     {
         $this->subscriptionLimitGuard->ensureCanWrite($tenant->organization_id);
 
-        if ($tenant->invoices()->exists()) {
+        if (! $tenant->canBeDeletedFromAdminWorkspace()) {
             throw ValidationException::withMessages([
-                'tenant' => __('admin.tenants.messages.delete_blocked'),
+                'tenant' => $tenant->adminDeletionBlockedReason(),
             ]);
         }
 

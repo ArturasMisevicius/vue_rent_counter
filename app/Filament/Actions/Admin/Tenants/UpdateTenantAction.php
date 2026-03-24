@@ -2,7 +2,6 @@
 
 namespace App\Filament\Actions\Admin\Tenants;
 
-use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Tenants\UpdateTenantRequest;
@@ -30,8 +29,8 @@ class UpdateTenantAction
             $tenant->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'locale' => $validated['locale'],
-                'status' => $validated['status'],
             ]);
 
             if ($validated['property'] !== null) {
@@ -66,8 +65,8 @@ class UpdateTenantAction
      * @return array{
      *     name: string,
      *     email: string,
+     *     phone: string|null,
      *     locale: string,
-     *     status: UserStatus,
      *     property_id: int|null,
      *     unit_area_sqm: float|int|null,
      *     property: Property|null
@@ -86,7 +85,7 @@ class UpdateTenantAction
 
         if ($validated['property_id'] !== null) {
             $property = Property::query()
-                ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number', 'type', 'floor_area_sqm'])
+                ->select(['id', 'organization_id', 'building_id', 'name', 'floor', 'unit_number', 'type', 'floor_area_sqm'])
                 ->where('organization_id', $tenant->organization_id)
                 ->find($validated['property_id']);
         }

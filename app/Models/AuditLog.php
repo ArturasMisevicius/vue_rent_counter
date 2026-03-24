@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Str;
 
 class AuditLog extends Model
 {
@@ -23,6 +24,7 @@ class AuditLog extends Model
         'subject_type',
         'subject_id',
         'description',
+        'ip_address',
         'metadata',
         'occurred_at',
         'created_at',
@@ -36,6 +38,7 @@ class AuditLog extends Model
         'subject_type',
         'subject_id',
         'description',
+        'ip_address',
         'metadata',
         'occurred_at',
     ];
@@ -114,5 +117,88 @@ class AuditLog extends Model
             ->withActorSummary()
             ->withOrganizationSummary()
             ->recent();
+    }
+
+    public function scopeWhereActorMatches(Builder $query, ?string $search): Builder
+    {
+        if (blank($search)) {
+            return $query;
+        }
+
+        $search = trim($search);
+
+        return $query->whereHas('actor', function (Builder $actorQuery) use ($search): Builder {
+            return $actorQuery->where(function (Builder $actorQuery) use ($search): Builder {
+                return $actorQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        });
+    }
+
+    public function scopeForPresentedActionType(Builder $query, ?string $actionType): Builder
+    {
+        if (blank($actionType)) {
+            return $query;
+        }
+
+        return match ($actionType) {
+            'finalized' => $query->where('metadata->context->mutation', 'invoice.finalized'),
+            'payment_processed' => $query->where('metadata->context->mutation', 'invoice.payment_recorded'),
+            AuditLogAction::UPDATED->value => $query
+                ->where('action', AuditLogAction::UPDATED)
+                ->where(function (Builder $query): Builder {
+                    return $query
+                        ->whereNull('metadata->context->mutation')
+                        ->orWhere('metadata->context->mutation', '!=', 'invoice.payment_recorded');
+                }),
+            AuditLogAction::APPROVED->value => $query
+                ->where('action', AuditLogAction::APPROVED)
+                ->where(function (Builder $query): Builder {
+                    return $query
+                        ->whereNull('metadata->context->mutation')
+                        ->orWhere('metadata->context->mutation', '!=', 'invoice.finalized');
+                }),
+            default => $query->where('action', $actionType),
+        };
+    }
+
+    public function scopeForSubjectTypeValue(Builder $query, ?string $subjectType): Builder
+    {
+        if (blank($subjectType)) {
+            return $query;
+        }
+
+        return $query->where('subject_type', $subjectType);
+    }
+
+    public function scopeOccurredBetween(Builder $query, ?string $from, ?string $to): Builder
+    {
+        return $query
+            ->when(
+                filled($from),
+                fn (Builder $query): Builder => $query->whereDate('occurred_at', '>=', $from),
+            )
+            ->when(
+                filled($to),
+                fn (Builder $query): Builder => $query->whereDate('occurred_at', '<=', $to),
+            );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function subjectTypeOptions(): array
+    {
+        return static::query()
+            ->select(['subject_type'])
+            ->whereNotNull('subject_type')
+            ->distinct()
+            ->orderBy('subject_type')
+            ->pluck('subject_type')
+            ->mapWithKeys(fn (?string $subjectType): array => $subjectType === null
+                ? []
+                : [$subjectType => Str::of(class_basename($subjectType))->headline()->toString()])
+            ->all();
     }
 }

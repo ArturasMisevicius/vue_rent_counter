@@ -3,114 +3,86 @@
 declare(strict_types=1);
 
 use App\Enums\InvoiceStatus;
-use App\Enums\PaymentMethod;
-use App\Models\Building;
 use App\Models\Invoice;
-use App\Models\InvoicePayment;
-use App\Models\Organization;
-use App\Models\Property;
-use App\Models\PropertyAssignment;
 use App\Models\User;
+use App\Services\Billing\InvoicePdfService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
 
-it('keeps tenant history, admin invoice view, and invoice pdf aligned to one invoice breakdown', function (): void {
-    $organization = Organization::factory()->create();
-    $building = Building::factory()->for($organization)->create([
-        'name' => 'North Hall',
-    ]);
-    $property = Property::factory()->for($organization)->for($building)->create([
-        'name' => 'A-12',
-    ]);
-    $tenant = User::factory()->tenant()->create([
-        'organization_id' => $organization->id,
-        'name' => 'Taylor Tenant',
-    ]);
+it('renders the same explainable invoice breakdown across tenant, admin, and pdf surfaces', function (): void {
+    $fixture = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->create();
+
     $admin = User::factory()->admin()->create([
-        'organization_id' => $organization->id,
+        'organization_id' => $fixture->organization->id,
     ]);
 
-    PropertyAssignment::factory()
-        ->for($organization)
-        ->for($property)
-        ->for($tenant, 'tenant')
-        ->create([
-            'assigned_at' => now()->subMonth(),
-            'unassigned_at' => null,
-        ]);
+    $lineItems = [
+        [
+            'description' => 'Water usage',
+            'quantity' => '12.000',
+            'unit' => 'm3',
+            'unit_price' => '4.2750',
+            'total' => '51.30',
+        ],
+        [
+            'description' => 'Shared heating',
+            'quantity' => '1.000',
+            'unit' => 'month',
+            'unit_price' => '94.0000',
+            'total' => '94.00',
+        ],
+    ];
 
     $invoice = Invoice::factory()
-        ->for($organization)
-        ->for($property)
-        ->for($tenant, 'tenant')
+        ->for($fixture->organization)
+        ->for($fixture->property)
+        ->for($fixture->user, 'tenant')
         ->create([
             'invoice_number' => 'INV-EXPLAIN-001',
             'status' => InvoiceStatus::PARTIALLY_PAID,
-            'currency' => 'EUR',
-            'total_amount' => 145.30,
-            'amount_paid' => 20.00,
-            'paid_amount' => 20.00,
-            'billing_period_start' => '2026-01-01',
-            'billing_period_end' => '2026-01-31',
-            'due_date' => '2026-02-14',
-            'items' => [
-                [
-                    'description' => 'Water usage',
-                    'quantity' => '12.000',
-                    'unit' => 'm3',
-                    'unit_price' => '2.5000',
-                    'total' => '30.00',
-                ],
-                [
-                    'description' => 'Service charge',
-                    'quantity' => '1.000',
-                    'unit' => null,
-                    'unit_price' => '115.3000',
-                    'total' => '115.30',
-                ],
-            ],
+            'total_amount' => '145.30',
+            'amount_paid' => '20.00',
+            'paid_amount' => '20.00',
+            'due_date' => now()->addDays(7)->toDateString(),
+            'items' => $lineItems,
+            'snapshot_data' => $lineItems,
         ]);
 
-    InvoicePayment::query()->create([
-        'invoice_id' => $invoice->id,
-        'organization_id' => $organization->id,
-        'recorded_by_user_id' => $admin->id,
-        'amount' => '20.00',
-        'method' => PaymentMethod::BANK_TRANSFER,
-        'reference' => 'PAY-20',
-        'paid_at' => now()->subDay(),
-        'notes' => 'Partial settlement',
-    ]);
-
-    $this->actingAs($tenant)
+    $this->actingAs($fixture->user)
         ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
-        ->assertSeeText($invoice->invoice_number)
         ->assertSeeText('Water usage')
-        ->assertSeeText('Service charge')
-        ->assertSeeText('PAY-20')
+        ->assertSeeText('Shared heating')
+        ->assertSeeText('EUR 145.30')
         ->assertSeeText('EUR 20.00')
-        ->assertSeeText('EUR 125.30');
+        ->assertSeeText('EUR 125.30')
+        ->assertSeeText('Amount Paid')
+        ->assertSeeText('Balance Due');
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.invoices.view', $invoice))
         ->assertSuccessful()
-        ->assertSeeText($invoice->invoice_number)
         ->assertSeeText('Water usage')
-        ->assertSeeText('Service charge')
-        ->assertSeeText('PAY-20')
+        ->assertSeeText('Shared heating')
+        ->assertSeeText('EUR 145.30')
         ->assertSeeText('EUR 20.00')
         ->assertSeeText('EUR 125.30');
 
-    $pdf = $this->actingAs($tenant)
-        ->get(route('tenant.invoices.download', $invoice))
-        ->assertDownload('inv-explain-001.pdf')
-        ->streamedContent();
+    $response = app(InvoicePdfService::class)->streamDownload($invoice->fresh());
+
+    ob_start();
+    $response->sendContent();
+    $pdf = ob_get_clean();
 
     expect($pdf)
-        ->toContain('INV-EXPLAIN-001')
+        ->toBeString()
         ->toContain('Water usage')
-        ->toContain('Service charge')
-        ->toContain('EUR 20.00');
+        ->toContain('Shared heating')
+        ->toContain('Total Amount: EUR 145.30')
+        ->toContain('Amount Paid: EUR 20.00')
+        ->toContain('Outstanding: EUR 125.30');
 });

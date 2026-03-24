@@ -27,9 +27,9 @@ class BuildingRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'address_line_1' => ['required', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
-            'postal_code' => ['required', 'string', 'max:20'],
-            'country_code' => ['required', 'string', 'size:2'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'country_code' => ['nullable', 'string', 'size:2'],
         ];
     }
 
@@ -44,11 +44,8 @@ class BuildingRequest extends FormRequest
             'address_line_1.required' => ['required', 'address_line_1'],
             'address_line_1.max' => ['max.string', 'address_line_1', ['max' => 255]],
             'address_line_2.max' => ['max.string', 'address_line_2', ['max' => 255]],
-            'city.required' => ['required', 'city'],
             'city.max' => ['max.string', 'city', ['max' => 255]],
-            'postal_code.required' => ['required', 'postal_code'],
             'postal_code.max' => ['max.string', 'postal_code', ['max' => 20]],
-            'country_code.required' => ['required', 'country_code'],
             'country_code.size' => ['size.string', 'country_code', ['size' => 2]],
         ]);
     }
@@ -81,6 +78,9 @@ class BuildingRequest extends FormRequest
 
         $this->emptyStringsToNull([
             'address_line_2',
+            'city',
+            'postal_code',
+            'country_code',
         ]);
 
         $countryCode = $this->input('country_code');

@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
@@ -59,6 +60,25 @@ it('resolves the authenticated organization workspace for admin-like users', fun
             'property_id' => null,
             'user_id' => $manager->id,
         ]);
+});
+
+it('falls back to the authenticated user when the current request has no bound request user', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin);
+
+    app()->instance('request', Request::create('/__test/security/workspace-context/fallback', 'GET'));
+
+    expect(app(WorkspaceResolver::class)->current()?->toArray())->toMatchArray([
+        'scope' => 'organization',
+        'role' => UserRole::ADMIN->value,
+        'organization_id' => $organization->id,
+        'property_id' => null,
+        'user_id' => $admin->id,
+    ]);
 });
 
 it('fails closed when a non-onboarding workspace account has no organization assignment', function () {

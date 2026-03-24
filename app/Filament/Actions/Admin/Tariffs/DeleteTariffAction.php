@@ -19,9 +19,9 @@ class DeleteTariffAction
             throw new AuthorizationException;
         }
 
-        if ($tariff->serviceConfigurations()->exists()) {
+        if (! $tariff->canBeDeletedFromAdminWorkspace()) {
             throw ValidationException::withMessages([
-                'tariff' => __('admin.tariffs.messages.delete_blocked'),
+                'tariff' => $tariff->adminDeletionBlockedReason(),
             ]);
         }
 

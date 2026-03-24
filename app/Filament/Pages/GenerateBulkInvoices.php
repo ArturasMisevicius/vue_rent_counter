@@ -1,12 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Pages;
 
 use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
+use App\Filament\Support\Admin\Invoices\BulkInvoicePagePresenter;
 use App\Filament\Support\Admin\Invoices\BulkInvoicePreviewBuilder;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Models\Organization;
+use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 
 class GenerateBulkInvoices extends Page
@@ -23,7 +29,7 @@ class GenerateBulkInvoices extends Page
     public array $form = [];
 
     /**
-     * @var array<string, mixed>|null
+     * @var array{valid?: array<int, array<string, mixed>>, skipped?: array<int, array<string, mixed>>}|null
      */
     public ?array $preview = null;
 
@@ -32,12 +38,17 @@ class GenerateBulkInvoices extends Page
      */
     public array $selectedAssignments = [];
 
-    public int $step = 1;
-
     public string $tenantSearch = '';
 
     /**
-     * @var array{created: int, failed: int, skipped: int, total: int}|null
+     * @var array{
+     *     created: int,
+     *     failed: int,
+     *     skipped: int,
+     *     total: int,
+     *     errors: array<int, string>,
+     *     view_url: string|null
+     * }|null
      */
     public ?array $summary = null;
 
@@ -48,6 +59,8 @@ class GenerateBulkInvoices extends Page
             'billing_period_end' => now()->endOfMonth()->toDateString(),
             'due_date' => now()->addDays(14)->toDateString(),
         ];
+
+        $this->refreshPreview();
     }
 
     public static function canAccess(): bool
@@ -62,91 +75,151 @@ class GenerateBulkInvoices extends Page
         return __('admin.invoices.bulk.title');
     }
 
+    /**
+     * @return array<int, Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('generateInvoices')
+                ->label(__('admin.invoices.bulk.actions.generate'))
+                ->color('primary')
+                ->action('generateInvoices')
+                ->disabled(fn (): bool => $this->selectedAssignments === []),
+            Action::make('cancel')
+                ->label(__('admin.invoices.actions.cancel'))
+                ->color('gray')
+                ->url(route('filament.admin.resources.invoices.index')),
+        ];
+    }
+
     public function updated(string $name): void
     {
         if (! str_starts_with($name, 'form.')) {
             return;
         }
 
-        $this->preview = null;
-        $this->selectedAssignments = [];
-        $this->summary = null;
-        $this->step = 1;
+        $this->refreshPreview();
     }
 
-    public function previewInvoices(BulkInvoicePreviewBuilder $bulkInvoicePreviewBuilder): void
+    public function updatedSelectedAssignments(): void
     {
-        /** @var Organization $organization */
-        $organization = auth()->user()->organization;
-        $validated = $this->validatedFormAttributes();
-
-        $this->preview = $bulkInvoicePreviewBuilder->handle($organization, $validated);
-        $this->selectedAssignments = collect($this->preview['valid'] ?? [])
-            ->pluck('assignment_key')
+        $this->selectedAssignments = collect($this->selectedAssignments)
             ->filter(fn (mixed $value): bool => is_string($value) && $value !== '')
+            ->unique()
             ->values()
             ->all();
-        $this->summary = null;
-        $this->step = 2;
+    }
+
+    public function toggleSelectAll(): void
+    {
+        $this->selectedAssignments = $this->allSelectableCandidatesSelected()
+            ? []
+            : $this->selectableAssignmentKeys();
     }
 
     public function generateInvoices(GenerateBulkInvoicesAction $generateBulkInvoicesAction): void
     {
-        /** @var Organization $organization */
-        $organization = auth()->user()->organization;
+        if ($this->selectedAssignments === []) {
+            throw ValidationException::withMessages([
+                'selected_assignments' => __('validation.required', [
+                    'attribute' => __('requests.attributes.selected_assignments'),
+                ]),
+            ]);
+        }
+
+        $selectedAssignments = $this->selectedAssignments;
         $validated = $this->validatedFormAttributes([
-            'selected_assignments' => $this->selectedAssignments,
+            'selected_assignments' => $selectedAssignments,
         ]);
-        $result = $generateBulkInvoicesAction->handle($organization, $validated, auth()->user());
-        $totalSelected = count($this->selectedAssignments);
+        $result = $generateBulkInvoicesAction->handle($this->organization(), $validated, $this->user());
 
-        $this->summary = [
-            'created' => $result['created']->count(),
-            'failed' => max($totalSelected - $result['created']->count(), 0),
-            'skipped' => count($result['skipped']),
-            'total' => $totalSelected,
-        ];
+        $this->summary = BulkInvoicePagePresenter::generationSummary($result, $selectedAssignments);
 
-        $this->preview = [
-            'valid' => [],
-            'skipped' => $result['skipped'],
-        ];
+        $this->refreshPreview(resetSummary: false);
     }
 
     #[Computed]
     public function previewCandidates(): array
     {
-        $valid = collect($this->preview['valid'] ?? [])
-            ->map(fn (array $candidate): array => [
-                ...$candidate,
-                'disabled' => false,
-                'status' => 'available',
-            ]);
-        $skipped = collect($this->preview['skipped'] ?? [])
-            ->map(fn (array $candidate): array => [
-                ...$candidate,
-                'disabled' => true,
-                'status' => 'already_billed',
-            ]);
-        $search = mb_strtolower(trim($this->tenantSearch));
+        return BulkInvoicePagePresenter::candidates($this->preview, $this->tenantSearch);
+    }
 
-        return $valid
-            ->merge($skipped)
-            ->filter(function (array $candidate) use ($search): bool {
-                if ($search === '') {
-                    return true;
-                }
+    /**
+     * @return array{
+     *     selected_count: int,
+     *     estimated_total: string,
+     *     missing_readings: array<int, array{tenant_name: string, property_name: string}>,
+     *     already_billed: array<int, array{tenant_name: string, property_name: string}>
+     * }
+     */
+    #[Computed]
+    public function previewSummary(): array
+    {
+        return BulkInvoicePagePresenter::previewSummary($this->preview, $this->selectedAssignments);
+    }
 
-                $haystack = mb_strtolower(trim(
-                    ($candidate['tenant_name'] ?? '').' '.($candidate['property_name'] ?? ''),
-                ));
+    #[Computed]
+    public function allSelectableCandidatesSelected(): bool
+    {
+        $selectableKeys = $this->selectableAssignmentKeys();
 
-                return str_contains($haystack, $search);
-            })
+        return $selectableKeys !== []
+            && count($this->selectedAssignments) === count($selectableKeys);
+    }
+
+    private function refreshPreview(bool $resetSummary = true): void
+    {
+        $previousSelection = $this->selectedAssignments;
+
+        $this->resetErrorBag();
+
+        if ($resetSummary) {
+            $this->summary = null;
+        }
+
+        try {
+            $validated = $this->validatedFormAttributes();
+        } catch (ValidationException $exception) {
+            $this->setErrorBag($exception->validator->getMessageBag());
+            $this->preview = [
+                'valid' => [],
+                'skipped' => [],
+            ];
+            $this->selectedAssignments = [];
+
+            return;
+        }
+
+        $this->preview = app(BulkInvoicePreviewBuilder::class)->handle($this->organization(), $validated);
+
+        $selectableKeys = $this->selectableAssignmentKeys();
+        $selected = collect($previousSelection)
+            ->filter(fn (string $value): bool => in_array($value, $selectableKeys, true))
+            ->values()
+            ->all();
+
+        $this->selectedAssignments = $selected !== []
+            ? $selected
+            : $selectableKeys;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function selectableAssignmentKeys(): array
+    {
+        return collect($this->preview['valid'] ?? [])
+            ->pluck('assignment_key')
+            ->filter(fn (mixed $value): bool => is_string($value) && $value !== '')
             ->values()
             ->all();
     }
 
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
     private function validatedFormAttributes(array $overrides = []): array
     {
         /** @var GenerateBulkInvoicesRequest $request */
@@ -155,6 +228,22 @@ class GenerateBulkInvoices extends Page
         return $request->validatePayload([
             ...$this->form,
             ...$overrides,
-        ], auth()->user());
+        ], $this->user());
+    }
+
+    private function organization(): Organization
+    {
+        /** @var Organization $organization */
+        $organization = $this->user()->organization;
+
+        return $organization;
+    }
+
+    private function user(): User
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return $user;
     }
 }
