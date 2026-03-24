@@ -23,32 +23,32 @@ class AuditLogTable
         return $table
             ->columns([
                 TextColumn::make('actor_summary')
-                    ->label('User')
-                    ->state(fn (AuditLog $record): string => $record->actor?->name ?? 'System')
+                    ->label(__('superadmin.audit_logs.columns.user'))
+                    ->state(fn (AuditLog $record): string => $record->actor?->name ?? __('superadmin.audit_logs.placeholders.system'))
                     ->description(fn (AuditLog $record): ?string => $record->actor?->email)
                     ->wrap()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('display_action')
-                    ->label('Action')
+                    ->label(__('superadmin.audit_logs.columns.action'))
                     ->state(fn (AuditLog $record): string => AuditLogTablePresenter::actionLabel($record))
                     ->badge()
                     ->color(fn (AuditLog $record): string => AuditLogTablePresenter::actionColor($record))
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('record_type_label')
-                    ->label('Record Type')
+                    ->label(__('superadmin.audit_logs.columns.record_type'))
                     ->state(fn (AuditLog $record): string => AuditLogTablePresenter::recordTypeLabel($record->subject_type))
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('subject_id')
-                    ->label('Record ID')
-                    ->placeholder('—')
+                    ->label(__('superadmin.audit_logs.columns.record_id'))
+                    ->placeholder(__('superadmin.audit_logs.placeholders.empty'))
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('ip_address')
-                    ->label('IP Address')
-                    ->placeholder('—')
+                    ->label(__('superadmin.audit_logs.columns.ip_address'))
+                    ->placeholder(__('superadmin.audit_logs.placeholders.empty'))
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('occurred_at')
-                    ->label('Timestamp')
-                    ->state(fn (AuditLog $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? '—')
+                    ->label(__('superadmin.audit_logs.columns.timestamp'))
+                    ->state(fn (AuditLog $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? __('superadmin.audit_logs.placeholders.empty'))
                     ->sortable()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 Panel::make([
@@ -61,33 +61,33 @@ class AuditLogTable
             ])
             ->filters([
                 Filter::make('user')
-                    ->label('User')
+                    ->label(__('superadmin.audit_logs.filters.user'))
                     ->schema([
                         TextInput::make('query')
-                            ->label('User')
-                            ->placeholder('Search user name or email'),
+                            ->label(__('superadmin.audit_logs.filters.user'))
+                            ->placeholder(__('superadmin.audit_logs.filters.user_placeholder')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->whereActorMatches($data['query'] ?? null)),
                 SelectFilter::make('action_type')
-                    ->label('Action Type')
-                    ->placeholder('All Action Types')
+                    ->label(__('superadmin.audit_logs.filters.action_type'))
+                    ->placeholder(__('superadmin.audit_logs.filters.all_action_types'))
                     ->options(AuditLogTablePresenter::actionTypeOptions())
                     ->query(fn (Builder $query, array $data): Builder => $query->forPresentedActionType($data['value'] ?? null)),
                 SelectFilter::make('subject_type')
-                    ->label('Affected Record Type')
-                    ->placeholder('All Record Types')
+                    ->label(__('superadmin.audit_logs.filters.affected_record_type'))
+                    ->placeholder(__('superadmin.audit_logs.filters.all_record_types'))
                     ->options(fn (): array => AuditLog::subjectTypeOptions())
                     ->query(fn (Builder $query, array $data): Builder => $query->forSubjectTypeValue($data['value'] ?? null)),
                 Filter::make('occurred_between')
-                    ->label('Date Range')
+                    ->label(__('superadmin.audit_logs.filters.date_range'))
                     ->schema([
                         Placeholder::make('date_range_heading')
-                            ->label('Date Range')
-                            ->content('Set an optional start and end date.'),
+                            ->label(__('superadmin.audit_logs.filters.date_range'))
+                            ->content(__('superadmin.audit_logs.filters.date_range_help')),
                         DatePicker::make('occurred_from')
-                            ->label('From'),
+                            ->label(__('superadmin.audit_logs.filters.from')),
                         DatePicker::make('occurred_to')
-                            ->label('To'),
+                            ->label(__('superadmin.audit_logs.filters.to')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->occurredBetween(
                         $data['occurred_from'] ?? null,

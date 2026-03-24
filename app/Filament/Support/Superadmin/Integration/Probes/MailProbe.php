@@ -16,7 +16,7 @@ class MailProbe implements IntegrationProbe
 
     public function label(): string
     {
-        return 'Mail';
+        return __('superadmin.integration_health.probes.mail.label');
     }
 
     public function check(): array
@@ -30,7 +30,7 @@ class MailProbe implements IntegrationProbe
                 return [
                     'status' => IntegrationHealthStatus::FAILED,
                     'response_time_ms' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
-                    'summary' => 'Mail transport is not configured.',
+                    'summary' => __('superadmin.integration_health.probes.mail.summary_missing_configuration'),
                     'details' => [
                         'mailer' => $mailer,
                         'transport' => $transport,
@@ -44,8 +44,8 @@ class MailProbe implements IntegrationProbe
                 ? IntegrationHealthStatus::DEGRADED
                 : IntegrationHealthStatus::HEALTHY;
             $summary = $status === IntegrationHealthStatus::DEGRADED
-                ? "Mail mailer [{$mailer}] uses the {$transport} transport, so external delivery is not verified."
-                : "Mail mailer [{$mailer}] resolved successfully.";
+                ? __('superadmin.integration_health.probes.mail.summary_degraded', ['mailer' => $mailer, 'transport' => $transport])
+                : __('superadmin.integration_health.probes.mail.summary_healthy', ['mailer' => $mailer]);
 
             return [
                 'status' => $status,
@@ -60,7 +60,7 @@ class MailProbe implements IntegrationProbe
             return [
                 'status' => IntegrationHealthStatus::FAILED,
                 'response_time_ms' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
-                'summary' => 'Mail runtime check failed.',
+                'summary' => __('superadmin.integration_health.probes.mail.summary_failed'),
                 'details' => [
                     'mailer' => $mailer,
                     'transport' => $transport,

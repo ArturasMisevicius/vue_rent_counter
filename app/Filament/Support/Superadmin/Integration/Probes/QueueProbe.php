@@ -16,7 +16,7 @@ class QueueProbe implements IntegrationProbe
 
     public function label(): string
     {
-        return 'Queue';
+        return __('superadmin.integration_health.probes.queue.label');
     }
 
     public function check(): array
@@ -30,7 +30,7 @@ class QueueProbe implements IntegrationProbe
                 return [
                     'status' => IntegrationHealthStatus::FAILED,
                     'response_time_ms' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
-                    'summary' => 'Queue configuration is missing.',
+                    'summary' => __('superadmin.integration_health.probes.queue.summary_missing_configuration'),
                     'details' => [
                         'connection' => $connection,
                         'driver' => $driver,
@@ -43,8 +43,8 @@ class QueueProbe implements IntegrationProbe
                 ? IntegrationHealthStatus::DEGRADED
                 : IntegrationHealthStatus::HEALTHY;
             $summary = $status === IntegrationHealthStatus::DEGRADED
-                ? "Queue connection [{$connection}] uses the {$driver} driver, so background worker dispatch is not verified."
-                : "Queue connection [{$connection}] resolved successfully.";
+                ? __('superadmin.integration_health.probes.queue.summary_degraded', ['connection' => $connection, 'driver' => $driver])
+                : __('superadmin.integration_health.probes.queue.summary_healthy', ['connection' => $connection]);
 
             return [
                 'status' => $status,
@@ -60,7 +60,7 @@ class QueueProbe implements IntegrationProbe
             return [
                 'status' => IntegrationHealthStatus::FAILED,
                 'response_time_ms' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
-                'summary' => 'Queue runtime check failed.',
+                'summary' => __('superadmin.integration_health.probes.queue.summary_failed'),
                 'details' => [
                     'connection' => $connection,
                     'driver' => $driver,

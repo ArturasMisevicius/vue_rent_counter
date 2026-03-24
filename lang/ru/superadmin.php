@@ -185,6 +185,7 @@ return [
         ],
         'messages' => [
             'blocked' => 'IP-адрес заблокирован',
+            'block_reason' => 'Заблокировано по нарушению безопасности №:id',
         ],
         'modals' => [
             'block_ip_heading' => 'Заблокировать IP-адрес',

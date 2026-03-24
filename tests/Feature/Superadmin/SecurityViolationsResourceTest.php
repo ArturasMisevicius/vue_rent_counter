@@ -51,25 +51,28 @@ it('renders the security violations list with the required read-only contract', 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.security-violations.index'))
         ->assertSuccessful()
-        ->assertSeeText('Security Violations')
+        ->assertSeeText(__('superadmin.security_violations.plural'))
         ->assertDontSeeText('Create')
         ->assertDontSeeText('New Security Violation')
-        ->assertSeeText('Severity')
-        ->assertSeeText('Violation Type')
-        ->assertSeeText('IP Address')
-        ->assertSeeText('User')
-        ->assertSeeText('URL')
-        ->assertSeeText('User Agent Summary')
-        ->assertSeeText('Timestamp')
+        ->assertSeeText(__('superadmin.security_violations.columns.severity'))
+        ->assertSeeText(__('superadmin.security_violations.columns.type'))
+        ->assertSeeText(__('superadmin.security_violations.columns.ip_address'))
+        ->assertSeeText(__('superadmin.security_violations.columns.user'))
+        ->assertSeeText(__('superadmin.security_violations.columns.url'))
+        ->assertSeeText(__('superadmin.security_violations.columns.user_agent_summary'))
+        ->assertSeeText(__('superadmin.security_violations.columns.timestamp'))
         ->assertSeeText(SecurityViolationType::AUTHENTICATION->label())
         ->assertSeeText(SecurityViolationSeverity::CRITICAL->label())
         ->assertSeeText($actor->name)
         ->assertSeeText($actor->email)
         ->assertSeeText('/admin/login')
-        ->assertSeeText('Chrome on Windows')
-        ->assertSeeText('Anonymous')
+        ->assertSeeText(__('superadmin.security_violations.presenter.browser_on_platform', [
+            'browser' => __('superadmin.security_violations.presenter.browsers.chrome'),
+            'platform' => __('superadmin.security_violations.presenter.platforms.windows'),
+        ]))
+        ->assertSeeText(__('superadmin.security_violations.placeholders.anonymous'))
         ->assertSeeText('/api/auth/login')
-        ->assertSeeText('curl')
+        ->assertSeeText(__('superadmin.security_violations.presenter.curl'))
         ->assertSeeText($authenticatedViolation->ip_address)
         ->assertSeeText($anonymousViolation->ip_address)
         ->assertSeeText($authenticatedViolation->occurred_at->format('F j, Y g:i A'))
@@ -78,24 +81,24 @@ it('renders the security violations list with the required read-only contract', 
     $this->actingAs($superadmin);
 
     Livewire::test(ListSecurityViolations::class)
-        ->assertTableColumnExists('type', fn (TextColumn $column): bool => $column->getLabel() === 'Violation Type')
-        ->assertTableColumnExists('severity', fn (TextColumn $column): bool => $column->getLabel() === 'Severity')
-        ->assertTableColumnExists('ip_address', fn (TextColumn $column): bool => $column->getLabel() === 'IP Address')
-        ->assertTableColumnExists('user_summary', fn (TextColumn $column): bool => $column->getLabel() === 'User')
-        ->assertTableColumnExists('url', fn (TextColumn $column): bool => $column->getLabel() === 'URL')
-        ->assertTableColumnExists('user_agent_summary', fn (TextColumn $column): bool => $column->getLabel() === 'User Agent Summary')
-        ->assertTableColumnExists('occurred_at', fn (TextColumn $column): bool => $column->getLabel() === 'Timestamp')
-        ->assertTableFilterExists('severity', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Severity')
-        ->assertTableFilterExists('type', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Violation Type')
-        ->assertTableFilterExists('occurred_between', fn (Filter $filter): bool => $filter->getLabel() === 'Date Range')
-        ->assertTableActionHasLabel('blockIp', 'Block IP Address', record: $authenticatedViolation)
+        ->assertTableColumnExists('type', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.type'))
+        ->assertTableColumnExists('severity', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.severity'))
+        ->assertTableColumnExists('ip_address', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.ip_address'))
+        ->assertTableColumnExists('user_summary', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.user'))
+        ->assertTableColumnExists('url', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.url'))
+        ->assertTableColumnExists('user_agent_summary', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.user_agent_summary'))
+        ->assertTableColumnExists('occurred_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.timestamp'))
+        ->assertTableFilterExists('severity', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.severity'))
+        ->assertTableFilterExists('type', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.type'))
+        ->assertTableFilterExists('occurred_between', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.date_range'))
+        ->assertTableActionHasLabel('blockIp', __('superadmin.security_violations.actions.block_ip_address'), record: $authenticatedViolation)
         ->assertTableActionExists(
             'blockIp',
             checkActionUsing: fn (Action $action): bool => $action->isHidden() === false
                 && $action->isDisabled() === false
-                && $action->getModalHeading() === 'Block IP Address'
-                && $action->getModalSubmitActionLabel() === 'Block IP'
-                && $action->getModalCancelActionLabel() === 'Cancel',
+                && $action->getModalHeading() === __('superadmin.security_violations.modals.block_ip_heading')
+                && $action->getModalSubmitActionLabel() === __('superadmin.security_violations.actions.block_ip')
+                && $action->getModalCancelActionLabel() === __('superadmin.security_violations.actions.cancel'),
             record: $authenticatedViolation,
         )
         ->assertTableActionDoesNotExist('view', record: $authenticatedViolation)
@@ -104,9 +107,12 @@ it('renders the security violations list with the required read-only contract', 
         ->assertTableColumnStateSet('type', SecurityViolationType::AUTHENTICATION->label(), $authenticatedViolation)
         ->assertTableColumnStateSet('severity', SecurityViolationSeverity::CRITICAL->label(), $authenticatedViolation)
         ->assertTableColumnStateSet('url', '/admin/login', $authenticatedViolation)
-        ->assertTableColumnStateSet('user_agent_summary', 'Chrome on Windows', $authenticatedViolation)
+        ->assertTableColumnStateSet('user_agent_summary', __('superadmin.security_violations.presenter.browser_on_platform', [
+            'browser' => __('superadmin.security_violations.presenter.browsers.chrome'),
+            'platform' => __('superadmin.security_violations.presenter.platforms.windows'),
+        ]), $authenticatedViolation)
         ->assertTableColumnStateSet('user_summary', $actor->name, $authenticatedViolation)
-        ->assertTableColumnStateSet('user_summary', 'Anonymous', $anonymousViolation);
+        ->assertTableColumnStateSet('user_summary', __('superadmin.security_violations.placeholders.anonymous'), $anonymousViolation);
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.security-violations.index'))
@@ -174,7 +180,7 @@ it('blocks an ip address from the list action with the expected confirmation cop
         ->mountTableAction('blockIp', $violation);
 
     expect($component->instance()->getMountedTableAction()->getModalDescription())
-        ->toBe('Are you sure you want to block all access from 203.0.113.99? This will prevent any connection from this address.');
+        ->toBe(__('superadmin.security_violations.modals.block_ip_description', ['ip' => '203.0.113.99']));
 
     $component
         ->callMountedTableAction()

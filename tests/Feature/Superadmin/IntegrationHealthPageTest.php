@@ -24,16 +24,16 @@ it('renders the integration health operations page only to superadmins', functio
 
     IntegrationHealthCheck::factory()->create([
         'key' => 'database',
-        'label' => 'Database',
+        'label' => __('superadmin.integration_health.probes.database.label'),
         'status' => IntegrationHealthStatus::HEALTHY,
-        'summary' => 'Database connection healthy.',
+        'summary' => __('superadmin.integration_health.probes.database.summary_healthy'),
         'response_time_ms' => 23,
         'checked_at' => now()->subMinutes(5),
     ]);
 
     IntegrationHealthCheck::factory()->create([
         'key' => 'queue',
-        'label' => 'Queue',
+        'label' => __('superadmin.integration_health.probes.queue.label'),
         'status' => IntegrationHealthStatus::FAILED,
         'summary' => 'Queue worker is paused.',
         'response_time_ms' => 0,
@@ -76,9 +76,9 @@ it('renders the integration health operations page only to superadmins', functio
         ->assertSeeText(__('superadmin.integration_health.checks.columns.summary'))
         ->assertSeeText(__('superadmin.integration_health.checks.columns.checked'))
         ->assertSeeText(__('superadmin.integration_health.checks.columns.actions'))
-        ->assertSeeText('Database')
-        ->assertSeeText('Queue')
-        ->assertSeeText('Database connection healthy.')
+        ->assertSeeText(__('superadmin.integration_health.probes.database.label'))
+        ->assertSeeText(__('superadmin.integration_health.probes.queue.label'))
+        ->assertSeeText(__('superadmin.integration_health.probes.database.summary_healthy'))
         ->assertSeeText('Queue worker is paused.')
         ->assertSeeText(__('superadmin.integration_health.response_time', ['value' => 23]))
         ->assertSeeText(__('superadmin.integration_health.checks.actions.check_now'))
@@ -128,7 +128,9 @@ it('runs checks and resets circuit breakers from the page actions', function () 
         ->assertNotified();
 
     expect($databaseCheck->fresh()->status)->not->toBe(IntegrationHealthStatus::UNKNOWN)
-        ->and($databaseCheck->fresh()->checked_at)->not->toBeNull();
+        ->and($databaseCheck->fresh()->checked_at)->not->toBeNull()
+        ->and($databaseCheck->fresh()->label)->toBe(__('superadmin.integration_health.probes.database.label'))
+        ->and($databaseCheck->fresh()->summary)->toBe(__('superadmin.integration_health.probes.database.summary_healthy'));
 
     Livewire::test(IntegrationHealth::class)
         ->call('resetCircuitBreaker', $failedCheck->id)

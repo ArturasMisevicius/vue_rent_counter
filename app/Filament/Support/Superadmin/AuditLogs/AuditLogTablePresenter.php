@@ -22,8 +22,8 @@ class AuditLogTablePresenter
             AuditLogAction::CREATED->value => AuditLogAction::CREATED->label(),
             AuditLogAction::UPDATED->value => AuditLogAction::UPDATED->label(),
             AuditLogAction::DELETED->value => AuditLogAction::DELETED->label(),
-            self::FINALIZED_ACTION => 'Finalized',
-            self::PAYMENT_PROCESSED_ACTION => 'Payment Processed',
+            self::FINALIZED_ACTION => __('superadmin.audit_logs.actions.finalized'),
+            self::PAYMENT_PROCESSED_ACTION => __('superadmin.audit_logs.actions.payment_processed'),
         ];
 
         $remainingOptions = collect(AuditLogAction::cases())
@@ -62,10 +62,10 @@ class AuditLogTablePresenter
     public static function recordTypeLabel(?string $subjectType): string
     {
         if (blank($subjectType)) {
-            return 'Unknown';
+            return __('superadmin.audit_logs.placeholders.unknown');
         }
 
-        return Str::of(class_basename($subjectType))->headline()->toString();
+        return AuditLog::subjectTypeLabel($subjectType);
     }
 
     /**
@@ -81,8 +81,8 @@ class AuditLogTablePresenter
             ->unique()
             ->values()
             ->map(function (string $key) use ($before, $after): array {
-                $beforeValue = $before[$key] ?? '—';
-                $afterValue = $after[$key] ?? '—';
+                $beforeValue = $before[$key] ?? __('superadmin.audit_logs.placeholders.empty');
+                $afterValue = $after[$key] ?? __('superadmin.audit_logs.placeholders.empty');
 
                 return [
                     'key' => $key,
@@ -133,8 +133,8 @@ class AuditLogTablePresenter
     private static function formatValue(mixed $value): string
     {
         return match (true) {
-            $value === null => '—',
-            is_bool($value) => $value ? 'Yes' : 'No',
+            $value === null => __('superadmin.audit_logs.placeholders.empty'),
+            is_bool($value) => $value ? __('superadmin.audit_logs.placeholders.yes') : __('superadmin.audit_logs.placeholders.no'),
             is_array($value) => json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '[]',
             default => (string) $value,
         };

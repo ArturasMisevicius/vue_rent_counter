@@ -90,7 +90,7 @@ class SecurityViolationTable
                     ->action(function (SecurityViolation $record, BlockIpAddressAction $blockIpAddressAction): void {
                         $blockIpAddressAction->handle([
                             'ip_address' => $record->ip_address,
-                            'reason' => "Blocked from security violation #{$record->id}",
+                            'reason' => __('superadmin.security_violations.messages.block_reason', ['id' => $record->id]),
                             'blocked_by_user_id' => auth()->id(),
                         ]);
 

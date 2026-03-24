@@ -185,6 +185,7 @@ return [
         ],
         'messages' => [
             'blocked' => 'IP address blocked',
+            'block_reason' => 'Blocked from security violation #:id',
         ],
         'modals' => [
             'block_ip_heading' => 'Block IP Address',

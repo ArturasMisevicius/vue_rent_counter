@@ -1,5 +1,5 @@
 <div class="grid gap-4 md:grid-cols-2">
-    @foreach (['before' => 'Before', 'after' => 'After'] as $side => $heading)
+    @foreach (['before' => __('superadmin.audit_logs.diff.before'), 'after' => __('superadmin.audit_logs.diff.after')] as $side => $heading)
         <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
             <header class="border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900">
                 {{ $heading }}
@@ -18,7 +18,7 @@
                     </div>
                 @empty
                     <div class="px-4 py-3 text-sm text-slate-500">
-                        No captured values.
+                        {{ __('superadmin.audit_logs.diff.empty') }}
                     </div>
                 @endforelse
             </div>

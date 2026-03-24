@@ -198,7 +198,22 @@ class AuditLog extends Model
             ->pluck('subject_type')
             ->mapWithKeys(fn (?string $subjectType): array => $subjectType === null
                 ? []
-                : [$subjectType => Str::of(class_basename($subjectType))->headline()->toString()])
+                : [$subjectType => static::subjectTypeLabel($subjectType)])
             ->all();
+    }
+
+    public static function subjectTypeLabel(?string $subjectType): string
+    {
+        if (blank($subjectType)) {
+            return __('superadmin.audit_logs.placeholders.unknown');
+        }
+
+        $translationKey = 'superadmin.audit_logs.record_types.'.Str::of(class_basename($subjectType))->snake()->toString();
+
+        if (trans()->has($translationKey)) {
+            return __($translationKey);
+        }
+
+        return Str::of(class_basename($subjectType))->headline()->toString();
     }
 }

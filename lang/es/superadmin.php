@@ -185,6 +185,7 @@ return [
         ],
         'messages' => [
             'blocked' => 'Dirección IP bloqueada',
+            'block_reason' => 'Bloqueado por la violación de seguridad n.º :id',
         ],
         'modals' => [
             'block_ip_heading' => 'Bloquear dirección IP',

@@ -30,12 +30,12 @@ class AuditLogResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Audit Log';
+        return __('superadmin.audit_logs.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Audit Logs';
+        return __('superadmin.audit_logs.plural');
     }
 
     /**
