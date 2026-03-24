@@ -10,6 +10,7 @@ use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAc
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -21,6 +22,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrganization extends ViewRecord
 {
+    use HasDeferredRelationManagerTabBadges;
+
     protected static string $resource = OrganizationResource::class;
 
     public function mount(int|string $record): void

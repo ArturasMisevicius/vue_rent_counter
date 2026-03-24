@@ -3,6 +3,7 @@
 use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\BuildingsRelationManager;
@@ -16,6 +17,7 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionRenewal;
 use App\Models\User;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
 use Livewire\Livewire;
@@ -129,6 +131,43 @@ it('renders the users, subscriptions, buildings, and activity log relation manag
         ->assertTableColumnExists('ip_address', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.ip_address'))
         ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.when'))
         ->assertTableActionExists('viewChanges', record: $activityLog);
+});
+
+it('keeps organization relation tab badges deferred with counts across tab switches', function () {
+    [$organization] = seedOrganizationViewFixture();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    $component = Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()]);
+
+    $assertRelationTabBadges = function ($page): void {
+        $record = $page->getRecord();
+
+        $tabComponents = collect($page->getDeferredRelationManagerTabs(
+            $page->getRelationManagers(),
+            $page->hasCombinedRelationManagerTabsWithContent(),
+            ['ownerRecord' => $record, 'pageClass' => ViewOrganization::class],
+            $record,
+        ));
+        $relationManagerKeys = array_keys(OrganizationResource::getRelations());
+
+        foreach ($relationManagerKeys as $relationManagerKey) {
+            /** @var Tab $tab */
+            $tab = $tabComponents->get($relationManagerKey);
+
+            expect($tab)->not->toBeNull()
+                ->and($tab->isBadgeDeferred())->toBeTrue()
+                ->and($tab->getBadge())->toBeString()
+                ->and($tab->getBadge())->not->toBe('');
+        }
+    };
+
+    $assertRelationTabBadges($component->invade());
+
+    $component->set('activeRelationManager', 'users');
+
+    $assertRelationTabBadges($component->invade());
 });
 
 function seedOrganizationViewFixture(): array

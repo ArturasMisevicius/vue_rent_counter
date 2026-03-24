@@ -97,6 +97,11 @@ class Organization extends Model
         return $query->withCount('buildings');
     }
 
+    public function scopeWithActivityLogCount(Builder $query): Builder
+    {
+        return $query->withCount('activityLogs');
+    }
+
     public function scopeForSuperadminControlPlane(Builder $query): Builder
     {
         return $query
@@ -105,6 +110,7 @@ class Organization extends Model
             ->withCurrentSubscriptionSummary()
             ->withUsageCounts()
             ->withBuildingCount()
+            ->withActivityLogCount()
             ->withTenantCount()
             ->latest('created_at')
             ->latest('id');

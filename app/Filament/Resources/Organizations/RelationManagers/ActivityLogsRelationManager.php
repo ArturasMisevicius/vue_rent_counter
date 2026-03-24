@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 
 class ActivityLogsRelationManager extends RelationManager
 {
+    protected static string $relationship = 'activityLogs';
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         return OrganizationResource::canAccess();
@@ -25,6 +27,13 @@ class ActivityLogsRelationManager extends RelationManager
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('superadmin.organizations.relations.activity_logs.title');
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('activity_logs_count');
+
+        return $count === null ? null : (string) $count;
     }
 
     public function getRelationship(): Relation
