@@ -18,15 +18,14 @@ final class PdfReportService
      * @param  array<int, array{key: string, label: string}>  $columns
      * @param  array<int, array<string, mixed>>  $rows
      */
-    public function streamPdf(
-        string $filename,
+    public function renderPdf(
         string $title,
         array $summary,
         array $columns,
         array $rows,
         string $emptyState,
-    ): StreamedResponse {
-        $pdf = $this->reportPdfExporter->render(
+    ): string {
+        return $this->reportPdfExporter->render(
             $title,
             $summary,
             $columns,
@@ -39,6 +38,22 @@ final class PdfReportService
             ),
             $emptyState,
         );
+    }
+
+    /**
+     * @param  array<int, array{label: string, value: string}>  $summary
+     * @param  array<int, array{key: string, label: string}>  $columns
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    public function streamPdf(
+        string $filename,
+        string $title,
+        array $summary,
+        array $columns,
+        array $rows,
+        string $emptyState,
+    ): StreamedResponse {
+        $pdf = $this->renderPdf($title, $summary, $columns, $rows, $emptyState);
 
         return response()->streamDownload(function () use ($pdf): void {
             echo $pdf;

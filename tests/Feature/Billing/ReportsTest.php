@@ -3,6 +3,7 @@
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
 use App\Filament\Pages\Reports;
+use App\Jobs\GenerateAdminReportExportJob;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -11,8 +12,8 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
-use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -111,33 +112,34 @@ it('identifies overdue invoices in the outstanding balances report', function ()
 
     expect($row)->not->toBeNull()
         ->and($row['status'] ?? null)->toBe(__('admin.invoices.statuses.overdue'))
-        ->and((int) ($row['days_overdue'] ?? 0))->toBeGreaterThan(0);
+        ->and((int) ($row['days_overdue'] ?? 0))->toBe(5);
 
     $component
         ->assertSeeText($overdueInvoice->invoice_number)
         ->assertSeeText(__('admin.invoices.statuses.overdue'));
 });
 
-it('streams a csv export with the expected report headers', function () {
+it('queues a csv export with the expected report headers', function () {
+    Queue::fake();
+
     [
         'admin' => $admin,
     ] = seedBillingReportsFeatureWorkspace();
 
-    $component = Livewire::actingAs($admin)
+    Livewire::actingAs($admin)
         ->test(Reports::class)
         ->set('activeTab', 'consumption')
         ->set('dateFrom', now()->startOfMonth()->toDateString())
-        ->set('dateTo', now()->endOfMonth()->toDateString());
+        ->set('dateTo', now()->endOfMonth()->toDateString())
+        ->call('exportCsv')
+        ->assertHasNoErrors();
 
-    $response = $component->instance()->exportCsv(app(ExportService::class));
-
-    ob_start();
-    $response->sendContent();
-    $csv = (string) ob_get_clean();
-
-    expect($response->headers->get('content-type'))->toContain('text/csv')
-        ->and($csv)->toContain('Consumption')
-        ->and($csv)->toContain('Tenant,Building,Property,Type');
+    Queue::assertPushed(GenerateAdminReportExportJob::class, function (GenerateAdminReportExportJob $job): bool {
+        return $job->format === 'csv'
+            && str_ends_with($job->filename, '.csv')
+            && $job->title === 'Consumption'
+            && collect($job->columns)->pluck('label')->contains('Tenant');
+    });
 });
 
 it('blocks tenant users from the reports page', function () {

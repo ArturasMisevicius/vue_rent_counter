@@ -21,6 +21,13 @@ class ValidateReadingValue
         $normalizedDate = Carbon::parse($readingDate)->toDateString();
         $normalizedValue = (float) $readingValue;
 
+        if ($normalizedValue <= 0) {
+            $messages['reading_value'][] = __('validation.gt.numeric', [
+                'attribute' => __('requests.attributes.reading_value'),
+                'value' => 0,
+            ]);
+        }
+
         if ($normalizedDate > now()->toDateString()) {
             $messages['reading_date'][] = __('validation.before_or_equal', [
                 'attribute' => 'reading date',

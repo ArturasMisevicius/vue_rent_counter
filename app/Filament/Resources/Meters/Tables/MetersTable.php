@@ -10,6 +10,7 @@ use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\Property;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -17,6 +18,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class MetersTable
 {
@@ -61,20 +63,42 @@ class MetersTable
                     ->query(fn ($query, array $data) => $query->when($data['value'] ?? null, function ($query, $buildingId): void {
                         $query->whereHas('property', fn ($query) => $query->where('building_id', $buildingId));
                     }))
-                    ->options(fn (): array => Building::query()
-                        ->select(['id', 'name', 'organization_id'])
-                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
-                        ->orderBy('name')
-                        ->pluck('name', 'id')
-                        ->all()),
+                    ->options(function (): array {
+                        $query = Building::query()->select(['id', 'name', 'organization_id']);
+
+                        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                        $user = Auth::user();
+
+                        if ($organizationId !== null) {
+                            $query->where('organization_id', $organizationId);
+                        } elseif (! ($user instanceof User && $user->isSuperadmin())) {
+                            $query->whereKey(-1);
+                        }
+
+                        return $query
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->all();
+                    }),
                 SelectFilter::make('property_id')
                     ->label(__('admin.meters.fields.property'))
-                    ->options(fn (): array => Property::query()
-                        ->select(['id', 'name', 'organization_id'])
-                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
-                        ->orderBy('name')
-                        ->pluck('name', 'id')
-                        ->all()),
+                    ->options(function (): array {
+                        $query = Property::query()->select(['id', 'name', 'organization_id']);
+
+                        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                        $user = Auth::user();
+
+                        if ($organizationId !== null) {
+                            $query->where('organization_id', $organizationId);
+                        } elseif (! ($user instanceof User && $user->isSuperadmin())) {
+                            $query->whereKey(-1);
+                        }
+
+                        return $query
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->all();
+                    }),
                 SelectFilter::make('type')
                     ->label(__('admin.meters.fields.type'))
                     ->options(MeterType::options()),
@@ -96,7 +120,12 @@ class MetersTable
                 EditAction::make(),
                 DeleteAction::make()
                     ->using(fn (Meter $record) => app(DeleteMeterAction::class)->handle($record))
-                    ->authorize(fn (Meter $record): bool => auth()->user()?->can('view', $record) ?? false),
+                    ->authorize(function (Meter $record): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && $user->can('view', $record);
+                    }),
             ])
             ->defaultSort('name');
     }

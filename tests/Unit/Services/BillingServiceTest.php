@@ -138,6 +138,69 @@ it('distributes shared service costs using the configured distribution method', 
         ->toBe($expectedShare);
 })->with('shared-service-distribution-methods');
 
+it('keeps shared-service invoice totals equal to the source amount after allocation rounding', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $provider = Provider::factory()->forOrganization($organization)->create([
+        'service_type' => ServiceType::WATER,
+    ]);
+    $tariff = Tariff::factory()->for($provider)->flat()->create([
+        'configuration' => [
+            'type' => 'flat',
+            'currency' => 'EUR',
+            'rate' => 100.00,
+        ],
+    ]);
+    $utilityService = UtilityService::factory()->for($organization)->create([
+        'service_type_bridge' => ServiceType::WATER,
+        'default_pricing_model' => PricingModel::FLAT,
+        'unit_of_measurement' => 'month',
+    ]);
+
+    foreach (['A-1', 'A-2', 'A-3'] as $unitNumber) {
+        $tenant = User::factory()->tenant()->create([
+            'organization_id' => $organization->id,
+        ]);
+        $property = Property::factory()->for($organization)->for($building)->create([
+            'name' => $unitNumber,
+        ]);
+
+        PropertyAssignment::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+            'unit_area_sqm' => 50,
+        ]);
+
+        ServiceConfiguration::factory()->for($organization)->for($property)->for($utilityService)->for($provider)->for($tariff)->create([
+            'pricing_model' => PricingModel::FLAT,
+            'distribution_method' => DistributionMethod::EQUAL,
+            'rate_schedule' => [
+                'unit_rate' => 100.00,
+            ],
+            'is_shared_service' => true,
+        ]);
+    }
+
+    $result = app(BillingServiceInterface::class)->generateBulkInvoices($organization, [
+        'billing_period_start' => now()->startOfMonth()->toDateString(),
+        'billing_period_end' => now()->endOfMonth()->toDateString(),
+        'due_date' => now()->addDays(14)->toDateString(),
+    ], $admin);
+
+    $totals = $result['created']
+        ->map(fn (Invoice $invoice): string => (string) $invoice->total_amount)
+        ->all();
+
+    expect($totals)->toBe([
+        '33.34',
+        '33.33',
+        '33.33',
+    ])->and(
+        app(BillingServiceInterface::class)->calculateFlatRateCharge('1', '100.00')
+    )->toBe('100.00');
+});
+
 it('bulk generates one invoice per active tenant assignment', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
@@ -226,6 +289,38 @@ it('applies a payment, updates invoice status, and records a payment entry', fun
         ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->count())->toBe(1)
         ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->amount)->toBe('100.00')
         ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->reference)->toBe('PAY-100');
+});
+
+it('rounds fractional payment amounts through the shared money policy', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $invoice = Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+        'status' => InvoiceStatus::FINALIZED,
+        'total_amount' => '20.00',
+        'amount_paid' => '0.00',
+        'paid_amount' => '0.00',
+        'items' => [
+            ['description' => 'Water usage', 'amount' => 20.00],
+        ],
+    ]);
+
+    $paidInvoice = app(BillingServiceInterface::class)->applyPayment($invoice, [
+        'amount_paid' => '10.005',
+        'payment_reference' => 'PAY-ROUND',
+        'paid_at' => now()->toDateTimeString(),
+    ], $admin);
+
+    expect($paidInvoice->status)->toBe(InvoiceStatus::PARTIALLY_PAID)
+        ->and($paidInvoice->amount_paid)->toBe('10.01')
+        ->and($paidInvoice->paid_amount)->toBe('10.01')
+        ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->amount)->toBe('10.01');
 });
 
 it('normalizes draft line item amounts with exact two-decimal precision', function () {

@@ -7,6 +7,7 @@ namespace App\Filament\Actions\Tenant\Readings;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Support\Workspace\WorkspaceResolver;
+use App\Http\Requests\Tenant\StoreMeterReadingRequest;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
@@ -25,7 +26,7 @@ class SubmitTenantReadingAction
      */
     public function handle(
         User $tenant,
-        int $meterId,
+        string|int $meterId,
         string|int|float $readingValue,
         string $readingDate,
         ?string $notes = null,
@@ -36,8 +37,18 @@ class SubmitTenantReadingAction
             throw new AuthorizationException(__('tenant.pages.readings.unauthorized_meter'));
         }
 
+        $validated = $this->validatePayload(
+            tenant: $tenant,
+            meterId: $meterId,
+            readingValue: $readingValue,
+            readingDate: $readingDate,
+            notes: $notes,
+        );
+
         $meter = Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
+            ->forOrganization($workspace->organizationId)
+            ->forProperty($workspace->propertyId)
             ->with([
                 'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
                 'property.currentAssignment' => fn ($query) => $query
@@ -45,9 +56,10 @@ class SubmitTenantReadingAction
                     ->forOrganization($workspace->organizationId)
                     ->current(),
             ])
-            ->findOrFail($meterId);
+            ->whereKey((int) $validated['meterId'])
+            ->first();
 
-        if ($meter->organization_id !== $workspace->organizationId || $meter->property_id !== $workspace->propertyId) {
+        if ($meter === null) {
             throw new AuthorizationException(__('tenant.pages.readings.unauthorized_meter'));
         }
 
@@ -55,11 +67,37 @@ class SubmitTenantReadingAction
 
         return $this->createMeterReadingAction->handle(
             meter: $meter,
-            readingValue: $readingValue,
-            readingDate: $readingDate,
+            readingValue: $validated['readingValue'],
+            readingDate: $validated['readingDate'],
             submittedBy: $tenant,
             submissionMethod: MeterReadingSubmissionMethod::TENANT_PORTAL,
-            notes: $notes,
+            notes: filled($validated['notes']) ? $validated['notes'] : null,
         );
+    }
+
+    /**
+     * @return array{
+     *     meterId: int,
+     *     readingValue: string|int|float,
+     *     readingDate: string,
+     *     notes: string|null
+     * }
+     */
+    private function validatePayload(
+        User $tenant,
+        string|int $meterId,
+        string|int|float $readingValue,
+        string $readingDate,
+        ?string $notes,
+    ): array {
+        /** @var StoreMeterReadingRequest $request */
+        $request = new StoreMeterReadingRequest;
+
+        return $request->validatePayload([
+            'meterId' => $meterId,
+            'readingValue' => $readingValue,
+            'readingDate' => $readingDate,
+            'notes' => $notes,
+        ], $tenant);
     }
 }

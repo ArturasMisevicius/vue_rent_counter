@@ -12,6 +12,19 @@ use Illuminate\Support\Facades\Schema;
 
 class AuditLogger
 {
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    public function record(
+        AuditLogAction $action,
+        Model $subject,
+        array $metadata = [],
+        ?int $actorUserId = null,
+        ?string $description = null,
+    ): void {
+        $this->write($action, $subject, $metadata, $actorUserId, $description);
+    }
+
     public function created(Model $subject): void
     {
         $this->write(AuditLogAction::CREATED, $subject, [
@@ -43,20 +56,27 @@ class AuditLogger
     /**
      * @param  array<string, mixed>  $metadata
      */
-    protected function write(AuditLogAction $action, Model $subject, array $metadata = []): void
-    {
+    protected function write(
+        AuditLogAction $action,
+        Model $subject,
+        array $metadata = [],
+        ?int $actorUserId = null,
+        ?string $description = null,
+    ): void {
         if (! Schema::hasTable((new AuditLog)->getTable())) {
             return;
         }
 
+        $sanitizedMetadata = $this->sanitize($metadata);
+
         AuditLog::query()->create([
             'organization_id' => $this->organizationId($subject),
-            'actor_user_id' => auth()->id(),
+            'actor_user_id' => $actorUserId ?? auth()->id(),
             'action' => $action,
             'subject_type' => $subject::class,
             'subject_id' => $subject->getKey(),
-            'description' => class_basename($subject).' '.$action->value,
-            'metadata' => $metadata,
+            'description' => $description ?? class_basename($subject).' '.$action->value,
+            'metadata' => $sanitizedMetadata,
             'occurred_at' => now(),
         ]);
 
@@ -68,11 +88,11 @@ class AuditLogger
 
         OrganizationActivityLog::query()->create([
             'organization_id' => $organizationId,
-            'user_id' => auth()->id(),
+            'user_id' => $actorUserId ?? auth()->id(),
             'action' => $action->value,
             'resource_type' => $subject::class,
             'resource_id' => $subject->getKey(),
-            'metadata' => $metadata,
+            'metadata' => $sanitizedMetadata,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
@@ -92,10 +112,19 @@ class AuditLogger
      */
     protected function sanitize(array $values): array
     {
-        return Arr::except($values, [
-            'password',
-            'remember_token',
-        ]);
+        $sanitized = [];
+
+        foreach ($values as $key => $value) {
+            if (in_array($key, ['password', 'remember_token'], true)) {
+                continue;
+            }
+
+            $sanitized[$key] = is_array($value)
+                ? $this->sanitize($value)
+                : $value;
+        }
+
+        return $sanitized;
     }
 
     protected function organizationId(Model $subject): ?int

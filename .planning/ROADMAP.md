@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Safety Freeze and Guardrails** - Remove unsafe public surfaces and establish merge-time modernization safety checks.
 - [x] **Phase 2: Workspace Boundary and Role Contracts** - Make workspace resolution and role authority explicit before protected data access.
 - [x] **Phase 3: Surface and Read Path Unification** - Converge navigation, entry paths, and workspace-aware read models across supported surfaces.
-- [ ] **Phase 4: Mutation Governance and Async Pipelines** - Standardize validated write paths, auditability, and queued side effects.
+- [x] **Phase 4: Mutation Governance and Async Pipelines** - Standardize validated write paths, auditability, and queued side effects.
 - [ ] **Phase 5: Billing Lifecycle Canonicalization** - Make billing rules, invoice behavior, and money semantics consistent everywhere.
 - [ ] **Phase 6: Operational Hardening and Recovery** - Prove the cleaned-up application can be monitored, recovered, and shipped safely.
 - [x] **Phase 7: Consolidate, clean, and standardize full application stack** - Remove policy/validation drift, eliminate leftover public entrypoints, and standardize controller/request, Livewire, and Filament flows.
@@ -80,7 +80,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] `04-01-PLAN.md` — Standardize mutation pipelines, attach governance capture, unify tenant reading writes, and queue slow side effects.
+- [x] `04-01-PLAN.md` — Standardize mutation pipelines, attach governance capture, unify tenant reading writes, and queue slow side effects.
 
 ### Phase 5: Billing Lifecycle Canonicalization
 **Goal**: Billing outcomes become canonical, explainable, and internally consistent before deeper expansion work.
@@ -116,7 +116,7 @@ Plans:
 | 1. Safety Freeze and Guardrails | 4/5 | In Progress | - |
 | 2. Workspace Boundary and Role Contracts | 1/1 | Complete | 2026-03-19 |
 | 3. Surface and Read Path Unification | 1/1 | Complete | 2026-03-24 |
-| 4. Mutation Governance and Async Pipelines | 0/1 | Planned | - |
+| 4. Mutation Governance and Async Pipelines | 1/1 | Complete | 2026-03-24 |
 | 5. Billing Lifecycle Canonicalization | 0/1 | Planned | - |
 | 6. Operational Hardening and Recovery | 0/1 | Planned | - |
 | 7. Consolidate, clean, and standardize full application stack | 2/2 | Complete | 2026-03-24 |
@@ -137,5 +137,9 @@ Plans:
 - Applied full-width Filament content configuration at panel level (`maxContentWidth(Width::Full)` and `simplePageMaxContentWidth(Width::Full)`) so table-heavy screens render full-page width.
 - Added missing CRUD resource surfaces for relation-heavy models: `Project`, `Task`, `TaskAssignment`, `PropertyAssignment`, `OrganizationUser`, and `Tag`.
 - Standardized updated enum option inputs and filters to use enum-driven option generation (`Enum::options()`) to keep translation-backed labels consistent.
+- Added additional relation-backed CRUD resource surfaces for `InvoiceItem`, `InvoicePayment`, `TimeEntry`, `Comment`, `CommentReaction`, `Attachment`, `InvoiceReminderLog`, `InvoiceEmailLog`, `SubscriptionPayment`, and `SubscriptionRenewal`, including superadmin route accessibility.
+- Hardened generated schemas/tables to prefer model relationships over raw ID fields for usability and DB-model alignment.
+- Resolved a runtime bootstrap blocker by renaming `DashboardRedirectEndpoint::redirect()` to `show()` to avoid Livewire `Component::redirect()` signature collision.
 - Verified the unified `/app` entrypoint, shared navigation source-of-truth, shared read-model inventory, and tenant invoice resource consistency as the completed Phase 3 contract.
 - Added `tests/Feature/Architecture/MutationPipelineInventoryTest.php` and verified the representative mutation entrypoints still delegate to shared action/service seams as the first explicit Phase 4 guard.
+- Completed Phase 4 by attaching invoice governance capture at the shared billing seam, adding tenant/admin meter-reading parity coverage, and moving reminders, invoice emails, and report exports onto queued jobs verified by the new async regression suite.

@@ -5,13 +5,15 @@ namespace App\Filament\Resources\ServiceConfigurations\Schemas;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Filament\Support\Admin\OrganizationContext;
-use Filament\Forms\Components\Hidden;
+use App\Models\Organization;
+use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ServiceConfigurationForm
 {
@@ -21,16 +23,52 @@ class ServiceConfigurationForm
             ->components([
                 Section::make(__('admin.service_configurations.sections.details'))
                     ->schema([
-                        Hidden::make('organization_id')
-                            ->default(fn (): ?int => app(OrganizationContext::class)->currentOrganizationId()),
+                        Select::make('organization_id')
+                            ->label(__('superadmin.organizations.singular'))
+                            ->default(fn (): ?int => app(OrganizationContext::class)->currentOrganizationId())
+                            ->options(fn (): array => Organization::query()
+                                ->forSuperadminControlPlane()
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->dehydratedWhenHidden()
+                            ->required(function (): bool {
+                                $user = Auth::user();
+
+                                if (! $user instanceof User) {
+                                    return false;
+                                }
+
+                                return $user->isSuperadmin();
+                            })
+                            ->visible(function (): bool {
+                                $user = Auth::user();
+
+                                if (! $user instanceof User) {
+                                    return false;
+                                }
+
+                                return $user->isSuperadmin()
+                                    && app(OrganizationContext::class)->currentOrganizationId() === null;
+                            }),
                         Select::make('property_id')
                             ->label(__('admin.service_configurations.fields.property'))
                             ->relationship(
                                 name: 'property',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number'])
-                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'building_id', 'name', 'unit_number']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where('organization_id', $organizationId);
+                                },
                             )
                             ->searchable()
                             ->preload()
@@ -40,13 +78,22 @@ class ServiceConfigurationForm
                             ->relationship(
                                 name: 'utilityService',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'name', 'unit_of_measurement', 'is_global_template'])
-                                    ->where(function (Builder $builder): void {
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'name', 'unit_of_measurement', 'is_global_template']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where(function (Builder $builder) use ($organizationId): void {
                                         $builder
-                                            ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
+                                            ->where('organization_id', $organizationId)
                                             ->orWhere('is_global_template', true);
-                                    }),
+                                    });
+                                },
                             )
                             ->searchable()
                             ->preload()
@@ -56,9 +103,18 @@ class ServiceConfigurationForm
                             ->relationship(
                                 name: 'provider',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'name'])
-                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'name']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where('organization_id', $organizationId);
+                                },
                             )
                             ->searchable()
                             ->preload(),
@@ -67,9 +123,21 @@ class ServiceConfigurationForm
                             ->relationship(
                                 name: 'tariff',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'provider_id', 'name'])
-                                    ->whereHas('provider', fn (Builder $providerQuery): Builder => $providerQuery->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'provider_id', 'name']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->whereHas(
+                                        'provider',
+                                        fn (Builder $providerQuery): Builder => $providerQuery->where('organization_id', $organizationId),
+                                    );
+                                },
                             )
                             ->searchable()
                             ->preload(),

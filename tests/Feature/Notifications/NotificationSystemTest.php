@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
+use App\Jobs\SendInvoiceReminderJob;
 use App\Models\Invoice;
+use App\Models\InvoiceReminderLog;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
 use App\Models\User;
@@ -11,10 +14,12 @@ use App\Notifications\InvoiceOverdueReminderNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
-it('invoice overdue notification email contains the correct amount and a valid pdf download link', function (): void {
+it('queues overdue invoice reminders and the queued job sends the correct email payload', function (): void {
+    Queue::fake();
     Notification::fake();
 
     $organization = Organization::factory()->create();
@@ -41,6 +46,7 @@ it('invoice overdue notification email contains the correct amount and a valid p
         ->create([
             'invoice_number' => 'INV-OVERDUE-777',
             'currency' => 'EUR',
+            'status' => InvoiceStatus::OVERDUE,
             'total_amount' => 99.50,
             'amount_paid' => 22.00,
             'paid_amount' => 22.00,
@@ -49,10 +55,20 @@ it('invoice overdue notification email contains the correct amount and a valid p
             'due_date' => now()->subDays(9)->toDateString(),
         ]);
 
-    $log = app(SendInvoiceReminderAction::class)->handle($invoice, $admin);
+    $queued = app(SendInvoiceReminderAction::class)->handle($invoice, $admin);
 
-    expect($log)->not()->toBeNull()
-        ->and($invoice->fresh()->last_reminder_sent_at)->not()->toBeNull();
+    expect($queued)->toBeTrue()
+        ->and($invoice->fresh()->last_reminder_sent_at)->toBeNull()
+        ->and(InvoiceReminderLog::query()->count())->toBe(0);
+
+    Queue::assertPushed(SendInvoiceReminderJob::class, fn (SendInvoiceReminderJob $job): bool => $job->invoiceId === $invoice->id
+        && $job->actorId === $admin->id
+        && $job->recipientEmail === 'tenant@example.test');
+
+    (new SendInvoiceReminderJob($invoice->id, $admin->id, 'tenant@example.test'))->handle();
+
+    expect($invoice->fresh()->last_reminder_sent_at)->not()->toBeNull()
+        ->and(InvoiceReminderLog::query()->count())->toBe(1);
 
     Notification::assertSentOnDemand(InvoiceOverdueReminderNotification::class, function (
         InvoiceOverdueReminderNotification $notification,
@@ -74,7 +90,8 @@ it('invoice overdue notification email contains the correct amount and a valid p
     });
 });
 
-it('email notifications are not sent when the admin has disabled the relevant preference', function (): void {
+it('does not queue overdue reminders when the admin has disabled the relevant preference', function (): void {
+    Queue::fake();
     Notification::fake();
 
     $organization = Organization::factory()->create();
@@ -99,13 +116,15 @@ it('email notifications are not sent when the admin has disabled the relevant pr
         ->for($organization)
         ->for($tenant, 'tenant')
         ->create([
+            'status' => InvoiceStatus::OVERDUE,
             'due_date' => now()->subDays(5)->toDateString(),
         ]);
 
     $result = app(SendInvoiceReminderAction::class)->handle($invoice, $admin);
 
-    expect($result)->toBeNull()
+    expect($result)->toBeFalse()
         ->and($invoice->fresh()->last_reminder_sent_at)->toBeNull();
 
+    Queue::assertNothingPushed();
     Notification::assertNothingSent();
 });

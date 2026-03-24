@@ -159,6 +159,7 @@ return [
             'send_email_confirmation' => 'Confirm sending this factura to :email before continuing.',
             'payment_recorded' => 'Payment recorded successfully.',
             'email_sent' => 'Factura email logged successfully.',
+            'email_queued' => 'Factura email queued successfully.',
             'email_subject' => 'Factura :number',
             'reminder_sent' => 'Reminder email sent successfully.',
         ],
@@ -521,7 +522,9 @@ return [
             'load_before_export' => 'Load a informe before exporting it.',
             'organization_context_required' => 'Select an organización context before viewing informes.',
             'reminder_sent' => 'Reminder email sent successfully.',
+            'reminder_queued' => 'Reminder email queued successfully.',
             'reminder_skipped' => 'Reminder email was skipped because delivery is disabled or unavailable.',
+            'export_queued' => 'Report export queued successfully.',
         ],
         'empty' => [
             'consumption' => 'No readings matched the selected filters.',

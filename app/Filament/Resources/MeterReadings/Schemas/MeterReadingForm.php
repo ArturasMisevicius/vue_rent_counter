@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MeterReadings\Schemas;
 
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class MeterReadingForm
 {
@@ -25,9 +27,18 @@ class MeterReadingForm
                             ->relationship(
                                 name: 'meter',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'property_id', 'name', 'identifier'])
-                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'property_id', 'name', 'identifier']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where('organization_id', $organizationId);
+                                },
                             )
                             ->searchable()
                             ->preload()

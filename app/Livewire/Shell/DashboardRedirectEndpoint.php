@@ -12,7 +12,7 @@ use Livewire\Component;
 
 final class DashboardRedirectEndpoint extends Component
 {
-    public function redirect(
+    public function show(
         Request $request,
         LoginRedirector $loginRedirector,
     ): RedirectResponse {

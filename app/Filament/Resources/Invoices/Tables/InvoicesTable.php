@@ -122,7 +122,7 @@ class InvoicesTable
                         $sendInvoiceEmailAction->handle($record, auth()->user(), $data['recipient_email'] ?? null);
 
                         Notification::make()
-                            ->title(__('admin.invoices.messages.email_sent'))
+                            ->title(__('admin.invoices.messages.email_queued'))
                             ->success()
                             ->send();
                     }),

@@ -94,8 +94,72 @@ return [
                             'label' => 'shell.navigation.items.users',
                         ],
                         [
+                            'route' => 'filament.admin.resources.organization-users.index',
+                            'label' => 'shell.navigation.items.organization_users',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.subscriptions.index',
                             'label' => 'shell.navigation.items.subscriptions',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.projects.index',
+                            'label' => 'shell.navigation.items.projects',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.tasks.index',
+                            'label' => 'shell.navigation.items.tasks',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.task-assignments.index',
+                            'label' => 'shell.navigation.items.task_assignments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.time-entries.index',
+                            'label' => 'shell.navigation.items.time_entries',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.comments.index',
+                            'label' => 'shell.navigation.items.comments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.comment-reactions.index',
+                            'label' => 'shell.navigation.items.comment_reactions',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.attachments.index',
+                            'label' => 'shell.navigation.items.attachments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.tags.index',
+                            'label' => 'shell.navigation.items.tags',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.property-assignments.index',
+                            'label' => 'shell.navigation.items.property_assignments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.invoice-items.index',
+                            'label' => 'shell.navigation.items.invoice_items',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.invoice-payments.index',
+                            'label' => 'shell.navigation.items.invoice_payments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.invoice-reminder-logs.index',
+                            'label' => 'shell.navigation.items.invoice_reminder_logs',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.invoice-email-logs.index',
+                            'label' => 'shell.navigation.items.invoice_email_logs',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.subscription-payments.index',
+                            'label' => 'shell.navigation.items.subscription_payments',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.subscription-renewals.index',
+                            'label' => 'shell.navigation.items.subscription_renewals',
                         ],
                         [
                             'route' => 'filament.admin.pages.system-configuration',

@@ -11,6 +11,7 @@ use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\Billing\InvoicePresentationService;
 use App\Services\Billing\InvoicePdfService;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\View\View;
@@ -46,8 +47,19 @@ class InvoiceHistory extends Component
 
     public function render(): View
     {
+        $invoices = $this->invoices;
+
+        if (method_exists($invoices, 'through')) {
+            $invoicePresentationService = app(InvoicePresentationService::class);
+
+            $invoices = $invoices->through(fn (Invoice $invoice): array => [
+                'record' => $invoice,
+                'presentation' => $invoicePresentationService->present($invoice),
+            ]);
+        }
+
         return view('livewire.tenant.invoice-history', [
-            'invoices' => $this->invoices,
+            'invoices' => $invoices,
             'paymentGuidance' => $this->paymentGuidance,
             'selectedStatus' => $this->selectedStatus,
         ]);
@@ -71,6 +83,7 @@ class InvoiceHistory extends Component
                 'billing_period_end',
                 'due_date',
                 'items',
+                'snapshot_data',
                 'document_path',
             ])
             ->findOrFail($invoiceId);

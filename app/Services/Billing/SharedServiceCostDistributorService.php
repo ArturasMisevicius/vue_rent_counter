@@ -21,30 +21,55 @@ final class SharedServiceCostDistributorService
         array $context = [],
     ): string {
         return match ($distributionMethod) {
-            DistributionMethod::EQUAL => $this->divideEqually(
+            DistributionMethod::EQUAL => $this->allocatedShare(
                 $totalCost,
-                (int) ($context['participant_count'] ?? 1),
+                array_fill(0, (int) ($context['participant_count'] ?? 1), '1'),
+                $context,
+                fn (): string => $this->divideEqually(
+                    $totalCost,
+                    (int) ($context['participant_count'] ?? 1),
+                ),
             ),
-            DistributionMethod::AREA => $this->distributeProportionally(
+            DistributionMethod::AREA => $this->allocatedShare(
                 $totalCost,
-                $context['participant_area'] ?? 0,
-                $context['total_area'] ?? 0,
+                $context['area_weights'] ?? [],
+                $context,
+                fn (): string => $this->distributeProportionally(
+                    $totalCost,
+                    $context['participant_area'] ?? 0,
+                    $context['total_area'] ?? 0,
+                ),
             ),
-            DistributionMethod::BY_CONSUMPTION => $this->distributeProportionally(
+            DistributionMethod::BY_CONSUMPTION => $this->allocatedShare(
                 $totalCost,
-                $context['participant_consumption'] ?? 0,
-                $context['total_consumption'] ?? 0,
+                $context['consumption_weights'] ?? [],
+                $context,
+                fn (): string => $this->distributeProportionally(
+                    $totalCost,
+                    $context['participant_consumption'] ?? 0,
+                    $context['total_consumption'] ?? 0,
+                ),
             ),
-            DistributionMethod::BY_OCCUPANCY => $this->distributeProportionally(
+            DistributionMethod::BY_OCCUPANCY => $this->allocatedShare(
                 $totalCost,
-                $context['participant_occupants'] ?? $context['participant_count'] ?? 1,
-                $context['total_occupants'] ?? $context['participant_count'] ?? 1,
+                $context['occupancy_weights'] ?? [],
+                $context,
+                fn (): string => $this->distributeProportionally(
+                    $totalCost,
+                    $context['participant_occupants'] ?? $context['participant_count'] ?? 1,
+                    $context['total_occupants'] ?? $context['participant_count'] ?? 1,
+                ),
             ),
             DistributionMethod::FIXED_SHARE => $this->calculator->money($context['fixed_share'] ?? 0),
-            DistributionMethod::WEIGHTED_SHARE => $this->distributeProportionally(
+            DistributionMethod::WEIGHTED_SHARE => $this->allocatedShare(
                 $totalCost,
-                $context['participant_weight'] ?? 0,
-                $context['total_weight'] ?? 0,
+                $context['weighted_share_weights'] ?? [],
+                $context,
+                fn (): string => $this->distributeProportionally(
+                    $totalCost,
+                    $context['participant_weight'] ?? 0,
+                    $context['total_weight'] ?? 0,
+                ),
             ),
             DistributionMethod::CUSTOM_FORMULA => $this->calculator->money($context['custom_share'] ?? $totalCost),
         };
@@ -75,5 +100,26 @@ final class SharedServiceCostDistributorService
         return $this->calculator->money(
             $this->calculator->multiply($totalCost, $shareRatio, 6),
         );
+    }
+
+    /**
+     * @param  array<int, string|int|float>  $weights
+     * @param  array<string, mixed>  $context
+     */
+    private function allocatedShare(
+        string|int|float $totalCost,
+        array $weights,
+        array $context,
+        callable $fallback,
+    ): string {
+        $participantIndex = $context['participant_index'] ?? null;
+
+        if (! is_int($participantIndex) || $weights === []) {
+            return $fallback();
+        }
+
+        $allocations = $this->calculator->allocate($totalCost, $weights);
+
+        return $allocations[$participantIndex] ?? $fallback();
     }
 }

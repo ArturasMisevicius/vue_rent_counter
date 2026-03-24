@@ -229,7 +229,11 @@ class AdminDashboardStats
                 'status',
                 'currency',
                 'total_amount',
+                'amount_paid',
+                'paid_amount',
                 'billing_period_start',
+                'billing_period_end',
+                'due_date',
             ])
             ->forOrganization($organizationId)
             ->with([
@@ -250,7 +254,7 @@ class AdminDashboardStats
                         ? $propertyName.' · '.$unitNumber
                         : $propertyName,
                     'amount' => $this->formatCurrency((float) $invoice->total_amount),
-                    'status' => $invoice->status->label(),
+                    'status' => $invoice->effectiveStatus()->label(),
                 ];
             })
             ->all();

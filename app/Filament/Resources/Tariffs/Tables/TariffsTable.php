@@ -8,12 +8,14 @@ use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Provider;
 use App\Models\Tariff;
+use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class TariffsTable
 {
@@ -49,11 +51,23 @@ class TariffsTable
             ->filters([
                 SelectFilter::make('provider_id')
                     ->label(__('admin.tariffs.fields.provider'))
-                    ->options(fn (): array => Provider::query()
-                        ->forOrganization(app(OrganizationContext::class)->currentOrganizationId())
-                        ->orderBy('name')
-                        ->pluck('name', 'id')
-                        ->all()),
+                    ->options(function (): array {
+                        $query = Provider::query()->select(['id', 'organization_id', 'name']);
+
+                        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                        $user = Auth::user();
+
+                        if ($organizationId !== null) {
+                            $query->where('organization_id', $organizationId);
+                        } elseif (! ($user instanceof User && $user->isSuperadmin())) {
+                            $query->whereKey(-1);
+                        }
+
+                        return $query
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->all();
+                    }),
                 SelectFilter::make('configuration_type')
                     ->label(__('admin.tariffs.fields.type'))
                     ->query(fn ($query, array $data) => $query->when($data['value'] ?? null, fn ($query, $type) => $query->where('configuration->type', $type)))

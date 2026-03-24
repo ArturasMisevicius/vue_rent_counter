@@ -157,7 +157,7 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     'invitation store' => ['invitation.store', AcceptInvitationPage::class.'@store'],
     'welcome store' => ['welcome.store', WelcomePage::class.'@store'],
     'csp report' => ['security.csp.report', CspViolationReportEndpoint::class.'@store'],
-    'dashboard redirect' => ['dashboard', DashboardRedirectEndpoint::class.'@redirect'],
+    'dashboard redirect' => ['dashboard', DashboardRedirectEndpoint::class.'@show'],
     'impersonation stop' => ['impersonation.stop', StopImpersonationEndpoint::class.'@stop'],
     'platform dashboard export' => [
         'filament.admin.pages.platform-dashboard.recent-organizations-export',

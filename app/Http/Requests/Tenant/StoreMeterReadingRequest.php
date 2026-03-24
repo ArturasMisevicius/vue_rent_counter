@@ -6,28 +6,14 @@ namespace App\Http\Requests\Tenant;
 
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreMeterReadingRequest extends FormRequest
 {
     use InteractsWithValidationPayload;
 
-    /**
-     * @var list<string>
-     */
-    private array $availableMeterIds = [];
-
     public function authorize(): bool
     {
         return $this->user()?->isTenant() ?? false;
-    }
-
-    public function forAvailableMeters(array $availableMeterIds): self
-    {
-        $request = clone $this;
-        $request->availableMeterIds = array_values(array_map(static fn (string|int $id): string => (string) $id, $availableMeterIds));
-
-        return $request;
     }
 
     /**
@@ -36,7 +22,7 @@ class StoreMeterReadingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'meterId' => ['required', 'string', Rule::in($this->availableMeterIds)],
+            'meterId' => ['required', 'integer'],
             'readingValue' => ['required', 'numeric', 'gt:0'],
             'readingDate' => ['required', 'date', 'before_or_equal:'.now()->toDateString()],
             'notes' => ['nullable', 'string', 'max:1000'],
@@ -50,7 +36,7 @@ class StoreMeterReadingRequest extends FormRequest
     {
         return $this->translatedMessages([
             'meterId.required' => ['required', 'meter'],
-            'meterId.in' => ['in', 'meter'],
+            'meterId.integer' => ['integer', 'meter'],
             'readingValue.required' => ['required', 'reading_value'],
             'readingValue.numeric' => ['numeric', 'reading_value'],
             'readingValue.gt' => ['gt.numeric', 'reading_value', ['value' => 0]],

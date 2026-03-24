@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\FormRequestScenarioFactory;
 use Tests\TestCase;
 
 use function PHPUnit\Framework\assertContains;
 
-uses(TestCase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('keeps every request under app http requests covered by the request test matrix', function (): void {
     $requestClasses = collect(discoverFormRequestClasses())
-        ->map(static fn (string $class): string => class_basename($class))
         ->sort()
         ->values()
         ->all();
 
-    $scenarioClasses = collect(array_keys(FormRequestScenarioFactory::scenarios()))
+    $context = FormRequestScenarioFactory::context();
+
+    $scenarioClasses = collect(FormRequestScenarioFactory::scenarios())
+        ->map(static fn (array $scenario): string => $scenario['request']($context)::class)
         ->sort()
         ->values()
         ->all();

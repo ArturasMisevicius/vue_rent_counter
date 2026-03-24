@@ -24,8 +24,7 @@ use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Property;
 use App\Models\User;
-use App\Services\ExportService;
-use App\Services\PdfReportService;
+use App\Services\ScheduledExportService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -39,7 +38,6 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportsPage extends Page
 {
@@ -148,31 +146,46 @@ class ReportsPage extends Page
         }
     }
 
-    public function exportCsv(ExportService $exportService): StreamedResponse
+    public function exportCsv(ScheduledExportService $scheduledExportService): void
     {
         $report = $this->exportReport('csv');
 
-        return $exportService->streamCsv(
-            $this->exportFilename('csv'),
-            $report['title'],
-            $report['summary'],
-            $report['columns'],
-            $report['rows'],
+        $scheduledExportService->scheduleExport(
+            filename: $this->exportFilename('csv'),
+            format: 'csv',
+            title: $report['title'],
+            summary: $report['summary'],
+            columns: $report['columns'],
+            rows: $report['rows'],
+            emptyState: $report['empty_state'],
+            requestedBy: $this->user(),
         );
+
+        Notification::make()
+            ->success()
+            ->title(__('admin.reports.messages.export_queued'))
+            ->send();
     }
 
-    public function exportPdf(PdfReportService $pdfReportService): StreamedResponse
+    public function exportPdf(ScheduledExportService $scheduledExportService): void
     {
         $report = $this->exportReport('pdf');
 
-        return $pdfReportService->streamPdf(
-            $this->exportFilename('pdf'),
-            $report['title'],
-            $report['summary'],
-            $report['columns'],
-            $report['rows'],
-            $report['empty_state'],
+        $scheduledExportService->scheduleExport(
+            filename: $this->exportFilename('pdf'),
+            format: 'pdf',
+            title: $report['title'],
+            summary: $report['summary'],
+            columns: $report['columns'],
+            rows: $report['rows'],
+            emptyState: $report['empty_state'],
+            requestedBy: $this->user(),
         );
+
+        Notification::make()
+            ->success()
+            ->title(__('admin.reports.messages.export_queued'))
+            ->send();
     }
 
     public function sendReminder(int $invoiceId, SendInvoiceReminderAction $sendInvoiceReminderAction): void
@@ -204,11 +217,11 @@ class ReportsPage extends Page
             ])
             ->findOrFail($invoiceId);
 
-        $log = $sendInvoiceReminderAction->handle($invoice, $this->user());
+        $queued = $sendInvoiceReminderAction->handle($invoice, $this->user());
 
         unset($this->report);
 
-        if ($log === null) {
+        if (! $queued) {
             Notification::make()
                 ->warning()
                 ->title(__('admin.reports.messages.reminder_skipped'))
@@ -219,7 +232,7 @@ class ReportsPage extends Page
 
         Notification::make()
             ->success()
-            ->title(__('admin.reports.messages.reminder_sent'))
+            ->title(__('admin.reports.messages.reminder_queued'))
             ->send();
     }
 

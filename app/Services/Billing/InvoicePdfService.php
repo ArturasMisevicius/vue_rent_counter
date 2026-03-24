@@ -13,6 +13,7 @@ final class InvoicePdfService
 {
     public function __construct(
         private readonly ReportPdfExporter $reportPdfExporter,
+        private readonly InvoicePresentationService $invoicePresentationService,
     ) {}
 
     public function streamDownload(Invoice $invoice): StreamedResponse
@@ -23,22 +24,24 @@ final class InvoicePdfService
             'property.building:id,organization_id,name',
             'payments:id,invoice_id,organization_id,amount,method,reference,paid_at',
         ]);
+        $presentation = $this->invoicePresentationService->present($invoice);
 
         $summary = [
-            ['label' => __('admin.invoices.fields.invoice_number'), 'value' => (string) $invoice->invoice_number],
+            ['label' => __('admin.invoices.fields.invoice_number'), 'value' => $presentation['invoice_number']],
             ['label' => __('admin.invoices.fields.tenant'), 'value' => (string) ($invoice->tenant?->name ?? __('admin.invoices.empty.tenant'))],
             ['label' => __('admin.invoices.fields.property'), 'value' => (string) ($invoice->property?->name ?? __('admin.invoices.empty.property'))],
-            ['label' => __('admin.invoices.fields.status'), 'value' => (string) $invoice->status?->label()],
-            ['label' => __('admin.invoices.fields.total_amount'), 'value' => sprintf('%s %s', $invoice->currency, number_format((float) $invoice->total_amount, 2))],
-            ['label' => __('admin.invoices.fields.amount_paid'), 'value' => sprintf('%s %s', $invoice->currency, number_format($invoice->normalized_paid_amount, 2))],
+            ['label' => __('admin.invoices.fields.status'), 'value' => $presentation['status_label']],
+            ['label' => __('admin.invoices.fields.total_amount'), 'value' => $presentation['total_amount_display']],
+            ['label' => __('admin.invoices.fields.amount_paid'), 'value' => $presentation['paid_amount_display']],
+            ['label' => __('admin.invoices.status_summaries.outstanding'), 'value' => $presentation['outstanding_amount_display']],
         ];
 
-        $rows = collect($invoice->items)
+        $rows = collect($presentation['items'])
             ->map(fn (array $item): array => [
                 'description' => (string) ($item['description'] ?? ''),
                 'quantity' => (string) ($item['quantity'] ?? ''),
-                'unit_price' => isset($item['unit_price']) ? number_format((float) $item['unit_price'], 2) : '',
-                'total' => isset($item['total']) ? number_format((float) $item['total'], 2) : '',
+                'unit_price' => (string) ($item['unit_price_display'] ?? ''),
+                'total' => (string) ($item['total_display'] ?? ''),
             ])
             ->all();
 

@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-stopped_at: Phase 4 Task 1 guard added and verified; Tasks 2-4 remain after the external Phase 1 blocker skip
-last_updated: "2026-03-24T01:37:05Z"
+status: active
+stopped_at: Phase 4 complete and verified; Phase 5 is the next local milestone phase after the external Phase 1 blocker
+last_updated: "2026-03-24T01:56:48Z"
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 4
   total_plans: 12
   completed_plans: 9
 ---
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Tenanto must deliver tenant-safe utility billing and property management workflows on a clean, consistent application foundation that the team can evolve confidently.
-**Current focus:** Phase 04 — mutation-governance-and-async-pipelines
+**Current focus:** Phase 05 — billing-lifecycle-canonicalization
 
 ## Current Position
 
-Phase: 03 (surface-and-read-path-unification) — COMPLETE
+Phase: 04 (mutation-governance-and-async-pipelines) — COMPLETE
 Plan: 1 of 1 (completed)
 
 ## Performance Metrics
@@ -65,15 +65,17 @@ Recent decisions affecting current work:
 - [Phase 03] Use the shared `/app` dashboard entrypoint as the canonical authenticated landing route for onboarded roles.
 - [Phase 03] Treat configured shell navigation roles plus shared read builders as the canonical source for navigation, search, reports, and tenant/staff invoice read surfaces.
 - [Phase 04] Keep representative mutation entrypoints delegated to shared action and service seams, with architecture inventory coverage to prevent UI-local mutation drift.
+- [Phase 04] Capture invoice governance at the shared billing service seam and keep reminder, email, and export side effects off the interactive request path by dispatching queued jobs.
 - [Phase 5] Delay billing extraction until safety, boundaries, read paths, and mutation pipelines are standardized.
 - [Phase 07] Keep `app/Http/Controllers/Controller.php` only as the framework base controller and migrate every remaining concrete web route handler into Livewire endpoint components.
 - [Planning] Use one master execution plan per remaining phase so Phases 2 through 6 can advance without another planning pass.
 - [2026-03-24] Set Filament panel content width to full (`Width::Full`) for standard and simple pages, added CRUD resources for relation-focused models (projects, tasks, task assignments, property assignments, organization users, tags), and normalized enum option usage to `Enum::options()` where updated.
+- [2026-03-24 continuation] Extended CRUD coverage to remaining relation-backed models (invoice items/payments/logs, time entries, comments/reactions, attachments, subscription payments/renewals), wired superadmin navigation routes for all added resources, and fixed the Livewire dashboard redirect endpoint method conflict that caused artisan bootstrap failures.
 
 ### Pending Todos
 
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
-- Phase 04: standardize mutation pipelines, governance capture, and tenant write paths now that Phase 03 read surfaces are unified.
+- Phase 05: canonicalize overdue semantics, billing preview/finalization parity, shared money rules, and invoice explainability now that mutation governance is complete.
 - 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
 - 2026-03-19: finish the shared design-system migration by adding the missing tenant bottom navigation component, wiring it into the tenant-facing Filament pages, and verifying the shared component namespaces remain clean.
 
@@ -86,6 +88,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-24T01:37:05Z
-Stopped at: Phase 4 Task 1 guard added and verified; Tasks 2-4 remain after the external Phase 01 blocker skip
-Resume file: .planning/phases/04-mutation-governance-and-async-pipelines/04-01-PLAN.md
+Last session: 2026-03-24T01:56:48Z
+Stopped at: Phase 4 complete and verified; Phase 5 is next after the external Phase 01 blocker skip
+Resume file: .planning/phases/05-billing-lifecycle-canonicalization/05-01-PLAN.md

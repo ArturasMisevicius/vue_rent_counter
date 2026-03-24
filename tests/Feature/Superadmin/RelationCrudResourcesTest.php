@@ -38,6 +38,16 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
         'filament.admin.resources.property-assignments.index',
         'filament.admin.resources.organization-users.index',
         'filament.admin.resources.tags.index',
+        'filament.admin.resources.invoice-items.index',
+        'filament.admin.resources.invoice-payments.index',
+        'filament.admin.resources.time-entries.index',
+        'filament.admin.resources.comments.index',
+        'filament.admin.resources.comment-reactions.index',
+        'filament.admin.resources.attachments.index',
+        'filament.admin.resources.invoice-reminder-logs.index',
+        'filament.admin.resources.invoice-email-logs.index',
+        'filament.admin.resources.subscription-payments.index',
+        'filament.admin.resources.subscription-renewals.index',
     ];
 
     foreach ($indexRoutes as $routeName) {

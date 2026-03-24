@@ -8,12 +8,18 @@ use App\Filament\Resources\Languages\LanguageResource;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
+use App\Filament\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\PropertyAssignments\PropertyAssignmentResource;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Filament\Resources\SecurityViolations\SecurityViolationResource;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
+use App\Filament\Resources\Tags\TagResource;
 use App\Filament\Resources\Tariffs\TariffResource;
+use App\Filament\Resources\TaskAssignments\TaskAssignmentResource;
+use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
@@ -50,13 +56,25 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/MetersResourceTest.php',
         ],
+        OrganizationUserResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
         OrganizationResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/OrganizationsResourceTest.php',
         ],
+        ProjectResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
         PropertyResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/PropertiesResourceTest.php',
+        ],
+        PropertyAssignmentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
         ],
         ProviderResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
@@ -74,9 +92,21 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/SubscriptionsResourceTest.php',
         ],
+        TagResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
         TariffResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/TariffsResourceTest.php',
+        ],
+        TaskAssignmentResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
+        TaskResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
         ],
         TenantResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

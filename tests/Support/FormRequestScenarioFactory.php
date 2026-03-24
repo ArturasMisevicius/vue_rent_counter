@@ -20,6 +20,7 @@ use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\SendInvoiceEmailRequest;
 use App\Http\Requests\Admin\MeterReadings\RejectMeterReadingRequest;
+use App\Http\Requests\Admin\MeterReadings\StoreMeterReadingRequest as AdminStoreMeterReadingRequest;
 use App\Http\Requests\Admin\MeterReadings\UpdateMeterReadingRequest;
 use App\Http\Requests\Admin\Meters\MeterRequest;
 use App\Http\Requests\Admin\Properties\PropertyRequest;
@@ -57,7 +58,7 @@ use App\Http\Requests\Superadmin\Subscriptions\ExtendSubscriptionExpiryRequest;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
-use App\Http\Requests\Tenant\StoreMeterReadingRequest;
+use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -242,7 +243,7 @@ final class FormRequestScenarioFactory
                 'authorize' => self::tenantOnly(),
             ],
             'StoreMeterReadingRequest' => [
-                'request' => static fn (array $context): FormRequest => (new StoreMeterReadingRequest)->forAvailableMeters([(string) $context['meter']->id]),
+                'request' => static fn (array $context): FormRequest => new TenantStoreMeterReadingRequest,
                 'valid' => static fn (array $context): array => [
                     'meterId' => (string) $context['meter']->id,
                     'readingValue' => '123.45',
@@ -252,16 +253,27 @@ final class FormRequestScenarioFactory
                 'required' => ['meterId', 'readingValue', 'readingDate'],
                 'authorize' => self::tenantOnly(),
             ],
+            'AdminStoreMeterReadingRequest' => [
+                'request' => static fn (array $context): FormRequest => new AdminStoreMeterReadingRequest,
+                'valid' => static fn (array $context): array => [
+                    'reading_value' => '145.50',
+                    'reading_date' => now()->toDateString(),
+                    'submission_method' => MeterReadingSubmissionMethod::ADMIN_MANUAL->value,
+                    'notes' => 'Entered by staff.',
+                ],
+                'required' => ['reading_value', 'reading_date', 'submission_method'],
+                'authorize' => self::adminLikeAndTenantOnly(),
+            ],
             'StoreOrganizationRequest' => [
                 'request' => static fn (array $context): FormRequest => new StoreOrganizationRequest,
                 'valid' => static fn (array $context): array => [
                     'name' => 'Aurora Plaza',
+                    'slug' => 'aurora-plaza',
                     'owner_email' => 'owner@example.com',
-                    'owner_name' => 'Aurora Owner',
                     'plan' => SubscriptionPlan::PROFESSIONAL->value,
                     'duration' => SubscriptionDuration::YEARLY->value,
                 ],
-                'required' => ['name', 'owner_email', 'owner_name', 'plan', 'duration'],
+                'required' => ['name', 'slug', 'owner_email', 'plan', 'duration'],
                 'authorize' => self::superadminOnly(),
                 'invalid' => [
                     'owner email disposable' => static fn (array $valid, array $context): array => [
@@ -390,7 +402,7 @@ final class FormRequestScenarioFactory
                     'paid_at' => now()->toDateTimeString(),
                 ],
                 'required' => [],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'GenerateBulkInvoicesRequest' => [
                 'request' => static fn (array $context): FormRequest => new GenerateBulkInvoicesRequest,
@@ -401,7 +413,7 @@ final class FormRequestScenarioFactory
                     'selected_assignments' => ['assignment-1'],
                 ],
                 'required' => ['billing_period_start', 'billing_period_end', 'due_date'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'SaveInvoiceDraftRequest' => [
                 'request' => static fn (array $context): FormRequest => new SaveInvoiceDraftRequest,
@@ -420,7 +432,7 @@ final class FormRequestScenarioFactory
                     'notes' => 'Draft invoice',
                 ],
                 'required' => [],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'SendInvoiceEmailRequest' => [
                 'request' => static fn (array $context): FormRequest => new SendInvoiceEmailRequest,
@@ -428,7 +440,7 @@ final class FormRequestScenarioFactory
                     'recipient_email' => $context['tenant']->email,
                 ],
                 'required' => ['recipient_email'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'RejectMeterReadingRequest' => [
                 'request' => static fn (array $context): FormRequest => new RejectMeterReadingRequest,
@@ -436,7 +448,7 @@ final class FormRequestScenarioFactory
                     'reason' => 'The submitted reading requires a corrected value.',
                 ],
                 'required' => ['reason'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'UpdateMeterReadingRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpdateMeterReadingRequest,
@@ -447,7 +459,7 @@ final class FormRequestScenarioFactory
                     'notes' => 'Validated by manager',
                 ],
                 'required' => ['reading_value', 'reading_date', 'submission_method'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'MeterRequest' => [
                 'request' => static fn (array $context): FormRequest => (new MeterRequest)->forOrganization($context['organization']->id),
@@ -461,7 +473,7 @@ final class FormRequestScenarioFactory
                     'installed_at' => now()->subYear()->toDateString(),
                 ],
                 'required' => ['property_id', 'name', 'identifier', 'type', 'status'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'PropertyRequest' => [
                 'request' => static fn (array $context): FormRequest => (new PropertyRequest)->forOrganization($context['organization']->id),
@@ -499,7 +511,7 @@ final class FormRequestScenarioFactory
                     ],
                 ],
                 'required' => ['name', 'service_type'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'ConsumptionReportRequest' => self::reportScenario(ConsumptionReportRequest::class),
             'ExportReportRequest' => self::reportScenario(
@@ -534,7 +546,7 @@ final class FormRequestScenarioFactory
                     'active_until' => now()->endOfMonth()->toDateString(),
                 ],
                 'required' => ['provider_id', 'name', 'configuration.type', 'configuration.currency', 'configuration.rate', 'active_from'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'ReassignTenantRequest' => [
                 'request' => static fn (array $context): FormRequest => (new ReassignTenantRequest)->forOrganization($context['organization']->id),
@@ -543,7 +555,7 @@ final class FormRequestScenarioFactory
                     'unit_area_sqm' => '55.5',
                 ],
                 'required' => ['property_id'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'StoreTenantRequest' => [
                 'request' => static fn (array $context): FormRequest => (new StoreTenantRequest)->forOrganization($context['organization']->id),
@@ -556,7 +568,7 @@ final class FormRequestScenarioFactory
                     'unit_area_sqm' => '45.5',
                 ],
                 'required' => ['name', 'email', 'locale', 'status'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
                 'invalid' => [
                     'email unique' => static fn (array $valid, array $context): array => [
                         'field' => 'email',
@@ -579,7 +591,7 @@ final class FormRequestScenarioFactory
                     'unit_area_sqm' => '42',
                 ],
                 'required' => ['name', 'email', 'locale', 'status'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
                 'invalid' => [
                     'email unique' => static fn (array $valid, array $context): array => [
                         'field' => 'email',
@@ -880,6 +892,20 @@ final class FormRequestScenarioFactory
             'admin' => true,
             'manager' => true,
             'tenant' => false,
+        ];
+    }
+
+    /**
+     * @return array{guest: bool, superadmin: bool, admin: bool, manager: bool, tenant: bool}
+     */
+    private static function adminLikeAndTenantOnly(): array
+    {
+        return [
+            'guest' => false,
+            'superadmin' => true,
+            'admin' => true,
+            'manager' => true,
+            'tenant' => true,
         ];
     }
 

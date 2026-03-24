@@ -22,6 +22,8 @@ it('keeps representative mutation entrypoints delegated to shared request, actio
             'validatePayload(',
         ],
         'app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php' => [
+            'StoreMeterReadingRequest',
+            'validatePayload(',
             'CreateMeterReadingAction',
             'createMeterReadingAction->handle(',
             'WorkspaceResolver',

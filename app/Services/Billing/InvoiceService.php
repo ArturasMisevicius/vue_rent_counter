@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
+use App\Enums\AuditLogAction;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Events\InvoiceFinalized;
+use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
+use App\Models\InvoiceGenerationAudit;
 use App\Models\InvoicePayment;
 use App\Models\Organization;
 use App\Models\PropertyAssignment;
@@ -22,6 +25,7 @@ final class InvoiceService
     public function __construct(
         private readonly UniversalBillingCalculator $calculator,
         private readonly DashboardCacheService $dashboardCacheService,
+        private readonly AuditLogger $auditLogger,
     ) {}
 
     /**
@@ -108,6 +112,25 @@ final class InvoiceService
 
             $freshInvoice = $invoice->fresh(['invoiceItems', 'payments', 'billingRecords']);
 
+            InvoiceGenerationAudit::query()->create([
+                'invoice_id' => $freshInvoice->id,
+                'organization_id' => $organization->id,
+                'tenant_user_id' => $assignment->tenant_user_id,
+                'user_id' => $actor?->id,
+                'period_start' => $billingPeriodStart->toDateString(),
+                'period_end' => $billingPeriodEnd->toDateString(),
+                'total_amount' => $freshInvoice->total_amount,
+                'items_count' => count($items),
+                'metadata' => [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.generated',
+                    ],
+                    'invoice_number' => $freshInvoice->invoice_number,
+                ],
+                'created_at' => now(),
+            ]);
+
             DB::afterCommit(function () use ($organization, $freshInvoice, $assignment): void {
                 $this->dashboardCacheService->touchOrganization($organization->id);
 
@@ -122,15 +145,35 @@ final class InvoiceService
         });
     }
 
-    public function markAsFinalized(Invoice $invoice): Invoice
+    /**
+     * @param  array<string, mixed>|null  $beforeSnapshot
+     */
+    public function markAsFinalized(Invoice $invoice, ?User $actor = null, ?array $beforeSnapshot = null): Invoice
     {
-        return DB::transaction(function () use ($invoice): Invoice {
+        return DB::transaction(function () use ($invoice, $actor, $beforeSnapshot): Invoice {
+            $before = $beforeSnapshot ?? $this->invoiceAuditSnapshot($invoice);
+
             $invoice->update([
                 'status' => InvoiceStatus::FINALIZED,
                 'finalized_at' => $invoice->finalized_at ?? now(),
             ]);
 
             $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
+
+            $this->auditLogger->record(
+                AuditLogAction::APPROVED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.finalized',
+                    ],
+                    'before' => $before,
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Invoice finalized',
+            );
 
             DB::afterCommit(function () use ($freshInvoice): void {
                 $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
@@ -152,11 +195,12 @@ final class InvoiceService
     public function recordPayment(Invoice $invoice, array $validated, ?User $actor = null): Invoice
     {
         return DB::transaction(function () use ($invoice, $validated, $actor): Invoice {
+            $before = $this->invoiceAuditSnapshot($invoice);
             $paymentAmount = $this->calculator->money(
                 $validated['amount_paid'] ?? $validated['paid_amount'] ?? $invoice->amount_paid,
             );
-            $newPaidAmount = $this->calculator->money(
-                $this->calculator->add($invoice->normalized_paid_amount, $paymentAmount, 6),
+            $newPaidAmount = $this->calculator->sumMoney(
+                [$invoice->normalized_paid_amount, $paymentAmount],
             );
             $status = $this->calculator->compare($newPaidAmount, $invoice->total_amount, 2) >= 0
                 ? InvoiceStatus::PAID
@@ -183,6 +227,21 @@ final class InvoiceService
             ]);
 
             $freshInvoice = $invoice->fresh(['payments']);
+
+            $this->auditLogger->record(
+                AuditLogAction::UPDATED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.payment_recorded',
+                    ],
+                    'before' => $before,
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Invoice payment recorded',
+            );
 
             DB::afterCommit(function () use ($freshInvoice): void {
                 $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
@@ -250,6 +309,51 @@ final class InvoiceService
         }
 
         return $normalized;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function invoiceAuditSnapshot(Invoice $invoice): array
+    {
+        return [
+            'status' => $invoice->status instanceof InvoiceStatus
+                ? $invoice->status->value
+                : $invoice->status,
+            'total_amount' => $this->normalizeNumericSnapshotValue($invoice->total_amount),
+            'amount_paid' => $this->normalizeNumericSnapshotValue($invoice->amount_paid),
+            'paid_amount' => $this->normalizeNumericSnapshotValue($invoice->paid_amount),
+            'payment_reference' => $invoice->payment_reference,
+            'finalized_at' => $invoice->finalized_at?->toISOString(),
+            'paid_at' => $invoice->paid_at?->toISOString(),
+        ];
+    }
+
+    /**
+     * @return array{organization_id: int, property_id: int|null, tenant_user_id: int|null}
+     */
+    private function workspaceContext(Invoice $invoice): array
+    {
+        return [
+            'organization_id' => $invoice->organization_id,
+            'property_id' => $invoice->property_id,
+            'tenant_user_id' => $invoice->tenant_user_id,
+        ];
+    }
+
+    private function normalizeNumericSnapshotValue(string|int|float|null $value): int|float|null
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $numericValue = (float) $value;
+
+        if ((float) (int) $numericValue === $numericValue) {
+            return (int) $numericValue;
+        }
+
+        return $numericValue;
     }
 
     /**
@@ -344,13 +448,10 @@ final class InvoiceService
      */
     private function sumLineItems(array $items): string
     {
-        return $this->calculator->money(
-            $this->calculator->sum(
-                array_map(
-                    fn (array $item): string|int|float => $item['total'] ?? $item['amount'] ?? 0,
-                    $items,
-                ),
-                6,
+        return $this->calculator->sumMoney(
+            array_map(
+                fn (array $item): string|int|float => $item['total'] ?? $item['amount'] ?? 0,
+                $items,
             ),
         );
     }

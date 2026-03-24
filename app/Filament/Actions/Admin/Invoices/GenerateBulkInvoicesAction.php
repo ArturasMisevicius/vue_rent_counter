@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -65,11 +66,7 @@ class GenerateBulkInvoicesAction
         $validated = $request->validatePayload([
             'billing_period_start' => $attributes['billing_period_start'],
             'billing_period_end' => $attributes['billing_period_end'],
-            'due_date' => $attributes['due_date'] ?? (
-                $attributes['billing_period_end'] instanceof CarbonInterface
-                    ? $attributes['billing_period_end']->toDateString()
-                    : (string) $attributes['billing_period_end']
-            ),
+            'due_date' => $attributes['due_date'] ?? $this->defaultDueDate($attributes['billing_period_end']),
             'selected_assignments' => $attributes['selected_assignments'] ?? [],
         ], $actor ?? auth()->user());
 
@@ -83,5 +80,16 @@ class GenerateBulkInvoicesAction
             ],
             $actor,
         );
+    }
+
+    private function defaultDueDate(CarbonInterface|string $billingPeriodEnd): string
+    {
+        $resolvedBillingPeriodEnd = $billingPeriodEnd instanceof CarbonInterface
+            ? $billingPeriodEnd->toDateString()
+            : (string) $billingPeriodEnd;
+
+        return CarbonImmutable::parse($resolvedBillingPeriodEnd)
+            ->addDays(14)
+            ->toDateString();
     }
 }

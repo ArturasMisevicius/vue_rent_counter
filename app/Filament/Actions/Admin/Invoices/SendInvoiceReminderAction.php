@@ -1,52 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Actions\Admin\Invoices;
 
+use App\Filament\Support\Admin\SubscriptionLimitGuard;
+use App\Jobs\SendInvoiceReminderJob;
 use App\Models\Invoice;
-use App\Models\InvoiceReminderLog;
 use App\Models\User;
-use App\Notifications\InvoiceOverdueReminderNotification;
 use App\Services\NotificationPreferenceService;
-use Illuminate\Support\Facades\Notification;
 
 class SendInvoiceReminderAction
 {
     public function __construct(
         private readonly NotificationPreferenceService $notificationPreferenceService,
+        private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
     ) {}
 
-    public function handle(Invoice $invoice, User $actor): ?InvoiceReminderLog
+    public function handle(Invoice $invoice, User $actor): bool
     {
+        $this->subscriptionLimitGuard->ensureCanWrite($invoice->organization_id);
+
         if (! $this->notificationPreferenceService->enabledForUser($actor, NotificationPreferenceService::INVOICE_OVERDUE)) {
-            return null;
+            return false;
         }
 
         $invoice->loadMissing('tenant:id,email');
         $recipientEmail = (string) ($invoice->tenant?->email ?? '');
 
         if ($recipientEmail === '') {
-            return null;
+            return false;
         }
 
-        $sentAt = now();
+        SendInvoiceReminderJob::dispatch($invoice->id, $actor->id, $recipientEmail);
 
-        Notification::route('mail', $recipientEmail)
-            ->notify(new InvoiceOverdueReminderNotification($invoice));
-
-        $log = InvoiceReminderLog::query()->create([
-            'invoice_id' => $invoice->id,
-            'organization_id' => $invoice->organization_id,
-            'sent_by_user_id' => $actor->id,
-            'recipient_email' => $recipientEmail,
-            'channel' => 'email',
-            'sent_at' => $sentAt,
-            'notes' => __('admin.invoices.messages.reminder_sent'),
-        ]);
-
-        $invoice->forceFill([
-            'last_reminder_sent_at' => $sentAt,
-        ])->save();
-
-        return $log;
+        return true;
     }
 }

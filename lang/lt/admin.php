@@ -425,6 +425,7 @@ return [
             'finalized_locked' => 'Patvirtintose sąskaitose galima atnaujinti tik mokėjimo informaciją ir būseną, bet ne komercinį turinį.',
             'payment_recorded' => 'Mokėjimas sėkmingai užregistruotas.',
             'email_sent' => 'Sąskaitos laiškas sėkmingai užregistruotas.',
+            'email_queued' => 'Sąskaitos laiškas sėkmingai įtrauktas į eilę.',
             'email_subject' => 'Sąskaita :number',
             'reminder_sent' => 'Priminimo laiškas sėkmingai išsiųstas.',
             'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
@@ -760,7 +761,9 @@ return [
             'load_before_export' => 'Prieš eksportuodami įkelkite ataskaitą.',
             'organization_context_required' => 'Prieš peržiūrėdami ataskaitas pasirinkite organizacijos kontekstą.',
             'reminder_sent' => 'Priminimo laiškas sėkmingai išsiųstas.',
+            'reminder_queued' => 'Priminimo laiškas sėkmingai įtrauktas į eilę.',
             'reminder_skipped' => 'Priminimo laiškas buvo praleistas, nes pristatymas išjungtas arba nepasiekiamas.',
+            'export_queued' => 'Ataskaitos eksportas sėkmingai įtrauktas į eilę.',
         ],
         'empty' => [
             'consumption' => 'Pasirinkti filtrai neatitiko nė vieno rodmens.',

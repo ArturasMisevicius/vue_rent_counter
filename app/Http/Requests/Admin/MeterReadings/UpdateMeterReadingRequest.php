@@ -26,7 +26,7 @@ class UpdateMeterReadingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reading_value' => ['required', 'numeric', 'min:0'],
+            'reading_value' => ['required', 'numeric', 'gt:0'],
             'reading_date' => ['required', 'date'],
             'submission_method' => ['required', Rule::enum(MeterReadingSubmissionMethod::class)],
             'notes' => ['nullable', 'string'],
@@ -41,7 +41,7 @@ class UpdateMeterReadingRequest extends FormRequest
         return $this->translatedMessages([
             'reading_value.required' => ['required', 'reading_value'],
             'reading_value.numeric' => ['numeric', 'reading_value'],
-            'reading_value.min' => ['min.numeric', 'reading_value', ['min' => 0]],
+            'reading_value.gt' => ['gt.numeric', 'reading_value', ['value' => 0]],
             'reading_date.required' => ['required', 'reading_date'],
             'reading_date.date' => ['date', 'reading_date'],
             'submission_method.required' => ['required', 'submission_method'],

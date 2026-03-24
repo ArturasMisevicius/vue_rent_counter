@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +36,7 @@ class Invoice extends Model
         'last_reminder_sent_at',
         'payment_reference',
         'items',
+        'snapshot_data',
         'notes',
         'document_path',
         'created_at',
@@ -53,9 +55,12 @@ class Invoice extends Model
         'currency',
         'total_amount',
         'amount_paid',
+        'paid_amount',
         'due_date',
         'paid_at',
         'last_reminder_sent_at',
+        'items',
+        'snapshot_data',
         'document_path',
     ];
 
@@ -153,9 +158,26 @@ class Invoice extends Model
 
     public function scopeOverdue(Builder $query): Builder
     {
+        $today = now()->toDateString();
+
         return $query
-            ->where('status', InvoiceStatus::OVERDUE)
-            ->orderBy('due_date');
+            ->whereIn('status', InvoiceStatus::outstandingValues())
+            ->where(function (Builder $overdueQuery) use ($today): void {
+                $overdueQuery
+                    ->where(function (Builder $dueDateQuery) use ($today): void {
+                        $dueDateQuery
+                            ->whereNotNull('due_date')
+                            ->whereDate('due_date', '<', $today);
+                    })
+                    ->orWhere(function (Builder $fallbackQuery) use ($today): void {
+                        $fallbackQuery
+                            ->whereNull('due_date')
+                            ->whereDate('billing_period_end', '<', $today);
+                    });
+            })
+            ->orderBy('due_date')
+            ->orderBy('billing_period_end')
+            ->orderBy('id');
     }
 
     public function scopePaidBetween(
@@ -310,6 +332,93 @@ class Invoice extends Model
     public function getOutstandingBalanceAttribute(): float
     {
         return max(0, (float) $this->total_amount - $this->normalized_paid_amount);
+    }
+
+    public function overdueReferenceDate(): ?CarbonInterface
+    {
+        if ($this->due_date instanceof CarbonInterface) {
+            return $this->due_date->copy()->startOfDay();
+        }
+
+        if ($this->billing_period_end instanceof CarbonInterface) {
+            return $this->billing_period_end->copy()->startOfDay();
+        }
+
+        if (filled($this->due_date)) {
+            return Carbon::parse((string) $this->due_date)->startOfDay();
+        }
+
+        if (filled($this->billing_period_end)) {
+            return Carbon::parse((string) $this->billing_period_end)->startOfDay();
+        }
+
+        return null;
+    }
+
+    public function isOverdue(CarbonInterface|string|null $asOf = null): bool
+    {
+        $status = $this->status instanceof InvoiceStatus
+            ? $this->status
+            : InvoiceStatus::tryFrom((string) $this->status);
+
+        if ($status === null || ! in_array($status->value, InvoiceStatus::outstandingValues(), true)) {
+            return false;
+        }
+
+        if ($this->outstanding_balance <= 0) {
+            return false;
+        }
+
+        $referenceDate = $this->overdueReferenceDate();
+
+        if ($referenceDate === null) {
+            return false;
+        }
+
+        $comparisonDate = $asOf instanceof CarbonInterface
+            ? $asOf->copy()->startOfDay()
+            : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay();
+
+        return $referenceDate->lt($comparisonDate);
+    }
+
+    public function overdueDays(CarbonInterface|string|null $asOf = null): int
+    {
+        if (! $this->isOverdue($asOf)) {
+            return 0;
+        }
+
+        $referenceDate = $this->overdueReferenceDate();
+
+        if ($referenceDate === null) {
+            return 0;
+        }
+
+        $comparisonDate = $asOf instanceof CarbonInterface
+            ? $asOf->copy()->startOfDay()
+            : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay();
+
+        return (int) $referenceDate->diffInDays($comparisonDate);
+    }
+
+    public function effectiveStatus(CarbonInterface|string|null $asOf = null): InvoiceStatus
+    {
+        $status = $this->status instanceof InvoiceStatus
+            ? $this->status
+            : InvoiceStatus::tryFrom((string) $this->status)
+            ?? InvoiceStatus::DRAFT;
+
+        if ($this->isOverdue($asOf)) {
+            return InvoiceStatus::OVERDUE;
+        }
+
+        if ($status === InvoiceStatus::OVERDUE) {
+            return $this->normalized_paid_amount > 0
+                ? InvoiceStatus::PARTIALLY_PAID
+                : InvoiceStatus::FINALIZED;
+        }
+
+        return $status;
     }
 
     /**

@@ -11,12 +11,19 @@ use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
+use App\Models\Project;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\Provider;
 use App\Models\ServiceConfiguration;
+use App\Models\Tag;
+use App\Models\Task;
+use App\Models\TaskAssignment;
 use App\Models\User;
 use App\Models\UtilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 
 use function Pest\Laravel\actingAs;
 
@@ -124,4 +131,16 @@ it('allows invoice viewing for tenant role while restricting mutations by role',
         ->and(InvoiceResource::canView($invoice))->toBeTrue()
         ->and(InvoiceResource::canEdit($invoice))->toBeFalse()
         ->and(InvoiceResource::canDelete($invoice))->toBeFalse();
+});
+
+it('registers policies for all filament resource models', function () {
+    expect(Gate::getPolicyFor(Provider::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(UtilityService::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(ServiceConfiguration::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(Tag::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(Project::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(Task::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(OrganizationUser::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(PropertyAssignment::class))->not->toBeNull()
+        ->and(Gate::getPolicyFor(TaskAssignment::class))->not->toBeNull();
 });

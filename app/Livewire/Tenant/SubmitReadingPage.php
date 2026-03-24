@@ -3,7 +3,6 @@
 namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
-use App\Http\Requests\Tenant\StoreMeterReadingRequest;
 use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Meter;
@@ -48,24 +47,13 @@ class SubmitReadingPage extends Component
 
     public function submit(SubmitTenantReadingAction $submitTenantReadingAction): void
     {
-        /** @var StoreMeterReadingRequest $request */
-        $request = new StoreMeterReadingRequest;
-        $validated = $request
-            ->forAvailableMeters($this->availableMeterIds)
-            ->validatePayload([
-                'meterId' => $this->meterId,
-                'readingValue' => $this->readingValue,
-                'readingDate' => $this->readingDate,
-                'notes' => $this->notes,
-            ], $this->tenant);
-
         try {
             $reading = $submitTenantReadingAction->handle(
                 tenant: $this->tenant,
-                meterId: (int) $validated['meterId'],
-                readingValue: $validated['readingValue'],
-                readingDate: $validated['readingDate'],
-                notes: filled($validated['notes']) ? $validated['notes'] : null,
+                meterId: $this->meterId,
+                readingValue: $this->readingValue,
+                readingDate: $this->readingDate,
+                notes: $this->notes,
             );
         } catch (AuthorizationException) {
             $this->addError('meterId', __('tenant.pages.readings.unauthorized_meter'));
@@ -81,7 +69,6 @@ class SubmitReadingPage extends Component
 
         unset(
             $this->availableMeters,
-            $this->availableMeterIds,
             $this->selectedMeter,
             $this->consumption,
             $this->meterSelectionLocked,
@@ -107,7 +94,6 @@ class SubmitReadingPage extends Component
 
         unset(
             $this->availableMeters,
-            $this->availableMeterIds,
             $this->selectedMeter,
             $this->consumption,
             $this->meterSelectionLocked,
@@ -186,18 +172,6 @@ class SubmitReadingPage extends Component
             ->withLatestReadingSummary()
             ->ordered()
             ->get();
-    }
-
-    /**
-     * @return list<string>
-     */
-    #[Computed]
-    public function availableMeterIds(): array
-    {
-        return $this->availableMeters
-            ->pluck('id')
-            ->map(fn (int $id): string => (string) $id)
-            ->all();
     }
 
     #[Computed]

@@ -28,17 +28,17 @@ it('lets superadmin access organization-scoped workspace resources across organi
     Tariff::factory()->for($providerA)->create(['name' => 'Tariff A']);
     Tariff::factory()->for($providerB)->create(['name' => 'Tariff B']);
 
-    $buildingA = Building::factory()->for($organizationA)->create();
-    $buildingB = Building::factory()->for($organizationB)->create();
+    $buildingA = Building::factory()->for($organizationA)->create(['name' => 'Building A']);
+    $buildingB = Building::factory()->for($organizationB)->create(['name' => 'Building B']);
 
-    $propertyA = Property::factory()->for($organizationA)->for($buildingA)->create();
-    $propertyB = Property::factory()->for($organizationB)->for($buildingB)->create();
+    $propertyA = Property::factory()->for($organizationA)->for($buildingA)->create(['name' => 'Property A']);
+    $propertyB = Property::factory()->for($organizationB)->for($buildingB)->create(['name' => 'Property B']);
 
-    $utilityServiceA = UtilityService::factory()->create(['organization_id' => $organizationA->id]);
-    $utilityServiceB = UtilityService::factory()->create(['organization_id' => $organizationB->id]);
+    $utilityServiceA = UtilityService::factory()->create(['organization_id' => $organizationA->id, 'name' => 'Utility A']);
+    $utilityServiceB = UtilityService::factory()->create(['organization_id' => $organizationB->id, 'name' => 'Utility B']);
 
-    $meterA = Meter::factory()->for($organizationA)->for($propertyA)->create();
-    $meterB = Meter::factory()->for($organizationB)->for($propertyB)->create();
+    $meterA = Meter::factory()->for($organizationA)->for($propertyA)->create(['name' => 'Meter A']);
+    $meterB = Meter::factory()->for($organizationB)->for($propertyB)->create(['name' => 'Meter B']);
 
     MeterReading::factory()->for($meterA)->for($propertyA)->for($organizationA)->create();
     MeterReading::factory()->for($meterB)->for($propertyB)->for($organizationB)->create();
@@ -83,6 +83,28 @@ it('lets superadmin access organization-scoped workspace resources across organi
     get(route('filament.admin.resources.meter-readings.index'))->assertSuccessful();
     get(route('filament.admin.resources.service-configurations.index'))->assertSuccessful();
     get(route('filament.admin.resources.utility-services.index'))->assertSuccessful();
-    get(route('filament.admin.resources.providers.create'))->assertSuccessful();
-    get(route('filament.admin.resources.tariffs.create'))->assertSuccessful();
+    get(route('filament.admin.resources.providers.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.singular'));
+
+    get(route('filament.admin.resources.tariffs.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('admin.tariffs.fields.provider'));
+
+    get(route('filament.admin.resources.meters.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('admin.meters.fields.property'));
+
+    get(route('filament.admin.resources.meter-readings.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('admin.meter_readings.fields.meter'));
+
+    get(route('filament.admin.resources.service-configurations.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.singular'))
+        ->assertSeeText(__('admin.service_configurations.fields.utility_service'));
+
+    get(route('filament.admin.resources.utility-services.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.singular'));
 });

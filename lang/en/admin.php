@@ -426,6 +426,7 @@ return [
             'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
             'payment_recorded' => 'Payment recorded successfully.',
             'email_sent' => 'Invoice email logged successfully.',
+            'email_queued' => 'Invoice email queued successfully.',
             'email_subject' => 'Invoice :number',
             'reminder_sent' => 'Reminder email sent successfully.',
         ],
@@ -760,7 +761,9 @@ return [
             'load_before_export' => 'Load a report before exporting it.',
             'organization_context_required' => 'Select an organization context before viewing reports.',
             'reminder_sent' => 'Reminder email sent successfully.',
+            'reminder_queued' => 'Reminder email queued successfully.',
             'reminder_skipped' => 'Reminder email was skipped because delivery is disabled or unavailable.',
+            'export_queued' => 'Report export queued successfully.',
         ],
         'empty' => [
             'consumption' => 'No readings matched the selected filters.',

@@ -34,7 +34,7 @@ Route::post('/security/csp-report', [CspViolationReportEndpoint::class, 'store']
     ->withoutMiddleware([PreventRequestForgery::class])
     ->name('security.csp.report');
 
-Route::get('/dashboard', [DashboardRedirectEndpoint::class, 'redirect'])
+Route::get('/dashboard', [DashboardRedirectEndpoint::class, 'show'])
     ->middleware('auth')
     ->name('dashboard');
 

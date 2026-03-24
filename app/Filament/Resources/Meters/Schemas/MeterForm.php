@@ -5,12 +5,14 @@ namespace App\Filament\Resources\Meters\Schemas;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class MeterForm
 {
@@ -25,9 +27,18 @@ class MeterForm
                             ->relationship(
                                 name: 'property',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number'])
-                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'building_id', 'name', 'unit_number']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where('organization_id', $organizationId);
+                                },
                             )
                             ->searchable()
                             ->preload()
