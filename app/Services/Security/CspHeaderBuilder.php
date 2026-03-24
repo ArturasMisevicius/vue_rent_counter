@@ -96,7 +96,7 @@ final class CspHeaderBuilder
 
     private function shouldUpgradeInsecureRequests(Request $request): bool
     {
-        return $request->isSecure() || app()->isProduction();
+        return $request->isSecure() || app()->environment('production');
     }
 
     private function viteOrigin(): ?string

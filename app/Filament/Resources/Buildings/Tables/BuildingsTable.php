@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\FiltersResetActionPosition;
@@ -55,9 +56,15 @@ class BuildingsTable
                     ->wrap(),
                 TextColumn::make('properties_count')
                     ->label(__('admin.buildings.columns.properties'))
+                    ->summarize([
+                        Sum::make('totalProperties')->label(__('admin.filters.total')),
+                    ])
                     ->sortable(),
                 TextColumn::make('meters_count')
                     ->label(__('admin.buildings.columns.meters'))
+                    ->summarize([
+                        Sum::make('totalMeters')->label(__('admin.filters.total')),
+                    ])
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.buildings.columns.date_created'))

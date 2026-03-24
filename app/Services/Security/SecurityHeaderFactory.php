@@ -28,7 +28,7 @@ final class SecurityHeaderFactory
             'Cross-Origin-Opener-Policy' => 'same-origin',
             'Permissions-Policy' => 'camera=(), geolocation=(), microphone=()',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            'Strict-Transport-Security' => $request->isSecure() || app()->isProduction()
+            'Strict-Transport-Security' => $request->isSecure() || app()->environment('production')
                 ? 'max-age=31536000; includeSubDomains'
                 : null,
             'X-Content-Type-Options' => 'nosniff',
