@@ -24,7 +24,7 @@ class BuildingsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Buildings';
+        return __('superadmin.organizations.relations.buildings.title');
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -40,25 +40,25 @@ class BuildingsRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->forSuperadminControlPlane())
             ->columns([
                 TextColumn::make('name')
-                    ->label('Building Name')
+                    ->label(__('superadmin.organizations.relations.buildings.columns.building_name'))
                     ->url(fn (Building $record): string => BuildingResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('address')
-                    ->label('Address')
+                    ->label(__('superadmin.organizations.relations.buildings.columns.address'))
                     ->state(fn (Building $record): string => collect([
                         $record->address_line_1,
                         $record->city,
                     ])->filter()->join(', '))
                     ->wrap(),
                 TextColumn::make('properties_count')
-                    ->label('Number of Properties')
+                    ->label(__('superadmin.organizations.relations.buildings.columns.properties_count'))
                     ->sortable(),
                 TextColumn::make('meters_count')
-                    ->label('Number of Meters')
+                    ->label(__('superadmin.organizations.relations.buildings.columns.meters_count'))
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Date Created')
+                    ->label(__('superadmin.organizations.relations.buildings.columns.date_created'))
                     ->date('d M Y')
                     ->sortable(),
             ])

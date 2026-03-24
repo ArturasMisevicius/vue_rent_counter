@@ -187,6 +187,26 @@ return [
             'toggle' => 'Toggle notifications',
             'mark_all_read' => 'Mark all as read',
         ],
+        'page' => [
+            'eyebrow' => 'Platform notifications',
+            'title' => 'Platform Notifications',
+            'description' => 'Review the latest notifications addressed to the superadmin control plane.',
+            'stats' => [
+                'unread' => 'Unread Notifications',
+                'unread_description' => 'Notifications still requiring review from the current superadmin account.',
+                'total' => 'Total Notifications',
+                'total_description' => 'Recent notification history addressed to this control-plane account.',
+            ],
+            'actions' => [
+                'open' => 'Open',
+                'mark_read' => 'Mark Read',
+                'viewed' => 'Viewed',
+            ],
+            'messages' => [
+                'opened' => 'Notification opened.',
+                'marked_all_read' => 'All notifications marked as read.',
+            ],
+        ],
         'status' => [
             'read' => 'Read',
             'unread' => 'Unread',

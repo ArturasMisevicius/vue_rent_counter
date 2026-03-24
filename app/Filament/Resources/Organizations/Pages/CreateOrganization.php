@@ -16,7 +16,7 @@ class CreateOrganization extends CreateRecord
 
     public function getTitle(): string
     {
-        return 'New Organization';
+        return __('superadmin.organizations.pages.new');
     }
 
     protected function handleRecordCreation(array $data): Model
@@ -34,6 +34,6 @@ class CreateOrganization extends CreateRecord
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
-            ->label('Save Organization');
+            ->label(__('superadmin.organizations.actions.save'));
     }
 }

@@ -29,7 +29,7 @@ class TranslationManagement extends Page
 
     public function getTitle(): string
     {
-        return 'Translation Management';
+        return __('superadmin.translation_management.title');
     }
 
     public function mount(): void
@@ -56,7 +56,7 @@ class TranslationManagement extends Page
     {
         return [
             Action::make('exportMissingTranslations')
-                ->label('Export Missing CSV')
+                ->label(__('superadmin.translation_management.actions.export_missing_csv'))
                 ->action(function (ExportMissingTranslationsAction $exportMissingTranslationsAction) {
                     $path = $exportMissingTranslationsAction->handle(app(TranslationCatalogService::class));
 
@@ -65,10 +65,10 @@ class TranslationManagement extends Page
                     ])->deleteFileAfterSend(true);
                 }),
             Action::make('importTranslations')
-                ->label('Import CSV')
+                ->label(__('superadmin.translation_management.actions.import_csv'))
                 ->schema([
                     FileUpload::make('csv')
-                        ->label('Translation CSV')
+                        ->label(__('superadmin.translation_management.fields.translation_csv'))
                         ->disk('local')
                         ->directory('imports/translations')
                         ->acceptedFileTypes(['text/csv', 'text/plain', 'application/vnd.ms-excel'])
@@ -82,7 +82,7 @@ class TranslationManagement extends Page
                     $this->synchronizeDraftValues(app(TranslationCatalogService::class)->rows(), reset: true);
 
                     Notification::make()
-                        ->title('Translations imported')
+                        ->title(__('superadmin.translation_management.messages.imported'))
                         ->success()
                         ->send();
                 }),

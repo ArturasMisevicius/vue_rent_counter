@@ -46,7 +46,9 @@ class EditOrganization extends EditRecord
 
     public function getTitle(): string
     {
-        return "Edit Organization: {$this->record->name}";
+        return __('superadmin.organizations.pages.edit', [
+            'name' => $this->record->name,
+        ]);
     }
 
     protected function getRedirectUrl(): string
@@ -59,6 +61,6 @@ class EditOrganization extends EditRecord
     protected function getSaveFormAction(): Action
     {
         return parent::getSaveFormAction()
-            ->label('Save Changes');
+            ->label(__('superadmin.organizations.actions.save_changes'));
     }
 }

@@ -43,22 +43,22 @@ class OrganizationInfolist
 
         return [
             'details' => [
-                ['label' => 'Organization Name', 'value' => $organization->name],
-                ['label' => 'URL Slug', 'value' => $organization->slug],
-                ['label' => 'Current Status', 'value' => $organization->status->label()],
-                ['label' => 'Owner Name', 'value' => $organization->owner?->name ?? 'No owner assigned'],
-                ['label' => 'Owner Email', 'value' => $organization->owner?->email ?? 'No owner assigned'],
-                ['label' => 'Date Created', 'value' => $organization->created_at?->format('d M Y') ?? 'Not available'],
-                ['label' => 'Last Updated', 'value' => $organization->updated_at?->format('d M Y') ?? 'Not available'],
+                ['label' => __('superadmin.organizations.overview.fields.organization_name'), 'value' => $organization->name],
+                ['label' => __('superadmin.organizations.overview.fields.url_slug'), 'value' => $organization->slug],
+                ['label' => __('superadmin.organizations.overview.fields.current_status'), 'value' => $organization->status->label()],
+                ['label' => __('superadmin.organizations.overview.fields.owner_name'), 'value' => $organization->owner?->name ?? __('superadmin.organizations.empty.owner')],
+                ['label' => __('superadmin.organizations.overview.fields.owner_email'), 'value' => $organization->owner?->email ?? __('superadmin.organizations.empty.owner')],
+                ['label' => __('superadmin.organizations.overview.fields.date_created'), 'value' => $organization->created_at?->format('d M Y') ?? __('superadmin.organizations.overview.placeholders.not_available')],
+                ['label' => __('superadmin.organizations.overview.fields.last_updated'), 'value' => $organization->updated_at?->format('d M Y') ?? __('superadmin.organizations.overview.placeholders.not_available')],
             ],
             'subscription' => [
-                ['label' => 'Current Plan', 'value' => $subscription?->plan?->label() ?? 'No plan'],
-                ['label' => 'Subscription Status', 'value' => $subscription?->status?->label() ?? 'No subscription'],
-                ['label' => 'Subscription Expiry Date', 'value' => $subscription?->expires_at?->format('d M Y') ?? 'Not available'],
+                ['label' => __('superadmin.organizations.overview.fields.current_plan'), 'value' => $subscription?->plan?->label() ?? __('superadmin.organizations.overview.placeholders.no_plan')],
+                ['label' => __('superadmin.organizations.overview.fields.subscription_status'), 'value' => $subscription?->status?->label() ?? __('superadmin.organizations.overview.placeholders.no_subscription')],
+                ['label' => __('superadmin.organizations.overview.fields.subscription_expiry_date'), 'value' => $subscription?->expires_at?->format('d M Y') ?? __('superadmin.organizations.overview.placeholders.not_available')],
             ],
             'usage' => [
-                self::usageRow('Properties', (int) $organization->properties_count, $propertyLimit),
-                self::usageRow('Tenants', (int) ($organization->tenants_count ?? 0), $tenantLimit),
+                self::usageRow(__('superadmin.organizations.overview.usage_labels.properties'), (int) $organization->properties_count, $propertyLimit),
+                self::usageRow(__('superadmin.organizations.overview.usage_labels.tenants'), (int) ($organization->tenants_count ?? 0), $tenantLimit),
             ],
         ];
     }

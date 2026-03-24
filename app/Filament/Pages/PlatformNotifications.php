@@ -19,7 +19,7 @@ class PlatformNotifications extends Page
 
     public function getTitle(): string
     {
-        return 'Platform Notifications';
+        return __('shell.notifications.page.title');
     }
 
     protected function getViewData(): array
@@ -48,7 +48,7 @@ class PlatformNotifications extends Page
             $notification->markAsRead();
         }
 
-        $this->statusMessage = 'Notification opened.';
+        $this->statusMessage = __('shell.notifications.page.messages.opened');
 
         $destination = app(DatabaseNotificationPresenter::class)->present($notification)['url'];
 
@@ -62,7 +62,7 @@ class PlatformNotifications extends Page
         abort_unless(static::canAccess(), 403);
 
         app(DatabaseNotificationFeed::class)->markAllAsRead(auth()->user());
-        $this->statusMessage = 'All notifications marked as read.';
+        $this->statusMessage = __('shell.notifications.page.messages.marked_all_read');
 
         Notification::make()
             ->title($this->statusMessage)

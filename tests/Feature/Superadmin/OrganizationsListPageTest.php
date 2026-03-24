@@ -50,7 +50,7 @@ it('renders the organizations index contract for superadmins', function () {
         ->get(route('filament.admin.resources.organizations.index'))
         ->assertSuccessful()
         ->assertSeeText('Organizations')
-        ->assertSeeText('New Organization');
+        ->assertSeeText(__('superadmin.organizations.actions.new'));
 
     $this->actingAs($superadmin);
 

@@ -24,21 +24,21 @@ it('renders the create organization page and auto-fills the slug with an expiry 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.create'))
         ->assertSuccessful()
-        ->assertSeeText('New Organization')
-        ->assertSeeText('Save Organization')
+        ->assertSeeText(__('superadmin.organizations.pages.new'))
+        ->assertSeeText(__('superadmin.organizations.actions.save'))
         ->assertSeeText('Cancel')
-        ->assertSeeText('Organization Details')
-        ->assertSeeText('Owner Account')
-        ->assertSeeText('Initial Subscription');
+        ->assertSeeText(__('superadmin.organizations.form.sections.details'))
+        ->assertSeeText(__('superadmin.organizations.form.sections.owner'))
+        ->assertSeeText(__('superadmin.organizations.form.sections.subscription'));
 
     $this->actingAs($superadmin);
 
     Livewire::test(CreateOrganization::class)
-        ->assertFormFieldExists('name', fn (TextInput $field): bool => $field->getLabel() === 'Organization Name')
-        ->assertFormFieldExists('slug', fn (TextInput $field): bool => $field->getLabel() === 'URL Slug')
-        ->assertFormFieldExists('owner_email', fn (TextInput $field): bool => $field->getLabel() === 'Owner Email Address')
-        ->assertFormFieldExists('plan', fn (Select $field): bool => $field->getLabel() === 'Plan')
-        ->assertFormFieldExists('duration', fn (ToggleButtons $field): bool => $field->getLabel() === 'Duration')
+        ->assertFormFieldExists('name', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.organization_name'))
+        ->assertFormFieldExists('slug', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.url_slug'))
+        ->assertFormFieldExists('owner_email', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.owner_email'))
+        ->assertFormFieldExists('plan', fn (Select $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.plan'))
+        ->assertFormFieldExists('duration', fn (ToggleButtons $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.duration'))
         ->fillForm([
             'name' => 'Aurora Estates',
         ])
@@ -57,7 +57,9 @@ it('renders the create organization page and auto-fills the slug with an expiry 
         ->fillForm([
             'duration' => SubscriptionDuration::YEARLY->value,
         ])
-        ->assertSeeText('Subscription will expire on '.now()->startOfDay()->addMonths(SubscriptionDuration::YEARLY->months())->format('F j, Y'));
+        ->assertSeeText(__('superadmin.organizations.form.preview.subscription_expires', [
+            'date' => now()->startOfDay()->addMonths(SubscriptionDuration::YEARLY->months())->format('F j, Y'),
+        ]));
 });
 
 it('links existing owners on create and redirects to the organization view page', function () {
@@ -74,7 +76,7 @@ it('links existing owners on create and redirects to the organization view page'
         ->fillForm([
             'owner_email' => $existingOwner->email,
         ])
-        ->assertSeeText('This email already belongs to an existing user. This user will be assigned as the organization owner.')
+        ->assertSeeText(__('superadmin.organizations.form.helper.owner_existing'))
         ->fillForm([
             'name' => 'Aurora Estates',
             'slug' => 'aurora-estates',
@@ -146,16 +148,16 @@ it('renders the edit page without a slug field and updates the plan and expiry d
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.edit', $organization))
         ->assertSuccessful()
-        ->assertSeeText("Edit Organization: {$organization->name}")
-        ->assertSeeText('Save Changes')
+        ->assertSeeText(__('superadmin.organizations.pages.edit', ['name' => $organization->name]))
+        ->assertSeeText(__('superadmin.organizations.actions.save_changes'))
         ->assertSeeText('Cancel')
-        ->assertDontSeeText('URL Slug');
+        ->assertDontSeeText(__('superadmin.organizations.form.fields.url_slug'));
 
     $this->actingAs($superadmin);
 
     $component = Livewire::test(EditOrganization::class, ['record' => $organization->getRouteKey()])
         ->assertFormFieldDoesNotExist('slug')
-        ->assertFormFieldExists('expires_at', fn (DatePicker $field): bool => $field->getLabel() === 'Expiry Date')
+        ->assertFormFieldExists('expires_at', fn (DatePicker $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.expiry_date'))
         ->assertSchemaStateSet([
             'name' => 'Northwind Towers',
             'owner_email' => 'owner@northwind.test',
@@ -165,7 +167,11 @@ it('renders the edit page without a slug field and updates the plan and expiry d
         ->fillForm([
             'plan' => SubscriptionPlan::PROFESSIONAL->value,
         ])
-        ->assertSeeText('Changing to Professional will allow up to 50 properties and 150 tenants.')
+        ->assertSeeText(__('superadmin.organizations.form.preview.plan_limits', [
+            'plan' => SubscriptionPlan::PROFESSIONAL->label(),
+            'properties' => 50,
+            'tenants' => 150,
+        ]))
         ->fillForm([
             'name' => 'Northwind Towers Updated',
             'owner_email' => 'owner@northwind.test',

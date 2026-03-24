@@ -29,7 +29,7 @@ class UsersRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Users';
+        return __('superadmin.organizations.relations.users.title');
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -45,32 +45,34 @@ class UsersRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withOrganizationSummary()->orderedByName())
             ->columns([
                 TextColumn::make('name')
-                    ->label('Full Name')
+                    ->label(__('superadmin.organizations.relations.users.columns.name'))
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('superadmin.organizations.relations.users.columns.email'))
                     ->searchable(),
                 TextColumn::make('role')
-                    ->label('Role')
+                    ->label(__('superadmin.organizations.relations.users.columns.role'))
                     ->badge()
                     ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('last_login_at')
-                    ->label('Last Login')
+                    ->label(__('superadmin.organizations.relations.users.columns.last_login'))
                     ->since()
-                    ->placeholder('Never'),
+                    ->placeholder(__('superadmin.organizations.relations.users.placeholders.never')),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.organizations.relations.users.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn (UserStatus $state): string => $state->label()),
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->label('View')
+                    ->label(__('superadmin.organizations.relations.users.actions.view'))
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record])),
                 Action::make('toggleUserStatus')
-                    ->label(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'Reinstate' : 'Suspend')
+                    ->label(fn (User $record): string => $record->status === UserStatus::SUSPENDED
+                        ? __('superadmin.organizations.relations.users.actions.reinstate')
+                        : __('superadmin.organizations.relations.users.actions.suspend'))
                     ->color(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'success' : 'danger')
                     ->requiresConfirmation()
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
@@ -80,12 +82,14 @@ class UsersRelationManager extends RelationManager
                         ]);
 
                         Notification::make()
-                            ->title($record->status === UserStatus::SUSPENDED ? 'User suspended' : 'User reinstated')
+                            ->title($record->status === UserStatus::SUSPENDED
+                                ? __('superadmin.organizations.relations.users.notifications.suspended')
+                                : __('superadmin.organizations.relations.users.notifications.reinstated'))
                             ->success()
                             ->send();
                     }),
                 Action::make('resetPassword')
-                    ->label('Reset Password')
+                    ->label(__('superadmin.organizations.relations.users.actions.reset_password'))
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record): void {
@@ -94,7 +98,7 @@ class UsersRelationManager extends RelationManager
                         ]);
 
                         Notification::make()
-                            ->title('Password reset email sent')
+                            ->title(__('superadmin.organizations.relations.users.notifications.password_reset'))
                             ->success()
                             ->send();
                     }),

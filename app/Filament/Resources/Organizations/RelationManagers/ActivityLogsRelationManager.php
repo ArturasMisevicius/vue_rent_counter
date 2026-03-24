@@ -24,7 +24,7 @@ class ActivityLogsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Activity Log';
+        return __('superadmin.organizations.relations.activity_logs.title');
     }
 
     public function getRelationship(): Relation
@@ -42,31 +42,31 @@ class ActivityLogsRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Who Did It')
-                    ->default('System')
+                    ->label(__('superadmin.organizations.relations.activity_logs.columns.actor'))
+                    ->default(__('superadmin.organizations.relations.activity_logs.placeholders.system'))
                     ->searchable(),
                 TextColumn::make('action')
-                    ->label('What They Did')
+                    ->label(__('superadmin.organizations.relations.activity_logs.columns.action'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => str($state)->replace('_', ' ')->title()->toString()),
                 TextColumn::make('resource_label')
-                    ->label('Which Record')
+                    ->label(__('superadmin.organizations.relations.activity_logs.columns.record'))
                     ->state(fn (OrganizationActivityLog $record): string => self::resourceLabel($record))
                     ->wrap(),
                 TextColumn::make('ip_address')
-                    ->label('IP Address')
-                    ->default('Unknown'),
+                    ->label(__('superadmin.organizations.relations.activity_logs.columns.ip_address'))
+                    ->default(__('superadmin.organizations.relations.activity_logs.placeholders.unknown')),
                 TextColumn::make('created_at')
-                    ->label('When')
+                    ->label(__('superadmin.organizations.relations.activity_logs.columns.when'))
                     ->since()
                     ->sortable(),
             ])
             ->recordActions([
                 Action::make('viewChanges')
-                    ->label('View Changes')
-                    ->modalHeading('Change Details')
+                    ->label(__('superadmin.organizations.relations.activity_logs.actions.view_changes'))
+                    ->modalHeading(__('superadmin.organizations.relations.activity_logs.modals.changes_heading'))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
+                    ->modalCancelActionLabel(__('superadmin.organizations.relations.activity_logs.actions.close'))
                     ->modalContent(fn (OrganizationActivityLog $record): View => view(
                         'filament.resources.organizations.activity-log-diff',
                         ['activityLog' => $record],
@@ -78,7 +78,9 @@ class ActivityLogsRelationManager extends RelationManager
 
     private static function resourceLabel(OrganizationActivityLog $record): string
     {
-        $resource = $record->resource_type !== null ? class_basename($record->resource_type) : 'Organization';
+        $resource = $record->resource_type !== null
+            ? class_basename($record->resource_type)
+            : __('superadmin.organizations.relations.activity_logs.placeholders.organization');
 
         if ($record->resource_id === null) {
             return $resource;

@@ -14,7 +14,7 @@ class ListOrganizations extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('New Organization'),
+                ->label(__('superadmin.organizations.actions.new')),
         ];
     }
 }

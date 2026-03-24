@@ -30,8 +30,8 @@ it('shows grouped system configuration only to superadmins', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.system-configuration'))
         ->assertSuccessful()
-        ->assertSeeText('System Configuration')
-        ->assertSeeText('Billing')
+        ->assertSeeText(__('superadmin.system_configuration.title'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.billing'))
         ->assertSeeText('platform.billing.currency');
 
     $this->actingAs($admin)
@@ -94,34 +94,34 @@ it('renders only the seeded system configuration categories with descriptions an
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.system-configuration'))
         ->assertSuccessful()
-        ->assertSeeText('System Configuration')
-        ->assertSeeText('Billing')
-        ->assertSeeText('Notifications')
-        ->assertSeeText('Security')
-        ->assertSeeText('Subscription Limits')
-        ->assertSeeText('Email')
-        ->assertSeeText('Localization')
+        ->assertSeeText(__('superadmin.system_configuration.title'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.billing'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.notifications'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.security'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.subscription_limits'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.email'))
+        ->assertSeeText(__('superadmin.system_configuration.categories.localization'))
         ->assertDontSeeText('General')
         ->assertDontSeeText('platform.name')
         ->assertSeeText('platform.billing.currency')
-        ->assertSeeText('Default billing currency for platform invoices.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.billing_currency.description'))
         ->assertSeeText('EUR')
         ->assertSeeText('platform.notifications.email.enabled')
-        ->assertSeeText('Enables email delivery for platform notifications.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.email_notifications_enabled.description'))
         ->assertSeeText('true')
         ->assertSeeText('platform.security.require_mfa')
-        ->assertSeeText('Requires multi-factor authentication for superadmin accounts.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.require_mfa.description'))
         ->assertSeeText('false')
         ->assertSeeText('platform.subscription.default_property_limit')
-        ->assertSeeText('Sets the default property cap applied to subscription limits.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.default_property_limit.description'))
         ->assertSeeText('25')
         ->assertSeeText('platform.email.from_address')
-        ->assertSeeText('Defines the sender address used for platform emails.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.default_from_address.description'))
         ->assertSeeText('platform@example.test')
         ->assertSeeText('platform.localization.supported_locales')
-        ->assertSeeText('Lists the locales available across the platform.')
+        ->assertSeeText(__('superadmin.system_configuration.definitions.supported_locales.description'))
         ->assertSeeText('en, lt')
-        ->assertSeeText('Edit');
+        ->assertSeeText(__('superadmin.system_configuration.actions.edit'));
 });
 
 it('supports inline edit save and cancel flows for system settings', function () {
@@ -149,7 +149,7 @@ it('supports inline edit save and cancel flows for system settings', function ()
         ->set("draftValues.{$billingSetting->id}", 'USD')
         ->call('saveSetting', $billingSetting->id)
         ->assertSet("editing.{$billingSetting->id}", false)
-        ->assertSet('savedMessage', 'Configuration updated.');
+        ->assertSet('savedMessage', __('superadmin.system_configuration.messages.saved'));
 
     expect($billingSetting->fresh()->value)->toBe(['value' => 'USD']);
 

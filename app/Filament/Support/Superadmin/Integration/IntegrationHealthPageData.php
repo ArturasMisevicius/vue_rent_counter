@@ -69,8 +69,8 @@ class IntegrationHealthPageData
                 'status_label' => $check->status?->label() ?? (string) $check->status,
                 'status_badge_class' => $this->statusBadgeClass($check),
                 'summary' => (string) $check->summary,
-                'response_time_label' => ($check->response_time_ms ?? 0).' ms',
-                'checked_at_label' => $check->checked_at?->diffForHumans() ?? 'Never',
+                'response_time_label' => __('superadmin.integration_health.response_time', ['value' => $check->response_time_ms ?? 0]),
+                'checked_at_label' => $check->checked_at?->diffForHumans() ?? __('superadmin.integration_health.placeholders.never'),
                 'can_reset_circuit_breaker' => $check->hasTrippedCircuitBreaker(),
             ]);
     }
@@ -100,10 +100,10 @@ class IntegrationHealthPageData
                 'type_label' => $violation->type?->label() ?? (string) $violation->type,
                 'severity_label' => $violation->severity?->label() ?? (string) $violation->severity,
                 'severity_badge_class' => $this->severityBadgeClass($violation),
-                'organization_name' => $violation->organization?->name ?? 'Platform',
+                'organization_name' => $violation->organization?->name ?? __('superadmin.integration_health.placeholders.platform'),
                 'source_label' => SecurityViolationTablePresenter::sourceLabel($violation),
-                'ip_address_label' => $violation->ip_address ?? 'No IP captured',
-                'occurred_at_label' => $violation->occurred_at?->diffForHumans() ?? 'Unknown',
+                'ip_address_label' => $violation->ip_address ?? __('superadmin.integration_health.placeholders.no_ip'),
+                'occurred_at_label' => $violation->occurred_at?->diffForHumans() ?? __('superadmin.integration_health.placeholders.unknown'),
             ]);
     }
 

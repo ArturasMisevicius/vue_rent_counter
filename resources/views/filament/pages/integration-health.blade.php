@@ -1,8 +1,8 @@
 <x-filament-panels::page>
     <div class="space-y-6" wire:poll.30s>
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-2xl font-semibold text-slate-950">Integration Health</h2>
-            <p class="mt-2 text-sm text-slate-600">Platform probes refresh automatically every 30 seconds.</p>
+            <h2 class="text-2xl font-semibold text-slate-950">{{ __('superadmin.integration_health.title') }}</h2>
+            <p class="mt-2 text-sm text-slate-600">{{ __('superadmin.integration_health.description') }}</p>
         </section>
 
         <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -10,11 +10,11 @@
                 <table class="min-w-full divide-y divide-slate-200 text-sm">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Integration</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Status</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Summary</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Checked</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Actions</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.checks.columns.integration') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.checks.columns.status') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.checks.columns.summary') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.checks.columns.checked') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.checks.columns.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -43,7 +43,7 @@
                                             wire:click="checkNow({{ $check['id'] }})"
                                             class="inline-flex items-center rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                                         >
-                                            Check Now
+                                            {{ __('superadmin.integration_health.checks.actions.check_now') }}
                                         </button>
 
                                         @if ($check['can_reset_circuit_breaker'])
@@ -52,7 +52,7 @@
                                                 wire:click="resetCircuitBreaker({{ $check['id'] }})"
                                                 class="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:border-amber-400 hover:bg-amber-100"
                                             >
-                                                Reset Circuit Breaker
+                                                {{ __('superadmin.integration_health.checks.actions.reset_circuit_breaker') }}
                                             </button>
                                         @endif
                                     </div>
@@ -60,7 +60,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-sm text-slate-500">No checks available.</td>
+                                <td colspan="5" class="px-4 py-6 text-sm text-slate-500">{{ __('superadmin.integration_health.checks.empty') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -70,19 +70,19 @@
 
         <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div class="border-b border-slate-200 px-6 py-5">
-                <h2 class="text-xl font-semibold text-slate-950">Recent Security Violations</h2>
-                <p class="mt-2 text-sm text-slate-600">Recent platform security events recorded by the application.</p>
+                <h2 class="text-xl font-semibold text-slate-950">{{ __('superadmin.integration_health.violations.heading') }}</h2>
+                <p class="mt-2 text-sm text-slate-600">{{ __('superadmin.integration_health.violations.description') }}</p>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200 text-sm">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Summary</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Severity</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Organization</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Source</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Occurred</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.violations.columns.summary') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.violations.columns.severity') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.violations.columns.organization') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.violations.columns.source') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.integration_health.violations.columns.occurred') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -110,7 +110,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-sm text-slate-500">No security violations recorded.</td>
+                                <td colspan="5" class="px-4 py-6 text-sm text-slate-500">{{ __('superadmin.integration_health.violations.empty') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

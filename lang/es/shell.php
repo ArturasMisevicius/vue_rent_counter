@@ -79,6 +79,26 @@ return [
             'toggle' => 'Toggle notifications',
             'mark_all_read' => 'Mark all as read',
         ],
+        'page' => [
+            'eyebrow' => 'Notificaciones de plataforma',
+            'title' => 'Notificaciones de Plataforma',
+            'description' => 'Revise las notificaciones más recientes dirigidas al panel de control del superadministrador.',
+            'stats' => [
+                'unread' => 'Notificaciones sin leer',
+                'unread_description' => 'Notificaciones que la cuenta actual de superadministrador todavía debe revisar.',
+                'total' => 'Total de notificaciones',
+                'total_description' => 'Historial reciente de notificaciones dirigido a esta cuenta de control.',
+            ],
+            'actions' => [
+                'open' => 'Abrir',
+                'mark_read' => 'Marcar como leída',
+                'viewed' => 'Vista',
+            ],
+            'messages' => [
+                'opened' => 'Notificación abierta.',
+                'marked_all_read' => 'Todas las notificaciones fueron marcadas como leídas.',
+            ],
+        ],
         'status' => [
             'read' => 'Read',
             'unread' => 'Unread',

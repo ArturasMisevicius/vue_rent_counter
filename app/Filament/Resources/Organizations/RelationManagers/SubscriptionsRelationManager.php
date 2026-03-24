@@ -25,7 +25,7 @@ class SubscriptionsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Subscriptions';
+        return __('superadmin.organizations.relations.subscriptions.title');
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -46,38 +46,38 @@ class SubscriptionsRelationManager extends RelationManager
                 ->latestFirst())
             ->columns([
                 TextColumn::make('plan')
-                    ->label('Plan')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.plan'))
                     ->badge()
                     ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('starts_at')
-                    ->label('Start Date')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.start_date'))
                     ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('expires_at')
-                    ->label('Expiry Date')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.expiry_date'))
                     ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('property_limit_snapshot')
-                    ->label('Property Limit')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.property_limit'))
                     ->sortable(),
                 TextColumn::make('tenant_limit_snapshot')
-                    ->label('Tenant Limit')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.tenant_limit'))
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Date Created')
+                    ->label(__('superadmin.organizations.relations.subscriptions.columns.date_created'))
                     ->date('d M Y')
                     ->sortable(),
             ])
             ->recordActions([
                 Action::make('viewHistory')
-                    ->label('View History')
-                    ->modalHeading('Payment and Renewal History')
+                    ->label(__('superadmin.organizations.relations.subscriptions.actions.view_history'))
+                    ->modalHeading(__('superadmin.organizations.relations.subscriptions.modals.history_heading'))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
+                    ->modalCancelActionLabel(__('superadmin.organizations.relations.subscriptions.actions.close'))
                     ->modalContent(fn (Subscription $record): View => view(
                         'filament.resources.organizations.subscription-history',
                         ['subscription' => $record],

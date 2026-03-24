@@ -30,12 +30,12 @@ class SecurityViolationResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Security Violation';
+        return __('superadmin.security_violations.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Security Violations';
+        return __('superadmin.security_violations.plural');
     }
 
     /**

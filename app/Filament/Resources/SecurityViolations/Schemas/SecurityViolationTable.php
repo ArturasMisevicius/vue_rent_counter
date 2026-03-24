@@ -24,52 +24,52 @@ class SecurityViolationTable
         return $table
             ->columns([
                 TextColumn::make('type')
-                    ->label('Violation Type')
+                    ->label(__('superadmin.security_violations.columns.type'))
                     ->state(fn (SecurityViolation $record): string => $record->type->label()),
                 TextColumn::make('severity')
-                    ->label('Severity')
+                    ->label(__('superadmin.security_violations.columns.severity'))
                     ->badge()
                     ->color(fn (SecurityViolation $record): string => SecurityViolationTablePresenter::severityColor($record))
                     ->state(fn (SecurityViolation $record): string => $record->severity->label()),
                 TextColumn::make('ip_address')
-                    ->label('IP Address')
-                    ->placeholder('—'),
+                    ->label(__('superadmin.security_violations.columns.ip_address'))
+                    ->placeholder(__('superadmin.security_violations.placeholders.empty')),
                 TextColumn::make('user_summary')
-                    ->label('User')
-                    ->state(fn (SecurityViolation $record): string => $record->user?->name ?? 'Anonymous')
+                    ->label(__('superadmin.security_violations.columns.user'))
+                    ->state(fn (SecurityViolation $record): string => $record->user?->name ?? __('superadmin.security_violations.placeholders.anonymous'))
                     ->description(fn (SecurityViolation $record): ?string => $record->user?->email)
                     ->wrap(),
                 TextColumn::make('url')
-                    ->label('URL')
+                    ->label(__('superadmin.security_violations.columns.url'))
                     ->state(fn (SecurityViolation $record): string => SecurityViolationTablePresenter::urlPath($record))
                     ->wrap(),
                 TextColumn::make('user_agent_summary')
-                    ->label('User Agent Summary')
+                    ->label(__('superadmin.security_violations.columns.user_agent_summary'))
                     ->state(fn (SecurityViolation $record): string => SecurityViolationTablePresenter::userAgentSummary($record))
                     ->wrap(),
                 TextColumn::make('occurred_at')
-                    ->label('Timestamp')
-                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? '—')
+                    ->label(__('superadmin.security_violations.columns.timestamp'))
+                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? __('superadmin.security_violations.placeholders.empty'))
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('severity')
-                    ->label('Severity')
-                    ->placeholder('All')
+                    ->label(__('superadmin.security_violations.filters.severity'))
+                    ->placeholder(__('superadmin.security_violations.placeholders.all'))
                     ->options(SecurityViolationSeverity::options())
                     ->query(fn (Builder $query, array $data): Builder => $query->forSeverityValue($data['value'] ?? null)),
                 SelectFilter::make('type')
-                    ->label('Violation Type')
-                    ->placeholder('All')
+                    ->label(__('superadmin.security_violations.filters.type'))
+                    ->placeholder(__('superadmin.security_violations.placeholders.all'))
                     ->options(SecurityViolationType::options())
                     ->query(fn (Builder $query, array $data): Builder => $query->forTypeValue($data['value'] ?? null)),
                 Filter::make('occurred_between')
-                    ->label('Date Range')
+                    ->label(__('superadmin.security_violations.filters.date_range'))
                     ->schema([
                         DatePicker::make('occurred_from')
-                            ->label('From'),
+                            ->label(__('superadmin.security_violations.filters.from')),
                         DatePicker::make('occurred_to')
-                            ->label('To'),
+                            ->label(__('superadmin.security_violations.filters.to')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->occurredBetween(
                         $data['occurred_from'] ?? null,
@@ -78,15 +78,15 @@ class SecurityViolationTable
             ])
             ->recordActions([
                 Action::make('blockIp')
-                    ->label('Block IP Address')
+                    ->label(__('superadmin.security_violations.actions.block_ip_address'))
                     ->color('danger')
                     ->authorize(fn (): bool => auth()->user()?->isSuperadmin() ?? false)
                     ->hidden(fn (SecurityViolation $record): bool => blank($record->ip_address))
                     ->requiresConfirmation()
-                    ->modalHeading('Block IP Address')
-                    ->modalDescription(fn (SecurityViolation $record): string => "Are you sure you want to block all access from {$record->ip_address}? This will prevent any connection from this address.")
-                    ->modalSubmitActionLabel('Block IP')
-                    ->modalCancelActionLabel('Cancel')
+                    ->modalHeading(__('superadmin.security_violations.modals.block_ip_heading'))
+                    ->modalDescription(fn (SecurityViolation $record): string => __('superadmin.security_violations.modals.block_ip_description', ['ip' => $record->ip_address]))
+                    ->modalSubmitActionLabel(__('superadmin.security_violations.actions.block_ip'))
+                    ->modalCancelActionLabel(__('superadmin.security_violations.actions.cancel'))
                     ->action(function (SecurityViolation $record, BlockIpAddressAction $blockIpAddressAction): void {
                         $blockIpAddressAction->handle([
                             'ip_address' => $record->ip_address,
@@ -95,7 +95,7 @@ class SecurityViolationTable
                         ]);
 
                         Notification::make()
-                            ->title('IP address blocked')
+                            ->title(__('superadmin.security_violations.messages.blocked'))
                             ->success()
                             ->send();
                     }),

@@ -9,20 +9,27 @@
 
 <div class="space-y-4">
     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-        <p><span class="font-semibold text-slate-900">Record:</span> {{ class_basename($activityLog->resource_type ?? 'Organization') }} @if ($activityLog->resource_id !== null)#{{ $activityLog->resource_id }}@endif</p>
-        <p class="mt-1"><span class="font-semibold text-slate-900">IP Address:</span> {{ $activityLog->ip_address ?? 'Unknown' }}</p>
+        <p>
+            <span class="font-semibold text-slate-900">{{ __('superadmin.organizations.activity_log.record') }}:</span>
+            {{ $activityLog->resource_type ? class_basename($activityLog->resource_type) : __('superadmin.organizations.activity_log.organization_fallback') }}
+            @if ($activityLog->resource_id !== null)#{{ $activityLog->resource_id }}@endif
+        </p>
+        <p class="mt-1">
+            <span class="font-semibold text-slate-900">{{ __('superadmin.organizations.activity_log.ip_address') }}:</span>
+            {{ $activityLog->ip_address ?? __('superadmin.organizations.activity_log.unknown_ip') }}
+        </p>
     </div>
 
     @if ($keys->isEmpty())
-        <p class="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-500">No before/after values were captured for this action.</p>
+        <p class="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-500">{{ __('superadmin.organizations.activity_log.empty') }}</p>
     @else
         <div class="overflow-hidden rounded-2xl border border-slate-200">
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-600">Field</th>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-600">Before</th>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-600">After</th>
+                        <th class="px-4 py-3 text-left font-semibold text-slate-600">{{ __('superadmin.organizations.activity_log.columns.field') }}</th>
+                        <th class="px-4 py-3 text-left font-semibold text-slate-600">{{ __('superadmin.organizations.activity_log.columns.before') }}</th>
+                        <th class="px-4 py-3 text-left font-semibold text-slate-600">{{ __('superadmin.organizations.activity_log.columns.after') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 bg-white">

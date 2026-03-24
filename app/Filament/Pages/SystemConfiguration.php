@@ -31,7 +31,7 @@ class SystemConfiguration extends Page
 
     public function getTitle(): string
     {
-        return 'System Configuration';
+        return __('superadmin.system_configuration.title');
     }
 
     public function mount(): void
@@ -92,7 +92,7 @@ class SystemConfiguration extends Page
 
         $this->draftValues[$settingId] = app(SystemSettingCatalog::class)->draftValue($updated);
         $this->editing[$settingId] = false;
-        $this->savedMessage = 'Configuration updated.';
+        $this->savedMessage = __('superadmin.system_configuration.messages.saved');
         $this->resetValidation("draftValues.{$settingId}");
 
         Notification::make()

@@ -20,7 +20,7 @@ class SecurityViolationTablePresenter
     {
         return (string) ($record->metadata['source']
             ?? $record->metadata['url']
-            ?? 'Unknown');
+            ?? __('superadmin.security_violations.presenter.unknown'));
     }
 
     public static function urlPath(SecurityViolation $record): string
@@ -28,7 +28,7 @@ class SecurityViolationTablePresenter
         $url = trim((string) ($record->metadata['url'] ?? ''));
 
         if ($url === '') {
-            return '—';
+            return __('superadmin.security_violations.placeholders.empty');
         }
 
         $path = parse_url($url, PHP_URL_PATH);
@@ -45,36 +45,39 @@ class SecurityViolationTablePresenter
         $userAgent = trim((string) ($record->metadata['user_agent'] ?? ''));
 
         if ($userAgent === '') {
-            return 'Unknown';
+            return __('superadmin.security_violations.presenter.unknown');
         }
 
         if (str_starts_with(Str::lower($userAgent), 'curl/')) {
-            return 'curl';
+            return __('superadmin.security_violations.presenter.curl');
         }
 
         $browser = self::browserLabel($userAgent);
         $platform = self::platformLabel($userAgent);
 
-        if ($browser === 'Unknown browser' && $platform === 'Unknown device') {
+        if ($browser === __('superadmin.security_violations.presenter.unknown_browser') && $platform === __('superadmin.security_violations.presenter.unknown_device')) {
             return Str::limit($userAgent, 48);
         }
 
-        if ($platform === 'Unknown device') {
+        if ($platform === __('superadmin.security_violations.presenter.unknown_device')) {
             return $browser;
         }
 
-        if ($browser === 'Unknown browser') {
+        if ($browser === __('superadmin.security_violations.presenter.unknown_browser')) {
             return $platform;
         }
 
-        return "{$browser} on {$platform}";
+        return __('superadmin.security_violations.presenter.browser_on_platform', [
+            'browser' => $browser,
+            'platform' => $platform,
+        ]);
     }
 
     public static function resolutionStatusLabel(SecurityViolation $record): string
     {
         return $record->resolved_at === null
-            ? 'Unresolved'
-            : 'Resolved';
+            ? __('superadmin.security_violations.presenter.unresolved')
+            : __('superadmin.security_violations.presenter.resolved');
     }
 
     public static function resolutionStatusColor(SecurityViolation $record): string
@@ -93,10 +96,12 @@ class SecurityViolationTablePresenter
         $blockedUntil = $record->activeBlockedUntil();
 
         if ($blockedUntil === null) {
-            return 'This IP address is already blocked indefinitely.';
+            return __('superadmin.security_violations.presenter.blocked_indefinitely');
         }
 
-        return 'This IP address is already blocked until '.$blockedUntil->format('Y-m-d H:i').'.';
+        return __('superadmin.security_violations.presenter.blocked_until', [
+            'date' => $blockedUntil->format('Y-m-d H:i'),
+        ]);
     }
 
     private static function browserLabel(string $userAgent): string
@@ -104,11 +109,11 @@ class SecurityViolationTablePresenter
         $normalizedUserAgent = Str::lower($userAgent);
 
         return match (true) {
-            str_contains($normalizedUserAgent, 'edg/') => 'Edge',
-            str_contains($normalizedUserAgent, 'chrome/') && ! str_contains($normalizedUserAgent, 'edg/') => 'Chrome',
-            str_contains($normalizedUserAgent, 'firefox/') => 'Firefox',
-            str_contains($normalizedUserAgent, 'safari/') && ! str_contains($normalizedUserAgent, 'chrome/') => 'Safari',
-            default => 'Unknown browser',
+            str_contains($normalizedUserAgent, 'edg/') => __('superadmin.security_violations.presenter.browsers.edge'),
+            str_contains($normalizedUserAgent, 'chrome/') && ! str_contains($normalizedUserAgent, 'edg/') => __('superadmin.security_violations.presenter.browsers.chrome'),
+            str_contains($normalizedUserAgent, 'firefox/') => __('superadmin.security_violations.presenter.browsers.firefox'),
+            str_contains($normalizedUserAgent, 'safari/') && ! str_contains($normalizedUserAgent, 'chrome/') => __('superadmin.security_violations.presenter.browsers.safari'),
+            default => __('superadmin.security_violations.presenter.unknown_browser'),
         };
     }
 
@@ -117,12 +122,12 @@ class SecurityViolationTablePresenter
         $normalizedUserAgent = Str::lower($userAgent);
 
         return match (true) {
-            str_contains($normalizedUserAgent, 'windows') => 'Windows',
-            str_contains($normalizedUserAgent, 'mac os x') || str_contains($normalizedUserAgent, 'macintosh') => 'Mac',
-            str_contains($normalizedUserAgent, 'linux') => 'Linux',
-            str_contains($normalizedUserAgent, 'android') => 'Android',
-            str_contains($normalizedUserAgent, 'iphone') || str_contains($normalizedUserAgent, 'ipad') || str_contains($normalizedUserAgent, 'ios') => 'iOS',
-            default => 'Unknown device',
+            str_contains($normalizedUserAgent, 'windows') => __('superadmin.security_violations.presenter.platforms.windows'),
+            str_contains($normalizedUserAgent, 'mac os x') || str_contains($normalizedUserAgent, 'macintosh') => __('superadmin.security_violations.presenter.platforms.mac'),
+            str_contains($normalizedUserAgent, 'linux') => __('superadmin.security_violations.presenter.platforms.linux'),
+            str_contains($normalizedUserAgent, 'android') => __('superadmin.security_violations.presenter.platforms.android'),
+            str_contains($normalizedUserAgent, 'iphone') || str_contains($normalizedUserAgent, 'ipad') || str_contains($normalizedUserAgent, 'ios') => __('superadmin.security_violations.presenter.platforms.ios'),
+            default => __('superadmin.security_violations.presenter.unknown_device'),
         };
     }
 }

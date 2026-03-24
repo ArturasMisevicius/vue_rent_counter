@@ -19,7 +19,7 @@ class IntegrationHealth extends Page
 
     public function getTitle(): string
     {
-        return 'Integration Health';
+        return __('superadmin.integration_health.title');
     }
 
     public function mount(): void
@@ -48,7 +48,7 @@ class IntegrationHealth extends Page
         app(RunIntegrationHealthChecksAction::class)->handle($check->key);
 
         Notification::make()
-            ->title("{$check->label} checked")
+            ->title(__('superadmin.integration_health.messages.checked', ['label' => $check->label]))
             ->success()
             ->send();
     }
@@ -64,7 +64,7 @@ class IntegrationHealth extends Page
         app(ResetIntegrationCircuitBreakerAction::class)->handle($check);
 
         Notification::make()
-            ->title("{$check->label} circuit breaker reset")
+            ->title(__('superadmin.integration_health.messages.circuit_breaker_reset', ['label' => $check->label]))
             ->success()
             ->send();
     }

@@ -78,65 +78,69 @@ class ViewOrganization extends ViewRecord
 
     public function getContentTabLabel(): ?string
     {
-        return 'Overview';
+        return __('superadmin.organizations.pages.overview_tab');
     }
 
     protected function getHeaderActions(): array
     {
         return [
             EditAction::make()
-                ->label('Edit'),
+                ->label(__('superadmin.organizations.actions.edit')),
             Action::make('suspendOrganization')
-                ->label('Suspend Organization')
+                ->label(__('superadmin.organizations.actions.suspend'))
                 ->color('danger')
                 ->visible(fn (): bool => $this->record->status->permitsAccess())
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('suspend', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription(fn (): string => "Are you sure you want to suspend {$this->record->name}? This will immediately prevent all users in this organization from making any changes. Their data will be preserved.")
+                ->modalDescription(fn (): string => __('superadmin.organizations.modals.suspend', [
+                    'name' => $this->record->name,
+                ]))
                 ->action(function (SuspendOrganizationAction $suspendOrganizationAction): void {
                     $suspendOrganizationAction->handle($this->record);
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Organization suspended')
+                        ->title(__('superadmin.organizations.notifications.suspended'))
                         ->success()
                         ->send();
                 }),
             Action::make('reinstateOrganization')
-                ->label('Reinstate Organization')
+                ->label(__('superadmin.organizations.actions.reinstate'))
                 ->color('success')
                 ->visible(fn (): bool => $this->record->status === OrganizationStatus::SUSPENDED)
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('reinstate', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription(fn (): string => "Reinstate {$this->record->name} and restore write access for the organization.")
+                ->modalDescription(fn (): string => __('superadmin.organizations.modals.reinstate', [
+                    'name' => $this->record->name,
+                ]))
                 ->action(function (ReinstateOrganizationAction $reinstateOrganizationAction): void {
                     $reinstateOrganizationAction->handle($this->record);
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Organization reinstated')
+                        ->title(__('superadmin.organizations.notifications.reinstated'))
                         ->success()
                         ->send();
                 }),
             Action::make('sendNotification')
-                ->label('Send Notification')
+                ->label(__('superadmin.organizations.actions.send_notification'))
                 ->slideOver()
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('update', $this->record) ?? false)
                 ->schema([
                     TextInput::make('title')
-                        ->label('Notification Title')
+                        ->label(__('superadmin.organizations.form.fields.notification_title'))
                         ->required()
                         ->maxLength(255),
                     Textarea::make('body')
-                        ->label('Message Body')
+                        ->label(__('superadmin.organizations.form.fields.message_body'))
                         ->required()
                         ->rows(5),
                     Select::make('severity')
-                        ->label('Severity')
+                        ->label(__('superadmin.organizations.form.fields.severity'))
                         ->options([
-                            'information' => 'Information',
-                            'warning' => 'Warning',
-                            'critical' => 'Critical',
+                            'information' => __('superadmin.organizations.form.severity_options.information'),
+                            'warning' => __('superadmin.organizations.form.severity_options.warning'),
+                            'critical' => __('superadmin.organizations.form.severity_options.critical'),
                         ])
                         ->default('information')
                         ->required(),
@@ -150,17 +154,17 @@ class ViewOrganization extends ViewRecord
                     );
 
                     Notification::make()
-                        ->title('Notification sent')
+                        ->title(__('superadmin.organizations.notifications.sent'))
                         ->success()
                         ->send();
                 }),
             Action::make('impersonateAdmin')
-                ->label('Impersonate Admin')
+                ->label(__('superadmin.organizations.actions.impersonate_admin'))
                 ->icon('heroicon-o-user-circle')
                 ->visible(fn (): bool => $this->record->status->permitsAccess())
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('impersonate', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription('You will switch into the organization primary admin account until you stop impersonating.')
+                ->modalDescription(__('superadmin.organizations.modals.impersonate'))
                 ->action(function (StartOrganizationImpersonationAction $startOrganizationImpersonationAction): void {
                     $admin = $this->resolvePrimaryAdmin();
                     $impersonator = $this->authenticatedUser();
@@ -173,10 +177,10 @@ class ViewOrganization extends ViewRecord
                     $this->redirect('/app');
                 }),
             Action::make('exportData')
-                ->label('Export Data')
+                ->label(__('superadmin.organizations.actions.export_data'))
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('view', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription('This export includes all invoices as one spreadsheet, all tenants as another spreadsheet, and all meter readings as another spreadsheet, packaged into a downloadable ZIP file.')
+                ->modalDescription(__('superadmin.organizations.modals.export'))
                 ->action(function (ExportOrganizationDataAction $exportOrganizationDataAction) {
                     $path = $exportOrganizationDataAction->handle($this->record);
 

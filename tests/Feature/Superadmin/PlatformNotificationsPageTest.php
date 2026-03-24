@@ -25,13 +25,13 @@ it('shows the platform notifications feed only to superadmins', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.platform-notifications'))
         ->assertSuccessful()
-        ->assertSeeText('Platform Notifications')
-        ->assertSeeText('Unread Notifications')
+        ->assertSeeText(__('shell.notifications.page.title'))
+        ->assertSeeText(__('shell.notifications.page.stats.unread'))
         ->assertSeeText('Invoice ready')
         ->assertSeeText('Invoice INV-2026-044 is ready for review.')
-        ->assertSeeText('Unread')
-        ->assertSeeText('Mark All Read')
-        ->assertSeeText('Open');
+        ->assertSeeText(__('shell.notifications.status.unread'))
+        ->assertSeeText(__('shell.notifications.actions.mark_all_read'))
+        ->assertSeeText(__('shell.notifications.page.actions.open'));
 
     $this->actingAs($admin)
         ->get(route('filament.admin.pages.platform-notifications'))
@@ -57,6 +57,21 @@ it('keeps the platform notifications feed scoped to the authenticated superadmin
         ->assertSuccessful()
         ->assertSeeText('Visible notification')
         ->assertDontSeeText('Hidden notification');
+});
+
+it('renders translated platform notification page chrome for the active locale', function () {
+    $superadmin = User::factory()->superadmin()->create([
+        'locale' => 'lt',
+    ]);
+
+    app()->setLocale('lt');
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.pages.platform-notifications'))
+        ->assertSuccessful()
+        ->assertSeeText(__('shell.notifications.page.title', [], 'lt'))
+        ->assertSeeText(__('shell.notifications.page.stats.unread', [], 'lt'))
+        ->assertSeeText(__('shell.notifications.page.stats.total', [], 'lt'));
 });
 
 it('marks notifications as read and redirects when opening a platform notification', function () {
@@ -94,7 +109,7 @@ it('marks all notifications as read from the platform notifications page', funct
 
     Livewire::test(PlatformNotifications::class)
         ->call('markAllAsRead')
-        ->assertSet('statusMessage', 'All notifications marked as read.');
+        ->assertSet('statusMessage', __('shell.notifications.page.messages.marked_all_read'));
 
     expect($superadmin->fresh()->unreadNotifications()->count())->toBe(0);
 });

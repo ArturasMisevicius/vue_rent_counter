@@ -1,10 +1,10 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-amber-600">Platform notifications</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">Platform Notifications</h1>
+            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-amber-600">{{ __('shell.notifications.page.eyebrow') }}</p>
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{{ __('shell.notifications.page.title') }}</h1>
             <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                Review the latest notifications addressed to the superadmin control plane.
+                {{ __('shell.notifications.page.description') }}
             </p>
         </section>
 
@@ -16,17 +16,17 @@
 
         <section class="grid gap-4 md:grid-cols-2">
             <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Unread Notifications</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{{ __('shell.notifications.page.stats.unread') }}</p>
                 <p class="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{{ $unreadCount }}</p>
-                <p class="mt-2 text-sm text-slate-600">Notifications still requiring review from the current superadmin account.</p>
+                <p class="mt-2 text-sm text-slate-600">{{ __('shell.notifications.page.stats.unread_description') }}</p>
             </article>
 
             <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Total Notifications</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{{ __('shell.notifications.page.stats.total') }}</p>
                         <p class="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{{ $totalCount }}</p>
-                        <p class="mt-2 text-sm text-slate-600">Recent notification history addressed to this control-plane account.</p>
+                        <p class="mt-2 text-sm text-slate-600">{{ __('shell.notifications.page.stats.total_description') }}</p>
                     </div>
 
                     @if ($unreadCount > 0)
@@ -35,7 +35,7 @@
                             wire:click="markAllAsRead"
                             class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                         >
-                            Mark All Read
+                            {{ __('shell.notifications.actions.mark_all_read') }}
                         </button>
                     @endif
                 </div>
@@ -56,7 +56,7 @@
                                         'bg-amber-100 text-amber-800' => $notification['unread'],
                                         'bg-slate-100 text-slate-600' => ! $notification['unread'],
                                     ])>
-                                        {{ $notification['unread'] ? 'Unread' : 'Read' }}
+                                        {{ $notification['unread'] ? __('shell.notifications.status.unread') : __('shell.notifications.status.read') }}
                                     </span>
                                 </div>
 
@@ -70,7 +70,7 @@
                                     wire:click="openNotification('{{ $notification['id'] }}')"
                                     class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                                 >
-                                    {{ filled($notification['url']) ? 'Open' : ($notification['unread'] ? 'Mark Read' : 'Viewed') }}
+                                    {{ filled($notification['url']) ? __('shell.notifications.page.actions.open') : ($notification['unread'] ? __('shell.notifications.page.actions.mark_read') : __('shell.notifications.page.actions.viewed')) }}
                                 </button>
                             </div>
                         </article>

@@ -59,10 +59,10 @@ it('shows translation management only to superadmins and only renders active loc
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.translation-management'))
         ->assertSuccessful()
-        ->assertSeeText('Translation Management')
-        ->assertSeeText('Review the catalog across active locales and edit values inline.')
-        ->assertSeeText('Export Missing CSV')
-        ->assertSeeText('Import CSV')
+        ->assertSeeText(__('superadmin.translation_management.title'))
+        ->assertSeeText(__('superadmin.translation_management.description'))
+        ->assertSeeText(__('superadmin.translation_management.actions.export_missing_csv'))
+        ->assertSeeText(__('superadmin.translation_management.actions.import_csv'))
         ->assertSeeText('auth.login_title')
         ->assertSeeText('EN')
         ->assertSeeText('LT')
@@ -97,7 +97,7 @@ it('shows the empty state when no active languages are configured', function () 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.translation-management'))
         ->assertSuccessful()
-        ->assertSeeText('No languages are configured yet.')
+        ->assertSeeText(__('superadmin.translation_management.empty.languages'))
         ->assertDontSee('draftValues.messages.welcome.qx', false);
 });
 

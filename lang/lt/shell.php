@@ -187,6 +187,26 @@ return [
             'toggle' => 'Perjungti pranešimus',
             'mark_all_read' => 'Pažymėti visus kaip skaitytus',
         ],
+        'page' => [
+            'eyebrow' => 'Platformos pranešimai',
+            'title' => 'Platformos pranešimai',
+            'description' => 'Peržiūrėkite naujausius pranešimus, skirtus superadministratoriaus valdymo sričiai.',
+            'stats' => [
+                'unread' => 'Neskaityti pranešimai',
+                'unread_description' => 'Pranešimai, kuriuos dabartinė superadministratoriaus paskyra dar turi peržiūrėti.',
+                'total' => 'Visi pranešimai',
+                'total_description' => 'Naujausia pranešimų istorija, skirta šiai valdymo paskyrai.',
+            ],
+            'actions' => [
+                'open' => 'Atidaryti',
+                'mark_read' => 'Pažymėti kaip skaitytą',
+                'viewed' => 'Peržiūrėta',
+            ],
+            'messages' => [
+                'opened' => 'Pranešimas atidarytas.',
+                'marked_all_read' => 'Visi pranešimai pažymėti kaip skaityti.',
+            ],
+        ],
         'status' => [
             'read' => 'Skaityta',
             'unread' => 'Neskaityta',

@@ -8,7 +8,7 @@
 
 <div class="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-slate-950">Organization Details</h2>
+        <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.details_heading') }}</h2>
 
         <dl class="mt-6 grid gap-4 sm:grid-cols-2">
             @foreach ($overview['details'] as $item)
@@ -21,7 +21,7 @@
     </section>
 
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-slate-950">Subscription Summary</h2>
+        <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.subscription_heading') }}</h2>
 
         <dl class="mt-6 space-y-4">
             @foreach ($overview['subscription'] as $item)
@@ -37,7 +37,9 @@
                 <div>
                     <div class="flex items-center justify-between gap-3 text-sm">
                         <span class="font-semibold text-slate-900">{{ $usage['label'] }}</span>
-                        <span class="text-slate-500">{{ $usage['current'] }} of {{ $usage['limit'] }}</span>
+                        <span class="text-slate-500">
+                            {{ __('superadmin.organizations.overview.usage_summary', ['current' => $usage['current'], 'limit' => $usage['limit']]) }}
+                        </span>
                     </div>
 
                     <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">

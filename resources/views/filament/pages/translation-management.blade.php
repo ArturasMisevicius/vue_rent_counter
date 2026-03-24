@@ -1,8 +1,8 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-2xl font-semibold text-slate-950">Translation Management</h2>
-            <p class="mt-2 text-sm text-slate-600">Review the catalog across active locales and edit values inline.</p>
+            <h2 class="text-2xl font-semibold text-slate-950">{{ __('superadmin.translation_management.title') }}</h2>
+            <p class="mt-2 text-sm text-slate-600">{{ __('superadmin.translation_management.description') }}</p>
         </section>
 
         @if (count($locales) > 0)
@@ -11,7 +11,7 @@
                     <table class="min-w-full divide-y divide-slate-200 text-sm">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-semibold text-slate-700">Key</th>
+                                <th class="px-4 py-3 text-left font-semibold text-slate-700">{{ __('superadmin.translation_management.columns.key') }}</th>
                                 @foreach ($locales as $locale)
                                     <th class="px-4 py-3 text-left font-semibold uppercase tracking-[0.2em] text-slate-500">{{ $locale }}</th>
                                 @endforeach
@@ -35,14 +35,14 @@
                                                 wire:model.blur="draftValues.{{ $row->group }}.{{ $row->key }}.{{ $locale }}"
                                                 wire:change="saveValue('{{ $row->group }}', '{{ $row->key }}', '{{ $locale }}')"
                                                 class="w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 {{ blank($value) ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white' }}"
-                                                placeholder="Missing translation"
+                                                placeholder="{{ __('superadmin.translation_management.placeholders.missing_translation') }}"
                                             />
                                         </td>
                                     @endforeach
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($locales) + 1 }}" class="px-4 py-6 text-sm text-slate-500">No translations found.</td>
+                                    <td colspan="{{ count($locales) + 1 }}" class="px-4 py-6 text-sm text-slate-500">{{ __('superadmin.translation_management.empty.translations') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -51,7 +51,7 @@
             </section>
         @else
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p class="text-sm text-slate-500">No languages are configured yet.</p>
+                <p class="text-sm text-slate-500">{{ __('superadmin.translation_management.empty.languages') }}</p>
             </section>
         @endif
     </div>

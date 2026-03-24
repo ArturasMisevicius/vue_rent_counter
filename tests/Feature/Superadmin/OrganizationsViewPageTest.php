@@ -32,21 +32,21 @@ it('renders the organization view page overview, actions, and tabs', function ()
         ->assertSuccessful()
         ->assertSeeText('Northwind Towers')
         ->assertSeeText('northwind-towers')
-        ->assertSeeText('Edit')
-        ->assertSeeText('Suspend Organization')
-        ->assertSeeText('Send Notification')
-        ->assertSeeText('Impersonate Admin')
-        ->assertSeeText('Export Data')
-        ->assertSeeText('Overview')
-        ->assertSeeText('Users')
-        ->assertSeeText('Subscriptions')
-        ->assertSeeText('Buildings')
-        ->assertSeeText('Activity Log')
-        ->assertSeeText('Organization Details')
-        ->assertSeeText('Subscription Summary')
-        ->assertSeeText('Current Plan')
-        ->assertSeeText('Subscription Status')
-        ->assertSeeText('Subscription Expiry Date')
+        ->assertSeeText(__('superadmin.organizations.actions.edit'))
+        ->assertSeeText(__('superadmin.organizations.actions.suspend'))
+        ->assertSeeText(__('superadmin.organizations.actions.send_notification'))
+        ->assertSeeText(__('superadmin.organizations.actions.impersonate_admin'))
+        ->assertSeeText(__('superadmin.organizations.actions.export_data'))
+        ->assertSeeText(__('superadmin.organizations.pages.overview_tab'))
+        ->assertSeeText(__('superadmin.organizations.relations.users.title'))
+        ->assertSeeText(__('superadmin.organizations.relations.subscriptions.title'))
+        ->assertSeeText(__('superadmin.organizations.relations.buildings.title'))
+        ->assertSeeText(__('superadmin.organizations.relations.activity_logs.title'))
+        ->assertSeeText(__('superadmin.organizations.overview.details_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.subscription_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.fields.current_plan'))
+        ->assertSeeText(__('superadmin.organizations.overview.fields.subscription_status'))
+        ->assertSeeText(__('superadmin.organizations.overview.fields.subscription_expiry_date'))
         ->assertSeeText('7 of 10')
         ->assertSeeText('3 of 25');
 
@@ -87,11 +87,11 @@ it('renders the users, subscriptions, buildings, and activity log relation manag
         'ownerRecord' => $organization,
         'pageClass' => ViewOrganization::class,
     ])
-        ->assertTableColumnExists('name')
-        ->assertTableColumnExists('email')
-        ->assertTableColumnExists('role')
-        ->assertTableColumnExists('last_login_at')
-        ->assertTableColumnExists('status')
+        ->assertTableColumnExists('name', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.name'))
+        ->assertTableColumnExists('email', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.email'))
+        ->assertTableColumnExists('role', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.role'))
+        ->assertTableColumnExists('last_login_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.last_login'))
+        ->assertTableColumnExists('status', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.status'))
         ->assertTableActionExists('view', record: $owner)
         ->assertTableActionExists('toggleUserStatus', record: $owner)
         ->assertTableActionExists('resetPassword', record: $owner);
@@ -100,34 +100,34 @@ it('renders the users, subscriptions, buildings, and activity log relation manag
         'ownerRecord' => $organization,
         'pageClass' => ViewOrganization::class,
     ])
-        ->assertTableColumnExists('plan')
-        ->assertTableColumnExists('status')
-        ->assertTableColumnExists('starts_at')
-        ->assertTableColumnExists('expires_at')
-        ->assertTableColumnExists('property_limit_snapshot')
-        ->assertTableColumnExists('tenant_limit_snapshot')
-        ->assertTableColumnExists('created_at')
+        ->assertTableColumnExists('plan', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.plan'))
+        ->assertTableColumnExists('status', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.status'))
+        ->assertTableColumnExists('starts_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.start_date'))
+        ->assertTableColumnExists('expires_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.expiry_date'))
+        ->assertTableColumnExists('property_limit_snapshot', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.property_limit'))
+        ->assertTableColumnExists('tenant_limit_snapshot', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.tenant_limit'))
+        ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.subscriptions.columns.date_created'))
         ->assertTableActionExists('viewHistory', record: $subscription);
 
     Livewire::test(BuildingsRelationManager::class, [
         'ownerRecord' => $organization,
         'pageClass' => ViewOrganization::class,
     ])
-        ->assertTableColumnExists('name')
-        ->assertTableColumnExists('address')
-        ->assertTableColumnExists('properties_count')
-        ->assertTableColumnExists('meters_count')
-        ->assertTableColumnExists('created_at');
+        ->assertTableColumnExists('name', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.building_name'))
+        ->assertTableColumnExists('address', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.address'))
+        ->assertTableColumnExists('properties_count', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.properties_count'))
+        ->assertTableColumnExists('meters_count', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.meters_count'))
+        ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.date_created'));
 
     Livewire::test(ActivityLogsRelationManager::class, [
         'ownerRecord' => $organization,
         'pageClass' => ViewOrganization::class,
     ])
-        ->assertTableColumnExists('user.name')
-        ->assertTableColumnExists('action')
-        ->assertTableColumnExists('resource_label')
-        ->assertTableColumnExists('ip_address')
-        ->assertTableColumnExists('created_at')
+        ->assertTableColumnExists('user.name', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.actor'))
+        ->assertTableColumnExists('action', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.action'))
+        ->assertTableColumnExists('resource_label', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.record'))
+        ->assertTableColumnExists('ip_address', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.ip_address'))
+        ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.when'))
         ->assertTableActionExists('viewChanges', record: $activityLog);
 });
 

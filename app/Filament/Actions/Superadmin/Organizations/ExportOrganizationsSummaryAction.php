@@ -30,13 +30,13 @@ class ExportOrganizationsSummaryAction
         }
 
         fputcsv($handle, [
-            'Organization Name',
-            'Owner Email',
-            'Plan',
-            'Subscription Status',
-            'Properties',
-            'Tenants',
-            'Created',
+            __('superadmin.organizations.overview.fields.organization_name'),
+            __('superadmin.organizations.overview.fields.owner_email'),
+            __('superadmin.organizations.form.fields.plan'),
+            __('superadmin.organizations.overview.fields.subscription_status'),
+            __('superadmin.organizations.overview.usage_labels.properties'),
+            __('superadmin.organizations.overview.usage_labels.tenants'),
+            __('superadmin.organizations.overview.fields.date_created'),
         ]);
 
         foreach ($organizations as $organization) {

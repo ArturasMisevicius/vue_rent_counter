@@ -24,10 +24,10 @@ class OrganizationForm
     {
         return $schema
             ->components([
-                Section::make('Organization Details')
+                Section::make(__('superadmin.organizations.form.sections.details'))
                     ->schema([
                         TextInput::make('name')
-                            ->label('Organization Name')
+                            ->label(__('superadmin.organizations.form.fields.organization_name'))
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -43,12 +43,12 @@ class OrganizationForm
                                 $set('slug', Str::slug((string) $state));
                             }),
                         TextInput::make('slug')
-                            ->label('URL Slug')
+                            ->label(__('superadmin.organizations.form.fields.url_slug'))
                             ->required()
                             ->alphaDash()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->helperText('The slug is used in web addresses and cannot be changed after the organization is created.')
+                            ->helperText(__('superadmin.organizations.form.helper.slug'))
                             ->visibleOn('create')
                             ->afterStateUpdated(function (?string $state, Get $get, Set $set, string $operation): void {
                                 if ($operation !== 'create') {
@@ -63,10 +63,10 @@ class OrganizationForm
                             ->visibleOn('create'),
                     ])
                     ->columns(2),
-                Section::make('Owner Account')
+                Section::make(__('superadmin.organizations.form.sections.owner'))
                     ->schema([
                         TextInput::make('owner_email')
-                            ->label('Owner Email Address')
+                            ->label(__('superadmin.organizations.form.fields.owner_email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
@@ -76,16 +76,16 @@ class OrganizationForm
                                 operation: $operation,
                             )),
                     ]),
-                Section::make('Initial Subscription')
+                Section::make(__('superadmin.organizations.form.sections.subscription'))
                     ->schema([
                         Select::make('plan')
-                            ->label('Plan')
+                            ->label(__('superadmin.organizations.form.fields.plan'))
                             ->options(SubscriptionPlan::options())
                             ->default(SubscriptionPlan::BASIC->value)
                             ->required()
                             ->live(),
                         ToggleButtons::make('duration')
-                            ->label('Duration')
+                            ->label(__('superadmin.organizations.form.fields.duration'))
                             ->options(SubscriptionDuration::options())
                             ->default(SubscriptionDuration::MONTHLY->value)
                             ->required()
@@ -94,7 +94,7 @@ class OrganizationForm
                             ->live()
                             ->visibleOn('create'),
                         DatePicker::make('expires_at')
-                            ->label('Expiry Date')
+                            ->label(__('superadmin.organizations.form.fields.expiry_date'))
                             ->required()
                             ->live()
                             ->visibleOn('edit'),
@@ -120,7 +120,7 @@ class OrganizationForm
         }
 
         if (blank($email)) {
-            return 'The system will send an invitation to this email address.';
+            return __('superadmin.organizations.form.helper.owner_invitation');
         }
 
         $owner = User::query()
@@ -129,10 +129,10 @@ class OrganizationForm
             ->first();
 
         if ($owner !== null && $owner->organization_id === null) {
-            return 'This email already belongs to an existing user. This user will be assigned as the organization owner.';
+            return __('superadmin.organizations.form.helper.owner_existing');
         }
 
-        return 'The system will send an invitation to this email address.';
+        return __('superadmin.organizations.form.helper.owner_invitation');
     }
 
     private static function subscriptionExpiryPreview(?string $duration): string
@@ -141,10 +141,12 @@ class OrganizationForm
             ? SubscriptionDuration::from($duration)
             : SubscriptionDuration::MONTHLY;
 
-        return 'Subscription will expire on '.CarbonImmutable::now()
-            ->startOfDay()
-            ->addMonths($selectedDuration->months())
-            ->format('F j, Y');
+        return __('superadmin.organizations.form.preview.subscription_expires', [
+            'date' => CarbonImmutable::now()
+                ->startOfDay()
+                ->addMonths($selectedDuration->months())
+                ->format('F j, Y'),
+        ]);
     }
 
     private static function planLimitsNote(?string $plan): string
@@ -156,6 +158,10 @@ class OrganizationForm
         $selectedPlan = SubscriptionPlan::from($plan);
         $limits = $selectedPlan->limits();
 
-        return "Changing to {$selectedPlan->label()} will allow up to {$limits['properties']} properties and {$limits['tenants']} tenants.";
+        return __('superadmin.organizations.form.preview.plan_limits', [
+            'plan' => $selectedPlan->label(),
+            'properties' => $limits['properties'],
+            'tenants' => $limits['tenants'],
+        ]);
     }
 }
