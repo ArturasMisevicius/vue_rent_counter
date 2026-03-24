@@ -28,4 +28,21 @@ class MeterPolicy
 
         return $assignedPropertyId === $meter->property_id;
     }
+
+    public function create(User $user): bool
+    {
+        return $user->isAdmin() || $user->isManager();
+    }
+
+    public function update(User $user, Meter $meter): bool
+    {
+        return ($user->isAdmin() || $user->isManager())
+            && $user->organization_id === $meter->organization_id;
+    }
+
+    public function delete(User $user, Meter $meter): bool
+    {
+        return ($user->isAdmin() || $user->isManager())
+            && $user->organization_id === $meter->organization_id;
+    }
 }

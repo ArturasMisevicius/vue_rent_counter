@@ -5,13 +5,14 @@ namespace App\Filament\Support\Shell\Navigation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class NavigationBuilder
 {
     /**
      * @return array<int, NavigationGroupData>
      */
-    public function adminLike(User $user, Request $request): array
+    public function forUser(User $user, Request $request): array
     {
         $groups = [];
 
@@ -69,7 +70,8 @@ class NavigationBuilder
                 fn (array $item): ?NavigationItemData => $this->item(
                     $request,
                     $item['route'],
-                    __($item['label']),
+                    $this->resolveLabel($item['label']),
+                    $this->activePatternsFor($item),
                 ),
                 $items,
             ),
@@ -98,7 +100,38 @@ class NavigationBuilder
         return match (true) {
             $user->isSuperadmin() => 'superadmin',
             $user->isAdmin(), $user->isManager() => 'admin',
+            $user->isTenant() => 'tenant',
             default => null,
         };
+    }
+
+    /**
+     * @param  array{route: string, label: string, active_patterns?: list<string>}  $item
+     * @return list<string>
+     */
+    protected function activePatternsFor(array $item): array
+    {
+        if (array_key_exists('active_patterns', $item)) {
+            return $item['active_patterns'];
+        }
+
+        $routeName = $item['route'];
+
+        if (str_contains($routeName, '.resources.') && str_ends_with($routeName, '.index')) {
+            return [Str::replaceLast('.index', '.*', $routeName)];
+        }
+
+        return [$routeName];
+    }
+
+    protected function resolveLabel(string $label): string
+    {
+        if (! str_contains($label, '.')) {
+            return $label;
+        }
+
+        $translated = __($label);
+
+        return is_string($translated) ? $translated : $label;
     }
 }

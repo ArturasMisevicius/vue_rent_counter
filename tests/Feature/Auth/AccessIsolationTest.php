@@ -20,6 +20,10 @@ function registerAuthRouteFixtures(): void
         Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
     }
 
+    if (! Route::has('filament.admin.pages.dashboard')) {
+        Route::get('/app', fn () => 'dashboard')->name('filament.admin.pages.dashboard');
+    }
+
     if (! Route::has('filament.admin.pages.tenant-dashboard')) {
         Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
@@ -106,7 +110,7 @@ it('blocks non-active organizations from protected routes', function () {
     $this->assertGuest();
 });
 
-it('routes users to the correct starting page', function () {
+it('routes users to the shared dashboard entrypoint when onboarding is complete', function () {
     registerAuthRouteFixtures();
 
     $redirector = app(LoginRedirector::class);
@@ -118,7 +122,7 @@ it('routes users to the correct starting page', function () {
         ->and($redirector->for(User::factory()->manager()->make()))
         ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->tenant()->make()))
-        ->toBe(route('filament.admin.pages.tenant-dashboard'));
+        ->toBe(route('filament.admin.pages.dashboard'));
 });
 
 it('forbids non-tenant users from the tenant home route', function () {

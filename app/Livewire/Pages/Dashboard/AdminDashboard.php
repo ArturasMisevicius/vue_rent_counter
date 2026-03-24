@@ -54,6 +54,20 @@ final class AdminDashboard extends Component
         ]);
     }
 
+    public function refreshDashboardOnInterval(): void
+    {
+        $refreshedData = app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10);
+
+        if ($refreshedData === $this->dashboardData) {
+            $this->skipRender();
+
+            return;
+        }
+
+        $this->dashboardData = $refreshedData;
+        unset($this->dashboard);
+    }
+
     /**
      * @return array<string, mixed>
      */

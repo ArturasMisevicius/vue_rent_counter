@@ -5,6 +5,7 @@ use App\Models\Building;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -83,4 +84,33 @@ it('keeps the query string in sync with the validated search term', function () 
         ->set('query', '  Marina   ');
 
     expect($component->instance()->query)->toBe('Marina');
+});
+
+it('refreshes translated search copy when the shell locale changes', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    Building::factory()->for($organization)->create([
+        'name' => 'Marina Heights',
+    ]);
+
+    $component = Livewire::actingAs($admin)
+        ->test(GlobalSearch::class)
+        ->set('query', 'mar')
+        ->assertSeeText(__('shell.search.placeholder', [], 'en'))
+        ->assertSeeText(__('shell.search.groups.buildings', [], 'en'));
+
+    $admin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($admin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.search.placeholder', [], 'lt'))
+        ->assertSeeText(__('shell.search.groups.buildings', [], 'lt'));
 });

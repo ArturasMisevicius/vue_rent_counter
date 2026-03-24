@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed plan 07-01 in Phase 7
-last_updated: "2026-03-19T16:26:10.367Z"
+stopped_at: Completed plan 03-01 in Phase 3 after skipping the external Phase 1 branch-protection blocker
+last_updated: "2026-03-24T01:32:55Z"
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 11
-  completed_plans: 7
+  completed_phases: 2
+  total_plans: 12
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Tenanto must deliver tenant-safe utility billing and property management workflows on a clean, consistent application foundation that the team can evolve confidently.
-**Current focus:** Phase 07 — consolidate-clean-and-standardize-full-application-stack
+**Current focus:** Phase 04 — mutation-governance-and-async-pipelines
 
 ## Current Position
 
-Phase: 07 (consolidate-clean-and-standardize-full-application-stack) — COMPLETE
+Phase: 03 (surface-and-read-path-unification) — COMPLETE
 Plan: 1 of 1 (completed)
 
 ## Performance Metrics
@@ -62,26 +62,29 @@ Recent decisions affecting current work:
 - [Phase 02] Treat the role enum, not the legacy `is_super_admin` boolean, as the canonical platform authority contract.
 - [Phase 02] Preserve the admin-without-organization onboarding state while failing closed for every other invalid protected workspace.
 - [Phase 02] Guard tenant Livewire components with the shared tenant workspace trait so direct component entrypoints cannot bypass route-level tenant boundaries.
+- [Phase 03] Use the shared `/app` dashboard entrypoint as the canonical authenticated landing route for onboarded roles.
+- [Phase 03] Treat configured shell navigation roles plus shared read builders as the canonical source for navigation, search, reports, and tenant/staff invoice read surfaces.
 - [Phase 5] Delay billing extraction until safety, boundaries, read paths, and mutation pipelines are standardized.
+- [Phase 07] Keep `app/Http/Controllers/Controller.php` only as the framework base controller and migrate every remaining concrete web route handler into Livewire endpoint components.
 - [Planning] Use one master execution plan per remaining phase so Phases 2 through 6 can advance without another planning pass.
+- [2026-03-24] Set Filament panel content width to full (`Width::Full`) for standard and simple pages, added CRUD resources for relation-focused models (projects, tasks, task assignments, property assignments, organization users, tags), and normalized enum option usage to `Enum::options()` where updated.
 
 ### Pending Todos
 
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
-- Phase 03: canonicalize entry paths, navigation, and workspace-aware read builders now that Phase 02 boundary contracts are in place.
+- Phase 04: standardize mutation pipelines, governance capture, and tenant write paths now that Phase 03 read surfaces are unified.
 - 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
 - 2026-03-19: finish the shared design-system migration by adding the missing tenant bottom navigation component, wiring it into the tenant-facing Filament pages, and verifying the shared component namespaces remain clean.
 
 ### Blockers/Concerns
 
-- Phase 01 is functionally complete in code and remote CI, but branch-protection enforcement remains deferred because the current GitHub identity has push access without admin rights.
+- Phase 01 remains skipped in local autonomous mode because branch-protection enforcement still requires a repo admin or admin-scoped GitHub credentials.
 - Session bootstrap was verified on 2026-03-19, but test execution still needs safer isolation because direct `php artisan test` runs are honoring cached sqlite file config instead of the `:memory:` PHPUnit setting; a parallel verification run left `database/database.sqlite` malformed.
-- Phase 3 execution will touch navigation, read builders, and invoice-display surfaces that currently mix Filament resources, Livewire components, and presenter classes.
 - Phase 5 execution still needs careful handling because billing behavior remains concentrated in a few large orchestration services with a wide regression surface.
 - Phase 6 execution still needs environment-aware validation for queue workers, dependency probes, and backup/restore readiness.
 
 ## Session Continuity
 
-Last session: 2026-03-19T14:44:16Z
-Stopped at: Completed plan 07-01 in Phase 07
-Resume file: .planning/phases/07-consolidate-clean-and-standardize-full-application-stack/07-01-PLAN.md
+Last session: 2026-03-24T01:32:55Z
+Stopped at: Completed plan 03-01 in Phase 03 after skipping the external Phase 01 blocker
+Resume file: .planning/phases/04-mutation-governance-and-async-pipelines/04-01-PLAN.md

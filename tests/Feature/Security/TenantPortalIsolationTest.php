@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\InvoiceHistory;
 use App\Livewire\Tenant\SubmitMeterReading;
+use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
+use App\Models\Property;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -133,4 +135,37 @@ it('forbids non-tenant accounts from opening tenant portal filament pages', func
             ->get(route($routeName))
             ->assertForbidden();
     }
+});
+
+it('forbids a tenant from downloading another tenant invoice within the same organization', function () {
+    Storage::fake(config('filesystems.default', 'local'));
+
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+
+    $tenantA = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $tenantB = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    Property::factory()->for($organization)->for($building)->create();
+    $propertyB = Property::factory()->for($organization)->for($building)->create();
+
+    $invoiceForTenantB = Invoice::factory()
+        ->for($organization)
+        ->for($propertyB)
+        ->for($tenantB, 'tenant')
+        ->create([
+            'document_path' => 'tenant-invoices/same-org-foreign-tenant.pdf',
+        ]);
+
+    Storage::disk(config('filesystems.default', 'local'))
+        ->put('tenant-invoices/same-org-foreign-tenant.pdf', 'pdf-content');
+
+    $this->actingAs($tenantA)
+        ->get(route('tenant.invoices.download', $invoiceForTenantB))
+        ->assertForbidden();
 });

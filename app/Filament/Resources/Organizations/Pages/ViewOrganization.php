@@ -4,13 +4,18 @@ namespace App\Filament\Resources\Organizations\Pages;
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserRole;
+use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -63,7 +68,12 @@ class ViewOrganization extends ViewRecord
 
     public function getTitle(): string
     {
-        return 'Organization Overview';
+        return $this->record->name;
+    }
+
+    public function getSubheading(): ?string
+    {
+        return $this->record->slug;
     }
 
     public function getContentTabLabel(): ?string
@@ -74,13 +84,15 @@ class ViewOrganization extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            EditAction::make()
+                ->label('Edit'),
             Action::make('suspendOrganization')
                 ->label('Suspend Organization')
                 ->color('danger')
                 ->visible(fn (): bool => $this->record->status->permitsAccess())
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('suspend', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription('Suspending this organization revokes active sessions for all associated users.')
+                ->modalDescription(fn (): string => "Are you sure you want to suspend {$this->record->name}? This will immediately prevent all users in this organization from making any changes. Their data will be preserved.")
                 ->action(function (SuspendOrganizationAction $suspendOrganizationAction): void {
                     $suspendOrganizationAction->handle($this->record);
                     $this->refreshRecord();
@@ -96,13 +108,49 @@ class ViewOrganization extends ViewRecord
                 ->visible(fn (): bool => $this->record->status === OrganizationStatus::SUSPENDED)
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('reinstate', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription('Reinstating the organization restores access for future sign-ins.')
+                ->modalDescription(fn (): string => "Reinstate {$this->record->name} and restore write access for the organization.")
                 ->action(function (ReinstateOrganizationAction $reinstateOrganizationAction): void {
                     $reinstateOrganizationAction->handle($this->record);
                     $this->refreshRecord();
 
                     Notification::make()
                         ->title('Organization reinstated')
+                        ->success()
+                        ->send();
+                }),
+            Action::make('sendNotification')
+                ->label('Send Notification')
+                ->slideOver()
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('update', $this->record) ?? false)
+                ->schema([
+                    TextInput::make('title')
+                        ->label('Notification Title')
+                        ->required()
+                        ->maxLength(255),
+                    Textarea::make('body')
+                        ->label('Message Body')
+                        ->required()
+                        ->rows(5),
+                    Select::make('severity')
+                        ->label('Severity')
+                        ->options([
+                            'information' => 'Information',
+                            'warning' => 'Warning',
+                            'critical' => 'Critical',
+                        ])
+                        ->default('information')
+                        ->required(),
+                ])
+                ->action(function (array $data, SendOrganizationNotificationAction $sendOrganizationNotificationAction): void {
+                    $sendOrganizationNotificationAction->handle(
+                        $this->record,
+                        $data['title'],
+                        $data['body'],
+                        $data['severity'],
+                    );
+
+                    Notification::make()
+                        ->title('Notification sent')
                         ->success()
                         ->send();
                 }),
@@ -124,7 +172,18 @@ class ViewOrganization extends ViewRecord
 
                     $this->redirect('/app');
                 }),
-            EditAction::make(),
+            Action::make('exportData')
+                ->label('Export Data')
+                ->authorize(fn (): bool => $this->authenticatedUser()?->can('view', $this->record) ?? false)
+                ->requiresConfirmation()
+                ->modalDescription('This export includes all invoices as one spreadsheet, all tenants as another spreadsheet, and all meter readings as another spreadsheet, packaged into a downloadable ZIP file.')
+                ->action(function (ExportOrganizationDataAction $exportOrganizationDataAction) {
+                    $path = $exportOrganizationDataAction->handle($this->record);
+
+                    return response()
+                        ->download($path, "{$this->record->slug}-organization-export.zip")
+                        ->deleteFileAfterSend(true);
+                }),
         ];
     }
 

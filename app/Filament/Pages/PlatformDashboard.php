@@ -2,10 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
 use Filament\Pages\Page;
 
 class PlatformDashboard extends Page
 {
+    use RefreshesOnShellLocaleUpdate;
+
     protected static ?string $slug = 'platform-dashboard';
 
     protected static ?string $navigationLabel = null;

@@ -2,6 +2,11 @@
 
 return [
     'title' => 'Skydelis',
+    'platform_overview' => [
+        'eyebrow' => 'Platformos apžvalga',
+        'heading' => 'Skydelis',
+        'description' => 'Stebėkite platformos augimą, prenumeratų būklę, saugumo padėtį ir naujausias organizacijas iš vienos superadministratoriaus valdymo erdvės.',
+    ],
     'platform_eyebrow' => 'Superadministratoriaus aplinka',
     'platform_heading' => 'Jūsų platformos skydelis paruoštas.',
     'platform_body' => 'Organizacijų, prenumeratų, saugumo ir platformos operacijų moduliai bus prijungti prie šio superadministratoriaus įėjimo taško kituose etapuose.',
@@ -34,10 +39,35 @@ return [
         'invoices' => 'Sąskaitos',
     ],
     'platform_sections' => [
-        'revenue_by_plan' => 'Pajamos pagal planą',
-        'expiring_subscriptions' => 'Besibaigiančios prenumeratos',
+        'revenue_by_plan' => 'Pajamos pagal planą per paskutinius 12 mėnesių',
+        'revenue_by_plan_description' => 'Sekite planų dinamiką pagal mėnesinę pajamų tendenciją.',
+        'expiring_subscriptions' => 'Prenumeratos, pasibaigsiančios per 30 dienų',
+        'expiring_subscriptions_description' => 'Organizacijos, kurių atnaujinimui netrukus reikės dėmesio.',
+        'expiring_subscriptions_empty' => 'Visos prenumeratos yra tvarkingos.',
         'recent_security_violations' => 'Naujausi saugumo pažeidimai',
-        'recent_organizations' => 'Naujausios organizacijos',
+        'recent_security_violations_description' => 'Naujausi visos platformos įspėjimai, kuriuos turi peržiūrėti operatorius.',
+        'recent_security_violations_empty' => 'Naujų pažeidimų nėra.',
+        'recent_organizations' => 'Neseniai sukurtos organizacijos',
+        'recent_organizations_description' => 'Paskutinės dešimt darbo erdvių, pridėtų prie platformos.',
+        'recent_organizations_empty' => 'Dar nesukurta nė viena organizacija.',
+    ],
+    'platform_actions' => [
+        'view_all' => 'Peržiūrėti visas',
+        'export_csv' => 'Eksportuoti CSV',
+    ],
+    'platform_trends' => [
+        'vs_last_month' => ':percentage% lyginant su praėjusiu mėnesiu',
+    ],
+    'platform_recent_organizations' => [
+        'columns' => [
+            'name' => 'Organizacijos pavadinimas',
+            'owner_email' => 'Savininko el. paštas',
+            'plan_type' => 'Plano tipas',
+            'subscription_status' => 'Prenumeratos būsena',
+            'properties_count' => 'Objektų skaičius',
+            'tenants_count' => 'Nuomininkų skaičius',
+            'date_created' => 'Sukūrimo data',
+        ],
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Naujausios sąskaitos',

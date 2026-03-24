@@ -88,7 +88,7 @@ it('resolves the tenant route aliases to the canonical tenant portal pages', fun
         ->get(route($routeName))
         ->assertSuccessful();
 })->with([
-    'home alias' => ['tenant.home', 'filament.admin.pages.tenant-dashboard'],
+    'home alias' => ['tenant.home', 'filament.admin.pages.dashboard'],
     'readings alias' => ['tenant.readings.create', 'filament.admin.pages.tenant-submit-meter-reading'],
     'invoices alias' => ['tenant.invoices.index', 'filament.admin.pages.tenant-invoice-history'],
     'property alias' => ['tenant.property.show', 'filament.admin.pages.tenant-property-details'],

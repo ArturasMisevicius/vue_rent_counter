@@ -2,6 +2,11 @@
 
 return [
     'title' => 'Dashboard',
+    'platform_overview' => [
+        'eyebrow' => 'Platform overview',
+        'heading' => 'Dashboard',
+        'description' => 'Monitor platform growth, subscription health, security posture, and the newest organizations from one superadmin control plane.',
+    ],
     'platform_eyebrow' => 'Superadmin Shell',
     'platform_heading' => 'Your platform dashboard is ready.',
     'platform_body' => 'Organization, subscription, security, and platform operations modules will attach to this superadmin entry point as the next slices land.',
@@ -34,10 +39,35 @@ return [
         'invoices' => 'Invoices',
     ],
     'platform_sections' => [
-        'revenue_by_plan' => 'Revenue by Plan',
-        'expiring_subscriptions' => 'Expiring Subscriptions',
+        'revenue_by_plan' => 'Revenue by Plan — Last 12 Months',
+        'revenue_by_plan_description' => 'Track plan momentum over time with a month-by-month revenue trend.',
+        'expiring_subscriptions' => 'Subscriptions Expiring in 30 Days',
+        'expiring_subscriptions_description' => 'Organizations that need renewal attention soon.',
+        'expiring_subscriptions_empty' => 'All subscriptions are healthy.',
         'recent_security_violations' => 'Recent Security Violations',
+        'recent_security_violations_description' => 'Most recent platform-wide alerts that need operator review.',
+        'recent_security_violations_empty' => 'No recent violations.',
         'recent_organizations' => 'Recently Created Organizations',
+        'recent_organizations_description' => 'The latest ten workspaces added to the platform.',
+        'recent_organizations_empty' => 'No organizations have been created yet.',
+    ],
+    'platform_actions' => [
+        'view_all' => 'View All',
+        'export_csv' => 'Export as CSV',
+    ],
+    'platform_trends' => [
+        'vs_last_month' => ':percentage% vs last month',
+    ],
+    'platform_recent_organizations' => [
+        'columns' => [
+            'name' => 'Organization Name',
+            'owner_email' => 'Owner Email',
+            'plan_type' => 'Plan Type',
+            'subscription_status' => 'Subscription Status',
+            'properties_count' => 'Number of Properties',
+            'tenants_count' => 'Number of Tenants',
+            'date_created' => 'Date Created',
+        ],
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Recent Invoices',
@@ -57,5 +87,5 @@ return [
     'tenant_eyebrow' => 'Tenant Entry',
     'tenant_heading' => 'Your tenant home is ready.',
     'tenant_body' => 'Invoice history, reading submission, and profile actions will expand from this tenant-first home page.',
-    'logout_button' => 'Log Out',
+    'logout_button' => 'Logout',
 ];

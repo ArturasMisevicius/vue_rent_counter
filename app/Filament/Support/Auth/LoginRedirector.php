@@ -10,18 +10,22 @@ class LoginRedirector
 {
     public function for(User $user): string
     {
-        if ($user->isAdmin() && blank($user->organization_id)) {
+        if (($user->isAdmin() || $user->isManager()) && blank($user->organization_id) && Route::has('welcome.show')) {
             return route('welcome.show');
         }
 
-        if ($user->role === UserRole::TENANT && Route::has('filament.admin.pages.tenant-dashboard')) {
-            return route('filament.admin.pages.tenant-dashboard');
+        if (Route::has('filament.admin.pages.dashboard')) {
+            return route('filament.admin.pages.dashboard');
         }
 
         return match ($user->role) {
-            UserRole::SUPERADMIN,
+            UserRole::SUPERADMIN => Route::has('filament.admin.pages.platform-dashboard')
+                ? route('filament.admin.pages.platform-dashboard')
+                : route('filament.admin.pages.dashboard'),
             UserRole::ADMIN,
-            UserRole::MANAGER,
+            UserRole::MANAGER => Route::has('filament.admin.pages.organization-dashboard')
+                ? route('filament.admin.pages.organization-dashboard')
+                : route('filament.admin.pages.dashboard'),
             UserRole::TENANT => route('filament.admin.pages.dashboard'),
         };
     }

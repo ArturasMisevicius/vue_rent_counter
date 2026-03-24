@@ -15,7 +15,7 @@ class SendInvoiceEmailRequest extends FormRequest
     {
         $user = $this->user();
 
-        return ($user?->isAdmin() || $user?->isManager()) ?? false;
+        return $user?->isAdminLike() ?? false;
     }
 
     /**

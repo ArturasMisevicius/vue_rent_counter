@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Invoices\DownloadInvoiceAction;
 use App\Models\Invoice;
 use Illuminate\Http\Response;
+use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-final class TenantInvoiceDownloadController extends Controller
+final class DownloadInvoiceEndpoint extends Component
 {
-    public function __invoke(
+    public function download(
         Invoice $invoice,
         DownloadInvoiceAction $downloadInvoiceAction,
     ): StreamedResponse|Response {

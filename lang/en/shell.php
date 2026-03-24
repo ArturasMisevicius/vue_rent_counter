@@ -32,8 +32,10 @@ return [
             'users' => 'Users',
             'subscriptions' => 'Subscriptions',
             'languages' => 'Languages',
+            'translations' => 'Translations',
             'translation_management' => 'Translation Management',
             'system_configuration' => 'System Configuration',
+            'platform_notifications' => 'Platform Notifications',
             'audit_logs' => 'Audit Logs',
             'security_violations' => 'Security Violations',
             'integration_health' => 'Integration Health',
@@ -142,6 +144,9 @@ return [
     ],
     'actions' => [
         'back_to_dashboard' => 'Back to dashboard',
+        'destructive_confirm_single' => 'This action cannot be undone. You are about to permanently affect :item.',
+        'destructive_confirm_bulk' => 'This action cannot be undone. You are about to permanently affect all selected records.',
+        'destructive_item_fallback' => 'this record',
     ],
     'impersonation' => [
         'eyebrow' => 'Impersonation active',

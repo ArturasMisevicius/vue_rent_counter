@@ -10,6 +10,7 @@ use App\Filament\Resources\UtilityServices\Schemas\UtilityServiceForm;
 use App\Filament\Resources\UtilityServices\Schemas\UtilityServiceInfolist;
 use App\Filament\Resources\UtilityServices\Tables\UtilityServicesTable;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\User;
 use App\Models\UtilityService;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,12 +19,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class UtilityServiceResource extends Resource
 {
     protected static bool $shouldRegisterNavigation = false;
-
-    protected static bool $shouldCheckPolicyExistence = false;
 
     protected static ?string $model = UtilityService::class;
 
@@ -56,14 +57,12 @@ class UtilityServiceResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isAdmin() || $user?->isManager();
+        return static::allows('viewAny', UtilityService::class);
     }
 
     public static function canCreate(): bool
     {
-        return static::canViewAny();
+        return static::allows('create', UtilityService::class);
     }
 
     /**
@@ -71,6 +70,28 @@ class UtilityServiceResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'name',
+                    'slug',
+                    'unit_of_measurement',
+                    'default_pricing_model',
+                    'is_global_template',
+                    'service_type_bridge',
+                    'description',
+                    'is_active',
+                    'created_at',
+                    'updated_at',
+                ])
+                ->ordered()
+                ->withCount('serviceConfigurations');
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -102,24 +123,35 @@ class UtilityServiceResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        $user = auth()->user();
-
         return $record instanceof UtilityService
-            && (($record->organization_id === null && $record->is_global_template)
-                || $record->organization_id === app(OrganizationContext::class)->currentOrganizationId())
-            && ($user?->isAdmin() || $user?->isManager());
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof UtilityService
+            && static::allows('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
         return $record instanceof UtilityService
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && static::canView($record);
+            && static::allows('delete', $record);
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::guard()->user();
+
+        return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, UtilityService|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 
     public static function getRelations(): array

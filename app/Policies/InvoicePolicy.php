@@ -30,4 +30,21 @@ class InvoicePolicy
     {
         return $this->view($user, $invoice);
     }
+
+    public function create(User $user): bool
+    {
+        return $user->isAdminLike();
+    }
+
+    public function update(User $user, Invoice $invoice): bool
+    {
+        return $user->isAdminLike()
+            && $user->organization_id === $invoice->organization_id;
+    }
+
+    public function delete(User $user, Invoice $invoice): bool
+    {
+        return $user->isAdminLike()
+            && $user->organization_id === $invoice->organization_id;
+    }
 }

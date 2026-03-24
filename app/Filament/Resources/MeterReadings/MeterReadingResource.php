@@ -11,6 +11,7 @@ use App\Filament\Resources\MeterReadings\Schemas\MeterReadingInfolist;
 use App\Filament\Resources\MeterReadings\Tables\MeterReadingsTable;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\MeterReading;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -19,12 +20,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class MeterReadingResource extends Resource
 {
     protected static bool $shouldRegisterNavigation = false;
-
-    protected static bool $shouldCheckPolicyExistence = false;
 
     protected static ?string $model = MeterReading::class;
 
@@ -69,9 +70,7 @@ class MeterReadingResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::canViewAny();
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -81,16 +80,12 @@ class MeterReadingResource extends Resource
 
     public static function canCreate(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isAdmin() || $user?->isManager();
+        return static::allows('create', MeterReading::class);
     }
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::allows('viewAny', MeterReading::class);
     }
 
     /**
@@ -98,6 +93,14 @@ class MeterReadingResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()
+                ->withWorkspaceRelations()
+                ->latestFirst();
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -109,16 +112,35 @@ class MeterReadingResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        $user = auth()->user();
-
         return $record instanceof MeterReading
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && ($user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager());
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof MeterReading
+            && static::allows('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return $record instanceof MeterReading
+            && static::allows('delete', $record);
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::guard()->user();
+
+        return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, MeterReading|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 
     public static function getRelations(): array

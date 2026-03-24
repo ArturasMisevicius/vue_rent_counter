@@ -62,11 +62,11 @@ it('does not show subscription usage bars to managers', function () {
         ->for($meter)
         ->for($manager, 'submittedBy')
         ->create([
-            'reading_date' => now()->subDays(28)->toDateString(),
+            'reading_date' => now()->subDays(31)->toDateString(),
         ]);
 
     $this->actingAs($manager)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Total Properties')
         ->assertSeeText('Recent Invoices')

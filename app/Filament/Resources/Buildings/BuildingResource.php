@@ -22,6 +22,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class BuildingResource extends Resource
 {
@@ -70,9 +71,7 @@ class BuildingResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = self::currentUser();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::canViewAny();
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -82,14 +81,12 @@ class BuildingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = self::currentUser();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::allows('viewAny', Building::class);
     }
 
     public static function canCreate(): bool
     {
-        if (! static::canViewAny()) {
+        if (! static::allows('create', Building::class)) {
             return false;
         }
 
@@ -104,25 +101,20 @@ class BuildingResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return true;
-        }
-
         return $record instanceof Building
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && static::canViewAny();
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof Building
+            && static::allows('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof Building
+            && static::allows('delete', $record);
     }
 
     /**
@@ -155,6 +147,14 @@ class BuildingResource extends Resource
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, Building|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 
     public static function getRelations(): array

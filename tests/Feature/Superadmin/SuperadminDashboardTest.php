@@ -3,6 +3,7 @@
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Support\Superadmin\Dashboard\PlatformDashboardData;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
@@ -15,16 +16,34 @@ uses(RefreshDatabase::class);
 it('shows the superadmin dashboard metrics', function () {
     $superadmin = User::factory()->superadmin()->create();
 
+    $northwindOwner = User::factory()->create([
+        'email' => 'owner@northwind.test',
+    ]);
+
     Organization::factory()->create([
         'name' => 'Northwind Towers',
+        'owner_user_id' => $northwindOwner->id,
+        'created_at' => now()->subMonth(),
+    ]);
+
+    $auroraOwner = User::factory()->create([
+        'email' => 'owner@aurora.test',
+    ]);
+
+    $harborOwner = User::factory()->create([
+        'email' => 'owner@harbor.test',
     ]);
 
     $expiringOrganization = Organization::factory()->create([
         'name' => 'Aurora Offices',
+        'owner_user_id' => $auroraOwner->id,
+        'created_at' => now()->subDays(3),
     ]);
 
     $recentOrganization = Organization::factory()->create([
         'name' => 'Harbor Homes',
+        'owner_user_id' => $harborOwner->id,
+        'created_at' => now()->subDay(),
     ]);
 
     $basicSubscription = Subscription::factory()
@@ -47,7 +66,7 @@ it('shows the superadmin dashboard metrics', function () {
         ->for($expiringOrganization)
         ->for($basicSubscription)
         ->create([
-            'amount' => 9900,
+            'amount' => 99.00,
             'paid_at' => now(),
         ]);
 
@@ -55,8 +74,16 @@ it('shows the superadmin dashboard metrics', function () {
         ->for($recentOrganization)
         ->for($professionalSubscription)
         ->create([
-            'amount' => 19900,
+            'amount' => 199.00,
             'paid_at' => now(),
+        ]);
+
+    SubscriptionPayment::factory()
+        ->for($expiringOrganization)
+        ->for($basicSubscription)
+        ->create([
+            'amount' => 99.00,
+            'paid_at' => now()->subMonth(),
         ]);
 
     SecurityViolation::factory()->create([
@@ -75,6 +102,8 @@ it('shows the superadmin dashboard metrics', function () {
         'occurred_at' => now()->subDay(),
     ]);
 
+    $dashboard = app(PlatformDashboardData::class)->for($superadmin);
+
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
@@ -82,20 +111,106 @@ it('shows the superadmin dashboard metrics', function () {
         ->assertSeeText('Active Subscriptions')
         ->assertSeeText('Platform Revenue This Month')
         ->assertSeeText('Security Violations (7 Days)')
-        ->assertSeeText('Revenue by Plan')
-        ->assertSeeText('Expiring Subscriptions')
+        ->assertSeeText((string) $dashboard['metrics'][0]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][1]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][2]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][3]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][0]['trend'])
+        ->assertSeeText('Revenue by Plan — Last 12 Months')
+        ->assertSeeText('Subscriptions Expiring in 30 Days')
         ->assertSeeText('Recent Security Violations')
         ->assertSeeText('Recently Created Organizations')
-        ->assertSeeText('Total Properties')
-        ->assertSeeText('Active Managers')
-        ->assertSeeText('Organizations · Properties · Managers')
+        ->assertSeeText('Export as CSV')
+        ->assertSeeText('Organization Name')
+        ->assertSeeText('Owner Email')
         ->assertSeeText('Basic')
         ->assertSeeText('Professional')
         ->assertSeeText($expiringOrganization->name)
         ->assertSeeText($recentOrganization->name)
-        ->assertSeeText('Repeated failed login attempts')
-        ->assertSeeText('3')
-        ->assertSeeText('2');
+        ->assertSeeText('Authentication')
+        ->assertDontSeeText('View All');
+});
+
+it('streams the recent organizations csv export for superadmins', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $owner = User::factory()->create([
+        'email' => 'owner@aurora.test',
+    ]);
+
+    $organization = Organization::factory()->create([
+        'name' => 'Aurora Offices',
+        'owner_user_id' => $owner->id,
+    ]);
+
+    Subscription::factory()
+        ->for($organization)
+        ->active()
+        ->create([
+            'plan' => SubscriptionPlan::BASIC,
+        ]);
+
+    $response = $this->actingAs($superadmin)
+        ->get(route('filament.admin.pages.platform-dashboard.recent-organizations-export'));
+
+    $response->assertOk();
+
+    ob_start();
+    $response->sendContent();
+    $csv = (string) ob_get_clean();
+    $rows = array_map(
+        static fn (string $line): array => str_getcsv($line),
+        array_values(array_filter(
+            preg_split('/\r\n|\r|\n/', trim($csv)) ?: [],
+            static fn (string $line): bool => $line !== '',
+        )),
+    );
+
+    expect($response->headers->get('content-type'))->toContain('text/csv')
+        ->and($rows[0] ?? null)->toBe(['Recently Created Organizations'])
+        ->and($rows[1] ?? null)->toBe([
+            'Organization Name',
+            'Owner Email',
+            'Plan Type',
+            'Subscription Status',
+            'Number of Properties',
+            'Number of Tenants',
+            'Date Created',
+        ])
+        ->and($csv)->toContain('Aurora Offices')
+        ->and($csv)->toContain('owner@aurora.test');
+});
+
+it('shows a filtered subscriptions link when more than five organizations are expiring soon', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    foreach (range(1, 6) as $index) {
+        $organization = Organization::factory()->create([
+            'name' => "Expiring Org {$index}",
+            'created_at' => now()->subDays($index),
+        ]);
+
+        Subscription::factory()
+            ->for($organization)
+            ->active()
+            ->create([
+                'plan' => SubscriptionPlan::BASIC,
+                'expires_at' => now()->addDays($index),
+            ]);
+    }
+
+    $filteredSubscriptionsUrl = route('filament.admin.resources.subscriptions.index', [
+        'tableFilters' => [
+            'expiring_soon' => [
+                'isActive' => true,
+            ],
+        ],
+    ]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.pages.platform-dashboard'))
+        ->assertSuccessful()
+        ->assertSeeText('View All')
+        ->assertSee($filteredSubscriptionsUrl, false);
 });
 
 it('keeps the platform dashboard restricted to superadmins', function () {

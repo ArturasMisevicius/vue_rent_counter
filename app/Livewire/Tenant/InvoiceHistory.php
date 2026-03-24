@@ -7,6 +7,7 @@ namespace App\Livewire\Tenant;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Invoice;
 use App\Models\User;
@@ -15,6 +16,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceHistory extends Component
 {
+    use AppliesShellLocale;
     use ResolvesTenantWorkspace;
     use WithPagination;
 
@@ -89,6 +92,19 @@ class InvoiceHistory extends Component
         $this->resetPage();
 
         unset($this->invoices, $this->statusFilter);
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
+
+        unset(
+            $this->tenant,
+            $this->invoices,
+            $this->statusFilter,
+            $this->paymentGuidance,
+        );
     }
 
     #[Computed]

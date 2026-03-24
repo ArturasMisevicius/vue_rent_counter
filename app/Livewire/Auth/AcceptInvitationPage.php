@@ -7,16 +7,20 @@ use App\Filament\Actions\Preferences\ResolveGuestLocaleAction;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Auth\LoginRedirector;
 use App\Http\Requests\Auth\AcceptInvitationRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\OrganizationInvitation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class AcceptInvitationPage extends Component
 {
+    use AppliesShellLocale;
+
     #[Locked]
     public string $token = '';
 
@@ -76,6 +80,12 @@ class AcceptInvitationPage extends Component
             'statusMessage' => $statusMessage,
             'token' => $this->token,
         ])->extends('layouts.guest');
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
     }
 
     #[Computed]

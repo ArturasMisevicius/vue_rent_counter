@@ -53,6 +53,20 @@ class TenantDashboard extends Component
         ]);
     }
 
+    public function refreshSummaryOnInterval(): void
+    {
+        $refreshedSummary = app(TenantHomePresenter::class)->for($this->tenant());
+
+        if ($refreshedSummary === $this->summaryData) {
+            $this->skipRender();
+
+            return;
+        }
+
+        $this->summaryData = $refreshedSummary;
+        unset($this->summary);
+    }
+
     /**
      * @return array<string, mixed>
      */

@@ -1,22 +1,23 @@
 <?php
 
-use App\Http\Controllers\CspViolationReportController;
-use App\Http\Controllers\DashboardRedirectController;
-use App\Http\Controllers\SwitchGuestLocaleController;
-use App\Http\Controllers\TenantInvoiceDownloadController;
-use App\Http\Controllers\TenantPortalRouteController;
 use App\Livewire\Auth\AcceptInvitationPage;
 use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
 use App\Livewire\Auth\RegisterPage;
 use App\Livewire\Auth\ResetPasswordPage;
 use App\Livewire\Onboarding\WelcomePage;
+use App\Livewire\Preferences\SwitchGuestLocaleEndpoint;
 use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
 use App\Livewire\Profile\EditProfilePage;
 use App\Livewire\PublicSite\HomepagePage;
 use App\Livewire\PublicSite\ShowFaviconEndpoint;
+use App\Livewire\Security\CspViolationReportEndpoint;
+use App\Livewire\Shell\DashboardRedirectEndpoint;
 use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
+use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
+use App\Livewire\Tenant\DownloadInvoiceEndpoint;
+use App\Livewire\Tenant\TenantPortalRouteEndpoint;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
@@ -28,12 +29,12 @@ Route::get('/favicon', [ShowFaviconEndpoint::class, 'show'])
 
 Route::get('/favicon.ico', [ShowFaviconEndpoint::class, 'show']);
 
-Route::post('/security/csp-report', CspViolationReportController::class)
+Route::post('/security/csp-report', [CspViolationReportEndpoint::class, 'store'])
     ->middleware('throttle:security-csp-report')
     ->withoutMiddleware([PreventRequestForgery::class])
     ->name('security.csp.report');
 
-Route::get('/dashboard', DashboardRedirectController::class)
+Route::get('/dashboard', [DashboardRedirectEndpoint::class, 'redirect'])
     ->middleware('auth')
     ->name('dashboard');
 
@@ -67,31 +68,39 @@ Route::get('/welcome', WelcomePage::class)->middleware('auth')->name('welcome.sh
 Route::post('/welcome', [WelcomePage::class, 'store'])->middleware('auth')->name('welcome.store');
 Route::get('/profile', EditProfilePage::class)->middleware('auth')->name('profile.edit');
 
-Route::get('/language/{locale}', SwitchGuestLocaleController::class)->name('language.switch');
+Route::middleware('auth')
+    ->prefix('app/platform-dashboard')
+    ->name('filament.admin.pages.platform-dashboard.')
+    ->group(function (): void {
+        Route::get('/recent-organizations-export', [ExportRecentOrganizationsCsvEndpoint::class, 'download'])
+            ->name('recent-organizations-export');
+    });
+
+Route::get('/language/{locale}', [SwitchGuestLocaleEndpoint::class, 'change'])->name('language.switch');
 
 Route::post('/locale', [UpdateGuestLocaleEndpoint::class, 'update'])->name('locale.update');
 
-Route::get('/tenant/invoices/{invoice}/download', TenantInvoiceDownloadController::class)
+Route::get('/tenant/invoices/{invoice}/download', [DownloadInvoiceEndpoint::class, 'download'])
     ->middleware('auth')
     ->name('tenant.invoices.download');
 
-Route::get('/tenant', TenantPortalRouteController::class)
+Route::get('/tenant', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'home')
     ->middleware(['auth', 'tenant.only'])
     ->name('tenant.home');
-Route::get('/tenant/readings/create', TenantPortalRouteController::class)
+Route::get('/tenant/readings/create', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'readings.create')
     ->middleware(['auth', 'tenant.only'])
     ->name('tenant.readings.create');
-Route::get('/tenant/invoices', TenantPortalRouteController::class)
+Route::get('/tenant/invoices', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'invoices.index')
     ->middleware(['auth', 'tenant.only'])
     ->name('tenant.invoices.index');
-Route::get('/tenant/property', TenantPortalRouteController::class)
+Route::get('/tenant/property', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'property.show')
     ->middleware(['auth', 'tenant.only'])
     ->name('tenant.property.show');
-Route::get('/tenant/profile', TenantPortalRouteController::class)
+Route::get('/tenant/profile', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'profile.edit')
     ->middleware(['auth', 'tenant.only'])
     ->name('tenant.profile.edit');

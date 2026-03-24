@@ -208,12 +208,20 @@ class Invoice extends Model
             ->latestBillingFirst();
     }
 
-    public function scopeForTenantWorkspace(Builder $query, int $organizationId, int $tenantId): Builder
-    {
+    public function scopeForTenantWorkspace(
+        Builder $query,
+        int $organizationId,
+        int $tenantId,
+        ?int $propertyId = null,
+    ): Builder {
         return $query
             ->select(self::TENANT_WORKSPACE_COLUMNS)
             ->forOrganization($organizationId)
             ->forTenant($tenantId)
+            ->when(
+                $propertyId !== null,
+                fn (Builder $tenantWorkspaceQuery): Builder => $tenantWorkspaceQuery->forProperty($propertyId),
+            )
             ->withTenantWorkspaceRelations()
             ->latestBillingFirst();
     }

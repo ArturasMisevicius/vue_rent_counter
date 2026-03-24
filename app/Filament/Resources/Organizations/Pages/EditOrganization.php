@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Organizations\Pages;
 
-use App\Enums\SubscriptionPlan;
 use App\Filament\Actions\Superadmin\Organizations\UpdateOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
-use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,27 +14,39 @@ class EditOrganization extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        $subscription = $this->record->subscriptions()
+            ->select([
+                'id',
+                'organization_id',
+                'plan',
+                'status',
+                'starts_at',
+                'expires_at',
+                'is_trial',
+                'property_limit_snapshot',
+                'tenant_limit_snapshot',
+                'meter_limit_snapshot',
+                'invoice_limit_snapshot',
+            ])
+            ->latest('expires_at')
+            ->first();
+
         return [
             ...$data,
-            'owner_name' => $this->record->owner?->name,
             'owner_email' => $this->record->owner?->email,
-            'plan' => $this->record->subscriptions()->latest('expires_at')->value('plan'),
+            'plan' => $subscription?->plan?->value ?? $subscription?->plan,
+            'expires_at' => $subscription?->expires_at?->toDateString(),
         ];
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        return app(UpdateOrganizationAction::class)->handle($record, [
-            ...$data,
-            'plan' => filled($data['plan'] ?? null) ? SubscriptionPlan::from($data['plan']) : null,
-        ]);
+        return app(UpdateOrganizationAction::class)->handle($record, $data);
     }
 
-    protected function getHeaderActions(): array
+    public function getTitle(): string
     {
-        return [
-            ViewAction::make(),
-        ];
+        return "Edit Organization: {$this->record->name}";
     }
 
     protected function getRedirectUrl(): string
@@ -43,5 +54,11 @@ class EditOrganization extends EditRecord
         return OrganizationResource::getUrl('view', [
             'record' => $this->record,
         ]);
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label('Save Changes');
     }
 }

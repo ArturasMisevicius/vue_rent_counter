@@ -26,7 +26,7 @@
             <main class="relative flex min-h-screen items-center justify-center px-6 py-12">
                 <div class="w-full max-w-xl">
                     <div class="mb-6 flex justify-end">
-                        <x-shared.language-switcher />
+                        <livewire:shell.language-switcher />
                     </div>
 
                     <div class="mb-8 flex justify-center">

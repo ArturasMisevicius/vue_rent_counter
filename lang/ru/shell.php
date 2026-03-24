@@ -3,7 +3,7 @@
 return [
     'search' => [
         'label' => 'Глобальный поиск',
-        'placeholder' => 'Search anything',
+        'placeholder' => 'Искать что угодно',
         'groups' => [
             'organizations' => 'Организации',
             'buildings' => 'Здания',
@@ -32,8 +32,10 @@ return [
             'users' => 'Пользователи',
             'subscriptions' => 'Подписки',
             'languages' => 'Языки',
+            'translations' => 'Переводы',
             'translation_management' => 'Управление переводами',
             'system_configuration' => 'Системная конфигурация',
+            'platform_notifications' => 'Платформенные уведомления',
             'audit_logs' => 'Журналы аудита',
             'security_violations' => 'Нарушения безопасности',
             'integration_health' => 'Состояние интеграций',
@@ -142,6 +144,9 @@ return [
     ],
     'actions' => [
         'back_to_dashboard' => 'Вернуться на панель',
+        'destructive_confirm_single' => 'Это действие нельзя отменить. Вы собираетесь необратимо изменить :item.',
+        'destructive_confirm_bulk' => 'Это действие нельзя отменить. Вы собираетесь необратимо изменить все выбранные записи.',
+        'destructive_item_fallback' => 'эту запись',
     ],
     'impersonation' => [
         'eyebrow' => 'Активна имперсонация',

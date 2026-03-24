@@ -83,11 +83,15 @@ final class BuildingSearchProvider implements GlobalSearchProvider
     protected function urlFor(User $user, Building $building): ?string
     {
         if ($user->isSuperadmin()) {
-            $routeName = (string) config('tenanto.search.providers.buildings.superadmin_route', 'filament.admin.resources.organizations.view');
+            $routeName = (string) config('tenanto.search.providers.buildings.superadmin_route', 'filament.admin.resources.buildings.view');
 
-            return Route::has($routeName)
+            if (! Route::has($routeName)) {
+                return null;
+            }
+
+            return $routeName === 'filament.admin.resources.organizations.view'
                 ? route($routeName, $building->organization_id)
-                : null;
+                : route($routeName, $building);
         }
 
         $routeName = (string) config('tenanto.search.providers.buildings.route', 'filament.admin.resources.buildings.view');

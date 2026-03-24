@@ -3,7 +3,7 @@
 return [
     'search' => [
         'label' => 'Bendroji paieška',
-        'placeholder' => 'Search anything',
+        'placeholder' => 'Ieškoti visko',
         'groups' => [
             'organizations' => 'Organizacijos',
             'buildings' => 'Pastatai',
@@ -32,8 +32,10 @@ return [
             'users' => 'Naudotojai',
             'subscriptions' => 'Prenumeratos',
             'languages' => 'Kalbos',
+            'translations' => 'Vertimai',
             'translation_management' => 'Vertimų valdymas',
             'system_configuration' => 'Sistemos konfigūracija',
+            'platform_notifications' => 'Platformos pranešimai',
             'audit_logs' => 'Audito žurnalai',
             'security_violations' => 'Saugumo pažeidimai',
             'integration_health' => 'Integracijų būklė',
@@ -142,6 +144,9 @@ return [
     ],
     'actions' => [
         'back_to_dashboard' => 'Grįžti į skydelį',
+        'destructive_confirm_single' => 'Šio veiksmo atšaukti negalima. Jūs ketinate negrįžtamai paveikti :item.',
+        'destructive_confirm_bulk' => 'Šio veiksmo atšaukti negalima. Jūs ketinate negrįžtamai paveikti visus pasirinktus įrašus.',
+        'destructive_item_fallback' => 'šį įrašą',
     ],
     'impersonation' => [
         'eyebrow' => 'Aktyvus apsimetimas',

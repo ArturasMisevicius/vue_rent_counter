@@ -52,6 +52,8 @@ it('authorizes tariff actions only for admin-like users in the same organization
     expect($tenant->can('viewAny', Tariff::class))->toBeFalse()
         ->and($tenant->can('view', $tariff))->toBeFalse();
 
-    expect($superadmin->can('viewAny', Tariff::class))->toBeFalse()
-        ->and($superadmin->can('view', $tariff))->toBeFalse();
+    expect($superadmin->can('viewAny', Tariff::class))->toBeTrue()
+        ->and($superadmin->can('create', Tariff::class))->toBeTrue()
+        ->and($superadmin->can('view', $tariff))->toBeTrue()
+        ->and($superadmin->can('view', $foreignTariff))->toBeTrue();
 });

@@ -4,6 +4,7 @@ use App\Livewire\Tenant\InvoiceHistory;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
@@ -166,4 +167,27 @@ it('renders the invoice billing period with localized copy', function () {
         ->assertSuccessful()
         ->assertSeeText($invoice->billing_period_start->format('Y-m-d').' iki '.$invoice->billing_period_end->format('Y-m-d'))
         ->assertDontSeeText($invoice->billing_period_start->format('Y-m-d').' to '.$invoice->billing_period_end->format('Y-m-d'));
+});
+
+it('refreshes translated invoice history copy when the shell locale changes', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $component = Livewire::actingAs($tenant->user)
+        ->test(InvoiceHistory::class)
+        ->assertSeeText(__('tenant.pages.invoices.page_heading', [], 'en'));
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($tenant->user->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('tenant.pages.invoices.page_heading', [], 'lt'))
+        ->assertSeeText(__('tenant.status.unpaid', [], 'lt'));
 });

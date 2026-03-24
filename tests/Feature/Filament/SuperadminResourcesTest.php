@@ -125,11 +125,15 @@ it('maps numeric relation query params to organization relation manager keys', f
 
     Livewire::withQueryParams(['relation' => '2'])
         ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
-        ->assertSet('activeRelationManager', 'managers');
+        ->assertSet('activeRelationManager', 'subscriptions');
 
     Livewire::withQueryParams(['relation' => '3'])
         ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
-        ->assertSet('activeRelationManager', 'subscriptions');
+        ->assertSet('activeRelationManager', 'buildings');
+
+    Livewire::withQueryParams(['relation' => '4'])
+        ->test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->assertSet('activeRelationManager', 'activity-logs');
 });
 
 it('saves inline translation edits into the translations table', function () {

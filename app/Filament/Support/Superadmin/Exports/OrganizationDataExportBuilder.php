@@ -25,43 +25,9 @@ class OrganizationDataExportBuilder
             'status' => $organization->status?->value,
         ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
 
-        $archive->addFromString(
-            'users.csv',
-            $this->csv(
-                ['id', 'name', 'email', 'role', 'status'],
-                $organization->users()
-                    ->select(['id', 'name', 'email', 'role', 'status'])
-                    ->orderBy('name')
-                    ->get()
-                    ->map(fn ($user): array => [
-                        $user->id,
-                        $user->name,
-                        $user->email,
-                        $user->role?->value ?? $user->role,
-                        $user->status?->value ?? $user->status,
-                    ])
-                    ->all(),
-            ),
-        );
-
-        $archive->addFromString(
-            'subscriptions.csv',
-            $this->csv(
-                ['id', 'plan', 'status', 'starts_at', 'expires_at'],
-                $organization->subscriptions()
-                    ->select(['id', 'plan', 'status', 'starts_at', 'expires_at'])
-                    ->orderByDesc('expires_at')
-                    ->get()
-                    ->map(fn ($subscription): array => [
-                        $subscription->id,
-                        $subscription->plan?->value ?? $subscription->plan,
-                        $subscription->status?->value ?? $subscription->status,
-                        optional($subscription->starts_at)->toDateString(),
-                        optional($subscription->expires_at)->toDateString(),
-                    ])
-                    ->all(),
-            ),
-        );
+        $archive->addFromString('invoices.csv', $this->invoiceCsv($organization));
+        $archive->addFromString('tenants.csv', $this->tenantCsv($organization));
+        $archive->addFromString('meter-readings.csv', $this->meterReadingCsv($organization));
 
         $archive->close();
 
@@ -86,5 +52,98 @@ class OrganizationDataExportBuilder
         fclose($handle);
 
         return $contents;
+    }
+
+    protected function invoiceCsv(Organization $organization): string
+    {
+        return $this->csv(
+            ['Invoice Number', 'Tenant Email', 'Property', 'Status', 'Currency', 'Total Amount', 'Due Date', 'Created'],
+            $organization->invoices()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'property_id',
+                    'tenant_user_id',
+                    'invoice_number',
+                    'status',
+                    'currency',
+                    'total_amount',
+                    'due_date',
+                    'created_at',
+                ])
+                ->with([
+                    'property:id,organization_id,name,unit_number',
+                    'tenant:id,organization_id,email',
+                ])
+                ->latestBillingFirst()
+                ->get()
+                ->map(fn ($invoice): array => [
+                    $invoice->invoice_number,
+                    $invoice->tenant?->email,
+                    trim(implode(' ', array_filter([$invoice->property?->name, $invoice->property?->unit_number]))),
+                    $invoice->status?->label() ?? $invoice->status,
+                    $invoice->currency,
+                    number_format((float) $invoice->total_amount, 2, '.', ''),
+                    $invoice->due_date?->toDateString(),
+                    $invoice->created_at?->toDateString(),
+                ])
+                ->all(),
+        );
+    }
+
+    protected function tenantCsv(Organization $organization): string
+    {
+        return $this->csv(
+            ['Full Name', 'Email', 'Status', 'Last Login', 'Date Created'],
+            $organization->users()
+                ->select(['id', 'organization_id', 'name', 'email', 'role', 'status', 'last_login_at', 'created_at'])
+                ->tenants()
+                ->orderedByName()
+                ->get()
+                ->map(fn ($tenant): array => [
+                    $tenant->name,
+                    $tenant->email,
+                    $tenant->status?->label() ?? $tenant->status,
+                    $tenant->last_login_at?->toDateTimeString(),
+                    $tenant->created_at?->toDateString(),
+                ])
+                ->all(),
+        );
+    }
+
+    protected function meterReadingCsv(Organization $organization): string
+    {
+        return $this->csv(
+            ['Meter', 'Property', 'Submitted By', 'Reading Value', 'Reading Date', 'Validation Status', 'Created'],
+            $organization->meterReadings()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'property_id',
+                    'meter_id',
+                    'submitted_by_user_id',
+                    'reading_value',
+                    'reading_date',
+                    'validation_status',
+                    'created_at',
+                ])
+                ->with([
+                    'meter:id,organization_id,property_id,name',
+                    'property:id,organization_id,name',
+                    'submittedBy:id,name',
+                ])
+                ->latestFirst()
+                ->get()
+                ->map(fn ($reading): array => [
+                    $reading->meter?->name,
+                    $reading->property?->name,
+                    $reading->submittedBy?->name,
+                    number_format((float) $reading->reading_value, 3, '.', ''),
+                    $reading->reading_date?->toDateString(),
+                    $reading->validation_status?->label() ?? $reading->validation_status,
+                    $reading->created_at?->toDateTimeString(),
+                ])
+                ->all(),
+        );
     }
 }

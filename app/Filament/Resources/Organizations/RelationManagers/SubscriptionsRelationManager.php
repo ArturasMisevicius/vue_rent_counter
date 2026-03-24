@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Organizations\RelationManagers;
 
 use App\Filament\Resources\Organizations\OrganizationResource;
-use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Models\Subscription;
-use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,29 +38,52 @@ class SubscriptionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->latestFirst())
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->with([
+                    'payments',
+                    'renewals.user:id,name',
+                ])
+                ->latestFirst())
             ->columns([
                 TextColumn::make('plan')
                     ->label('Plan')
                     ->badge()
-                    ->state(fn ($state): string => $state->label()),
+                    ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->state(fn ($state): string => $state->label()),
+                    ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('starts_at')
-                    ->label('Starts At')
-                    ->dateTime()
+                    ->label('Start Date')
+                    ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('expires_at')
-                    ->label('Expires At')
-                    ->dateTime()
+                    ->label('Expiry Date')
+                    ->date('d M Y')
+                    ->sortable(),
+                TextColumn::make('property_limit_snapshot')
+                    ->label('Property Limit')
+                    ->sortable(),
+                TextColumn::make('tenant_limit_snapshot')
+                    ->label('Tenant Limit')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Date Created')
+                    ->date('d M Y')
                     ->sortable(),
             ])
             ->recordActions([
-                ViewAction::make()
-                    ->url(fn (Subscription $record): string => SubscriptionResource::getUrl('view', ['record' => $record])),
+                Action::make('viewHistory')
+                    ->label('View History')
+                    ->modalHeading('Payment and Renewal History')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->modalContent(fn (Subscription $record): View => view(
+                        'filament.resources.organizations.subscription-history',
+                        ['subscription' => $record],
+                    )),
             ])
+            ->recordAction('viewHistory')
             ->defaultSort('expires_at', 'desc');
     }
 }

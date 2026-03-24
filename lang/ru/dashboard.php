@@ -2,6 +2,11 @@
 
 return [
     'title' => 'Панель',
+    'platform_overview' => [
+        'eyebrow' => 'Обзор платформы',
+        'heading' => 'Панель',
+        'description' => 'Отслеживайте рост платформы, состояние подписок, уровень безопасности и новые организации из единой панели суперадминистратора.',
+    ],
     'platform_eyebrow' => 'Оболочка суперадминистратора',
     'platform_heading' => 'Панель платформы готова.',
     'platform_body' => 'Модули организаций, подписок, безопасности и платформенных операций будут подключаться к этой точке входа суперадминистратора в следующих этапах.',
@@ -34,10 +39,35 @@ return [
         'invoices' => 'Счета',
     ],
     'platform_sections' => [
-        'revenue_by_plan' => 'Доход по планам',
-        'expiring_subscriptions' => 'Истекающие подписки',
+        'revenue_by_plan' => 'Доход по планам за последние 12 месяцев',
+        'revenue_by_plan_description' => 'Следите за динамикой планов по ежемесячному тренду дохода.',
+        'expiring_subscriptions' => 'Подписки, истекающие в ближайшие 30 дней',
+        'expiring_subscriptions_description' => 'Организации, чьи продления скоро потребуют внимания.',
+        'expiring_subscriptions_empty' => 'Все подписки в порядке.',
         'recent_security_violations' => 'Последние нарушения безопасности',
+        'recent_security_violations_description' => 'Самые свежие предупреждения по всей платформе, требующие внимания оператора.',
+        'recent_security_violations_empty' => 'Недавних нарушений нет.',
         'recent_organizations' => 'Недавно созданные организации',
+        'recent_organizations_description' => 'Последние десять рабочих пространств, добавленных на платформу.',
+        'recent_organizations_empty' => 'Организаций пока не создано.',
+    ],
+    'platform_actions' => [
+        'view_all' => 'Показать все',
+        'export_csv' => 'Экспорт в CSV',
+    ],
+    'platform_trends' => [
+        'vs_last_month' => ':percentage% к прошлому месяцу',
+    ],
+    'platform_recent_organizations' => [
+        'columns' => [
+            'name' => 'Название организации',
+            'owner_email' => 'Email владельца',
+            'plan_type' => 'Тип плана',
+            'subscription_status' => 'Статус подписки',
+            'properties_count' => 'Количество объектов',
+            'tenants_count' => 'Количество арендаторов',
+            'date_created' => 'Дата создания',
+        ],
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Последние счета',

@@ -5,6 +5,7 @@ namespace App\Filament\Support\Audit;
 use App\Enums\AuditLogAction;
 use App\Models\AuditLog;
 use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
@@ -57,6 +58,23 @@ class AuditLogger
             'description' => class_basename($subject).' '.$action->value,
             'metadata' => $metadata,
             'occurred_at' => now(),
+        ]);
+
+        $organizationId = $this->organizationId($subject);
+
+        if ($organizationId === null || ! Schema::hasTable((new OrganizationActivityLog)->getTable())) {
+            return;
+        }
+
+        OrganizationActivityLog::query()->create([
+            'organization_id' => $organizationId,
+            'user_id' => auth()->id(),
+            'action' => $action->value,
+            'resource_type' => $subject::class,
+            'resource_id' => $subject->getKey(),
+            'metadata' => $metadata,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
         ]);
     }
 

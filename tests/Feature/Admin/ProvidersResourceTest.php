@@ -11,6 +11,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+
 uses(RefreshDatabase::class);
 
 it('shows organization-scoped provider resource pages to admin and manager users', function () {
@@ -41,50 +44,60 @@ it('shows organization-scoped provider resource pages to admin and manager users
 
     $superadmin = User::factory()->superadmin()->create();
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.index'))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.index'))
         ->assertSuccessful()
         ->assertSeeText('Providers')
         ->assertSeeText($provider->name)
         ->assertSeeText('Electricity')
         ->assertDontSeeText($otherProvider->name);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.create'))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.create'))
         ->assertSuccessful()
         ->assertSeeText('Name')
         ->assertSeeText('Service Type')
         ->assertSeeText('Website');
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.view', $provider))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.view', $provider))
         ->assertSuccessful()
         ->assertSeeText('Provider Details')
         ->assertSeeText($provider->name)
         ->assertSeeText('billing@ignitis.example');
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.edit', $provider))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.edit', $provider))
         ->assertSuccessful()
         ->assertSeeText('Save changes')
         ->assertSeeText($provider->name);
 
-    $this->actingAs($manager)
-        ->get(route('filament.admin.resources.providers.index'))
+    actingAs($manager);
+
+    get(route('filament.admin.resources.providers.index'))
         ->assertSuccessful()
         ->assertSeeText($provider->name);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.view', $otherProvider))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.view', $otherProvider))
         ->assertNotFound();
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.providers.edit', $otherProvider))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.providers.edit', $otherProvider))
         ->assertNotFound();
 
-    $this->actingAs($superadmin)
-        ->get(route('filament.admin.resources.providers.index'))
-        ->assertForbidden();
+    actingAs($superadmin);
+
+    get(route('filament.admin.resources.providers.index'))
+        ->assertSuccessful()
+        ->assertSeeText($provider->name)
+        ->assertSeeText($otherProvider->name);
 });
 
 it('creates, updates, and blocks deletion of providers with related tariffs', function () {

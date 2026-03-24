@@ -4,6 +4,9 @@
     'icon' => null,
     'trend' => null,
     'realtime' => false,
+    'trendDirection' => null,
+    'trendTone' => 'muted',
+    'valueTone' => 'default',
 ])
 
 <article
@@ -13,10 +16,36 @@
     <div class="flex items-start justify-between gap-4">
         <div class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{{ $label }}</p>
-            <p class="font-display text-3xl tracking-tight text-slate-950 sm:text-4xl">{{ $value }}</p>
+            <p
+                @class([
+                    'font-display text-3xl tracking-tight sm:text-4xl',
+                    'text-slate-950' => $valueTone === 'default',
+                    'text-red-600' => $valueTone === 'danger',
+                ])
+            >
+                {{ $value }}
+            </p>
 
             @if (filled($trend))
-                <p class="text-sm leading-6 text-slate-600">{{ $trend }}</p>
+                <p
+                    @class([
+                        'inline-flex items-center gap-2 text-sm font-medium leading-6',
+                        'text-slate-600' => $trendTone === 'muted',
+                        'text-emerald-600' => $trendTone === 'success',
+                        'text-red-600' => $trendTone === 'danger',
+                    ])
+                    @if (filled($trendDirection)) data-trend="{{ $trendDirection }}" @endif
+                >
+                    @if ($trendDirection === 'up')
+                        <x-heroicon-m-arrow-trending-up class="size-4" />
+                    @elseif ($trendDirection === 'down')
+                        <x-heroicon-m-arrow-trending-down class="size-4" />
+                    @elseif ($trendDirection === 'flat')
+                        <x-heroicon-m-minus class="size-4" />
+                    @endif
+
+                    <span>{{ $trend }}</span>
+                </p>
             @endif
         </div>
 

@@ -26,8 +26,8 @@ class StoreOrganizationRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', 'alpha_dash:ascii', 'unique:organizations,slug'],
             'owner_email' => ['required', 'email:rfc', 'max:255', 'disposable_email'],
-            'owner_name' => ['required', 'string', 'max:255'],
             'plan' => ['required', Rule::enum(SubscriptionPlan::class)],
             'duration' => ['required', Rule::enum(SubscriptionDuration::class)],
         ];
@@ -41,12 +41,12 @@ class StoreOrganizationRequest extends FormRequest
         return $this->translatedMessages([
             'name.required' => ['required', 'name'],
             'name.max' => ['max.string', 'name', ['max' => 255]],
+            'slug.required' => ['required', 'slug'],
+            'slug.max' => ['max.string', 'slug', ['max' => 255]],
             'owner_email.required' => ['required', 'owner_email'],
             'owner_email.email' => ['email', 'owner_email'],
             'owner_email.max' => ['max.string', 'owner_email', ['max' => 255]],
             'owner_email.disposable_email' => ['disposable_email', 'owner_email'],
-            'owner_name.required' => ['required', 'owner_name'],
-            'owner_name.max' => ['max.string', 'owner_name', ['max' => 255]],
             'plan.required' => ['required', 'subscription_plan'],
             'plan.enum' => ['enum', 'subscription_plan'],
             'duration.required' => ['required', 'subscription_duration'],
@@ -64,8 +64,8 @@ class StoreOrganizationRequest extends FormRequest
             'duration' => $this->translateAttribute('subscription_duration'),
             ...$this->translatedAttributes([
                 'name',
+                'slug',
                 'owner_email',
-                'owner_name',
             ]),
         ];
     }
@@ -74,8 +74,8 @@ class StoreOrganizationRequest extends FormRequest
     {
         $this->trimStrings([
             'name',
+            'slug',
             'owner_email',
-            'owner_name',
             'plan',
             'duration',
         ]);

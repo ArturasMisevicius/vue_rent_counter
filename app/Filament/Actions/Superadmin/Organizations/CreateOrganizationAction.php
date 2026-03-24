@@ -19,6 +19,10 @@ class CreateOrganizationAction
 {
     public function handle(User $actor, array $attributes): Organization
     {
+        if (blank($attributes['slug'] ?? null) && filled($attributes['name'] ?? null)) {
+            $attributes['slug'] = Str::slug((string) $attributes['name']);
+        }
+
         /** @var StoreOrganizationRequest $request */
         $request = new StoreOrganizationRequest;
         $validated = $request->validatePayload($attributes, $actor);
@@ -28,7 +32,7 @@ class CreateOrganizationAction
             $duration = SubscriptionDuration::from((string) $validated['duration']);
             $organization = Organization::query()->create([
                 'name' => $validated['name'],
-                'slug' => Str::slug($validated['name']),
+                'slug' => $validated['slug'] ?? Str::slug($validated['name']),
             ]);
 
             $owner = User::query()
@@ -46,7 +50,6 @@ class CreateOrganizationAction
                 $owner->forceFill([
                     'organization_id' => $organization->id,
                     'role' => UserRole::ADMIN,
-                    'name' => $validated['owner_name'],
                 ])->save();
 
                 $organization->forceFill([

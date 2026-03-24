@@ -9,6 +9,10 @@ class TariffPolicy
 {
     public function viewAny(User $user): bool
     {
+        if ($user->isSuperadmin()) {
+            return true;
+        }
+
         return ($user->isAdmin() || $user->isManager())
             && $user->organization_id !== null;
     }

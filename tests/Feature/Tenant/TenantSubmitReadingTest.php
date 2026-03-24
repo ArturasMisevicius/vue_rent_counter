@@ -5,6 +5,7 @@ use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
@@ -157,4 +158,27 @@ it('does not expose outside meters and rejects submissions for them', function (
             ->where('submitted_by_user_id', $tenant->user->id)
             ->exists()
     )->toBeFalse();
+});
+
+it('refreshes translated submit reading copy when the shell locale changes', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $component = Livewire::actingAs($tenant->user)
+        ->test(SubmitReadingPage::class)
+        ->assertSeeText(__('tenant.pages.readings.title', [], 'en'));
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($tenant->user->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('tenant.pages.readings.title', [], 'lt'))
+        ->assertSeeText(__('tenant.pages.readings.preview_heading', [], 'lt'));
 });

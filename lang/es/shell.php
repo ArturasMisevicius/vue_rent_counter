@@ -3,6 +3,9 @@
 return [
     'actions' => [
         'back_to_dashboard' => 'Back to Panel de control',
+        'destructive_confirm_single' => 'Esta acción no se puede deshacer. Está a punto de afectar permanentemente a :item.',
+        'destructive_confirm_bulk' => 'Esta acción no se puede deshacer. Está a punto de afectar permanentemente todos los registros seleccionados.',
+        'destructive_item_fallback' => 'este registro',
     ],
     'errors' => [
         'eyebrow' => 'Error :status',
@@ -41,8 +44,10 @@ return [
             'users' => 'Users',
             'subscriptions' => 'Suscripcións',
             'languages' => 'Languages',
+            'translations' => 'Translations',
             'translation_management' => 'Translation Management',
             'system_configuration' => 'System Configuration',
+            'platform_notifications' => 'Platform Notifications',
             'audit_logs' => 'Audit Logs',
             'security_violations' => 'Security Violations',
             'integration_health' => 'Integration Health',
@@ -110,7 +115,7 @@ return [
     ],
     'search' => [
         'label' => 'Global search',
-        'placeholder' => 'Search anything',
+        'placeholder' => 'Buscar cualquier cosa',
         'groups' => [
             'organizations' => 'Organizacións',
             'buildings' => 'Edificios',

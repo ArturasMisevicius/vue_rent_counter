@@ -1,4 +1,4 @@
-<div wire:poll.120s class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+<div wire:poll.visible.30s="refreshSummaryOnInterval" class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
     @if (! ($summary['has_assignment'] ?? false))
         <section class="lg:col-span-2">
             <x-shared.empty-state

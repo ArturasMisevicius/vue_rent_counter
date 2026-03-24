@@ -18,6 +18,9 @@ use App\Models\UtilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+
 uses(RefreshDatabase::class);
 
 it('shows organization-scoped tariff resource pages to admin and manager users', function () {
@@ -56,51 +59,62 @@ it('shows organization-scoped tariff resource pages to admin and manager users',
 
     $superadmin = User::factory()->superadmin()->create();
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.index'))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.index'))
         ->assertSuccessful()
         ->assertSeeText('Tariffs')
         ->assertSeeText($tariff->name)
         ->assertSeeText($provider->name)
         ->assertDontSeeText($otherTariff->name);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.create'))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.create'))
         ->assertSuccessful()
         ->assertSeeText('Provider')
         ->assertSeeText('Tariff Type')
         ->assertSeeText('Rate');
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.view', $tariff))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.view', $tariff))
         ->assertSuccessful()
         ->assertSeeText('Tariff Details')
         ->assertSeeText($tariff->name)
         ->assertSeeText($provider->name)
         ->assertSeeText('Flat');
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.edit', $tariff))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.edit', $tariff))
         ->assertSuccessful()
         ->assertSeeText('Save changes')
         ->assertSeeText($tariff->name);
 
-    $this->actingAs($manager)
-        ->get(route('filament.admin.resources.tariffs.index'))
+    actingAs($manager);
+
+    get(route('filament.admin.resources.tariffs.index'))
         ->assertSuccessful()
         ->assertSeeText($tariff->name);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.view', $otherTariff))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.view', $otherTariff))
         ->assertNotFound();
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.resources.tariffs.edit', $otherTariff))
+    actingAs($admin);
+
+    get(route('filament.admin.resources.tariffs.edit', $otherTariff))
         ->assertNotFound();
 
-    $this->actingAs($superadmin)
-        ->get(route('filament.admin.resources.tariffs.index'))
-        ->assertForbidden();
+    actingAs($superadmin);
+
+    get(route('filament.admin.resources.tariffs.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Tariffs')
+        ->assertSeeText($tariff->name)
+        ->assertSeeText($otherTariff->name);
 });
 
 it('creates, updates, and blocks deletion of tariffs with related service configurations', function () {

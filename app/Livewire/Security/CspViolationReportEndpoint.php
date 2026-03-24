@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Security;
 
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
@@ -10,10 +10,11 @@ use App\Http\Requests\Security\CspViolationRequest;
 use App\Services\Security\SecurityMonitoringService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Livewire\Component;
 
-final class CspViolationReportController extends Controller
+final class CspViolationReportEndpoint extends Component
 {
-    public function __invoke(
+    public function store(
         CspViolationRequest $request,
         SecurityMonitoringService $securityMonitor,
     ): Response {

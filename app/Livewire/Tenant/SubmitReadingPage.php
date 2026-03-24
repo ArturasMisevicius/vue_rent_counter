@@ -4,6 +4,7 @@ namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Meter;
 use App\Models\User;
@@ -12,10 +13,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class SubmitReadingPage extends Component
 {
+    use AppliesShellLocale;
     use ResolvesTenantWorkspace;
 
     public string $meterId = '';
@@ -95,6 +98,25 @@ class SubmitReadingPage extends Component
         ];
 
         $this->dispatch('reading.submitted');
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
+
+        unset(
+            $this->availableMeters,
+            $this->availableMeterIds,
+            $this->selectedMeter,
+            $this->consumption,
+            $this->meterSelectionLocked,
+            $this->tenant,
+        );
+
+        if ($this->successMessage !== null) {
+            $this->successMessage = __('tenant.pages.readings.success');
+        }
     }
 
     public function render(): View

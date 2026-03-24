@@ -13,6 +13,7 @@ use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -33,7 +34,7 @@ it('renders the admin dashboard component for admin users', function () {
         ->assertSeeText('INV-PAID-001')
         ->assertSeeText('Water Meter A1')
         ->assertDontSeeText('INV-OUTSIDE-001')
-        ->assertSeeHtml('wire:poll.30s');
+        ->assertSeeHtml('wire:poll.visible.15s="refreshDashboardOnInterval"');
 });
 
 it('renders the forbidden experience when a tenant tries to render the admin dashboard component', function () {
@@ -53,6 +54,26 @@ it('returns the same computed dashboard payload as the admin dashboard stats ser
 
     expect($component->instance()->dashboard())
         ->toEqual(app(AdminDashboardStats::class)->dashboardFor($admin, 10, 10));
+});
+
+it('refreshes translated admin dashboard copy when the shell locale changes', function () {
+    $admin = seedAdminDashboardComponentData();
+
+    $component = Livewire::actingAs($admin)
+        ->test(AdminDashboard::class)
+        ->assertSeeText(__('dashboard.organization_usage.heading', [], 'en'));
+
+    $admin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($admin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('dashboard.organization_usage.heading', [], 'lt'))
+        ->assertSeeText(__('dashboard.organization_metrics.total_properties', [], 'lt'));
 });
 
 function seedAdminDashboardComponentData(): User

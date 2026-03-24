@@ -15,10 +15,10 @@ const GUEST_LOCALE_CSRF_TOKEN = 'guest-locale-test-token';
 it('renders the shared locale switcher on each guest auth page', function (Closure $urlFactory) {
     $this->get($urlFactory())
         ->assertSuccessful()
-        ->assertSee('action="'.route('locale.update').'"', false)
-        ->assertSee('value="en"', false)
-        ->assertSee('value="lt"', false)
-        ->assertSee('value="ru"', false);
+        ->assertSee('data-shell-locale="switcher"', false)
+        ->assertSee("wire:click=\"changeLocale('en')\"", false)
+        ->assertSee("wire:click=\"changeLocale('lt')\"", false)
+        ->assertSee("wire:click=\"changeLocale('ru')\"", false);
 })->with([
     'login' => [
         fn (): string => route('login'),

@@ -91,7 +91,7 @@ it('shows organization dashboard metrics, usage, invoices, and deadlines for adm
         ->for($dueMeter)
         ->for($admin, 'submittedBy')
         ->create([
-            'reading_date' => now()->subDays(28)->toDateString(),
+            'reading_date' => now()->subDays(31)->toDateString(),
         ]);
 
     $recentMeter = Meter::factory()
@@ -139,7 +139,7 @@ it('shows organization dashboard metrics, usage, invoices, and deadlines for adm
         ]);
 
     $this->actingAs($admin)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Total Properties')
         ->assertSeeText('Active Tenants')
@@ -156,5 +156,5 @@ it('shows organization dashboard metrics, usage, invoices, and deadlines for adm
         ->assertSeeText('INV-100002')
         ->assertSeeText('Water Meter A1')
         ->assertDontSeeText('INV-999999')
-        ->assertSee('wire:poll.30s', false);
+        ->assertSee('wire:poll.visible.15s="refreshDashboardOnInterval"', false);
 });

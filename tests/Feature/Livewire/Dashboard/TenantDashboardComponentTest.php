@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
@@ -34,7 +35,7 @@ it('renders the tenant dashboard component for tenants', function () {
         ->assertSeeText('Assigned Property')
         ->assertSeeText('Apartment 12')
         ->assertSeeText('123 Garden Street')
-        ->assertSeeHtml('wire:poll.120s');
+        ->assertSeeHtml('wire:poll.visible.30s="refreshSummaryOnInterval"');
 });
 
 it('renders the forbidden experience when an admin tries to render the tenant dashboard component', function () {
@@ -102,4 +103,29 @@ it('scopes outstanding totals to the tenant assigned property', function () {
 
     expect((float) $component->instance()->summary()['outstanding_total'])
         ->toBe((float) $fixture->invoices->sum(fn (Invoice $invoice): float => (float) $invoice->outstanding_balance));
+});
+
+it('refreshes translated tenant dashboard copy when the shell locale changes', function () {
+    $fixture = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->withMeters(2)
+        ->withReadings()
+        ->create();
+
+    $component = Livewire::actingAs($fixture->user)
+        ->test(TenantDashboard::class)
+        ->assertSeeText(__('tenant.status.outstanding_balance', [], 'en'));
+
+    $fixture->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($fixture->user->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('tenant.status.outstanding_balance', [], 'lt'))
+        ->assertSeeText(__('tenant.pages.home.current_month_consumption', [], 'lt'));
 });

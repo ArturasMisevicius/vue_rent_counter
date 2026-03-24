@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Livewire\Tenant;
 
 use App\Filament\Support\Tenant\Portal\TenantPropertyPresenter;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class PropertyDetails extends Component
 {
+    use AppliesShellLocale;
     use ResolvesTenantWorkspace;
 
     public function mount(): void
@@ -27,6 +30,13 @@ class PropertyDetails extends Component
         return view('livewire.tenant.property-details', [
             'summary' => $this->summary,
         ]);
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
+        unset($this->summary);
     }
 
     /**

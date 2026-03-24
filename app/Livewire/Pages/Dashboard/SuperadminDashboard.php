@@ -43,6 +43,20 @@ final class SuperadminDashboard extends Component
         ]);
     }
 
+    public function refreshDashboardOnInterval(): void
+    {
+        $refreshedData = app(PlatformDashboardData::class)->for($this->user());
+
+        if ($refreshedData === $this->dashboardData) {
+            $this->skipRender();
+
+            return;
+        }
+
+        $this->dashboardData = $refreshedData;
+        unset($this->dashboard);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -64,10 +78,20 @@ final class SuperadminDashboard extends Component
     {
         return [
             'metrics' => [],
-            'revenueByPlan' => [],
-            'expiringSubscriptions' => [],
+            'revenueByPlan' => [
+                'labels' => [],
+                'series' => [],
+            ],
+            'expiringSubscriptions' => [
+                'rows' => [],
+                'has_more' => false,
+                'view_all_url' => '',
+            ],
             'recentSecurityViolations' => [],
-            'recentOrganizations' => [],
+            'recentOrganizations' => [
+                'rows' => [],
+                'export_url' => '',
+            ],
         ];
     }
 

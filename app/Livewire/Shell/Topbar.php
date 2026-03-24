@@ -3,6 +3,7 @@
 namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\DashboardUrlResolver;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,8 @@ use Livewire\Component;
 
 class Topbar extends Component
 {
+    use AppliesShellLocale;
+
     #[Locked]
     public string $context = 'panel';
 
@@ -29,7 +32,10 @@ class Topbar extends Component
     }
 
     #[On('shell-locale-updated')]
-    public function refresh(): void {}
+    public function refresh(): void
+    {
+        $this->applyShellLocale();
+    }
 
     public function render(
         DashboardUrlResolver $dashboardUrlResolver,

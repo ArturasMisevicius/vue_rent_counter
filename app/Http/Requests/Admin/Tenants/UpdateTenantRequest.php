@@ -20,7 +20,7 @@ class UpdateTenantRequest extends FormRequest
     {
         $user = $this->user();
 
-        return ($user?->isAdmin() || $user?->isManager()) ?? false;
+        return $user?->isAdminLike() ?? false;
     }
 
     public function forTenant(User $tenant): self

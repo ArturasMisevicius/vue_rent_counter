@@ -3,19 +3,31 @@
 namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\DashboardUrlResolver;
-use Filament\Facades\Filament;
+use App\Filament\Support\Shell\Navigation\NavigationBuilder;
+use App\Livewire\Concerns\AppliesShellLocale;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Sidebar extends Component
 {
-    public function render(DashboardUrlResolver $dashboardUrlResolver): View
+    use AppliesShellLocale;
+
+    #[On('shell-locale-updated')]
+    public function refresh(): void
     {
+        $this->applyShellLocale();
+    }
+
+    public function render(
+        DashboardUrlResolver $dashboardUrlResolver,
+        NavigationBuilder $navigationBuilder,
+    ): View {
         $user = auth()->user();
 
         return view('livewire.shell.sidebar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
-            'groups' => $user ? Filament::getNavigation() : [],
+            'groups' => $user ? $navigationBuilder->forUser($user, request()) : [],
         ]);
     }
 }

@@ -8,16 +8,20 @@ use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Auth\LoginDemoAccountPresenter;
 use App\Filament\Support\Auth\LoginRedirector;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class LoginPage extends Component
 {
+    use AppliesShellLocale;
+
     public function mount(Request $request): void
     {
         $intendedUrl = $this->resolveIntendedUrl($request);
@@ -86,6 +90,12 @@ class LoginPage extends Component
         return view('auth.login', [
             'demoAccounts' => $this->demoAccounts,
         ])->extends('layouts.guest');
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
     }
 
     /**

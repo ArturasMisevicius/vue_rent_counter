@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -74,6 +75,28 @@ it('restores the active report tab and filters from the query string', function 
         ->assertSet('tenantId', (string) $tenant->id)
         ->assertSet('statusFilter', InvoiceStatus::PAID->value)
         ->assertSeeText(__('admin.reports.descriptions.revenue_grouped'));
+});
+
+it('refreshes translated reports copy when the shell locale changes', function () {
+    [
+        'admin' => $admin,
+    ] = seedAdminReportsPageWorkspace();
+
+    $component = Livewire::actingAs($admin)
+        ->test(Reports::class)
+        ->assertSeeText(__('admin.reports.title', [], 'en'));
+
+    $admin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($admin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('admin.reports.title', [], 'lt'))
+        ->assertSeeText(__('admin.reports.filters.all', [], 'lt'));
 });
 
 function seedAdminReportsPageWorkspace(): array

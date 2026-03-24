@@ -9,7 +9,9 @@ use App\Filament\Resources\Invoices\Schemas\InvoiceForm;
 use App\Filament\Resources\Invoices\Schemas\InvoiceInfolist;
 use App\Filament\Resources\Invoices\Tables\InvoicesTable;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -18,12 +20,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class InvoiceResource extends Resource
 {
     protected static bool $shouldRegisterNavigation = false;
-
-    protected static bool $shouldCheckPolicyExistence = false;
 
     protected static ?string $model = Invoice::class;
 
@@ -58,7 +60,7 @@ class InvoiceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return auth()->user()?->isTenant()
+        return static::currentUser()?->isTenant()
             ? __('shell.navigation.groups.my_home')
             : __('shell.navigation.groups.billing');
     }
@@ -70,12 +72,7 @@ class InvoiceResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isSuperadmin()
-            || $user?->isAdmin()
-            || $user?->isManager()
-            || $user?->isTenant();
+        return static::canViewAny();
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -88,13 +85,23 @@ class InvoiceResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        $user = auth()->user();
+        $user = static::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()
+                ->withAdminWorkspaceRelations()
+                ->latestBillingFirst();
+        }
 
         if ($user?->isTenant()) {
-            $tenantId = (int) $user->getKey();
+            $workspace = app(WorkspaceResolver::class)->resolveFor($user);
+
+            if ($workspace->organizationId === null || $workspace->propertyId === null) {
+                return parent::getEloquentQuery()->whereKey(-1);
+            }
 
             return parent::getEloquentQuery()
-                ->forTenantWorkspace($user->organization_id, $tenantId);
+                ->forTenantWorkspace($workspace->organizationId, $workspace->userId, $workspace->propertyId);
         }
 
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
@@ -109,27 +116,40 @@ class InvoiceResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('viewAny', Invoice::class) ?? false;
+        return static::allows('viewAny', Invoice::class);
     }
 
     public static function canView(Model $record): bool
     {
         return $record instanceof Invoice
-            && (auth()->user()?->can('view', $record) ?? false);
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        $user = auth()->user();
-
         return $record instanceof Invoice
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && ($user?->isAdminLike() ?? false);
+            && static::allows('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return false;
+        return $record instanceof Invoice
+            && static::allows('delete', $record);
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::guard()->user();
+
+        return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, Invoice|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 
     public static function getRelations(): array

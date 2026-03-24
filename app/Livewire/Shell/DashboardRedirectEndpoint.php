@@ -2,17 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Shell;
 
 use App\Filament\Support\Auth\LoginRedirector;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Livewire\Component;
 
-final class DashboardRedirectController extends Controller
+final class DashboardRedirectEndpoint extends Component
 {
-    public function __invoke(Request $request, LoginRedirector $loginRedirector): RedirectResponse
-    {
+    public function redirect(
+        Request $request,
+        LoginRedirector $loginRedirector,
+    ): RedirectResponse {
         $user = $request->user();
 
         abort_unless($user instanceof User, 401);

@@ -4,12 +4,14 @@ namespace App\Filament\Resources\Tariffs\Schemas;
 
 use App\Enums\TariffType;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TariffForm
 {
@@ -24,9 +26,18 @@ class TariffForm
                             ->relationship(
                                 name: 'provider',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query): Builder => $query
-                                    ->select(['id', 'organization_id', 'name', 'service_type'])
-                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                                modifyQueryUsing: function (Builder $query): Builder {
+                                    $query->select(['id', 'organization_id', 'name', 'service_type']);
+
+                                    $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+                                    $user = Auth::user();
+
+                                    if ($organizationId === null && $user instanceof User && $user->isSuperadmin()) {
+                                        return $query;
+                                    }
+
+                                    return $query->where('organization_id', $organizationId);
+                                },
                             )
                             ->searchable()
                             ->preload()

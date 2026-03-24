@@ -21,7 +21,7 @@ class StoreTenantRequest extends FormRequest
     {
         $user = $this->user();
 
-        return ($user?->isAdmin() || $user?->isManager()) ?? false;
+        return $user?->isAdminLike() ?? false;
     }
 
     public function forOrganization(int $organizationId): self

@@ -3,11 +3,13 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
+use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
 use Filament\Pages\Page;
 
 class Profile extends Page
 {
     use InteractsWithAccountProfileForms;
+    use RefreshesOnShellLocaleUpdate;
 
     protected static bool $shouldRegisterNavigation = false;
 

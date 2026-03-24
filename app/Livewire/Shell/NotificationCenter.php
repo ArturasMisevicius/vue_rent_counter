@@ -3,14 +3,18 @@
 namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\Notifications\DatabaseNotificationPresenter;
+use App\Livewire\Concerns\AppliesShellLocale;
 use Illuminate\Contracts\View\View;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class NotificationCenter extends Component
 {
+    use AppliesShellLocale;
+
     public function refreshNotifications(): void
     {
         unset(
@@ -53,6 +57,13 @@ class NotificationCenter extends Component
             'read_at' => now(),
         ]);
 
+        $this->refreshNotifications();
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
         $this->refreshNotifications();
     }
 

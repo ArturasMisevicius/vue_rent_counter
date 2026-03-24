@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use Filament\Pages\Page;
 
 abstract class TenantPortalPage extends Page
 {
+    use RefreshesOnShellLocaleUpdate;
+
     public static function canAccess(): bool
     {
         return app(WorkspaceResolver::class)->current()?->isTenant() ?? false;

@@ -11,30 +11,50 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
 it('renders the superadmin dashboard component for superadmins', function () {
     $superadmin = seedSuperadminDashboardComponentData();
+    $dashboard = app(PlatformDashboardData::class)->for($superadmin);
 
-    Livewire::actingAs($superadmin)
+    $component = Livewire::actingAs($superadmin)
         ->test(SuperadminDashboard::class)
+        ->assertSeeText('Dashboard')
         ->assertSeeText('Total Organizations')
         ->assertSeeText('Active Subscriptions')
         ->assertSeeText('Platform Revenue This Month')
         ->assertSeeText('Security Violations (7 Days)')
-        ->assertSeeText('Revenue by Plan')
-        ->assertSeeText('Expiring Subscriptions')
+        ->assertSeeText((string) $dashboard['metrics'][0]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][1]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][2]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][3]['value'])
+        ->assertSeeText((string) $dashboard['metrics'][0]['trend'])
+        ->assertSeeText('Revenue by Plan — Last 12 Months')
+        ->assertSeeText('Subscriptions Expiring in 30 Days')
         ->assertSeeText('Recent Security Violations')
         ->assertSeeText('Recently Created Organizations')
-        ->assertSeeText('Total Properties')
-        ->assertSeeText('Active Managers')
-        ->assertSeeText('Organizations · Properties · Managers')
-        ->assertSeeText('Repeated failed login attempts')
+        ->assertSeeText('Export as CSV')
+        ->assertSeeText('Organization Name')
+        ->assertSeeText('Owner Email')
+        ->assertSeeText('Plan Type')
+        ->assertSeeText('Subscription Status')
+        ->assertSeeText('Number of Properties')
+        ->assertSeeText('Number of Tenants')
+        ->assertSeeText('Date Created')
+        ->assertSeeText((string) $dashboard['recentSecurityViolations'][0]['type'])
         ->assertSeeText('Aurora Offices')
         ->assertSeeText('Harbor Homes')
-        ->assertSeeHtml('wire:poll.60s');
+        ->assertSeeHtml('wire:poll.visible.60s="refreshDashboardOnInterval"')
+        ->assertDontSeeText('Organizations · Properties · Managers');
+
+    if ($dashboard['expiringSubscriptions']['has_more']) {
+        $component->assertSeeText('View All');
+    } else {
+        $component->assertDontSeeText('View All');
+    }
 });
 
 it('renders the forbidden experience when a workspace admin tries to render the superadmin dashboard component', function () {
@@ -56,20 +76,62 @@ it('returns the same computed dashboard payload as the platform dashboard data s
         ->toEqual(app(PlatformDashboardData::class)->for($superadmin));
 });
 
+it('refreshes translated superadmin dashboard copy when the shell locale changes', function () {
+    $superadmin = seedSuperadminDashboardComponentData();
+
+    $component = Livewire::actingAs($superadmin)
+        ->test(SuperadminDashboard::class)
+        ->assertSeeText(__('dashboard.platform_metrics.total_organizations', [], 'en'));
+
+    $superadmin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($superadmin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('dashboard.platform_metrics.total_organizations', [], 'lt'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_organizations', [], 'lt'));
+});
+
 function seedSuperadminDashboardComponentData(): User
 {
     $superadmin = User::factory()->superadmin()->create();
 
-    Organization::factory()->create([
+    $northwindOwner = User::factory()->create([
+        'email' => 'owner@northwind.test',
+    ]);
+
+    $northwind = Organization::factory()->create([
         'name' => 'Northwind Towers',
+        'owner_user_id' => $northwindOwner->id,
+        'created_at' => now()->subMonth(),
+    ]);
+
+    User::factory()->tenant()->count(2)->create([
+        'organization_id' => $northwind->id,
+    ]);
+
+    $auroraOwner = User::factory()->create([
+        'email' => 'owner@aurora.test',
+    ]);
+
+    $harborOwner = User::factory()->create([
+        'email' => 'owner@harbor.test',
     ]);
 
     $expiringOrganization = Organization::factory()->create([
         'name' => 'Aurora Offices',
+        'owner_user_id' => $auroraOwner->id,
+        'created_at' => now()->subDays(3),
     ]);
 
     $recentOrganization = Organization::factory()->create([
         'name' => 'Harbor Homes',
+        'owner_user_id' => $harborOwner->id,
+        'created_at' => now()->subDay(),
     ]);
 
     $basicSubscription = Subscription::factory()
@@ -92,7 +154,7 @@ function seedSuperadminDashboardComponentData(): User
         ->for($expiringOrganization)
         ->for($basicSubscription)
         ->create([
-            'amount' => 9900,
+            'amount' => 99.00,
             'paid_at' => now(),
         ]);
 
@@ -100,8 +162,16 @@ function seedSuperadminDashboardComponentData(): User
         ->for($recentOrganization)
         ->for($professionalSubscription)
         ->create([
-            'amount' => 19900,
+            'amount' => 199.00,
             'paid_at' => now(),
+        ]);
+
+    SubscriptionPayment::factory()
+        ->for($expiringOrganization)
+        ->for($basicSubscription)
+        ->create([
+            'amount' => 99.00,
+            'paid_at' => now()->subMonth(),
         ]);
 
     SecurityViolation::factory()->create([

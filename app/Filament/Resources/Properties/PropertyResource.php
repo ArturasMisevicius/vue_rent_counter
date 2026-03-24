@@ -25,6 +25,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PropertyResource extends Resource
 {
@@ -75,9 +76,7 @@ class PropertyResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = self::currentUser();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::canViewAny();
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -87,13 +86,7 @@ class PropertyResource extends Resource
 
     public static function canCreate(): bool
     {
-        $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return true;
-        }
-
-        if (! $user?->isAdmin() && ! $user?->isManager()) {
+        if (! static::allows('create', Property::class)) {
             return false;
         }
 
@@ -108,33 +101,27 @@ class PropertyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = self::currentUser();
-
-        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+        return static::allows('viewAny', Property::class);
     }
 
     public static function canView(Model $record): bool
     {
-        $user = self::currentUser();
-
-        if ($user?->isSuperadmin()) {
-            return true;
-        }
-
         return $record instanceof Property
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && static::canViewAny();
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record)
+        return $record instanceof Property
+            && static::allows('update', $record)
             && static::canMutateSubscriptionScopedRecords();
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canEdit($record);
+        return $record instanceof Property
+            && static::allows('delete', $record)
+            && static::canMutateSubscriptionScopedRecords();
     }
 
     /**
@@ -184,5 +171,13 @@ class PropertyResource extends Resource
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, Property|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 }

@@ -1,4 +1,4 @@
-<div wire:poll.30s class="space-y-6">
+<div wire:poll.visible.15s="refreshDashboardOnInterval" class="space-y-6">
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p class="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">{{ __('dashboard.organization_eyebrow') }}</p>
         <h2 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{{ __('dashboard.organization_heading') }}</h2>

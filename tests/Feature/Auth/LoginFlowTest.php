@@ -15,6 +15,10 @@ function registerLoginDestinationFixtures(): void
         Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
     }
 
+    if (! Route::has('filament.admin.pages.dashboard')) {
+        Route::get('/app', fn () => 'dashboard')->name('filament.admin.pages.dashboard');
+    }
+
     if (! Route::has('filament.admin.pages.tenant-dashboard')) {
         Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
@@ -134,13 +138,13 @@ it('redirects users to the unified app entrypoint for their role context', funct
     ],
     'tenant' => [
         fn () => User::factory()->tenant()->create(),
-        'filament.admin.pages.tenant-dashboard',
+        'filament.admin.pages.dashboard',
     ],
     'tenant without organization' => [
         fn () => User::factory()->tenant()->create([
             'organization_id' => null,
         ]),
-        'filament.admin.pages.tenant-dashboard',
+        'filament.admin.pages.dashboard',
     ],
 ]);
 
@@ -215,7 +219,7 @@ it('allows tenant users without an organization assignment to access the unified
         ->assertSeeText('Dashboard');
 });
 
-it('logs in tenant users without an organization assignment and redirects to tenant dashboard', function () {
+it('logs in tenant users without an organization assignment and redirects to the shared dashboard entrypoint', function () {
     registerLoginDestinationFixtures();
 
     $tenant = User::factory()->tenant()->create([
@@ -225,7 +229,7 @@ it('logs in tenant users without an organization assignment and redirects to ten
     $this->post(route('login.store'), [
         'email' => $tenant->email,
         'password' => 'password',
-    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $this->assertAuthenticatedAs($tenant);
 });

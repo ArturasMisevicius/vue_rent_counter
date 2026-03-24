@@ -19,6 +19,7 @@ use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
 use App\Http\Requests\Admin\Reports\OutstandingBalancesReportRequest;
 use App\Http\Requests\Admin\Reports\ReportExportRequest;
 use App\Http\Requests\Admin\Reports\RevenueReportRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Property;
@@ -35,12 +36,14 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportsPage extends Page
 {
+    use AppliesShellLocale;
     use WithPagination;
 
     protected string $view = 'filament.pages.reports';
@@ -218,6 +221,21 @@ class ReportsPage extends Page
             ->success()
             ->title(__('admin.reports.messages.reminder_sent'))
             ->send();
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
+
+        unset(
+            $this->tabs,
+            $this->report,
+            $this->rows,
+            $this->buildingOptions,
+            $this->propertyOptions,
+            $this->tenantOptions,
+        );
     }
 
     /**

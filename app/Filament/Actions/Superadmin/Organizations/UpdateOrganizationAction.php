@@ -7,8 +7,8 @@ use App\Enums\UserRole;
 use App\Http\Requests\Superadmin\Organizations\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class UpdateOrganizationAction
@@ -22,7 +22,6 @@ class UpdateOrganizationAction
         return DB::transaction(function () use ($organization, $validated): Organization {
             $organization->update([
                 'name' => $validated['name'],
-                'slug' => Str::slug($validated['name']),
             ]);
 
             if (filled($validated['owner_email'])) {
@@ -41,7 +40,6 @@ class UpdateOrganizationAction
                     $owner->forceFill([
                         'organization_id' => $organization->id,
                         'role' => UserRole::ADMIN,
-                        'name' => $validated['owner_name'] ?? $owner->name,
                     ])->save();
 
                     $organization->forceFill([
@@ -71,9 +69,35 @@ class UpdateOrganizationAction
                     ])
                     ->latest('expires_at')
                     ->first();
+            } else {
+                $subscription = $organization->subscriptions()
+                    ->select([
+                        'id',
+                        'organization_id',
+                        'plan',
+                        'status',
+                        'starts_at',
+                        'expires_at',
+                        'is_trial',
+                        'property_limit_snapshot',
+                        'tenant_limit_snapshot',
+                        'meter_limit_snapshot',
+                        'invoice_limit_snapshot',
+                    ])
+                    ->latest('expires_at')
+                    ->first();
+            }
 
-                if ($subscription !== null) {
+            if ($subscription !== null) {
+                if ($plan instanceof SubscriptionPlan) {
                     $subscription->applyPlanSnapshots($plan);
+                }
+
+                if (filled($validated['expires_at'] ?? null)) {
+                    $subscription->expires_at = CarbonImmutable::parse((string) $validated['expires_at'])->startOfDay();
+                }
+
+                if ($subscription->isDirty()) {
                     $subscription->save();
                 }
             }

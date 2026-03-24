@@ -22,14 +22,15 @@ it('only allows superadmins to reach organizations control-plane pages', functio
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.create'))
         ->assertSuccessful()
-        ->assertSeeText('Create organization')
-        ->assertSeeText('Owner email')
-        ->assertSeeText('Subscription plan');
+        ->assertSeeText('New Organization')
+        ->assertSeeText('Owner Email Address')
+        ->assertSeeText('Plan');
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.view', $organization))
         ->assertSuccessful()
-        ->assertSeeText('Organization Overview')
+        ->assertSeeText('Organization Details')
+        ->assertSeeText('Subscription Summary')
         ->assertSeeText($organization->slug);
 
     $this->actingAs($superadmin)
@@ -39,7 +40,7 @@ it('only allows superadmins to reach organizations control-plane pages', functio
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.edit', $organization))
         ->assertSuccessful()
-        ->assertSeeText('Save changes')
+        ->assertSeeText('Save Changes')
         ->assertSeeText($organization->name);
 
     $this->actingAs($admin)

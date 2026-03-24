@@ -20,6 +20,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ManagersRelationManager extends RelationManager
 {
@@ -59,6 +61,12 @@ class ManagersRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Create manager')
+                    ->authorize(function (): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('create', User::class);
+                    })
                     ->form([
                         TextInput::make('name')
                             ->label('Name')
@@ -103,6 +111,12 @@ class ManagersRelationManager extends RelationManager
                 ViewAction::make()
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record])),
                 EditAction::make()
+                    ->authorize(function (User $record): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('update', $record);
+                    })
                     ->form([
                         TextInput::make('name')
                             ->label('Name')
@@ -144,7 +158,13 @@ class ManagersRelationManager extends RelationManager
                         return $record->refresh();
                     }),
                 DeleteAction::make()
-                    ->authorize(fn (User $record): bool => $record->canBeDeletedFromSuperadmin()),
+                    ->authorize(function (User $record): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('delete', $record)
+                            && $record->canBeDeletedFromSuperadmin();
+                    }),
             ])
             ->defaultSort('name');
     }

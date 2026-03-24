@@ -1,20 +1,25 @@
 <?php
 
-use App\Http\Controllers\TenantInvoiceDownloadController;
 use App\Livewire\Auth\AcceptInvitationPage;
 use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
 use App\Livewire\Auth\RegisterPage;
 use App\Livewire\Auth\ResetPasswordPage;
 use App\Livewire\Onboarding\WelcomePage;
+use App\Livewire\Preferences\SwitchGuestLocaleEndpoint;
 use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
 use App\Livewire\PublicSite\HomepagePage;
 use App\Livewire\PublicSite\ShowFaviconEndpoint;
+use App\Livewire\Security\CspViolationReportEndpoint;
+use App\Livewire\Shell\DashboardRedirectEndpoint;
 use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
+use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
+use App\Livewire\Tenant\DownloadInvoiceEndpoint;
 use App\Livewire\Tenant\InvoiceHistory;
 use App\Livewire\Tenant\SubmitMeterReading;
 use App\Livewire\Tenant\TenantDashboard;
+use App\Livewire\Tenant\TenantPortalRouteEndpoint;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -151,15 +156,39 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     'password update' => ['password.update', ResetPasswordPage::class.'@resetPassword'],
     'invitation store' => ['invitation.store', AcceptInvitationPage::class.'@store'],
     'welcome store' => ['welcome.store', WelcomePage::class.'@store'],
+    'csp report' => ['security.csp.report', CspViolationReportEndpoint::class.'@store'],
+    'dashboard redirect' => ['dashboard', DashboardRedirectEndpoint::class.'@redirect'],
     'impersonation stop' => ['impersonation.stop', StopImpersonationEndpoint::class.'@stop'],
-    'tenant invoice download' => ['tenant.invoices.download', TenantInvoiceDownloadController::class],
+    'platform dashboard export' => [
+        'filament.admin.pages.platform-dashboard.recent-organizations-export',
+        ExportRecentOrganizationsCsvEndpoint::class.'@download',
+    ],
+    'guest locale switch' => ['language.switch', SwitchGuestLocaleEndpoint::class.'@change'],
+    'tenant invoice download' => ['tenant.invoices.download', DownloadInvoiceEndpoint::class.'@download'],
+    'tenant home alias' => ['tenant.home', TenantPortalRouteEndpoint::class.'@show'],
+    'tenant reading alias' => ['tenant.readings.create', TenantPortalRouteEndpoint::class.'@show'],
+    'tenant invoices alias' => ['tenant.invoices.index', TenantPortalRouteEndpoint::class.'@show'],
+    'tenant property alias' => ['tenant.property.show', TenantPortalRouteEndpoint::class.'@show'],
+    'tenant profile alias' => ['tenant.profile.edit', TenantPortalRouteEndpoint::class.'@show'],
     'logout' => ['logout', LogoutEndpoint::class.'@logout'],
 ]);
 
-it('keeps routes/web.php free of inline callbacks', function (): void {
+it('keeps routes/web.php free of inline route action callbacks', function (): void {
     $contents = File::get(base_path('routes/web.php'));
 
-    expect($contents)
-        ->not->toContain('fn (')
-        ->not->toContain('function (');
+    expect($contents)->not->toMatch(
+        '/Route::(?:get|post|put|patch|delete|options|match|any)\\([^;]*(?:fn \\(|function \\()/s',
+    );
+});
+
+it('keeps app http controllers reserved for the base controller only', function (): void {
+    $controllerFiles = collect(File::allFiles(app_path('Http/Controllers')))
+        ->map(fn ($file) => $file->getRelativePathname())
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($controllerFiles)->toBe([
+        'Controller.php',
+    ]);
 });

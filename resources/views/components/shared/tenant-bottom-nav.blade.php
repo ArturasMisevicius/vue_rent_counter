@@ -9,8 +9,9 @@
                 'key' => 'home',
                 'label' => __('tenant.navigation.home'),
                 'icon' => 'heroicon-m-home',
-                'route' => 'filament.admin.pages.tenant-dashboard',
+                'route' => 'filament.admin.pages.dashboard',
                 'patterns' => [
+                    'filament.admin.pages.dashboard',
                     'filament.admin.pages.tenant-dashboard',
                     'filament.admin.pages.tenant-property-details',
                     'tenant.home',

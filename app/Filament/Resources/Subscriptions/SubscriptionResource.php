@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -99,6 +100,11 @@ class SubscriptionResource extends Resource
                     ->label('Expires At')
                     ->date()
                     ->sortable(),
+            ])
+            ->filters([
+                Filter::make('expiring_soon')
+                    ->label('Expiring in 30 days')
+                    ->query(fn (Builder $query): Builder => $query->expiringWithin(30)),
             ])
             ->defaultSort('expires_at');
     }

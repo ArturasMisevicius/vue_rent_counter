@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\UserRole;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -69,13 +70,36 @@ class Organization extends Model
         ]);
     }
 
+    public function scopeWithCurrentSubscriptionSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'currentSubscription:id,organization_id,plan,status,expires_at,property_limit_snapshot,tenant_limit_snapshot',
+        ]);
+    }
+
+    public function scopeWithTenantCount(Builder $query): Builder
+    {
+        return $query->withCount([
+            'users as tenants_count' => fn (Builder $tenantQuery): Builder => $tenantQuery->where('role', UserRole::TENANT),
+        ]);
+    }
+
+    public function scopeWithBuildingCount(Builder $query): Builder
+    {
+        return $query->withCount('buildings');
+    }
+
     public function scopeForSuperadminControlPlane(Builder $query): Builder
     {
         return $query
             ->select(self::CONTROL_PLANE_COLUMNS)
             ->withOwnerSummary()
+            ->withCurrentSubscriptionSummary()
             ->withUsageCounts()
-            ->ordered();
+            ->withBuildingCount()
+            ->withTenantCount()
+            ->latest('created_at')
+            ->latest('id');
     }
 
     public function owner(): BelongsTo

@@ -8,8 +8,7 @@ use App\Filament\Resources\Organizations\Pages\EditOrganization;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
-use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManager;
-use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\BuildingsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Organizations\Schemas\OrganizationForm;
@@ -73,9 +72,8 @@ class OrganizationResource extends Resource
     {
         return [
             'users' => UsersRelationManager::class,
-            'managers' => ManagersRelationManager::class,
             'subscriptions' => SubscriptionsRelationManager::class,
-            'properties' => PropertiesRelationManager::class,
+            'buildings' => BuildingsRelationManager::class,
             'activity-logs' => ActivityLogsRelationManager::class,
         ];
     }

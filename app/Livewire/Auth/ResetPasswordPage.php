@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -10,10 +11,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ResetPasswordPage extends Component
 {
+    use AppliesShellLocale;
+
     #[Locked]
     public string $token = '';
 
@@ -58,5 +62,11 @@ class ResetPasswordPage extends Component
             'token' => $this->token,
             'email' => $this->email,
         ])->extends('layouts.guest');
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
     }
 }

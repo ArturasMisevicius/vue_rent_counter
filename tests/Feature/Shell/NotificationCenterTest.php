@@ -4,6 +4,7 @@ use App\Livewire\Shell\NotificationCenter;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -85,6 +86,32 @@ it('never renders another users notifications', function () {
         ->test(NotificationCenter::class)
         ->assertSee('Visible notification')
         ->assertDontSee('Hidden notification');
+});
+
+it('refreshes translated notification center copy when the shell locale changes', function () {
+    $user = User::factory()->admin()->create();
+
+    $user->notify(shellNotification([
+        'title' => 'Invoice ready',
+        'body' => 'Invoice INV-2026-001 is ready for review.',
+    ]));
+
+    $component = Livewire::actingAs($user)
+        ->test(NotificationCenter::class)
+        ->assertSeeText(__('shell.notifications.heading', [], 'en'))
+        ->assertSeeText(__('shell.notifications.actions.mark_all_read', [], 'en'));
+
+    $user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($user->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.notifications.heading', [], 'lt'))
+        ->assertSeeText(__('shell.notifications.actions.mark_all_read', [], 'lt'));
 });
 
 function shellNotification(array $data): Notification

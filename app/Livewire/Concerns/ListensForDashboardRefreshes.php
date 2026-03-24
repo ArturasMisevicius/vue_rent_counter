@@ -8,6 +8,7 @@ use Livewire\Attributes\On;
 
 trait ListensForDashboardRefreshes
 {
+    use AppliesShellLocale;
     use SupportsEchoListeners;
 
     /**
@@ -31,8 +32,11 @@ trait ListensForDashboardRefreshes
 
     #[On('invoice.finalized')]
     #[On('reading.submitted')]
+    #[On('shell-locale-updated')]
     public function refreshDashboardData(): void
     {
+        $this->applyShellLocale();
+
         if (property_exists($this, 'dashboardData')) {
             $this->dashboardData = [];
         }

@@ -5,6 +5,7 @@ namespace App\Livewire\Shell;
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
 use App\Http\Requests\Shell\SearchQueryRequest;
+use App\Livewire\Concerns\AppliesShellLocale;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -13,6 +14,8 @@ use Livewire\Component;
 
 class GlobalSearch extends Component
 {
+    use AppliesShellLocale;
+
     public bool $open = false;
 
     #[Url(as: 'q', except: '')]
@@ -38,6 +41,17 @@ class GlobalSearch extends Component
     {
         $this->query = '';
         $this->open = false;
+    }
+
+    #[On('shell-locale-updated')]
+    public function refreshTranslations(): void
+    {
+        $this->applyShellLocale();
+
+        unset($this->groupLabels);
+        unset($this->results);
+        unset($this->visibleResults);
+        unset($this->hasResults);
     }
 
     public function render(): View

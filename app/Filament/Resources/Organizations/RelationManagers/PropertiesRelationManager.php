@@ -11,6 +11,7 @@ use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Models\Building;
 use App\Models\Property;
+use App\Models\User;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,6 +22,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PropertiesRelationManager extends RelationManager
 {
@@ -69,6 +72,12 @@ class PropertiesRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Create property')
+                    ->authorize(function (): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('create', Property::class);
+                    })
                     ->form([
                         Select::make('building_id')
                             ->label('Building')
@@ -101,6 +110,12 @@ class PropertiesRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make()
+                    ->authorize(function (Property $record): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('update', $record);
+                    })
                     ->form([
                         Select::make('building_id')
                             ->label('Building')
@@ -131,6 +146,12 @@ class PropertiesRelationManager extends RelationManager
                     ])
                     ->using(fn (Property $record, array $data): Property => app(UpdatePropertyAction::class)->handle($record, $data)),
                 DeleteAction::make()
+                    ->authorize(function (Property $record): bool {
+                        $user = Auth::guard()->user();
+
+                        return $user instanceof User
+                            && Gate::forUser($user)->allows('delete', $record);
+                    })
                     ->using(fn (Property $record) => app(DeletePropertyAction::class)->handle($record)),
             ])
             ->defaultSort('name');

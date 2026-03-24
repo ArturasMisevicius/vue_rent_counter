@@ -20,6 +20,10 @@ class ResolveGuestLocaleAction
 
     public function sessionLocale(Request $request): ?string
     {
+        if (! $request->hasSession()) {
+            return null;
+        }
+
         return $this->supportedLocale(
             $request->session()->get(config('app.guest_locale_session_key', 'guest_locale')),
         );

@@ -11,6 +11,7 @@ use App\Filament\Resources\Providers\Schemas\ProviderInfolist;
 use App\Filament\Resources\Providers\Tables\ProvidersTable;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Provider;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -19,12 +20,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ProviderResource extends Resource
 {
     protected static bool $shouldRegisterNavigation = false;
-
-    protected static bool $shouldCheckPolicyExistence = false;
 
     protected static ?string $model = Provider::class;
 
@@ -59,14 +60,12 @@ class ProviderResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isAdmin() || $user?->isManager();
+        return static::allows('viewAny', Provider::class);
     }
 
     public static function canCreate(): bool
     {
-        return static::canViewAny();
+        return static::allows('create', Provider::class);
     }
 
     /**
@@ -74,6 +73,23 @@ class ProviderResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return parent::getEloquentQuery()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'name',
+                    'service_type',
+                    'contact_info',
+                    'created_at',
+                    'updated_at',
+                ])
+                ->ordered()
+                ->withCount(['tariffs', 'serviceConfigurations']);
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -87,21 +103,35 @@ class ProviderResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        $user = auth()->user();
-
         return $record instanceof Provider
-            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && ($user?->isAdmin() || $user?->isManager());
+            && static::allows('view', $record);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof Provider
+            && static::allows('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canView($record);
+        return $record instanceof Provider
+            && static::allows('delete', $record);
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::guard()->user();
+
+        return $user instanceof User ? $user : null;
+    }
+
+    private static function allows(string $ability, Provider|string $subject): bool
+    {
+        $user = static::currentUser();
+
+        return $user instanceof User
+            && Gate::forUser($user)->allows($ability, $subject);
     }
 
     public static function getRelations(): array

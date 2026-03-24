@@ -25,7 +25,18 @@ class TenantInvoiceIndexQuery
                 ->withQueryString();
         }
 
-        $query = Invoice::query()->forTenantWorkspace($workspace->organizationId, $workspace->userId);
+        if ($workspace->propertyId === null) {
+            return Invoice::query()
+                ->whereKey(-1)
+                ->simplePaginate(10)
+                ->withQueryString();
+        }
+
+        $query = Invoice::query()->forTenantWorkspace(
+            $workspace->organizationId,
+            $workspace->userId,
+            $workspace->propertyId,
+        );
 
         match ($status) {
             'unpaid', 'outstanding' => $query->outstanding(),

@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Settings\RenewOrganizationSubscriptionAction;
 use App\Filament\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
 use App\Filament\Actions\Admin\Settings\UpdateOrganizationSettingsAction;
 use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
+use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
 use App\Http\Requests\Admin\Settings\RenewSubscriptionRequest;
 use App\Http\Requests\Admin\Settings\UpdateNotificationPreferencesRequest;
 use App\Http\Requests\Admin\Settings\UpdateOrganizationSettingsRequest;
@@ -20,6 +21,7 @@ use Filament\Pages\Page;
 class Settings extends Page
 {
     use InteractsWithAccountProfileForms;
+    use RefreshesOnShellLocaleUpdate;
 
     protected static bool $shouldRegisterNavigation = false;
 

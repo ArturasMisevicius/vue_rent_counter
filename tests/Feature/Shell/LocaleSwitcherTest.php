@@ -5,6 +5,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+use function Pest\Laravel\withSession;
+
 uses(RefreshDatabase::class);
 
 it('shows the current locale abbreviation and locale names in their own language', function () {
@@ -48,6 +52,18 @@ it('rejects unsupported locales through the shared form request rules', function
     expect($user->fresh()->locale)->toBe('en');
 });
 
+it('persists the selected locale for guests in session and dispatches a refresh event', function () {
+    withSession([]);
+
+    Livewire::test(LanguageSwitcher::class)
+        ->call('changeLocale', 'lt')
+        ->assertSet('currentLocale', 'lt')
+        ->assertDispatched('shell-locale-updated');
+
+    expect(session(config('app.guest_locale_session_key', 'guest_locale')))->toBe('lt')
+        ->and(app()->getLocale())->toBe('lt');
+});
+
 it('uses the updated locale on the next authenticated response', function () {
     $user = User::factory()->tenant()->create([
         'locale' => 'en',
@@ -57,8 +73,9 @@ it('uses the updated locale on the next authenticated response', function () {
         ->test(LanguageSwitcher::class)
         ->call('changeLocale', 'lt');
 
-    $this->actingAs($user->fresh())
-        ->get(route('filament.admin.pages.tenant-dashboard'))
+    actingAs($user->fresh());
+
+    get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Nuomininko portalas')
         ->assertSeeText('Profilis');

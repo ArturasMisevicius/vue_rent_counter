@@ -9,7 +9,7 @@ it('keeps the highest-risk workspace entrypoints on the shared workspace contrac
         'app/Filament/Support/Admin/OrganizationContext.php',
         'app/Providers/Filament/AppPanelProvider.php',
         'app/Filament/Pages/TenantPortalPage.php',
-        'app/Http/Controllers/TenantPortalRouteController.php',
+        'app/Livewire/Tenant/TenantPortalRouteEndpoint.php',
         'app/Filament/Support/Tenant/Portal/TenantInvoiceIndexQuery.php',
         'app/Filament/Support/Tenant/Portal/TenantHomePresenter.php',
         'app/Filament/Support/Tenant/Portal/TenantPropertyPresenter.php',

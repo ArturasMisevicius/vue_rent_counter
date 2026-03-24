@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Preferences;
 
 use App\Filament\Actions\Preferences\ResolveGuestLocaleRedirectAction;
 use App\Filament\Actions\Preferences\StoreGuestLocaleAction;
 use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Livewire\Component;
 
-final class SwitchGuestLocaleController extends Controller
+final class SwitchGuestLocaleEndpoint extends Component
 {
-    public function __invoke(
+    public function change(
         string $locale,
         Request $request,
         StoreGuestLocaleAction $storeGuestLocaleAction,

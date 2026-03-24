@@ -5,6 +5,7 @@ use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -101,10 +102,11 @@ it('shows organization-scoped invoice resource pages to admin and manager users'
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.invoices.index'))
         ->assertSuccessful()
-        ->assertDontSeeText($invoice->invoice_number);
+        ->assertSeeText($invoice->invoice_number)
+        ->assertSeeText($otherInvoice->invoice_number);
 });
 
-it('shows tenants only their own invoices inside the shared panel invoice resource', function () {
+it('shows tenants only their current-workspace invoices inside the shared panel invoice resource', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();
     $property = Property::factory()->for($organization)->for($building)->create();
@@ -116,6 +118,15 @@ it('shows tenants only their own invoices inside the shared panel invoice resour
         'organization_id' => $organization->id,
         'name' => 'Tenant Two',
     ]);
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => now()->subWeek(),
+            'unassigned_at' => null,
+        ]);
 
     $invoice = Invoice::factory()
         ->for($organization)
