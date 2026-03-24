@@ -9,6 +9,7 @@ use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Filament\Resources\Users\Schemas\UserTable;
 use App\Models\User;
 use BackedEnum;
 use Filament\Forms\Components\Select;
@@ -19,8 +20,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -103,31 +102,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('name')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable(),
-                TextColumn::make('organization.name')
-                    ->label('Organization')
-                    ->searchable(),
-                TextColumn::make('role')
-                    ->label('Role')
-                    ->badge(),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge(),
-            ])
-            ->filters([
-                SelectFilter::make('role')
-                    ->label('Role')
-                    ->options(UserRole::options()),
-            ])
-            ->defaultSort('name');
+        return UserTable::configure($table);
     }
 
     public static function getModelLabel(): string

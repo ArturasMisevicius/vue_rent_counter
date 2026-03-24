@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\Profile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
@@ -139,4 +140,25 @@ it('shows human-readable labels for supported locales only on the tenant profile
         ->not->toContain('>LT</option>')
         ->not->toContain('>RU</option>')
         ->not->toContain('>Deutsch</option>');
+});
+
+it('refreshes translated tenant profile copy when the shell locale changes', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $component = Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->assertSeeText(__('shell.profile.title', [], 'en'))
+        ->assertSeeText(__('shell.profile.personal_information.heading', [], 'en'));
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($tenant->user->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.profile.title', [], 'lt'))
+        ->assertSeeText(__('shell.profile.personal_information.heading', [], 'lt'));
 });

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed plan 03-01 in Phase 3 after skipping the external Phase 1 branch-protection blocker
-last_updated: "2026-03-24T01:32:55Z"
+stopped_at: Phase 4 Task 1 guard added and verified; Tasks 2-4 remain after the external Phase 1 blocker skip
+last_updated: "2026-03-24T01:37:05Z"
 progress:
   total_phases: 7
   completed_phases: 2
@@ -64,6 +64,7 @@ Recent decisions affecting current work:
 - [Phase 02] Guard tenant Livewire components with the shared tenant workspace trait so direct component entrypoints cannot bypass route-level tenant boundaries.
 - [Phase 03] Use the shared `/app` dashboard entrypoint as the canonical authenticated landing route for onboarded roles.
 - [Phase 03] Treat configured shell navigation roles plus shared read builders as the canonical source for navigation, search, reports, and tenant/staff invoice read surfaces.
+- [Phase 04] Keep representative mutation entrypoints delegated to shared action and service seams, with architecture inventory coverage to prevent UI-local mutation drift.
 - [Phase 5] Delay billing extraction until safety, boundaries, read paths, and mutation pipelines are standardized.
 - [Phase 07] Keep `app/Http/Controllers/Controller.php` only as the framework base controller and migrate every remaining concrete web route handler into Livewire endpoint components.
 - [Planning] Use one master execution plan per remaining phase so Phases 2 through 6 can advance without another planning pass.
@@ -85,6 +86,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-24T01:32:55Z
-Stopped at: Completed plan 03-01 in Phase 03 after skipping the external Phase 01 blocker
+Last session: 2026-03-24T01:37:05Z
+Stopped at: Phase 4 Task 1 guard added and verified; Tasks 2-4 remain after the external Phase 01 blocker skip
 Resume file: .planning/phases/04-mutation-governance-and-async-pipelines/04-01-PLAN.md

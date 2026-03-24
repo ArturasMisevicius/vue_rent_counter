@@ -138,3 +138,4 @@ Plans:
 - Added missing CRUD resource surfaces for relation-heavy models: `Project`, `Task`, `TaskAssignment`, `PropertyAssignment`, `OrganizationUser`, and `Tag`.
 - Standardized updated enum option inputs and filters to use enum-driven option generation (`Enum::options()`) to keep translation-backed labels consistent.
 - Verified the unified `/app` entrypoint, shared navigation source-of-truth, shared read-model inventory, and tenant invoice resource consistency as the completed Phase 3 contract.
+- Added `tests/Feature/Architecture/MutationPipelineInventoryTest.php` and verified the representative mutation entrypoints still delegate to shared action/service seams as the first explicit Phase 4 guard.

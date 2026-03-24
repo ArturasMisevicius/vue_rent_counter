@@ -1,8 +1,12 @@
 <?php
 
+use App\Livewire\Shell\ImpersonationBanner;
 use App\Models\Organization;
 use App\Models\User;
+use App\Services\ImpersonationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -53,6 +57,51 @@ it('does not render the banner on admin pages when no impersonation session exis
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertDontSeeText('You are impersonating this account');
+});
+
+it('refreshes translated impersonation banner copy when the shell locale changes', function () {
+    $organization = Organization::factory()->create();
+    $impersonator = User::factory()->superadmin()->create();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    app()->instance(ImpersonationService::class, new class($impersonator)
+    {
+        public function __construct(
+            private readonly User $impersonator,
+        ) {}
+
+        /**
+         * @return array{id: int, name: string, email: string}
+         */
+        public function current($request): array
+        {
+            return [
+                'id' => $this->impersonator->id,
+                'name' => $this->impersonator->name,
+                'email' => $this->impersonator->email,
+            ];
+        }
+    });
+
+    $component = Livewire::actingAs($manager)
+        ->test(ImpersonationBanner::class)
+        ->assertSeeText(__('shell.impersonation.heading', [], 'en'))
+        ->assertSeeText(__('shell.impersonation.actions.stop', [], 'en'));
+
+    $manager->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($manager->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.impersonation.heading', [], 'lt'))
+        ->assertSeeText(__('shell.impersonation.actions.stop', [], 'lt'));
 });
 
 function impersonationSessionFor(User $impersonator): array

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use Closure;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -295,6 +296,19 @@ class User extends Authenticatable implements FilamentUser
     {
         return $query
             ->select(self::CONTROL_PLANE_COLUMNS)
+            ->withExists([
+                'invoices as superadmin_delete_has_invoices',
+                'ownedOrganization as superadmin_delete_has_owned_buildings' => fn (Builder $ownedOrganizationQuery): Builder => $ownedOrganizationQuery->whereHas(
+                    'buildings',
+                    fn (Builder $buildingQuery): Builder => $buildingQuery->select(['id', 'organization_id']),
+                ),
+                'actorAuditLogs as superadmin_delete_has_audit_logs',
+                'currentPropertyAssignment as superadmin_delete_has_current_property_assignment',
+                'leases as superadmin_delete_has_active_leases' => fn (Builder $leaseQuery): Builder => $leaseQuery->active(),
+                'submittedMeterReadings as superadmin_delete_has_meter_readings',
+                'ownedOrganization as superadmin_delete_has_owned_organization',
+                'superAdminAuditLogs as superadmin_delete_has_superadmin_audit_logs',
+            ])
             ->withOrganizationSummary()
             ->orderedByName();
     }
@@ -337,13 +351,105 @@ class User extends Authenticatable implements FilamentUser
 
     public function canBeDeletedFromSuperadmin(): bool
     {
-        return ! $this->actorAuditLogs()
-            ->select(['id', 'actor_user_id'])
-            ->exists();
+        return $this->superadminDeletionBlockedReason() === null;
+    }
+
+    public function superadminDeletionBlockedReason(): ?string
+    {
+        $blockers = [];
+
+        if ($this->hasSuperadminDeletionInvoiceBlocker()) {
+            $blockers[] = 'linked invoices still exist';
+        }
+
+        if ($this->hasSuperadminDeletionBuildingBlocker()) {
+            $blockers[] = 'their organization still has buildings';
+        }
+
+        if ($this->hasSuperadminDeletionActiveDataBlocker()) {
+            $blockers[] = 'active records are still tied to them';
+        }
+
+        if ($blockers === []) {
+            return null;
+        }
+
+        return 'Cannot delete this user because '.implode('; ', $blockers).'.';
     }
 
     public function getCurrentPropertyAttribute(): ?Property
     {
         return $this->currentPropertyAssignment?->property;
+    }
+
+    private function hasSuperadminDeletionInvoiceBlocker(): bool
+    {
+        return $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_invoices',
+            fn (): bool => $this->invoices()
+                ->select(['id', 'tenant_user_id'])
+                ->exists(),
+        );
+    }
+
+    private function hasSuperadminDeletionBuildingBlocker(): bool
+    {
+        return $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_owned_buildings',
+            fn (): bool => $this->ownedOrganization()
+                ->whereHas(
+                    'buildings',
+                    fn (Builder $buildingQuery): Builder => $buildingQuery->select(['id', 'organization_id']),
+                )
+                ->select(['id', 'owner_user_id'])
+                ->exists(),
+        );
+    }
+
+    private function hasSuperadminDeletionActiveDataBlocker(): bool
+    {
+        return $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_audit_logs',
+            fn (): bool => $this->actorAuditLogs()
+                ->select(['id', 'actor_user_id'])
+                ->exists(),
+        ) || $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_current_property_assignment',
+            fn (): bool => $this->currentPropertyAssignment()
+                ->select(['id', 'tenant_user_id'])
+                ->exists(),
+        ) || $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_active_leases',
+            fn (): bool => $this->leases()
+                ->select(['id', 'tenant_user_id'])
+                ->active()
+                ->exists(),
+        ) || $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_meter_readings',
+            fn (): bool => $this->submittedMeterReadings()
+                ->select(['id', 'submitted_by_user_id'])
+                ->exists(),
+        ) || (! $this->hasSuperadminDeletionBuildingBlocker() && $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_owned_organization',
+            fn (): bool => $this->ownedOrganization()
+                ->select(['id', 'owner_user_id'])
+                ->exists(),
+        )) || $this->resolveSuperadminDeletionFlag(
+            'superadmin_delete_has_superadmin_audit_logs',
+            fn (): bool => $this->superAdminAuditLogs()
+                ->select(['id', 'admin_id'])
+                ->exists(),
+        );
+    }
+
+    private function resolveSuperadminDeletionFlag(string $attribute, Closure $resolver): bool
+    {
+        $value = $this->getAttribute($attribute);
+
+        if ($value !== null) {
+            return (bool) $value;
+        }
+
+        return $resolver();
     }
 }

@@ -72,3 +72,21 @@ it('rejects future-dated and decreasing shared meter readings', function () {
         submissionMethod: MeterReadingSubmissionMethod::ADMIN_MANUAL,
     ))->toThrow(ValidationException::class);
 });
+
+it('rejects malformed meter reading payloads before domain validation runs', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+
+    expect(fn () => app(CreateMeterReadingAction::class)->handle(
+        meter: $meter,
+        readingValue: '-10.000',
+        readingDate: 'not-a-date',
+        submittedBy: $admin,
+        submissionMethod: MeterReadingSubmissionMethod::ADMIN_MANUAL,
+    ))->toThrow(ValidationException::class);
+});

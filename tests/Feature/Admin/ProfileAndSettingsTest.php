@@ -10,6 +10,7 @@ use App\Models\OrganizationSetting;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
@@ -99,6 +100,31 @@ it('updates the admin password from the profile page', function () {
         ->assertHasNoErrors();
 
     expect(Hash::check('new-password-123', $admin->fresh()->password))->toBeTrue();
+});
+
+it('refreshes translated admin profile copy when the shell locale changes', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    $component = Livewire::actingAs($admin)
+        ->test(Profile::class)
+        ->assertSeeText(__('shell.profile.title', [], 'en'))
+        ->assertSeeText(__('shell.profile.personal_information.heading', [], 'en'));
+
+    $admin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($admin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.profile.title', [], 'lt'))
+        ->assertSeeText(__('shell.profile.personal_information.heading', [], 'lt'));
 });
 
 it('shows admin settings sections and saves organization settings plus notification preferences', function () {
@@ -192,4 +218,31 @@ it('allows admins to renew the current organization subscription from settings',
         ->and($subscription->is_trial)->toBeFalse()
         ->and($subscription->expires_at->greaterThan(now()->addMonths(2)))->toBeTrue()
         ->and($subscription->property_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['properties']);
+});
+
+it('refreshes translated admin settings copy when the shell locale changes', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    OrganizationSetting::factory()->for($organization)->create();
+
+    $component = Livewire::actingAs($admin)
+        ->test(Settings::class)
+        ->assertSeeText(__('shell.settings.organization.heading', [], 'en'))
+        ->assertSeeText(__('shell.settings.notifications.heading', [], 'en'));
+
+    $admin->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Auth::setUser($admin->fresh());
+    app()->setLocale('lt');
+
+    $component
+        ->dispatch('shell-locale-updated')
+        ->assertSeeText(__('shell.settings.organization.heading', [], 'lt'))
+        ->assertSeeText(__('shell.settings.notifications.heading', [], 'lt'));
 });

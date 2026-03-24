@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 use Illuminate\Support\Str;
 
-it('keeps representative mutation entrypoints delegated to shared action and service seams', function (): void {
+it('keeps representative mutation entrypoints delegated to shared request, action, and service seams', function (): void {
     $mutationEntryPoints = [
         'app/Filament/Actions/Admin/MeterReadings/CreateMeterReadingAction.php' => [
+            'StoreMeterReadingRequest',
+            'validatePayload(',
             'ValidateReadingValue',
             'MeterReadingService',
             'meterReadingService->create(',
+        ],
+        'app/Filament/Actions/Admin/Invoices/SendInvoiceEmailAction.php' => [
+            'SendInvoiceEmailRequest',
+            'validatePayload(',
+        ],
+        'app/Filament/Actions/Admin/Invoices/GenerateBulkInvoicesAction.php' => [
+            'GenerateBulkInvoicesRequest',
+            'validatePayload(',
         ],
         'app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php' => [
             'CreateMeterReadingAction',
@@ -30,6 +40,11 @@ it('keeps representative mutation entrypoints delegated to shared action and ser
             'BillingServiceInterface',
             'SubscriptionLimitGuard',
             'billingService->saveDraft(',
+        ],
+        'app/Services/Billing/BillingService.php' => [
+            'SaveInvoiceDraftRequest',
+            'ProcessPaymentRequest',
+            'validatePayload(',
         ],
     ];
 

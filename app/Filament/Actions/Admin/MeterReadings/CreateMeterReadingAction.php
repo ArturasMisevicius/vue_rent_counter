@@ -4,6 +4,7 @@ namespace App\Filament\Actions\Admin\MeterReadings;
 
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
+use App\Http\Requests\Admin\MeterReadings\StoreMeterReadingRequest;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
@@ -25,7 +26,21 @@ class CreateMeterReadingAction
         MeterReadingSubmissionMethod $submissionMethod,
         ?string $notes = null,
     ): MeterReading {
-        $validation = $this->validateReadingValue->handle($meter, $readingValue, $readingDate);
+        $validated = $this->validatePayload(
+            readingValue: $readingValue,
+            readingDate: $readingDate,
+            submissionMethod: $submissionMethod,
+            notes: $notes,
+            submittedBy: $submittedBy,
+        );
+        $resolvedSubmissionMethod = $validated['submission_method'] instanceof MeterReadingSubmissionMethod
+            ? $validated['submission_method']
+            : MeterReadingSubmissionMethod::from((string) $validated['submission_method']);
+        $validation = $this->validateReadingValue->handle(
+            $meter,
+            $validated['reading_value'],
+            $validated['reading_date'],
+        );
 
         if ($validation->fails()) {
             throw ValidationException::withMessages($validation->messages);
@@ -33,13 +48,39 @@ class CreateMeterReadingAction
 
         return $this->meterReadingService->create(
             meter: $meter,
-            readingValue: $readingValue,
-            readingDate: $readingDate,
+            readingValue: $validated['reading_value'],
+            readingDate: $validated['reading_date'],
             submittedBy: $submittedBy,
             validationStatus: $validation->status,
-            submissionMethod: $submissionMethod,
-            notes: $this->mergeNotes($notes, $validation->notesAsText()),
+            submissionMethod: $resolvedSubmissionMethod,
+            notes: $this->mergeNotes($validated['notes'], $validation->notesAsText()),
         );
+    }
+
+    /**
+     * @return array{
+     *     reading_value: string|int|float,
+     *     reading_date: string,
+     *     submission_method: MeterReadingSubmissionMethod|string,
+     *     notes: string|null
+     * }
+     */
+    private function validatePayload(
+        string|int|float $readingValue,
+        string $readingDate,
+        MeterReadingSubmissionMethod $submissionMethod,
+        ?string $notes,
+        ?User $submittedBy,
+    ): array {
+        /** @var StoreMeterReadingRequest $request */
+        $request = new StoreMeterReadingRequest;
+
+        return $request->validatePayload([
+            'reading_value' => $readingValue,
+            'reading_date' => $readingDate,
+            'submission_method' => $submissionMethod,
+            'notes' => $notes,
+        ], $submittedBy ?? auth()->user());
     }
 
     private function mergeNotes(?string ...$notes): ?string

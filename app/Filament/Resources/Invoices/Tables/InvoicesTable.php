@@ -8,7 +8,6 @@ use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
 use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
-use App\Http\Requests\Admin\Invoices\SendInvoiceEmailRequest;
 use App\Models\Invoice;
 use App\Services\Billing\InvoicePdfService;
 use Filament\Actions\Action;
@@ -120,10 +119,7 @@ class InvoicesTable
                             ->default(fn (Invoice $record): string => (string) ($record->tenant?->email ?? '')),
                     ])
                     ->action(function (Invoice $record, array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
-                        $validated = (new SendInvoiceEmailRequest)
-                            ->validatePayload($data, auth()->user());
-
-                        $sendInvoiceEmailAction->handle($record, auth()->user(), $validated['recipient_email']);
+                        $sendInvoiceEmailAction->handle($record, auth()->user(), $data['recipient_email'] ?? null);
 
                         Notification::make()
                             ->title(__('admin.invoices.messages.email_sent'))

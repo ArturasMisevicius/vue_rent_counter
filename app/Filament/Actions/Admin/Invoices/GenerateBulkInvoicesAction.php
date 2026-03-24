@@ -4,6 +4,7 @@ namespace App\Filament\Actions\Admin\Invoices;
 
 use App\Contracts\BillingServiceInterface;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
+use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\User;
@@ -59,13 +60,26 @@ class GenerateBulkInvoicesAction
      */
     protected function handleAttributes(Organization $organization, array $attributes, ?User $actor = null): array
     {
+        /** @var GenerateBulkInvoicesRequest $request */
+        $request = new GenerateBulkInvoicesRequest;
+        $validated = $request->validatePayload([
+            'billing_period_start' => $attributes['billing_period_start'],
+            'billing_period_end' => $attributes['billing_period_end'],
+            'due_date' => $attributes['due_date'] ?? (
+                $attributes['billing_period_end'] instanceof CarbonInterface
+                    ? $attributes['billing_period_end']->toDateString()
+                    : (string) $attributes['billing_period_end']
+            ),
+            'selected_assignments' => $attributes['selected_assignments'] ?? [],
+        ], $actor ?? auth()->user());
+
         return $this->billingService->generateBulkInvoices(
             $organization,
             [
-                'billing_period_start' => $attributes['billing_period_start'],
-                'billing_period_end' => $attributes['billing_period_end'],
-                'due_date' => $attributes['due_date'] ?? null,
-                'selected_assignments' => $attributes['selected_assignments'] ?? [],
+                'billing_period_start' => $validated['billing_period_start'],
+                'billing_period_end' => $validated['billing_period_end'],
+                'due_date' => $validated['due_date'],
+                'selected_assignments' => $validated['selected_assignments'] ?? [],
             ],
             $actor,
         );
