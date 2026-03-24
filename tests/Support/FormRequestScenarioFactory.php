@@ -15,7 +15,6 @@ use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\TariffType;
 use App\Enums\UnitOfMeasurement;
-use App\Enums\UserStatus;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
 use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
