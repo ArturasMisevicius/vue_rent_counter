@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Models\AuditLog;
 use App\Models\Building;
-use App\Models\FrameworkShowcase;
 use App\Models\IntegrationHealthCheck;
 use App\Models\Invoice;
 use App\Models\Language;
@@ -28,7 +27,6 @@ use App\Models\User;
 use App\Models\UtilityService;
 use App\Policies\AuditLogPolicy;
 use App\Policies\BuildingPolicy;
-use App\Policies\FrameworkShowcasePolicy;
 use App\Policies\IntegrationHealthCheckPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LanguagePolicy;
@@ -61,7 +59,6 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         AuditLog::class => AuditLogPolicy::class,
         Building::class => BuildingPolicy::class,
-        FrameworkShowcase::class => FrameworkShowcasePolicy::class,
         IntegrationHealthCheck::class => IntegrationHealthCheckPolicy::class,
         Invoice::class => InvoicePolicy::class,
         Language::class => LanguagePolicy::class,

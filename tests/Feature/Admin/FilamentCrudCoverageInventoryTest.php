@@ -5,7 +5,6 @@ use App\Filament\Resources\AuditLogs\AuditLogResource;
 use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Resources\CommentReactions\CommentReactionResource;
 use App\Filament\Resources\Comments\CommentResource;
-use App\Filament\Resources\FrameworkShowcases\FrameworkShowcaseResource;
 use App\Filament\Resources\InvoiceEmailLogs\InvoiceEmailLogResource;
 use App\Filament\Resources\InvoiceItems\InvoiceItemResource;
 use App\Filament\Resources\InvoicePayments\InvoicePaymentResource;
@@ -57,10 +56,6 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         CommentResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
-        ],
-        FrameworkShowcaseResource::class => [
-            'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Filament/FrameworkStudioTest.php',
         ],
         InvoiceEmailLogResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

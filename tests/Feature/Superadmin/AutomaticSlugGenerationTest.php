@@ -1,10 +1,7 @@
 <?php
 
-use App\Filament\Resources\FrameworkShowcases\Pages\CreateFrameworkShowcase;
-use App\Filament\Resources\FrameworkShowcases\Pages\EditFrameworkShowcase;
 use App\Filament\Resources\Tags\Pages\CreateTag;
 use App\Filament\Resources\Tags\Pages\EditTag;
-use App\Models\FrameworkShowcase;
 use App\Models\Organization;
 use App\Models\Tag;
 use App\Models\User;
@@ -12,13 +9,15 @@ use App\Models\UtilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+
 uses(RefreshDatabase::class);
 
 it('removes the slug field from tag forms and auto-generates it on create and edit', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create();
 
-    $this->actingAs($superadmin);
+    actingAs($superadmin);
 
     Livewire::test(CreateTag::class)
         ->assertFormFieldDoesNotExist('slug')
@@ -45,39 +44,6 @@ it('removes the slug field from tag forms and auto-generates it on create and ed
         ->assertHasNoFormErrors();
 
     expect($tag->fresh()->slug)->toBe('priority-operations');
-});
-
-it('removes the slug field from framework showcase forms and auto-generates it on create and edit', function () {
-    $superadmin = User::factory()->superadmin()->create();
-    $organization = Organization::factory()->create();
-
-    $this->actingAs($superadmin);
-
-    Livewire::test(CreateFrameworkShowcase::class)
-        ->assertFormFieldDoesNotExist('slug')
-        ->fillForm([
-            'title' => 'Filament Workspace',
-            'organization_id' => $organization->id,
-            'status' => 'draft',
-        ])
-        ->call('create')
-        ->assertHasNoFormErrors();
-
-    $showcase = FrameworkShowcase::query()->firstOrFail();
-
-    expect($showcase->slug)->toBe('filament-workspace');
-
-    Livewire::test(EditFrameworkShowcase::class, ['record' => $showcase->getRouteKey()])
-        ->assertFormFieldDoesNotExist('slug')
-        ->fillForm([
-            'title' => 'Filament Workspace Pro',
-            'organization_id' => $organization->id,
-            'status' => 'draft',
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
-
-    expect($showcase->fresh()->slug)->toBe('filament-workspace-pro');
 });
 
 it('ignores manual slug edits on existing generated-slug models and keeps the slug derived from the source field', function () {
