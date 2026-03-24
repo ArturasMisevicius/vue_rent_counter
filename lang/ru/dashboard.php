@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Панель',
+    'currency_amount' => ':currency :amount',
     'platform_overview' => [
         'eyebrow' => 'Обзор платформы',
         'heading' => 'Панель',
@@ -67,6 +68,25 @@ return [
             'properties_count' => 'Количество объектов',
             'tenants_count' => 'Количество арендаторов',
             'date_created' => 'Дата создания',
+        ],
+    ],
+    'platform_legacy_widgets' => [
+        'organization_matrix' => [
+            'heading' => 'Организации · Объекты · Менеджеры',
+            'eyebrow' => 'Панель управления',
+            'empty' => 'Организации отсутствуют.',
+            'columns' => [
+                'organization' => 'Организация',
+                'properties' => 'Объекты',
+                'managers' => 'Менеджеры',
+                'users' => 'Пользователи',
+            ],
+        ],
+        'properties_and_managers' => [
+            'total_properties' => 'Всего объектов',
+            'occupied_properties' => 'Занятые объекты',
+            'active_managers' => 'Активные менеджеры',
+            'organizations_with_managers' => 'Организации с менеджерами',
         ],
     ],
     'organization_widgets' => [

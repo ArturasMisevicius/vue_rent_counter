@@ -12,13 +12,15 @@ class UserInfolist
     {
         return $schema
             ->components([
-                Section::make('User Overview')
+                Section::make(__('superadmin.users.sections.overview'))
                     ->schema([
-                        TextEntry::make('name')->label('Name'),
-                        TextEntry::make('email')->label('Email'),
-                        TextEntry::make('role')->label('Role')->badge(),
-                        TextEntry::make('status')->label('Status')->badge(),
-                        TextEntry::make('organization.name')->label('Organization')->default('Platform user'),
+                        TextEntry::make('name')->label(__('superadmin.users.fields.name')),
+                        TextEntry::make('email')->label(__('superadmin.users.fields.email')),
+                        TextEntry::make('role')->label(__('superadmin.users.fields.role'))->badge(),
+                        TextEntry::make('status')->label(__('superadmin.users.fields.status'))->badge(),
+                        TextEntry::make('organization.name')
+                            ->label(__('superadmin.users.fields.organization'))
+                            ->default(__('superadmin.users.placeholders.platform_user')),
                     ])
                     ->columns(2),
             ]);

@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\LanguageStatus;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Pages\Profile;
 use App\Filament\Pages\Settings;
+use App\Models\Language;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
 use App\Models\Property;
@@ -49,6 +51,48 @@ it('shows the admin profile page with personal information and password sections
         ->assertSee('value="'.$admin->phone.'"', false);
 });
 
+it('shows only active languages on the admin profile page', function () {
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'native_name' => 'English',
+        'status' => LanguageStatus::ACTIVE,
+        'is_default' => true,
+    ]);
+    Language::factory()->create([
+        'code' => 'lt',
+        'name' => 'Lithuanian',
+        'native_name' => 'Lietuvių',
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+    Language::factory()->create([
+        'code' => 'ru',
+        'name' => 'Russian',
+        'native_name' => 'Русский',
+        'status' => LanguageStatus::INACTIVE,
+    ]);
+    Language::factory()->create([
+        'code' => 'es',
+        'name' => 'Spanish',
+        'native_name' => 'Español',
+        'status' => LanguageStatus::INACTIVE,
+    ]);
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.pages.profile'))
+        ->assertSuccessful()
+        ->assertSeeText('English')
+        ->assertSeeText('Lietuvių')
+        ->assertDontSeeText('Русский')
+        ->assertDontSeeText('Español');
+});
+
 it('updates the admin profile details', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
@@ -84,6 +128,40 @@ it('auto-saves the admin locale when the preferred language changes', function (
         ->assertHasNoErrors();
 
     expect($admin->fresh()->locale)->toBe('lt');
+});
+
+it('falls back to an active language on the admin profile form when the saved locale is inactive', function () {
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'native_name' => 'English',
+        'status' => LanguageStatus::ACTIVE,
+        'is_default' => true,
+    ]);
+    Language::factory()->create([
+        'code' => 'lt',
+        'name' => 'Lithuanian',
+        'native_name' => 'Lietuvių',
+        'status' => LanguageStatus::ACTIVE,
+    ]);
+    Language::factory()->create([
+        'code' => 'es',
+        'name' => 'Spanish',
+        'native_name' => 'Español',
+        'status' => LanguageStatus::INACTIVE,
+    ]);
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'es',
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(Profile::class)
+        ->assertSet('profileForm.locale', 'en')
+        ->assertSeeText('English')
+        ->assertDontSeeText('Español');
 });
 
 it('rejects disposable email domains when updating the admin profile', function () {

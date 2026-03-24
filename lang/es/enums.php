@@ -216,6 +216,15 @@ return [
         'inactive' => 'Inactivo',
         'suspended' => 'Suspendido',
     ],
+    'unit_of_measurement' => [
+        'm3' => 'm3',
+        'kWh' => 'kWh',
+        'MWh' => 'MWh',
+        'day' => 'Día',
+        'month' => 'Mes',
+        'collection' => 'Recogida',
+        'unit' => 'Unidad',
+    ],
     'user_role' => [
         'superadmin' => 'Superadmin',
         'admin' => 'Admin',

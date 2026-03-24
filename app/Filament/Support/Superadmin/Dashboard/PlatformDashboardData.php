@@ -157,7 +157,7 @@ class PlatformDashboardData
                 ],
                 [
                     'label' => __('dashboard.platform_metrics.platform_revenue_this_month'),
-                    'value' => 'EUR '.number_format($revenue, 2),
+                    'value' => $this->formatCurrency($revenue),
                     'icon' => 'heroicon-m-banknotes',
                     'trend' => null,
                     'trend_direction' => null,
@@ -269,7 +269,7 @@ class PlatformDashboardData
                         'color' => self::REVENUE_SERIES_COLORS[$plan->value] ?? '#334155',
                         'points' => $points,
                         'formatted' => array_map(
-                            fn (float $amount): string => 'EUR '.number_format($amount, 2),
+                            fn (float $amount): string => $this->formatCurrency($amount),
                             $points,
                         ),
                     ];
@@ -383,5 +383,13 @@ class PlatformDashboardData
     private function notAvailable(): string
     {
         return __('dashboard.not_available');
+    }
+
+    private function formatCurrency(float $amount, string $currency = 'EUR'): string
+    {
+        return __('dashboard.currency_amount', [
+            'currency' => $currency,
+            'amount' => number_format($amount, 2, '.', ''),
+        ]);
     }
 }

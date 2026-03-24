@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Dashboard',
+    'currency_amount' => ':currency :amount',
     'platform_overview' => [
         'eyebrow' => 'Platform overview',
         'heading' => 'Dashboard',
@@ -67,6 +68,25 @@ return [
             'properties_count' => 'Number of Properties',
             'tenants_count' => 'Number of Tenants',
             'date_created' => 'Date Created',
+        ],
+    ],
+    'platform_legacy_widgets' => [
+        'organization_matrix' => [
+            'heading' => 'Organizations · Properties · Managers',
+            'eyebrow' => 'Control Plane',
+            'empty' => 'No organizations available.',
+            'columns' => [
+                'organization' => 'Organization',
+                'properties' => 'Properties',
+                'managers' => 'Managers',
+                'users' => 'Users',
+            ],
+        ],
+        'properties_and_managers' => [
+            'total_properties' => 'Total Properties',
+            'occupied_properties' => 'Occupied Properties',
+            'active_managers' => 'Active Managers',
+            'organizations_with_managers' => 'Orgs With Managers',
         ],
     ],
     'organization_widgets' => [

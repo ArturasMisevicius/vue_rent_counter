@@ -12,17 +12,12 @@ use App\Models\PlatformOrganizationInvitation;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CreateOrganizationAction
 {
     public function handle(User $actor, array $attributes): Organization
     {
-        if (blank($attributes['slug'] ?? null) && filled($attributes['name'] ?? null)) {
-            $attributes['slug'] = Str::slug((string) $attributes['name']);
-        }
-
         /** @var StoreOrganizationRequest $request */
         $request = new StoreOrganizationRequest;
         $validated = $request->validatePayload($attributes, $actor);
@@ -32,7 +27,6 @@ class CreateOrganizationAction
             $duration = SubscriptionDuration::from((string) $validated['duration']);
             $organization = Organization::query()->create([
                 'name' => $validated['name'],
-                'slug' => $validated['slug'] ?? Str::slug($validated['name']),
             ]);
 
             $owner = User::query()

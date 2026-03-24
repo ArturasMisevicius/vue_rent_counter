@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\FrameworkShowcaseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,8 @@ class FrameworkShowcase extends Model
 {
     /** @use HasFactory<FrameworkShowcaseFactory> */
     use HasFactory;
+
+    use HasGeneratedSlug;
 
     protected $fillable = [
         'organization_id',
@@ -36,6 +39,11 @@ class FrameworkShowcase extends Model
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    protected function slugSourceColumn(): string
+    {
+        return 'title';
     }
 
     public function publish(): void

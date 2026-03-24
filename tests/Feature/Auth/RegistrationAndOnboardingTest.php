@@ -168,7 +168,6 @@ it('allows an incomplete admin to view onboarding', function () {
         ->assertSeeText('Start your free trial')
         ->assertSeeText('Set up your organization to unlock your admin workspace.')
         ->assertSeeText('Organization Name')
-        ->assertSeeText('Organization Slug')
         ->assertSeeText('Activate Free Trial');
 });
 
@@ -179,7 +178,6 @@ it('completes onboarding and creates the organization trial subscription', funct
 
     $response = $this->actingAs($admin)->post(route('welcome.store'), [
         'name' => 'North Hall',
-        'slug' => 'north-hall',
     ]);
 
     $response->assertRedirect(route('filament.admin.pages.dashboard'));
@@ -197,7 +195,7 @@ it('completes onboarding and creates the organization trial subscription', funct
         ->and($subscription->is_trial)->toBeTrue();
 });
 
-it('requires a unique slug during onboarding', function () {
+it('generates a unique slug during onboarding when the normalized name already exists', function () {
     Organization::factory()->create([
         'slug' => 'north-hall',
     ]);
@@ -209,11 +207,13 @@ it('requires a unique slug during onboarding', function () {
     $this->actingAs($admin)
         ->from(route('welcome.show'))
         ->post(route('welcome.store'), [
-            'name' => 'Another North Hall',
-            'slug' => 'north-hall',
+            'name' => 'North Hall',
         ])
-        ->assertRedirect(route('welcome.show'))
-        ->assertSessionHasErrors(['slug']);
+        ->assertRedirect(route('filament.admin.pages.dashboard'));
+
+    expect(Organization::query()
+        ->where('slug', 'north-hall-2')
+        ->exists())->toBeTrue();
 });
 
 it('blocks repeat onboarding access after completion', function () {
@@ -236,7 +236,6 @@ it('blocks repeat onboarding access after completion', function () {
     $this->actingAs($admin)
         ->post(route('welcome.store'), [
             'name' => 'Changed Name',
-            'slug' => 'changed-slug',
         ])
         ->assertRedirect(route('filament.admin.pages.dashboard'));
 

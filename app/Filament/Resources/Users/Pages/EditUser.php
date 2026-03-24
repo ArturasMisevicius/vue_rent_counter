@@ -11,7 +11,10 @@ class EditUser extends EditRecord
 
     public function getHeading(): string
     {
-        return sprintf('Edit User: %s (%s)', $this->record->name, $this->record->email);
+        return __('superadmin.users.headings.edit', [
+            'name' => $this->record->name,
+            'email' => $this->record->email,
+        ]);
     }
 
     public function getSubheading(): ?string

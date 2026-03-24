@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Meters\Tables;
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\UnitOfMeasurement;
 use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Support\Admin\OrganizationContext;
@@ -57,6 +58,7 @@ class MetersTable
                     ->color(fn (MeterStatus $state): string => $state->badgeColor()),
                 TextColumn::make('unit')
                     ->label(__('admin.meters.columns.unit'))
+                    ->formatStateUsing(fn (?string $state): string => UnitOfMeasurement::tryFrom((string) $state)?->getLabel() ?? ($state ?: '—'))
                     ->toggleable(),
                 TextColumn::make('latestReading.reading_value')
                     ->label(__('admin.meters.columns.latest_reading'))

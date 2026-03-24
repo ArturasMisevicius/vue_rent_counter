@@ -68,61 +68,63 @@ it('renders the superadmin users list page contract', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.users.index'))
         ->assertSuccessful()
-        ->assertSeeText('Users')
-        ->assertSeeText('New User')
-        ->assertSee('Search by name or email', false)
-        ->assertSeeText('Role')
-        ->assertSeeText('Status')
-        ->assertSeeText('Organization')
-        ->assertSeeText('Last Login')
-        ->assertSeeText('Clear All Filters')
+        ->assertSeeText(__('superadmin.users.plural'))
+        ->assertSeeText(__('superadmin.users.actions.new'))
+        ->assertSee(__('superadmin.users.search_placeholder'), false)
+        ->assertSeeText(__('superadmin.users.columns.role'))
+        ->assertSeeText(__('superadmin.users.columns.status'))
+        ->assertSeeText(__('superadmin.users.columns.organization'))
+        ->assertSeeText(__('superadmin.users.columns.last_login'))
+        ->assertSeeText(__('superadmin.users.filters.clear_all'))
         ->assertSeeText($managedUser->name)
         ->assertSeeText($managedUser->email)
         ->assertSeeText($organization->name)
-        ->assertSeeText('Never')
+        ->assertSeeText(__('superadmin.users.placeholders.never'))
         ->assertSee(route('filament.admin.resources.users.view', $managedUser), false)
         ->assertSee(route('filament.admin.resources.organizations.view', $organization), false);
 
     $this->actingAs($superadmin);
 
     Livewire::test(ListUsers::class)
-        ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() === 'Full Name')
-        ->assertTableColumnExists('email', fn (TextColumn $column): bool => $column->getLabel() === 'Email')
-        ->assertTableColumnExists('role', fn (TextColumn $column): bool => $column->getLabel() === 'Role')
-        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
-        ->assertTableColumnExists('last_login_at', fn (TextColumn $column): bool => $column->getLabel() === 'Last Login')
-        ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === 'Status')
-        ->assertTableFilterExists('role', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Role' && $filter->getPlaceholder() === 'All Roles')
-        ->assertTableFilterExists('status', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Status' && $filter->getPlaceholder() === 'All')
-        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Organization')
-        ->assertTableFilterExists('last_login', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Last Login' && $filter->getPlaceholder() === 'Any Time')
-        ->assertTableActionHasLabel('view', 'View', record: $managedUser)
-        ->assertTableActionHasLabel('edit', 'Edit', record: $managedUser)
-        ->assertTableActionHasLabel('toggleUserStatus', 'Suspend', record: $managedUser)
-        ->assertTableActionHasLabel('toggleUserStatus', 'Reinstate', record: $suspendedUser)
-        ->assertTableActionHasLabel('resetPassword', 'Reset Password', record: $managedUser)
-        ->assertTableActionHasLabel('impersonateUser', 'Impersonate', record: $managedUser)
-        ->assertTableActionHasLabel('deleteUser', 'Delete', record: $managedUser)
+        ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.full_name'))
+        ->assertTableColumnExists('email', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.email'))
+        ->assertTableColumnExists('role', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.role'))
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.organization'))
+        ->assertTableColumnExists('last_login_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.last_login'))
+        ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.users.columns.status'))
+        ->assertTableFilterExists('role', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.users.filters.role') && $filter->getPlaceholder() === __('superadmin.users.filters.all_roles'))
+        ->assertTableFilterExists('status', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.users.filters.status') && $filter->getPlaceholder() === __('superadmin.users.filters.all'))
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.users.filters.organization'))
+        ->assertTableFilterExists('last_login', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.users.filters.last_login') && $filter->getPlaceholder() === __('superadmin.users.filters.any_time'))
+        ->assertTableActionHasLabel('view', __('superadmin.users.actions.view'), record: $managedUser)
+        ->assertTableActionHasLabel('edit', __('superadmin.users.actions.edit'), record: $managedUser)
+        ->assertTableActionHasLabel('toggleUserStatus', __('superadmin.users.actions.suspend'), record: $managedUser)
+        ->assertTableActionHasLabel('toggleUserStatus', __('superadmin.users.actions.reinstate'), record: $suspendedUser)
+        ->assertTableActionHasLabel('resetPassword', __('superadmin.users.actions.reset_password'), record: $managedUser)
+        ->assertTableActionHasLabel('impersonateUser', __('superadmin.users.actions.impersonate'), record: $managedUser)
+        ->assertTableActionHasLabel('deleteUser', __('superadmin.users.actions.delete'), record: $managedUser)
         ->assertTableActionEnabled('deleteUser', record: $disposableUser)
         ->assertTableActionDisabled('deleteUser', record: $protectedTenant)
         ->assertTableActionExists(
             'deleteUser',
             checkActionUsing: fn (DeleteAction $action): bool => $action->isDisabled()
-                && $action->getTooltip() === 'Cannot delete this user because linked invoices still exist.',
+                && $action->getTooltip() === __('superadmin.users.deletion_reasons.wrapper', [
+                    'reasons' => __('superadmin.users.deletion_reasons.invoices'),
+                ]),
             record: $protectedTenant,
         )
         ->assertTableColumnStateSet('role', UserRole::ADMIN->label(), $managedUser)
         ->assertTableColumnStateSet('organization.name', $organization->name, $managedUser)
         ->assertTableColumnStateSet('last_login_at', $managedUser->last_login_at?->format('Y-m-d H:i'), $managedUser)
-        ->assertTableColumnStateSet('last_login_at', 'Never', $suspendedUser)
+        ->assertTableColumnStateSet('last_login_at', __('superadmin.users.placeholders.never'), $suspendedUser)
         ->assertTableColumnStateSet('status', UserStatus::ACTIVE->label(), $managedUser);
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.users.create'))
         ->assertSuccessful()
-        ->assertSeeText('Role')
-        ->assertSeeText('Organization')
-        ->assertSeeText('Status');
+        ->assertSeeText(__('superadmin.users.fields.role'))
+        ->assertSeeText(__('superadmin.users.fields.organization'))
+        ->assertSeeText(__('superadmin.users.fields.status'));
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.users.view', $managedUser))
@@ -230,11 +232,17 @@ it('blocks superadmin deletion when users still have invoices, buildings, or act
     ]);
 
     expect($invoiceProtectedUser->fresh()->canBeDeletedFromSuperadmin())->toBeFalse()
-        ->and($invoiceProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe('Cannot delete this user because linked invoices still exist.')
+        ->and($invoiceProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe(__('superadmin.users.deletion_reasons.wrapper', [
+            'reasons' => __('superadmin.users.deletion_reasons.invoices'),
+        ]))
         ->and($buildingProtectedUser->fresh()->canBeDeletedFromSuperadmin())->toBeFalse()
-        ->and($buildingProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe('Cannot delete this user because their organization still has buildings.')
+        ->and($buildingProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe(__('superadmin.users.deletion_reasons.wrapper', [
+            'reasons' => __('superadmin.users.deletion_reasons.buildings'),
+        ]))
         ->and($activeDataProtectedUser->fresh()->canBeDeletedFromSuperadmin())->toBeFalse()
-        ->and($activeDataProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe('Cannot delete this user because active records are still tied to them.')
+        ->and($activeDataProtectedUser->fresh()->superadminDeletionBlockedReason())->toBe(__('superadmin.users.deletion_reasons.wrapper', [
+            'reasons' => __('superadmin.users.deletion_reasons.active_records'),
+        ]))
         ->and($disposableUser->fresh()->canBeDeletedFromSuperadmin())->toBeTrue()
         ->and($disposableUser->fresh()->superadminDeletionBlockedReason())->toBeNull();
 });

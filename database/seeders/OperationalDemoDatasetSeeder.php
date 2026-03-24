@@ -215,7 +215,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                             'name' => sprintf('%s Meter %02d', Str::headline($meterType->value), $meterIndex),
                             'type' => $meterType,
                             'status' => MeterStatus::ACTIVE,
-                            'unit' => $meterType->defaultUnit(),
+                            'unit' => $meterType->defaultUnit()->value,
                             'installed_at' => Carbon::create(2025, 6, 1)->addDays($propertyIndex + $meterIndex)->toDateString(),
                         ],
                     );
@@ -403,7 +403,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                 [
                     'organization_id' => $organization->id,
                     'name' => $definition['name'],
-                    'unit_of_measurement' => $serviceTypeEnum->defaultUnit(),
+                    'unit_of_measurement' => $serviceTypeEnum->defaultUnit()->value,
                     'default_pricing_model' => $definition['pricing_model'],
                     'calculation_formula' => null,
                     'is_global_template' => false,

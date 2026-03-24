@@ -17,9 +17,9 @@ it('renders the parent dashboard livewire component from the filament dashboard 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Revenue by Plan — Last 12 Months')
-        ->assertSeeText('Subscriptions Expiring in 30 Days')
-        ->assertSeeText('Recently Created Organizations')
+        ->assertSeeText(__('dashboard.platform_sections.revenue_by_plan'))
+        ->assertSeeText(__('dashboard.platform_sections.expiring_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_organizations'))
         ->assertDontSeeText('Total Properties');
 });
 
@@ -28,9 +28,9 @@ it('renders the superadmin dashboard through the parent dashboard page component
 
     Livewire::actingAs($superadmin)
         ->test(DashboardPage::class)
-        ->assertSeeText('Revenue by Plan — Last 12 Months')
-        ->assertSeeText('Subscriptions Expiring in 30 Days')
-        ->assertSeeText('Recently Created Organizations')
+        ->assertSeeText(__('dashboard.platform_sections.revenue_by_plan'))
+        ->assertSeeText(__('dashboard.platform_sections.expiring_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_organizations'))
         ->assertDontSeeText('Organizations · Properties · Managers');
 });
 

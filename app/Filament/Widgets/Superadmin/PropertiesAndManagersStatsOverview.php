@@ -37,10 +37,10 @@ class PropertiesAndManagersStatsOverview extends StatsOverviewWidget
             ->count('organization_id');
 
         return [
-            Stat::make('Total Properties', (string) $totalProperties)->color('primary'),
-            Stat::make('Occupied Properties', (string) $occupiedProperties)->color('success'),
-            Stat::make('Active Managers', (string) $activeManagers)->color('info'),
-            Stat::make('Orgs With Managers', (string) $organizationsWithManagers)->color('warning'),
+            Stat::make(__('dashboard.platform_legacy_widgets.properties_and_managers.total_properties'), (string) $totalProperties)->color('primary'),
+            Stat::make(__('dashboard.platform_legacy_widgets.properties_and_managers.occupied_properties'), (string) $occupiedProperties)->color('success'),
+            Stat::make(__('dashboard.platform_legacy_widgets.properties_and_managers.active_managers'), (string) $activeManagers)->color('info'),
+            Stat::make(__('dashboard.platform_legacy_widgets.properties_and_managers.organizations_with_managers'), (string) $organizationsWithManagers)->color('warning'),
         ];
     }
 }

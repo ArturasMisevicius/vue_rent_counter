@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserRole;
+use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,8 @@ class Organization extends Model
 {
     /** @use HasFactory<OrganizationFactory> */
     use HasFactory;
+
+    use HasGeneratedSlug;
 
     private const CONTROL_PLANE_COLUMNS = [
         'id',
@@ -40,6 +43,11 @@ class Organization extends Model
         return [
             'status' => OrganizationStatus::class,
         ];
+    }
+
+    protected function slugSourceColumn(): string
+    {
+        return 'name';
     }
 
     public function scopeActive(Builder $query): Builder

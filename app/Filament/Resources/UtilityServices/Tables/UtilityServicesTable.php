@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UtilityServices\Tables;
 
 use App\Enums\ServiceType;
+use App\Enums\UnitOfMeasurement;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\UtilityService;
@@ -34,6 +35,7 @@ class UtilityServicesTable
                     ->sortable(),
                 TextColumn::make('unit_of_measurement')
                     ->label(__('admin.utility_services.columns.unit_of_measurement'))
+                    ->formatStateUsing(fn (?string $state): string => UnitOfMeasurement::tryFrom((string) $state)?->getLabel() ?? ($state ?: '—'))
                     ->sortable(),
                 TextColumn::make('service_type_bridge')
                     ->label(__('admin.utility_services.fields.service_type_bridge'))

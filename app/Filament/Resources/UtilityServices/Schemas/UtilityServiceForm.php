@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UtilityServices\Schemas;
 
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Enums\UnitOfMeasurement;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Organization;
 use App\Models\User;
@@ -56,10 +57,9 @@ class UtilityServiceForm
                             ->label(__('admin.utility_services.fields.name'))
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('unit_of_measurement')
+                        Select::make('unit_of_measurement')
                             ->label(__('admin.utility_services.fields.unit_of_measurement'))
-                            ->required()
-                            ->maxLength(50),
+                            ->options(UnitOfMeasurement::options()),
                         Select::make('default_pricing_model')
                             ->label(__('admin.utility_services.fields.default_pricing_model'))
                             ->options(PricingModel::options())

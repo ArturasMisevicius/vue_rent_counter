@@ -180,6 +180,15 @@ return [
         'inactive' => 'Neaktyvus',
         'suspended' => 'Sustabdytas',
     ],
+    'unit_of_measurement' => [
+        'm3' => 'm3',
+        'kWh' => 'kWh',
+        'MWh' => 'MWh',
+        'day' => 'Diena',
+        'month' => 'Mėnuo',
+        'collection' => 'Surinkimas',
+        'unit' => 'Vienetas',
+    ],
     'subscription_status' => [
         'trialing' => 'Bandomasis',
         'active' => 'Aktyvi',

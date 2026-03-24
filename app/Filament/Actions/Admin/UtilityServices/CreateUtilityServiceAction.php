@@ -2,11 +2,13 @@
 
 namespace App\Filament\Actions\Admin\UtilityServices;
 
+use App\Enums\ServiceType;
+use App\Enums\UnitOfMeasurement;
+use App\Http\Requests\Admin\UtilityServices\UtilityServiceRequest;
 use App\Models\Organization;
 use App\Models\UtilityService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CreateUtilityServiceAction
 {
@@ -15,37 +17,58 @@ class CreateUtilityServiceAction
      */
     public function handle(Organization $organization, array $attributes): UtilityService
     {
-        return DB::transaction(function () use ($organization, $attributes): UtilityService {
+        $validated = $this->validate($attributes);
+
+        return DB::transaction(function () use ($organization, $validated): UtilityService {
             return UtilityService::query()->create([
                 'organization_id' => $organization->id,
-                'name' => (string) $attributes['name'],
-                'slug' => $this->uniqueSlug((string) $attributes['name'], $organization->id),
-                'unit_of_measurement' => (string) $attributes['unit_of_measurement'],
-                'default_pricing_model' => $attributes['default_pricing_model'],
-                'calculation_formula' => Arr::get($attributes, 'calculation_formula'),
+                'name' => (string) $validated['name'],
+                'unit_of_measurement' => $this->resolveUnitValue($validated),
+                'default_pricing_model' => $validated['default_pricing_model'],
+                'calculation_formula' => Arr::get($validated, 'calculation_formula'),
                 'is_global_template' => false,
                 'created_by_organization_id' => $organization->id,
-                'configuration_schema' => Arr::get($attributes, 'configuration_schema'),
-                'validation_rules' => Arr::get($attributes, 'validation_rules'),
-                'business_logic_config' => Arr::get($attributes, 'business_logic_config'),
-                'service_type_bridge' => $attributes['service_type_bridge'] ?? null,
-                'description' => Arr::get($attributes, 'description'),
-                'is_active' => (bool) ($attributes['is_active'] ?? true),
+                'configuration_schema' => Arr::get($validated, 'configuration_schema'),
+                'validation_rules' => Arr::get($validated, 'validation_rules'),
+                'business_logic_config' => Arr::get($validated, 'business_logic_config'),
+                'service_type_bridge' => $validated['service_type_bridge'] ?? null,
+                'description' => Arr::get($validated, 'description'),
+                'is_active' => (bool) ($validated['is_active'] ?? true),
             ]);
         });
     }
 
-    private function uniqueSlug(string $name, int $organizationId): string
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    private function validate(array $attributes): array
     {
-        $base = Str::slug($name);
-        $slug = $base;
-        $suffix = 1;
+        /** @var UtilityServiceRequest $request */
+        $request = new UtilityServiceRequest;
 
-        while (UtilityService::query()->where('slug', $slug)->exists()) {
-            $slug = "{$base}-{$organizationId}-{$suffix}";
-            $suffix++;
+        return $request->validatePayload($attributes);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function resolveUnitValue(array $validated): string
+    {
+        $unit = $validated['unit_of_measurement'] ?? null;
+
+        if ($unit instanceof UnitOfMeasurement) {
+            return $unit->value;
         }
 
-        return $slug;
+        if (is_string($unit) && $unit !== '') {
+            return $unit;
+        }
+
+        $serviceType = $validated['service_type_bridge'] instanceof ServiceType
+            ? $validated['service_type_bridge']
+            : ServiceType::from((string) $validated['service_type_bridge']);
+
+        return $serviceType->defaultUnit()->value;
     }
 }

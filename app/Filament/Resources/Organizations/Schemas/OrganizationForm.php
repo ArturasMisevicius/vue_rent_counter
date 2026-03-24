@@ -7,16 +7,13 @@ use App\Enums\SubscriptionPlan;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 
 class OrganizationForm
 {
@@ -29,38 +26,7 @@ class OrganizationForm
                         TextInput::make('name')
                             ->label(__('superadmin.organizations.form.fields.organization_name'))
                             ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(function (?string $state, Get $get, Set $set, string $operation): void {
-                                if ($operation !== 'create') {
-                                    return;
-                                }
-
-                                if ($get('slug_locked')) {
-                                    return;
-                                }
-
-                                $set('slug', Str::slug((string) $state));
-                            }),
-                        TextInput::make('slug')
-                            ->label(__('superadmin.organizations.form.fields.url_slug'))
-                            ->required()
-                            ->alphaDash()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->helperText(__('superadmin.organizations.form.helper.slug'))
-                            ->visibleOn('create')
-                            ->afterStateUpdated(function (?string $state, Get $get, Set $set, string $operation): void {
-                                if ($operation !== 'create') {
-                                    return;
-                                }
-
-                                $set('slug_locked', filled($state) && $state !== Str::slug((string) $get('name')));
-                            }),
-                        Hidden::make('slug_locked')
-                            ->default(false)
-                            ->dehydrated(false)
-                            ->visibleOn('create'),
+                            ->maxLength(255),
                     ])
                     ->columns(2),
                 Section::make(__('superadmin.organizations.form.sections.owner'))

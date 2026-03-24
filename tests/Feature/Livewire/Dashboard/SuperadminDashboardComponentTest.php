@@ -22,28 +22,28 @@ it('renders the superadmin dashboard component for superadmins', function () {
 
     $component = Livewire::actingAs($superadmin)
         ->test(SuperadminDashboard::class)
-        ->assertSeeText('Dashboard')
-        ->assertSeeText('Total Organizations')
-        ->assertSeeText('Active Subscriptions')
-        ->assertSeeText('Platform Revenue This Month')
-        ->assertSeeText('Security Violations (7 Days)')
+        ->assertSeeText(__('dashboard.title'))
+        ->assertSeeText(__('dashboard.platform_metrics.total_organizations'))
+        ->assertSeeText(__('dashboard.platform_metrics.active_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_metrics.platform_revenue_this_month'))
+        ->assertSeeText(__('dashboard.platform_metrics.security_violations_last_7_days'))
         ->assertSeeText((string) $dashboard['metrics'][0]['value'])
         ->assertSeeText((string) $dashboard['metrics'][1]['value'])
         ->assertSeeText((string) $dashboard['metrics'][2]['value'])
         ->assertSeeText((string) $dashboard['metrics'][3]['value'])
         ->assertSeeText((string) $dashboard['metrics'][0]['trend'])
-        ->assertSeeText('Revenue by Plan — Last 12 Months')
-        ->assertSeeText('Subscriptions Expiring in 30 Days')
-        ->assertSeeText('Recent Security Violations')
-        ->assertSeeText('Recently Created Organizations')
-        ->assertSeeText('Export as CSV')
-        ->assertSeeText('Organization Name')
-        ->assertSeeText('Owner Email')
-        ->assertSeeText('Plan Type')
-        ->assertSeeText('Subscription Status')
-        ->assertSeeText('Number of Properties')
-        ->assertSeeText('Number of Tenants')
-        ->assertSeeText('Date Created')
+        ->assertSeeText(__('dashboard.platform_sections.revenue_by_plan'))
+        ->assertSeeText(__('dashboard.platform_sections.expiring_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_security_violations'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_organizations'))
+        ->assertSeeText(__('dashboard.platform_actions.export_csv'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.name'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.owner_email'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.plan_type'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.subscription_status'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.properties_count'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.tenants_count'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.date_created'))
         ->assertSeeText((string) $dashboard['recentSecurityViolations'][0]['type'])
         ->assertSeeText('Aurora Offices')
         ->assertSeeText('Harbor Homes')
@@ -51,9 +51,9 @@ it('renders the superadmin dashboard component for superadmins', function () {
         ->assertDontSeeText('Organizations · Properties · Managers');
 
     if ($dashboard['expiringSubscriptions']['has_more']) {
-        $component->assertSeeText('View All');
+        $component->assertSeeText(__('dashboard.platform_actions.view_all'));
     } else {
-        $component->assertDontSeeText('View All');
+        $component->assertDontSeeText(__('dashboard.platform_actions.view_all'));
     }
 });
 

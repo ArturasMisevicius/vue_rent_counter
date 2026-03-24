@@ -179,6 +179,15 @@ return [
         'inactive' => 'Неактивен',
         'suspended' => 'Приостановлен',
     ],
+    'unit_of_measurement' => [
+        'm3' => 'm3',
+        'kWh' => 'kWh',
+        'MWh' => 'MWh',
+        'day' => 'День',
+        'month' => 'Месяц',
+        'collection' => 'Вывоз',
+        'unit' => 'Единица',
+    ],
     'subscription_status' => [
         'trialing' => 'Пробный',
         'active' => 'Активна',

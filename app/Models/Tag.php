@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Str;
 
 class Tag extends Model
 {
     /** @use HasFactory<TagFactory> */
     use HasFactory;
+
+    use HasGeneratedSlug;
 
     private const SUMMARY_COLUMNS = [
         'id',
@@ -45,13 +47,19 @@ class Tag extends Model
         ];
     }
 
-    protected static function booted(): void
+    protected function slugSourceColumn(): string
     {
-        static::creating(function (self $tag): void {
-            if (blank($tag->slug)) {
-                $tag->slug = Str::slug($tag->name);
-            }
-        });
+        return 'name';
+    }
+
+    /**
+     * @return array<string, int|string|null>
+     */
+    protected function slugScopeColumns(): array
+    {
+        return [
+            'organization_id' => $this->organization_id,
+        ];
     }
 
     public function organization(): BelongsTo

@@ -34,49 +34,49 @@ class UserTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Full Name')
+                    ->label(__('superadmin.users.columns.full_name'))
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('superadmin.users.columns.email'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('role')
-                    ->label('Role')
+                    ->label(__('superadmin.users.columns.role'))
                     ->badge()
                     ->state(fn (User $record): string => $record->role->label()),
                 TextColumn::make('organization.name')
-                    ->label('Organization')
-                    ->placeholder('Platform user')
+                    ->label(__('superadmin.users.columns.organization'))
+                    ->placeholder(__('superadmin.users.placeholders.platform_user'))
                     ->url(fn (User $record): ?string => $record->organization instanceof Organization
                         ? OrganizationResource::getUrl('view', ['record' => $record->organization])
                         : null),
                 TextColumn::make('last_login_at')
-                    ->label('Last Login')
-                    ->state(fn (User $record): string => $record->last_login_at?->format('Y-m-d H:i') ?? 'Never')
-                    ->placeholder('Never')
+                    ->label(__('superadmin.users.columns.last_login'))
+                    ->state(fn (User $record): string => $record->last_login_at?->format('Y-m-d H:i') ?? __('superadmin.users.placeholders.never'))
+                    ->placeholder(__('superadmin.users.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.users.columns.status'))
                     ->badge()
                     ->state(fn (User $record): string => $record->status->label()),
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->label('Role')
-                    ->placeholder('All Roles')
+                    ->label(__('superadmin.users.filters.role'))
+                    ->placeholder(__('superadmin.users.filters.all_roles'))
                     ->options(UserRole::options()),
                 SelectFilter::make('status')
-                    ->label('Status')
-                    ->placeholder('All')
+                    ->label(__('superadmin.users.filters.status'))
+                    ->placeholder(__('superadmin.users.filters.all'))
                     ->options([
                         UserStatus::ACTIVE->value => UserStatus::ACTIVE->label(),
                         UserStatus::SUSPENDED->value => UserStatus::SUSPENDED->label(),
                     ]),
                 SelectFilter::make('organization')
-                    ->label('Organization')
-                    ->placeholder('All Organizations')
+                    ->label(__('superadmin.users.filters.organization'))
+                    ->placeholder(__('superadmin.users.filters.all_organizations'))
                     ->relationship(
                         'organization',
                         'name',
@@ -86,12 +86,12 @@ class UserTable
                             ->orderBy('id'),
                     ),
                 SelectFilter::make('last_login')
-                    ->label('Last Login')
-                    ->placeholder('Any Time')
+                    ->label(__('superadmin.users.filters.last_login'))
+                    ->placeholder(__('superadmin.users.filters.any_time'))
                     ->options([
-                        'last_7_days' => 'Last 7 Days',
-                        'last_30_days' => 'Last 30 Days',
-                        'never' => 'Never',
+                        'last_7_days' => __('superadmin.users.filters.last_7_days'),
+                        'last_30_days' => __('superadmin.users.filters.last_30_days'),
+                        'never' => __('superadmin.users.filters.never'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return match ($data['value'] ?? null) {
@@ -108,11 +108,13 @@ class UserTable
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->label('View'),
+                    ->label(__('superadmin.users.actions.view')),
                 EditAction::make()
-                    ->label('Edit'),
+                    ->label(__('superadmin.users.actions.edit')),
                 Action::make('toggleUserStatus')
-                    ->label(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'Reinstate' : 'Suspend')
+                    ->label(fn (User $record): string => $record->status === UserStatus::SUSPENDED
+                        ? __('superadmin.users.actions.reinstate')
+                        : __('superadmin.users.actions.suspend'))
                     ->color(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'success' : 'danger')
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
@@ -124,24 +126,26 @@ class UserTable
                         $updatedUser = $updateUserStatusAction->handle($record, $targetStatus);
 
                         Notification::make()
-                            ->title($updatedUser->status === UserStatus::SUSPENDED ? 'User suspended' : 'User reinstated')
+                            ->title($updatedUser->status === UserStatus::SUSPENDED
+                                ? __('superadmin.users.notifications.suspended')
+                                : __('superadmin.users.notifications.reinstated'))
                             ->success()
                             ->send();
                     }),
                 Action::make('resetPassword')
-                    ->label('Reset Password')
+                    ->label(__('superadmin.users.actions.reset_password'))
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record, SendUserPasswordResetAction $sendUserPasswordResetAction): void {
                         $sendUserPasswordResetAction->handle($record);
 
                         Notification::make()
-                            ->title('Password reset email sent')
+                            ->title(__('superadmin.users.notifications.password_reset'))
                             ->success()
                             ->send();
                     }),
                 Action::make('impersonateUser')
-                    ->label('Impersonate')
+                    ->label(__('superadmin.users.actions.impersonate'))
                     ->authorize(fn (): bool => auth()->user()?->isSuperadmin() ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record, StartUserImpersonationAction $startUserImpersonationAction) {
@@ -154,7 +158,7 @@ class UserTable
                         return redirect('/app');
                     }),
                 DeleteAction::make('deleteUser')
-                    ->label('Delete')
+                    ->label(__('superadmin.users.actions.delete'))
                     ->using(function (User $record, DeleteUserAction $deleteUserAction): void {
                         $deleteUserAction->handle($record);
                     })
@@ -162,7 +166,7 @@ class UserTable
                     ->disabled(fn (User $record): bool => ! $record->canBeDeletedFromSuperadmin())
                     ->tooltip(fn (User $record): ?string => $record->superadminDeletionBlockedReason()),
             ])
-            ->searchPlaceholder('Search by name or email')
+            ->searchPlaceholder(__('superadmin.users.search_placeholder'))
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersResetActionPosition(FiltersResetActionPosition::Header)
@@ -172,19 +176,19 @@ class UserTable
     private static function overrideFilterResetLabel(): void
     {
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Clear All Filters',
+            'table.filters.actions.reset.label' => trans('superadmin.users.filters.clear_all', locale: 'en'),
         ], 'en', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Limpiar todos los filtros',
+            'table.filters.actions.reset.label' => trans('superadmin.users.filters.clear_all', locale: 'es'),
         ], 'es', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Išvalyti visus filtrus',
+            'table.filters.actions.reset.label' => trans('superadmin.users.filters.clear_all', locale: 'lt'),
         ], 'lt', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Очистить все фильтры',
+            'table.filters.actions.reset.label' => trans('superadmin.users.filters.clear_all', locale: 'ru'),
         ], 'ru', 'filament-tables');
     }
 }

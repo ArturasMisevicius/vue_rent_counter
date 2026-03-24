@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Skydelis',
+    'currency_amount' => ':currency :amount',
     'platform_overview' => [
         'eyebrow' => 'Platformos apžvalga',
         'heading' => 'Skydelis',
@@ -67,6 +68,25 @@ return [
             'properties_count' => 'Objektų skaičius',
             'tenants_count' => 'Nuomininkų skaičius',
             'date_created' => 'Sukūrimo data',
+        ],
+    ],
+    'platform_legacy_widgets' => [
+        'organization_matrix' => [
+            'heading' => 'Organizacijos · Objektai · Vadovai',
+            'eyebrow' => 'Valdymo aplinka',
+            'empty' => 'Organizacijų nėra.',
+            'columns' => [
+                'organization' => 'Organizacija',
+                'properties' => 'Objektai',
+                'managers' => 'Vadovai',
+                'users' => 'Naudotojai',
+            ],
+        ],
+        'properties_and_managers' => [
+            'total_properties' => 'Visi objektai',
+            'occupied_properties' => 'Užimti objektai',
+            'active_managers' => 'Aktyvūs vadovai',
+            'organizations_with_managers' => 'Organizacijos su vadovais',
         ],
     ],
     'organization_widgets' => [

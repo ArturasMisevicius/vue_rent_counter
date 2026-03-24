@@ -391,22 +391,24 @@ class User extends Authenticatable implements FilamentUser
         $blockers = [];
 
         if ($this->hasSuperadminDeletionInvoiceBlocker()) {
-            $blockers[] = 'linked invoices still exist';
+            $blockers[] = __('superadmin.users.deletion_reasons.invoices');
         }
 
         if ($this->hasSuperadminDeletionBuildingBlocker()) {
-            $blockers[] = 'their organization still has buildings';
+            $blockers[] = __('superadmin.users.deletion_reasons.buildings');
         }
 
         if ($this->hasSuperadminDeletionActiveDataBlocker()) {
-            $blockers[] = 'active records are still tied to them';
+            $blockers[] = __('superadmin.users.deletion_reasons.active_records');
         }
 
         if ($blockers === []) {
             return null;
         }
 
-        return 'Cannot delete this user because '.implode('; ', $blockers).'.';
+        return __('superadmin.users.deletion_reasons.wrapper', [
+            'reasons' => implode('; ', $blockers),
+        ]);
     }
 
     public function getCurrentPropertyAttribute(): ?Property

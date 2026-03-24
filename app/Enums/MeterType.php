@@ -20,19 +20,19 @@ enum MeterType: string implements HasLabel
     case SOLAR = 'solar';
     case CUSTOM = 'custom';
 
-    public function defaultUnit(): string
+    public function defaultUnit(): UnitOfMeasurement
     {
         return match ($this) {
             self::WATER,
             self::WATER_COLD,
             self::WATER_HOT,
-            self::GAS => 'm3',
+            self::GAS => UnitOfMeasurement::CUBIC_METER,
             self::ELECTRICITY,
             self::HEATING,
             self::COOLING,
-            self::SOLAR => 'kWh',
-            self::STEAM => 'MWh',
-            self::CUSTOM => 'unit',
+            self::SOLAR => UnitOfMeasurement::KILOWATT_HOUR,
+            self::STEAM => UnitOfMeasurement::MEGAWATT_HOUR,
+            self::CUSTOM => UnitOfMeasurement::UNIT,
         };
     }
 }

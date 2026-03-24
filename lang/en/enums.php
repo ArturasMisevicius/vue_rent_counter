@@ -180,6 +180,15 @@ return [
         'inactive' => 'Inactive',
         'suspended' => 'Suspended',
     ],
+    'unit_of_measurement' => [
+        'm3' => 'm3',
+        'kWh' => 'kWh',
+        'MWh' => 'MWh',
+        'day' => 'Day',
+        'month' => 'Month',
+        'collection' => 'Collection',
+        'unit' => 'Unit',
+    ],
     'subscription_status' => [
         'trialing' => 'Trialing',
         'active' => 'Active',

@@ -218,7 +218,7 @@ class LoginDemoUsersSeeder extends Seeder
                     'name' => sprintf('Demo %s Meter', $meterType->label()),
                     'type' => $meterType,
                     'status' => MeterStatus::ACTIVE,
-                    'unit' => $meterType->defaultUnit(),
+                    'unit' => $meterType->defaultUnit()->value,
                     'installed_at' => now()->subYear()->toDateString(),
                 ],
             );

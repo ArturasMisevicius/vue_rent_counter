@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Tags\Pages;
 
+use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
 use App\Filament\Resources\Tags\TagResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewTag extends ViewRecord
 {
+    use HasContainedSuperadminSurface;
+
     protected static string $resource = TagResource::class;
 
     protected function getHeaderActions(): array

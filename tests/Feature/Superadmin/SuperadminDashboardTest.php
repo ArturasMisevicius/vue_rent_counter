@@ -107,28 +107,28 @@ it('shows the superadmin dashboard metrics', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Total Organizations')
-        ->assertSeeText('Active Subscriptions')
-        ->assertSeeText('Platform Revenue This Month')
-        ->assertSeeText('Security Violations (7 Days)')
+        ->assertSeeText(__('dashboard.platform_metrics.total_organizations'))
+        ->assertSeeText(__('dashboard.platform_metrics.active_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_metrics.platform_revenue_this_month'))
+        ->assertSeeText(__('dashboard.platform_metrics.security_violations_last_7_days'))
         ->assertSeeText((string) $dashboard['metrics'][0]['value'])
         ->assertSeeText((string) $dashboard['metrics'][1]['value'])
         ->assertSeeText((string) $dashboard['metrics'][2]['value'])
         ->assertSeeText((string) $dashboard['metrics'][3]['value'])
         ->assertSeeText((string) $dashboard['metrics'][0]['trend'])
-        ->assertSeeText('Revenue by Plan — Last 12 Months')
-        ->assertSeeText('Subscriptions Expiring in 30 Days')
-        ->assertSeeText('Recent Security Violations')
-        ->assertSeeText('Recently Created Organizations')
-        ->assertSeeText('Export as CSV')
-        ->assertSeeText('Organization Name')
-        ->assertSeeText('Owner Email')
+        ->assertSeeText(__('dashboard.platform_sections.revenue_by_plan'))
+        ->assertSeeText(__('dashboard.platform_sections.expiring_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_security_violations'))
+        ->assertSeeText(__('dashboard.platform_sections.recent_organizations'))
+        ->assertSeeText(__('dashboard.platform_actions.export_csv'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.name'))
+        ->assertSeeText(__('dashboard.platform_recent_organizations.columns.owner_email'))
         ->assertSeeText('Basic')
         ->assertSeeText('Professional')
         ->assertSeeText($expiringOrganization->name)
         ->assertSeeText($recentOrganization->name)
         ->assertSeeText('Authentication')
-        ->assertDontSeeText('View All');
+        ->assertDontSeeText(__('dashboard.platform_actions.view_all'));
 });
 
 it('streams the recent organizations csv export for superadmins', function () {
@@ -166,15 +166,15 @@ it('streams the recent organizations csv export for superadmins', function () {
     );
 
     expect($response->headers->get('content-type'))->toContain('text/csv')
-        ->and($rows[0] ?? null)->toBe(['Recently Created Organizations'])
+        ->and($rows[0] ?? null)->toBe([__('dashboard.platform_sections.recent_organizations')])
         ->and($rows[1] ?? null)->toBe([
-            'Organization Name',
-            'Owner Email',
-            'Plan Type',
-            'Subscription Status',
-            'Number of Properties',
-            'Number of Tenants',
-            'Date Created',
+            __('dashboard.platform_recent_organizations.columns.name'),
+            __('dashboard.platform_recent_organizations.columns.owner_email'),
+            __('dashboard.platform_recent_organizations.columns.plan_type'),
+            __('dashboard.platform_recent_organizations.columns.subscription_status'),
+            __('dashboard.platform_recent_organizations.columns.properties_count'),
+            __('dashboard.platform_recent_organizations.columns.tenants_count'),
+            __('dashboard.platform_recent_organizations.columns.date_created'),
         ])
         ->and($csv)->toContain('Aurora Offices')
         ->and($csv)->toContain('owner@aurora.test');
@@ -209,7 +209,7 @@ it('shows a filtered subscriptions link when more than five organizations are ex
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('View All')
+        ->assertSeeText(__('dashboard.platform_actions.view_all'))
         ->assertSee($filteredSubscriptionsUrl, false);
 });
 

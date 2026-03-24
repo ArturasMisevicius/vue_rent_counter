@@ -25,14 +25,22 @@ class PlatformStatsOverview extends StatsOverviewWidget
             ->sum('amount');
 
         return [
-            Stat::make('Total Organizations', (string) Organization::query()->count())->color('primary'),
-            Stat::make('Active Subscriptions', (string) Subscription::query()
+            Stat::make(__('dashboard.platform_metrics.total_organizations'), (string) Organization::query()->count())->color('primary'),
+            Stat::make(__('dashboard.platform_metrics.active_subscriptions'), (string) Subscription::query()
                 ->where('status', SubscriptionStatus::ACTIVE)
                 ->count())->color('success'),
-            Stat::make('Platform Revenue This Month', 'EUR '.number_format($revenue, 2))->color('info'),
-            Stat::make('Security Violations (7 Days)', (string) SecurityViolation::query()
+            Stat::make(__('dashboard.platform_metrics.platform_revenue_this_month'), $this->formatCurrency($revenue))->color('info'),
+            Stat::make(__('dashboard.platform_metrics.security_violations_last_7_days'), (string) SecurityViolation::query()
                 ->where('occurred_at', '>=', now()->subDays(7))
                 ->count())->color('danger'),
         ];
+    }
+
+    private function formatCurrency(float $amount, string $currency = 'EUR'): string
+    {
+        return __('dashboard.currency_amount', [
+            'currency' => $currency,
+            'amount' => number_format($amount, 2, '.', ''),
+        ]);
     }
 }

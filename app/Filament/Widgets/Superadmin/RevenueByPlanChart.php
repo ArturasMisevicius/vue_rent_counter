@@ -28,11 +28,19 @@ class RevenueByPlanChart extends Widget
             'totals' => collect(SubscriptionPlan::cases())
                 ->map(fn (SubscriptionPlan $plan): array => [
                     'label' => $plan->label(),
-                    'amount' => number_format((float) $payments
+                    'amount' => $this->formatCurrency((float) $payments
                         ->filter(fn (SubscriptionPayment $payment): bool => $payment->subscription?->plan === $plan)
-                        ->sum('amount'), 2),
+                        ->sum('amount')),
                 ])
                 ->all(),
         ];
+    }
+
+    private function formatCurrency(float $amount, string $currency = 'EUR'): string
+    {
+        return __('dashboard.currency_amount', [
+            'currency' => $currency,
+            'amount' => number_format($amount, 2, '.', ''),
+        ]);
     }
 }

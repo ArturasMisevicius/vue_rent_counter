@@ -8,14 +8,18 @@ use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\PricingModel;
 use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\TariffType;
+use App\Enums\UnitOfMeasurement;
 use App\Enums\UserStatus;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
+use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
+use App\Http\Requests\Admin\Invoices\PreviewInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\SendInvoiceEmailRequest;
@@ -39,6 +43,7 @@ use App\Http\Requests\Admin\Tariffs\TariffRequest;
 use App\Http\Requests\Admin\Tenants\ReassignTenantRequest;
 use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
 use App\Http\Requests\Admin\Tenants\UpdateTenantRequest;
+use App\Http\Requests\Admin\UtilityServices\UtilityServiceRequest;
 use App\Http\Requests\Auth\AcceptInvitationRequest;
 use App\Http\Requests\Auth\CompleteOnboardingRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
@@ -109,16 +114,9 @@ final class FormRequestScenarioFactory
                 'request' => static fn (array $context): FormRequest => new CompleteOnboardingRequest,
                 'valid' => static fn (array $context): array => [
                     'name' => 'North Harbor Estates',
-                    'slug' => 'north-harbor-estates',
                 ],
-                'required' => ['name', 'slug'],
+                'required' => ['name'],
                 'authorize' => self::allRoles(true),
-                'invalid' => [
-                    'slug unique' => static fn (array $valid, array $context): array => [
-                        'field' => 'slug',
-                        'input' => self::withField($valid, 'slug', $context['existingOrganization']->slug),
-                    ],
-                ],
             ],
             'CspViolationRequest' => [
                 'request' => static fn (array $context): FormRequest => new CspViolationRequest,
@@ -268,12 +266,11 @@ final class FormRequestScenarioFactory
                 'request' => static fn (array $context): FormRequest => new StoreOrganizationRequest,
                 'valid' => static fn (array $context): array => [
                     'name' => 'Aurora Plaza',
-                    'slug' => 'aurora-plaza',
                     'owner_email' => 'owner@example.com',
                     'plan' => SubscriptionPlan::PROFESSIONAL->value,
                     'duration' => SubscriptionDuration::YEARLY->value,
                 ],
-                'required' => ['name', 'slug', 'owner_email', 'plan', 'duration'],
+                'required' => ['name', 'owner_email', 'plan', 'duration'],
                 'authorize' => self::superadminOnly(),
                 'invalid' => [
                     'owner email disposable' => static fn (array $valid, array $context): array => [
@@ -371,13 +368,11 @@ final class FormRequestScenarioFactory
             'UpdateOrganizationSettingsRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpdateOrganizationSettingsRequest,
                 'valid' => static fn (array $context): array => [
-                    'billing_contact_name' => 'Billing Team',
+                    'organization_name' => 'Harbor Heights',
                     'billing_contact_email' => 'billing@example.com',
-                    'billing_contact_phone' => '+37060000000',
-                    'payment_instructions' => 'Pay within 14 days.',
                     'invoice_footer' => 'Thank you for your business.',
                 ],
-                'required' => [],
+                'required' => ['organization_name'],
                 'authorize' => self::adminOnly(),
             ],
             'BuildingRequest' => [
@@ -390,7 +385,7 @@ final class FormRequestScenarioFactory
                     'postal_code' => 'LT-01100',
                     'country_code' => 'lt',
                 ],
-                'required' => ['name', 'address_line_1', 'city', 'postal_code', 'country_code'],
+                'required' => ['name', 'address_line_1'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'ProcessPaymentRequest' => [
@@ -413,6 +408,40 @@ final class FormRequestScenarioFactory
                     'selected_assignments' => ['assignment-1'],
                 ],
                 'required' => ['billing_period_start', 'billing_period_end', 'due_date'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'CreateInvoiceDraftRequest' => [
+                'request' => static fn (array $context): FormRequest => new CreateInvoiceDraftRequest,
+                'valid' => static fn (array $context): array => [
+                    'tenant_user_id' => $context['tenant']->id,
+                    'billing_period_start' => now()->startOfMonth()->toDateString(),
+                    'billing_period_end' => now()->endOfMonth()->toDateString(),
+                    'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
+                    'items' => [[
+                        'description' => 'Cold water',
+                        'period' => now()->format('F Y'),
+                        'unit' => 'm3',
+                        'quantity' => '14.25',
+                        'rate' => '1.55',
+                        'total' => '22.09',
+                    ]],
+                    'adjustments' => [[
+                        'label' => 'Service discount',
+                        'amount' => '-1.00',
+                    ]],
+                    'notes' => 'Previewed draft invoice',
+                ],
+                'required' => ['tenant_user_id', 'billing_period_start', 'billing_period_end', 'items'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'PreviewInvoiceDraftRequest' => [
+                'request' => static fn (array $context): FormRequest => new PreviewInvoiceDraftRequest,
+                'valid' => static fn (array $context): array => [
+                    'tenant_user_id' => $context['tenant']->id,
+                    'billing_period_start' => now()->startOfMonth()->toDateString(),
+                    'billing_period_end' => now()->endOfMonth()->toDateString(),
+                ],
+                'required' => ['tenant_user_id', 'billing_period_start', 'billing_period_end'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'SaveInvoiceDraftRequest' => [
@@ -480,11 +509,12 @@ final class FormRequestScenarioFactory
                 'valid' => static fn (array $context): array => [
                     'building_id' => $context['building']->id,
                     'name' => 'Apartment 12',
+                    'floor' => 1,
                     'unit_number' => '12',
                     'type' => PropertyType::APARTMENT->value,
                     'floor_area_sqm' => '58.50',
                 ],
-                'required' => ['building_id', 'name', 'unit_number', 'type'],
+                'required' => ['building_id', 'name', 'type'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'StorePropertyRequest' => [
@@ -492,11 +522,12 @@ final class FormRequestScenarioFactory
                 'valid' => static fn (array $context): array => [
                     'building_id' => $context['building']->id,
                     'name' => 'Apartment 12',
+                    'floor' => 1,
                     'unit_number' => '12',
                     'type' => PropertyType::APARTMENT->value,
                     'floor_area_sqm' => '58.50',
                 ],
-                'required' => ['building_id', 'name', 'unit_number', 'type'],
+                'required' => ['building_id', 'name', 'type'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'ProviderRequest' => [
@@ -511,6 +542,19 @@ final class FormRequestScenarioFactory
                     ],
                 ],
                 'required' => ['name', 'service_type'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'UtilityServiceRequest' => [
+                'request' => static fn (array $context): FormRequest => new UtilityServiceRequest,
+                'valid' => static fn (array $context): array => [
+                    'name' => 'Cold Water',
+                    'unit_of_measurement' => UnitOfMeasurement::CUBIC_METER->value,
+                    'default_pricing_model' => PricingModel::CONSUMPTION_BASED->value,
+                    'service_type_bridge' => ServiceType::WATER->value,
+                    'description' => 'Cold water usage',
+                    'is_active' => true,
+                ],
+                'required' => ['name', 'default_pricing_model', 'service_type_bridge'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'ConsumptionReportRequest' => self::reportScenario(ConsumptionReportRequest::class),
@@ -563,11 +607,10 @@ final class FormRequestScenarioFactory
                     'name' => 'Portal Tenant',
                     'email' => 'portal-tenant@example.com',
                     'locale' => 'en',
-                    'status' => UserStatus::ACTIVE->value,
                     'property_id' => $context['property']->id,
                     'unit_area_sqm' => '45.5',
                 ],
-                'required' => ['name', 'email', 'locale', 'status'],
+                'required' => ['name', 'email', 'locale'],
                 'authorize' => self::adminLikeOnly(),
                 'invalid' => [
                     'email unique' => static fn (array $valid, array $context): array => [
@@ -586,11 +629,10 @@ final class FormRequestScenarioFactory
                     'name' => 'Updated Tenant',
                     'email' => $context['tenant']->email,
                     'locale' => 'lt',
-                    'status' => UserStatus::SUSPENDED->value,
                     'property_id' => $context['property']->id,
                     'unit_area_sqm' => '42',
                 ],
-                'required' => ['name', 'email', 'locale', 'status'],
+                'required' => ['name', 'email', 'locale'],
                 'authorize' => self::adminLikeOnly(),
                 'invalid' => [
                     'email unique' => static fn (array $valid, array $context): array => [

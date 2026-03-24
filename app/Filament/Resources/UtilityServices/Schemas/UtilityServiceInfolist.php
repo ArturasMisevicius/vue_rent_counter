@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UtilityServices\Schemas;
 
+use App\Enums\UnitOfMeasurement;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,7 +18,8 @@ class UtilityServiceInfolist
                         TextEntry::make('name')
                             ->label(__('admin.utility_services.fields.name')),
                         TextEntry::make('unit_of_measurement')
-                            ->label(__('admin.utility_services.fields.unit_of_measurement')),
+                            ->label(__('admin.utility_services.fields.unit_of_measurement'))
+                            ->formatStateUsing(fn (?string $state): string => UnitOfMeasurement::tryFrom((string) $state)?->getLabel() ?? ($state ?: '—')),
                         TextEntry::make('default_pricing_model')
                             ->label(__('admin.utility_services.fields.default_pricing_model'))
                             ->badge(),

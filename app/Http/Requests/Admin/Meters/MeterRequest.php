@@ -6,6 +6,7 @@ namespace App\Http\Requests\Admin\Meters;
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -47,7 +48,7 @@ class MeterRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'identifier' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(MeterType::class)],
-            'unit' => ['nullable', 'string', 'max:50'],
+            'unit' => ['nullable', Rule::enum(UnitOfMeasurement::class)],
             'status' => ['required', Rule::enum(MeterStatus::class)],
             'installed_at' => ['nullable', 'date'],
         ];
@@ -68,7 +69,7 @@ class MeterRequest extends FormRequest
             'identifier.max' => ['max.string', 'identifier', ['max' => 255]],
             'type.required' => ['required', 'meter_type'],
             'type.enum' => ['enum', 'meter_type'],
-            'unit.max' => ['max.string', 'unit', ['max' => 50]],
+            'unit.enum' => ['enum', 'unit'],
             'status.required' => ['required', 'status'],
             'status.enum' => ['enum', 'status'],
             'installed_at.date' => ['date', 'installed_at'],
@@ -123,6 +124,14 @@ class MeterRequest extends FormRequest
         if ($status instanceof MeterStatus) {
             $this->merge([
                 'status' => $status->value,
+            ]);
+        }
+
+        $unit = $this->input('unit');
+
+        if ($unit instanceof UnitOfMeasurement) {
+            $this->merge([
+                'unit' => $unit->value,
             ]);
         }
     }

@@ -3,6 +3,7 @@
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Enums\UnitOfMeasurement;
 use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
 use App\Filament\Actions\Admin\ServiceConfigurations\CreateServiceConfigurationAction;
 use App\Filament\Actions\Admin\ServiceConfigurations\UpdateServiceConfigurationAction;
@@ -119,7 +120,7 @@ it('creates and updates utility services and service configurations while blocki
 
     $utilityService = app(CreateUtilityServiceAction::class)->handle($organization, [
         'name' => 'Cold Water',
-        'unit_of_measurement' => 'm3',
+        'unit_of_measurement' => null,
         'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
         'service_type_bridge' => ServiceType::WATER,
         'description' => 'Cold water usage',
@@ -128,11 +129,13 @@ it('creates and updates utility services and service configurations while blocki
 
     expect($utilityService)
         ->organization_id->toBe($organization->id)
-        ->name->toBe('Cold Water');
+        ->name->toBe('Cold Water')
+        ->slug->toBe('cold-water')
+        ->unit_of_measurement->toBe(UnitOfMeasurement::CUBIC_METER->value);
 
     $updatedUtilityService = app(UpdateUtilityServiceAction::class)->handle($utilityService, [
         'name' => 'Cold Water Shared',
-        'unit_of_measurement' => 'm3',
+        'unit_of_measurement' => UnitOfMeasurement::CUBIC_METER,
         'default_pricing_model' => PricingModel::HYBRID,
         'service_type_bridge' => ServiceType::WATER,
         'description' => 'Shared water billing',
@@ -141,7 +144,17 @@ it('creates and updates utility services and service configurations while blocki
 
     expect($updatedUtilityService)
         ->name->toBe('Cold Water Shared')
+        ->slug->toBe('cold-water-shared')
         ->default_pricing_model->toBe(PricingModel::HYBRID);
+
+    expect(fn () => app(UpdateUtilityServiceAction::class)->handle($updatedUtilityService, [
+        'name' => 'Broken Utility Service',
+        'unit_of_measurement' => 'bogus_unit',
+        'default_pricing_model' => PricingModel::HYBRID,
+        'service_type_bridge' => ServiceType::WATER,
+        'description' => 'Should not save',
+        'is_active' => true,
+    ]))->toThrow(ValidationException::class);
 
     $serviceConfiguration = app(CreateServiceConfigurationAction::class)->handle($organization, [
         'property_id' => $property->id,

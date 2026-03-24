@@ -44,7 +44,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 final class FrameworkShowcaseResource extends Resource
 {
@@ -64,11 +63,6 @@ final class FrameworkShowcaseResource extends Resource
             Section::make('Content')
                 ->schema([
                     TextInput::make('title')
-                        ->required()
-                        ->maxLength(255)
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(fn (?string $state, callable $set): mixed => $set('slug', Str::slug((string) $state))),
-                    TextInput::make('slug')
                         ->required()
                         ->maxLength(255),
                     Select::make('organization_id')

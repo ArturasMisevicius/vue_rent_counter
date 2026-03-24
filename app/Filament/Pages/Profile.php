@@ -19,9 +19,7 @@ class Profile extends Page
 
     public function mount(): void
     {
-        $user = $this->user();
-        app()->setLocale($user->locale);
-
+        $this->applyShellLocale();
         $this->fillAccountProfileForms();
     }
 

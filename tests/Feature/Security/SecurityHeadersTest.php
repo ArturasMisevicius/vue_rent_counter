@@ -168,7 +168,7 @@ it('shows recorded security violations in the superadmin security resource and i
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.integration-health'))
         ->assertSuccessful()
-        ->assertSeeText('Recent Security Violations')
+        ->assertSeeText(__('superadmin.integration_health.violations.heading'))
         ->assertSeeText($violation->summary)
         ->assertSeeText('Northwind Estates');
 });

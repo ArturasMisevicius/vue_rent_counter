@@ -26,7 +26,7 @@ class MeterFactory extends Factory
             'identifier' => strtoupper(fake()->bothify('MTR-####-??')),
             'type' => $type,
             'status' => MeterStatus::ACTIVE,
-            'unit' => $type->defaultUnit(),
+            'unit' => $type->defaultUnit()->value,
             'installed_at' => now()->subYear()->toDateString(),
         ];
     }

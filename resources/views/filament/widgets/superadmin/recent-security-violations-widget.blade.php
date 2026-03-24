@@ -1,7 +1,7 @@
 <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
     <div class="mb-4">
-        <h3 class="text-base font-semibold text-slate-950">Recent Security Violations</h3>
-        <p class="text-sm text-slate-500">The latest platform risk signals and suspicious activity.</p>
+        <h3 class="text-base font-semibold text-slate-950">{{ __('dashboard.platform_sections.recent_security_violations') }}</h3>
+        <p class="text-sm text-slate-500">{{ __('dashboard.platform_sections.recent_security_violations_description') }}</p>
     </div>
 
     <div class="space-y-3">
@@ -11,7 +11,7 @@
                 <p class="mt-1 text-sm text-slate-600">{{ $violation->organization?->name }} • {{ $violation->severity?->label() }} • {{ $violation->ip_address }}</p>
             </article>
         @empty
-            <p class="text-sm text-slate-500">No recent security violations were detected.</p>
+            <p class="text-sm text-slate-500">{{ __('dashboard.platform_sections.recent_security_violations_empty') }}</p>
         @endforelse
     </div>
 </div>

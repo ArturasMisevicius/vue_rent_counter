@@ -1,7 +1,7 @@
 <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
     <div class="mb-4">
-        <h3 class="text-base font-semibold text-slate-950">Expiring Subscriptions</h3>
-        <p class="text-sm text-slate-500">Subscriptions reaching their end date in the next 30 days.</p>
+        <h3 class="text-base font-semibold text-slate-950">{{ __('dashboard.platform_sections.expiring_subscriptions') }}</h3>
+        <p class="text-sm text-slate-500">{{ __('dashboard.platform_sections.expiring_subscriptions_description') }}</p>
     </div>
 
     <div class="space-y-3">
@@ -11,7 +11,7 @@
                 <p class="mt-1 text-sm text-slate-600">{{ $subscription->plan?->label() }} • {{ $subscription->expires_at?->toFormattedDateString() }}</p>
             </article>
         @empty
-            <p class="text-sm text-slate-500">No subscriptions are expiring soon.</p>
+            <p class="text-sm text-slate-500">{{ __('dashboard.platform_sections.expiring_subscriptions_empty') }}</p>
         @endforelse
     </div>
 </div>

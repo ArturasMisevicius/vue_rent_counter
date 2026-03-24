@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Panel',
+    'currency_amount' => ':currency :amount',
     'platform_overview' => [
         'eyebrow' => 'Resumen de la plataforma',
         'heading' => 'Panel',
@@ -67,6 +68,25 @@ return [
             'properties_count' => 'Número de propiedades',
             'tenants_count' => 'Número de inquilinos',
             'date_created' => 'Fecha de creación',
+        ],
+    ],
+    'platform_legacy_widgets' => [
+        'organization_matrix' => [
+            'heading' => 'Organizaciones · Propiedades · Gestores',
+            'eyebrow' => 'Plano de control',
+            'empty' => 'No hay organizaciones disponibles.',
+            'columns' => [
+                'organization' => 'Organización',
+                'properties' => 'Propiedades',
+                'managers' => 'Gestores',
+                'users' => 'Usuarios',
+            ],
+        ],
+        'properties_and_managers' => [
+            'total_properties' => 'Total de propiedades',
+            'occupied_properties' => 'Propiedades ocupadas',
+            'active_managers' => 'Gestores activos',
+            'organizations_with_managers' => 'Organizaciones con gestores',
         ],
     ],
     'organization_widgets' => [

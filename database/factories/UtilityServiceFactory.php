@@ -27,7 +27,7 @@ class UtilityServiceFactory extends Factory
             'organization_id' => Organization::factory(),
             'name' => $name,
             'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 999),
-            'unit_of_measurement' => $serviceType->defaultUnit(),
+            'unit_of_measurement' => $serviceType->defaultUnit()->value,
             'default_pricing_model' => fake()->randomElement(PricingModel::cases()),
             'calculation_formula' => null,
             'is_global_template' => false,

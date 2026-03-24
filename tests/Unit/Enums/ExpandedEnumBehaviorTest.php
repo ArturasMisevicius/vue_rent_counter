@@ -18,6 +18,7 @@ use App\Enums\SubscriptionPlan;
 use App\Enums\SystemSettingCategory;
 use App\Enums\TariffType;
 use App\Enums\TariffZone;
+use App\Enums\UnitOfMeasurement;
 use App\Enums\WeekendLogic;
 use Tests\TestCase;
 
@@ -62,7 +63,7 @@ dataset('expanded-enum-values', [
     ],
     'property types' => [
         PropertyType::class,
-        ['apartment', 'house', 'studio', 'office', 'retail', 'warehouse', 'commercial', 'industrial', 'mixed_use', 'garage', 'parking', 'storage'],
+        ['apartment', 'house', 'studio', 'office', 'retail', 'warehouse', 'commercial', 'industrial', 'mixed_use', 'garage', 'parking', 'storage', 'other'],
     ],
     'security violation types' => [
         SecurityViolationType::class,
@@ -79,6 +80,10 @@ dataset('expanded-enum-values', [
     'subscription plans' => [
         SubscriptionPlan::class,
         ['starter', 'basic', 'professional', 'enterprise', 'custom'],
+    ],
+    'units of measurement' => [
+        UnitOfMeasurement::class,
+        ['m3', 'kWh', 'MWh', 'day', 'month', 'collection', 'unit'],
     ],
     'system setting categories' => [
         SystemSettingCategory::class,
@@ -103,22 +108,22 @@ it('supports the expanded enum variants used across Tenanto', function (string $
 })->with('expanded-enum-values');
 
 dataset('service-type-meter-compatibility', [
-    'water' => [ServiceType::WATER, ['water', 'water_cold'], 'm3'],
-    'hot water' => [ServiceType::HOT_WATER, ['water_hot'], 'm3'],
-    'sewage' => [ServiceType::SEWAGE, ['water', 'water_cold', 'water_hot'], 'm3'],
-    'cooling' => [ServiceType::COOLING, ['cooling'], 'kWh'],
-    'steam' => [ServiceType::STEAM, ['steam'], 'MWh'],
-    'solar' => [ServiceType::SOLAR, ['solar'], 'kWh'],
-    'internet' => [ServiceType::INTERNET, [], 'month'],
-    'maintenance' => [ServiceType::MAINTENANCE, [], 'month'],
-    'waste' => [ServiceType::WASTE, [], 'collection'],
-    'electricity' => [ServiceType::ELECTRICITY, ['electricity'], 'kWh'],
+    'water' => [ServiceType::WATER, ['water', 'water_cold'], UnitOfMeasurement::CUBIC_METER],
+    'hot water' => [ServiceType::HOT_WATER, ['water_hot'], UnitOfMeasurement::CUBIC_METER],
+    'sewage' => [ServiceType::SEWAGE, ['water', 'water_cold', 'water_hot'], UnitOfMeasurement::CUBIC_METER],
+    'cooling' => [ServiceType::COOLING, ['cooling'], UnitOfMeasurement::KILOWATT_HOUR],
+    'steam' => [ServiceType::STEAM, ['steam'], UnitOfMeasurement::MEGAWATT_HOUR],
+    'solar' => [ServiceType::SOLAR, ['solar'], UnitOfMeasurement::KILOWATT_HOUR],
+    'internet' => [ServiceType::INTERNET, [], UnitOfMeasurement::MONTH],
+    'maintenance' => [ServiceType::MAINTENANCE, [], UnitOfMeasurement::MONTH],
+    'waste' => [ServiceType::WASTE, [], UnitOfMeasurement::COLLECTION],
+    'electricity' => [ServiceType::ELECTRICITY, ['electricity'], UnitOfMeasurement::KILOWATT_HOUR],
 ]);
 
 it('maps service types to compatible meter types and units', function (
     ServiceType $serviceType,
     array $expectedMeterValues,
-    string $expectedUnit,
+    UnitOfMeasurement $expectedUnit,
 ) {
     expect(array_map(
         static fn (MeterType $meterType): string => $meterType->value,

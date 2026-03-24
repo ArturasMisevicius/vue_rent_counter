@@ -253,7 +253,7 @@ class Tariff extends Model
                 }
 
                 $currency = (string) data_get($this->configuration, 'currency', 'EUR');
-                $unit = $this->provider?->service_type?->defaultUnit();
+                $unit = $this->provider?->service_type?->defaultUnit()?->value;
 
                 return trim(sprintf(
                     '%s %s%s',

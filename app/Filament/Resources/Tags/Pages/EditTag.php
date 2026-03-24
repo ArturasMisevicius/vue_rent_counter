@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tags\Pages;
 
+use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
 use App\Filament\Resources\Tags\TagResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -9,6 +10,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditTag extends EditRecord
 {
+    use HasContainedSuperadminSurface;
+
     protected static string $resource = TagResource::class;
 
     protected function getHeaderActions(): array

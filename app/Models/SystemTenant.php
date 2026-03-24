@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\SystemTenantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class SystemTenant extends Model
 {
     /** @use HasFactory<SystemTenantFactory> */
     use HasFactory;
+
+    use HasGeneratedSlug;
 
     protected $fillable = [
         'name',
@@ -36,13 +38,9 @@ class SystemTenant extends Model
         ];
     }
 
-    protected static function booted(): void
+    protected function slugSourceColumn(): string
     {
-        static::creating(function (self $tenant): void {
-            if (blank($tenant->slug)) {
-                $tenant->slug = Str::slug($tenant->name);
-            }
-        });
+        return 'name';
     }
 
     public function createdByAdmin(): BelongsTo

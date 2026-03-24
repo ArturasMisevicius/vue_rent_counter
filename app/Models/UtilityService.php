@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\UtilityServiceFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,8 @@ class UtilityService extends Model
 {
     /** @use HasFactory<UtilityServiceFactory> */
     use HasFactory;
+
+    use HasGeneratedSlug;
 
     private const SUMMARY_COLUMNS = [
         'id',
@@ -61,6 +64,11 @@ class UtilityService extends Model
             'service_type_bridge' => ServiceType::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    protected function slugSourceColumn(): string
+    {
+        return 'name';
     }
 
     public function organization(): BelongsTo

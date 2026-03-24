@@ -5,6 +5,7 @@ namespace App\Filament\Pages\Concerns;
 use App\Filament\Actions\Admin\Settings\UpdatePasswordAction;
 use App\Filament\Actions\Admin\Settings\UpdateProfileAction;
 use App\Filament\Actions\Preferences\UpdateUserLocaleAction;
+use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Models\User;
@@ -20,6 +21,11 @@ trait InteractsWithAccountProfileForms
     public array $profileForm = [];
 
     /**
+     * @var array<string, string>
+     */
+    public array $profileLocaleOptions = [];
+
+    /**
      * @var array{current_password: string, password: string, password_confirmation: string}
      */
     public array $passwordForm = [];
@@ -27,12 +33,18 @@ trait InteractsWithAccountProfileForms
     protected function fillAccountProfileForms(): void
     {
         $user = $this->user();
+        $supportedLocaleOptions = app(SupportedLocaleOptions::class);
+        $this->profileLocaleOptions = $supportedLocaleOptions->labels();
+
+        $locale = in_array($user->locale, $supportedLocaleOptions->codes(), true)
+            ? $user->locale
+            : $supportedLocaleOptions->fallbackLocale();
 
         $this->profileForm = [
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'locale' => $user->locale,
+            'locale' => $locale,
         ];
 
         $this->passwordForm = [

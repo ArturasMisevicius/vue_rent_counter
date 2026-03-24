@@ -11,14 +11,13 @@ use App\Models\Subscription;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('renders the create organization page and auto-fills the slug with an expiry preview', function () {
+it('renders the create organization page without a slug field and with an expiry preview', function () {
     $superadmin = User::factory()->superadmin()->create();
 
     $this->actingAs($superadmin)
@@ -29,31 +28,15 @@ it('renders the create organization page and auto-fills the slug with an expiry 
         ->assertSeeText('Cancel')
         ->assertSeeText(__('superadmin.organizations.form.sections.details'))
         ->assertSeeText(__('superadmin.organizations.form.sections.owner'))
-        ->assertSeeText(__('superadmin.organizations.form.sections.subscription'));
+        ->assertSeeText(__('superadmin.organizations.form.sections.subscription'))
+        ->assertDontSeeText(__('superadmin.organizations.form.fields.url_slug'));
 
     $this->actingAs($superadmin);
 
     Livewire::test(CreateOrganization::class)
-        ->assertFormFieldExists('name', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.organization_name'))
-        ->assertFormFieldExists('slug', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.url_slug'))
-        ->assertFormFieldExists('owner_email', fn (TextInput $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.owner_email'))
+        ->assertFormFieldDoesNotExist('slug')
         ->assertFormFieldExists('plan', fn (Select $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.plan'))
         ->assertFormFieldExists('duration', fn (ToggleButtons $field): bool => $field->getLabel() === __('superadmin.organizations.form.fields.duration'))
-        ->fillForm([
-            'name' => 'Aurora Estates',
-        ])
-        ->assertSchemaStateSet([
-            'slug' => 'aurora-estates',
-        ])
-        ->fillForm([
-            'slug' => 'aurora-custom',
-        ])
-        ->fillForm([
-            'name' => 'Aurora Estates Updated',
-        ])
-        ->assertSchemaStateSet([
-            'slug' => 'aurora-custom',
-        ])
         ->fillForm([
             'duration' => SubscriptionDuration::YEARLY->value,
         ])
@@ -79,7 +62,6 @@ it('links existing owners on create and redirects to the organization view page'
         ->assertSeeText(__('superadmin.organizations.form.helper.owner_existing'))
         ->fillForm([
             'name' => 'Aurora Estates',
-            'slug' => 'aurora-estates',
             'owner_email' => $existingOwner->email,
             'plan' => SubscriptionPlan::PROFESSIONAL->value,
             'duration' => SubscriptionDuration::QUARTERLY->value,
@@ -107,7 +89,6 @@ it('creates platform invitations for new owner emails from the create page', fun
     Livewire::test(CreateOrganization::class)
         ->fillForm([
             'name' => 'Harbor Heights',
-            'slug' => 'harbor-heights',
             'owner_email' => 'invite.owner@example.com',
             'plan' => SubscriptionPlan::BASIC->value,
             'duration' => SubscriptionDuration::MONTHLY->value,
@@ -121,7 +102,7 @@ it('creates platform invitations for new owner emails from the create page', fun
         ->exists())->toBeTrue();
 });
 
-it('renders the edit page without a slug field and updates the plan and expiry date without changing the slug', function () {
+it('renders the edit page without a slug field and updates the slug automatically when the name changes', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create([
         'name' => 'Northwind Towers',
@@ -187,7 +168,7 @@ it('renders the edit page without a slug field and updates the plan and expiry d
     $subscription->refresh();
 
     expect($organization->name)->toBe('Northwind Towers Updated')
-        ->and($organization->slug)->toBe('northwind-towers')
+        ->and($organization->slug)->toBe('northwind-towers-updated')
         ->and($subscription->plan)->toBe(SubscriptionPlan::PROFESSIONAL)
         ->and($subscription->expires_at?->toDateString())->toBe(now()->addMonths(6)->startOfDay()->toDateString());
 });

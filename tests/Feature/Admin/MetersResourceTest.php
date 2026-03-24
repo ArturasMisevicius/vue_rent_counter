@@ -2,10 +2,12 @@
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\UnitOfMeasurement;
 use App\Filament\Actions\Admin\Meters\CreateMeterAction;
 use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
 use App\Filament\Actions\Admin\Meters\ToggleMeterStatusAction;
 use App\Filament\Actions\Admin\Meters\UpdateMeterAction;
+use App\Filament\Resources\Meters\Pages\CreateMeter;
 use App\Filament\Resources\Meters\Pages\ListMeters;
 use App\Models\Building;
 use App\Models\Meter;
@@ -13,6 +15,7 @@ use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Forms\Components\Select as FormSelect;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,7 +37,7 @@ it('shows organization-scoped meter resource pages with history details', functi
         'name' => 'Main Water Meter',
         'identifier' => 'MTR-1001',
         'type' => MeterType::WATER,
-        'unit' => MeterType::WATER->defaultUnit(),
+        'unit' => MeterType::WATER->defaultUnit()->value,
     ]);
 
     MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
@@ -102,7 +105,7 @@ it('creates meters with default units, updates and toggles status, and blocks de
 
     expect($created)
         ->organization_id->toBe($organization->id)
-        ->unit->toBe('kWh')
+        ->unit->toBe(UnitOfMeasurement::KILOWATT_HOUR->value)
         ->status->toBe(MeterStatus::ACTIVE);
 
     $updated = app(UpdateMeterAction::class)->handle($created, [
@@ -118,7 +121,17 @@ it('creates meters with default units, updates and toggles status, and blocks de
     expect($updated)
         ->name->toBe('Basement Meter Updated')
         ->identifier->toBe('MTR-UPDATED')
-        ->unit->toBe('m3');
+        ->unit->toBe(UnitOfMeasurement::CUBIC_METER->value);
+
+    expect(fn () => app(CreateMeterAction::class)->handle($organization, [
+        'property_id' => $property->id,
+        'name' => 'Invalid Meter',
+        'identifier' => 'MTR-INVALID',
+        'type' => MeterType::ELECTRICITY,
+        'unit' => 'watts_per_whatever',
+        'status' => MeterStatus::ACTIVE,
+        'installed_at' => null,
+    ]))->toThrow(ValidationException::class);
 
     $inactive = app(ToggleMeterStatusAction::class)->handle($updated);
     $reactivated = app(ToggleMeterStatusAction::class)->handle($inactive->fresh());
@@ -226,4 +239,70 @@ it('shows organization context on the meters list for superadmins while keeping 
         ->filterTable('organization', (string) $organizationA->getKey())
         ->assertCanSeeTableRecords([$meterA])
         ->assertCanNotSeeTableRecords([$meterB]);
+});
+
+it('shows create-time organization and building filters for superadmins and narrows property options', function () {
+    $organizationA = Organization::factory()->create([
+        'name' => 'Northwind Estates',
+    ]);
+    $organizationB = Organization::factory()->create([
+        'name' => 'Aurora Towers',
+    ]);
+
+    $buildingA = Building::factory()->for($organizationA)->create([
+        'name' => 'North Hall',
+    ]);
+    $buildingASecondary = Building::factory()->for($organizationA)->create([
+        'name' => 'North Annex',
+    ]);
+    $buildingB = Building::factory()->for($organizationB)->create([
+        'name' => 'Aurora Block',
+    ]);
+
+    $propertyA = Property::factory()->for($organizationA)->for($buildingA)->create([
+        'name' => 'A-12',
+    ]);
+    $propertyASecondary = Property::factory()->for($organizationA)->for($buildingASecondary)->create([
+        'name' => 'A-34',
+    ]);
+    $propertyB = Property::factory()->for($organizationB)->for($buildingB)->create([
+        'name' => 'B-24',
+    ]);
+
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(CreateMeter::class)
+        ->assertFormFieldExists('organization_scope_id', fn (FormSelect $field): bool => $field->getLabel() === 'Organization')
+        ->assertFormFieldExists('building_scope_id', fn (FormSelect $field): bool => $field->getLabel() === 'Building')
+        ->assertFormFieldExists('property_id', fn (FormSelect $field): bool => $field->getOptions() === [])
+        ->fillForm([
+            'organization_scope_id' => $organizationA->id,
+        ])
+        ->assertFormFieldExists('building_scope_id', function (FormSelect $field) use ($buildingA, $buildingASecondary, $buildingB): bool {
+            $options = $field->getOptions();
+
+            return ($options[$buildingA->id] ?? null) === $buildingA->name
+                && ($options[$buildingASecondary->id] ?? null) === $buildingASecondary->name
+                && ! array_key_exists($buildingB->id, $options);
+        })
+        ->assertFormFieldExists('property_id', function (FormSelect $field) use ($propertyA, $propertyASecondary, $propertyB): bool {
+            $options = $field->getOptions();
+
+            return ($options[$propertyA->id] ?? null) === $propertyA->name
+                && ($options[$propertyASecondary->id] ?? null) === $propertyASecondary->name
+                && ! array_key_exists($propertyB->id, $options);
+        })
+        ->fillForm([
+            'organization_scope_id' => $organizationA->id,
+            'building_scope_id' => $buildingA->id,
+        ])
+        ->assertFormFieldExists('property_id', function (FormSelect $field) use ($propertyA, $propertyASecondary, $propertyB): bool {
+            $options = $field->getOptions();
+
+            return ($options[$propertyA->id] ?? null) === $propertyA->name
+                && ! array_key_exists($propertyASecondary->id, $options)
+                && ! array_key_exists($propertyB->id, $options);
+        });
 });

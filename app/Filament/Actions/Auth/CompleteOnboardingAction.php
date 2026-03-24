@@ -17,7 +17,6 @@ class CompleteOnboardingAction
         return DB::transaction(function () use ($user, $attributes): Organization {
             $organization = Organization::query()->create([
                 'name' => $attributes['name'],
-                'slug' => $attributes['slug'],
                 'status' => OrganizationStatus::ACTIVE,
                 'owner_user_id' => $user->id,
             ]);

@@ -125,9 +125,9 @@ it('shows human-readable labels for supported locales only on the tenant profile
     $response = $this->actingAs($tenant->user)
         ->get(route('filament.admin.pages.profile'))
         ->assertSuccessful()
-        ->assertSee('wire:model="profileForm.locale"', false);
+        ->assertSee('wire:model.live="profileForm.locale"', false);
 
-    preg_match('/<select[^>]*wire:model="profileForm\\.locale"[^>]*>(.*?)<\/select>/s', $response->getContent(), $matches);
+    preg_match('/<select[^>]*wire:model\.live="profileForm\\.locale"[^>]*>(.*?)<\/select>/s', $response->getContent(), $matches);
 
     $localeSelect = $matches[1] ?? null;
 

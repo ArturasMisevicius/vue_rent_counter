@@ -176,3 +176,105 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
             ->assertForbidden();
     }
 });
+
+it('renders contained surface blocks for superadmin relation record pages', function () {
+    $organization = Organization::factory()->create();
+
+    $superadmin = User::factory()->superadmin()->create();
+
+    $project = Project::factory()->for($organization)->create();
+    $task = Task::factory()->for($organization)->for($project)->create();
+
+    $taskAssignment = TaskAssignment::factory()->for($task)->create();
+    $propertyAssignment = PropertyAssignment::factory()->for($organization)->create();
+    $organizationUser = OrganizationUser::factory()->for($organization)->create();
+    $tag = Tag::factory()->for($organization)->create();
+
+    $invoiceItem = InvoiceItem::factory()->create();
+    $invoicePayment = InvoicePayment::factory()->create();
+    $timeEntry = TimeEntry::factory()->create();
+    $comment = Comment::factory()->create();
+    $commentReaction = CommentReaction::factory()->create();
+    $attachment = Attachment::factory()->create();
+    $invoiceReminderLog = InvoiceReminderLog::factory()->create();
+    $invoiceEmailLog = InvoiceEmailLog::factory()->create();
+    $subscriptionPayment = SubscriptionPayment::factory()->create();
+    $subscriptionRenewal = SubscriptionRenewal::factory()->create();
+
+    actingAs($superadmin);
+
+    $createRoutes = [
+        'filament.admin.resources.projects.create',
+        'filament.admin.resources.tasks.create',
+        'filament.admin.resources.task-assignments.create',
+        'filament.admin.resources.property-assignments.create',
+        'filament.admin.resources.organization-users.create',
+        'filament.admin.resources.tags.create',
+        'filament.admin.resources.invoice-items.create',
+        'filament.admin.resources.invoice-payments.create',
+        'filament.admin.resources.time-entries.create',
+        'filament.admin.resources.comments.create',
+        'filament.admin.resources.comment-reactions.create',
+        'filament.admin.resources.attachments.create',
+        'filament.admin.resources.invoice-reminder-logs.create',
+        'filament.admin.resources.invoice-email-logs.create',
+        'filament.admin.resources.subscription-payments.create',
+        'filament.admin.resources.subscription-renewals.create',
+    ];
+
+    foreach ($createRoutes as $routeName) {
+        get(route($routeName))
+            ->assertSuccessful()
+            ->assertSee('data-superadmin-surface="true"', false);
+    }
+
+    $viewRoutes = [
+        ['name' => 'filament.admin.resources.projects.view', 'record' => $project],
+        ['name' => 'filament.admin.resources.tasks.view', 'record' => $task],
+        ['name' => 'filament.admin.resources.task-assignments.view', 'record' => $taskAssignment],
+        ['name' => 'filament.admin.resources.property-assignments.view', 'record' => $propertyAssignment],
+        ['name' => 'filament.admin.resources.organization-users.view', 'record' => $organizationUser],
+        ['name' => 'filament.admin.resources.tags.view', 'record' => $tag],
+        ['name' => 'filament.admin.resources.invoice-items.view', 'record' => $invoiceItem],
+        ['name' => 'filament.admin.resources.invoice-payments.view', 'record' => $invoicePayment],
+        ['name' => 'filament.admin.resources.time-entries.view', 'record' => $timeEntry],
+        ['name' => 'filament.admin.resources.comments.view', 'record' => $comment],
+        ['name' => 'filament.admin.resources.comment-reactions.view', 'record' => $commentReaction],
+        ['name' => 'filament.admin.resources.attachments.view', 'record' => $attachment],
+        ['name' => 'filament.admin.resources.invoice-reminder-logs.view', 'record' => $invoiceReminderLog],
+        ['name' => 'filament.admin.resources.invoice-email-logs.view', 'record' => $invoiceEmailLog],
+        ['name' => 'filament.admin.resources.subscription-payments.view', 'record' => $subscriptionPayment],
+        ['name' => 'filament.admin.resources.subscription-renewals.view', 'record' => $subscriptionRenewal],
+    ];
+
+    foreach ($viewRoutes as $viewRoute) {
+        get(route($viewRoute['name'], ['record' => $viewRoute['record']]))
+            ->assertSuccessful()
+            ->assertSee('data-superadmin-surface="true"', false);
+    }
+
+    $editRoutes = [
+        ['name' => 'filament.admin.resources.projects.edit', 'record' => $project],
+        ['name' => 'filament.admin.resources.tasks.edit', 'record' => $task],
+        ['name' => 'filament.admin.resources.task-assignments.edit', 'record' => $taskAssignment],
+        ['name' => 'filament.admin.resources.property-assignments.edit', 'record' => $propertyAssignment],
+        ['name' => 'filament.admin.resources.organization-users.edit', 'record' => $organizationUser],
+        ['name' => 'filament.admin.resources.tags.edit', 'record' => $tag],
+        ['name' => 'filament.admin.resources.invoice-items.edit', 'record' => $invoiceItem],
+        ['name' => 'filament.admin.resources.invoice-payments.edit', 'record' => $invoicePayment],
+        ['name' => 'filament.admin.resources.time-entries.edit', 'record' => $timeEntry],
+        ['name' => 'filament.admin.resources.comments.edit', 'record' => $comment],
+        ['name' => 'filament.admin.resources.comment-reactions.edit', 'record' => $commentReaction],
+        ['name' => 'filament.admin.resources.attachments.edit', 'record' => $attachment],
+        ['name' => 'filament.admin.resources.invoice-reminder-logs.edit', 'record' => $invoiceReminderLog],
+        ['name' => 'filament.admin.resources.invoice-email-logs.edit', 'record' => $invoiceEmailLog],
+        ['name' => 'filament.admin.resources.subscription-payments.edit', 'record' => $subscriptionPayment],
+        ['name' => 'filament.admin.resources.subscription-renewals.edit', 'record' => $subscriptionRenewal],
+    ];
+
+    foreach ($editRoutes as $editRoute) {
+        get(route($editRoute['name'], ['record' => $editRoute['record']]))
+            ->assertSuccessful()
+            ->assertSee('data-superadmin-surface="true"', false);
+    }
+});

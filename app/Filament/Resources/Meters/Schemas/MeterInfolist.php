@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Meters\Schemas;
 
 use App\Enums\MeterStatus;
+use App\Enums\UnitOfMeasurement;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -27,7 +28,8 @@ class MeterInfolist
                             ->label(__('admin.meters.fields.type'))
                             ->badge(),
                         TextEntry::make('unit')
-                            ->label(__('admin.meters.fields.unit')),
+                            ->label(__('admin.meters.fields.unit'))
+                            ->formatStateUsing(fn (?string $state): string => UnitOfMeasurement::tryFrom((string) $state)?->getLabel() ?? ($state ?: '—')),
                         TextEntry::make('status')
                             ->label(__('admin.meters.fields.status'))
                             ->badge()

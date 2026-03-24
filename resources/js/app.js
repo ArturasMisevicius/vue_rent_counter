@@ -1,14 +1,5 @@
 import './bootstrap';
 
-const slugify = (value) =>
-    value
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
 const toggleSubmitState = (button, isLoading) => {
     if (!button) {
         return;
@@ -90,34 +81,6 @@ document.querySelectorAll('[data-auth-form]').forEach((form) => {
 
         toggleSubmitState(submitButton, true);
     });
-});
-
-document.querySelectorAll('[data-slug-source]').forEach((source) => {
-    if (!(source instanceof HTMLInputElement)) {
-        return;
-    }
-
-    const target = source.form?.querySelector('[data-slug-target]');
-
-    if (!(target instanceof HTMLInputElement)) {
-        return;
-    }
-
-    let isManualOverride = target.value !== '' && target.value !== slugify(source.value);
-
-    const syncSlug = () => {
-        if (!isManualOverride) {
-            target.value = slugify(source.value);
-        }
-    };
-
-    source.addEventListener('input', syncSlug);
-
-    target.addEventListener('input', () => {
-        isManualOverride = target.value !== '' && target.value !== slugify(source.value);
-    });
-
-    syncSlug();
 });
 
 document.addEventListener('keydown', (event) => {

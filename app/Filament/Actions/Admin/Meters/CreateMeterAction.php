@@ -4,6 +4,7 @@ namespace App\Filament\Actions\Admin\Meters;
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Meters\MeterRequest;
 use App\Models\Meter;
 use App\Models\Organization;
@@ -21,7 +22,7 @@ class CreateMeterAction
             ...$validated,
             'organization_id' => $organization->id,
             'type' => $type,
-            'unit' => $validated['unit'] ?: $type->defaultUnit(),
+            'unit' => $this->resolveUnitValue($validated['unit'] ?? null, $type),
         ]);
     }
 
@@ -31,7 +32,7 @@ class CreateMeterAction
      *     name: string,
      *     identifier: string,
      *     type: MeterType|string,
-     *     unit: string|null,
+     *     unit: UnitOfMeasurement|string|null,
      *     status: MeterStatus|string,
      *     installed_at: string|null
      * }
@@ -45,5 +46,18 @@ class CreateMeterAction
             ->validatePayload($data);
 
         return $validated;
+    }
+
+    private function resolveUnitValue(UnitOfMeasurement|string|null $unit, MeterType $type): string
+    {
+        if ($unit instanceof UnitOfMeasurement) {
+            return $unit->value;
+        }
+
+        if (is_string($unit) && $unit !== '') {
+            return $unit;
+        }
+
+        return $type->defaultUnit()->value;
     }
 }

@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
-use App\Models\Organization;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -16,23 +15,33 @@ class UserForm
     {
         return $schema
             ->components([
-                Section::make('User Details')
+                Section::make(__('superadmin.users.sections.details'))
                     ->schema([
-                        TextInput::make('name')->label('Name')->required()->maxLength(255),
-                        TextInput::make('email')->label('Email')->email()->required()->maxLength(255),
+                        TextInput::make('name')->label(__('superadmin.users.fields.name'))->required()->maxLength(255),
+                        TextInput::make('email')->label(__('superadmin.users.fields.email'))->email()->required()->maxLength(255),
                         Select::make('role')
-                            ->label('Role')
+                            ->label(__('superadmin.users.fields.role'))
                             ->options(UserRole::options())
                             ->required(),
                         Select::make('organization_id')
-                            ->label('Organization')
-                            ->options(Organization::query()->select(['id', 'name'])->orderBy('name')->pluck('name', 'id')->all())
+                            ->label(__('superadmin.users.fields.organization'))
+                            ->relationship('organization', 'name')
                             ->searchable()
                             ->preload(),
                         Select::make('status')
-                            ->label('Status')
+                            ->label(__('superadmin.users.fields.status'))
                             ->options(UserStatus::options())
                             ->required(),
+                        Select::make('locale')
+                            ->label(__('superadmin.users.fields.locale'))
+                            ->options(config('tenanto.locales', []))
+                            ->required(),
+                        TextInput::make('password')
+                            ->label(__('superadmin.users.fields.password'))
+                            ->password()
+                            ->required(fn (string $operation): bool => $operation === 'create')
+                            ->minLength(8)
+                            ->dehydrated(fn (?string $state): bool => filled($state)),
                     ])
                     ->columns(2),
             ]);

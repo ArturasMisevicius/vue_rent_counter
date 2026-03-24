@@ -47,7 +47,7 @@
             <label class="space-y-2 text-sm font-medium text-slate-700">
                 <span>{{ __('shell.profile.fields.locale') }}</span>
                 <select wire:model.live="profileForm.locale" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900">
-                    @foreach (config('tenanto.locales', []) as $locale => $label)
+                    @foreach ($profileLocaleOptions as $locale => $label)
                         <option value="{{ $locale }}">{{ $label }}</option>
                     @endforeach
                 </select>

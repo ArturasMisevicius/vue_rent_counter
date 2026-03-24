@@ -27,29 +27,9 @@
                     value="{{ old('name') }}"
                     autocomplete="organization"
                     required
-                    data-slug-source
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-warm focus:ring-2 focus:ring-brand-warm/20"
                 />
                 @error('name')
-                    <p class="text-sm text-rose-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="space-y-2">
-                <label for="slug" class="text-sm font-semibold text-slate-800">{{ __('onboarding.organization_slug_label') }}</label>
-                <input
-                    id="slug"
-                    name="slug"
-                    type="text"
-                    value="{{ old('slug') }}"
-                    autocapitalize="none"
-                    spellcheck="false"
-                    required
-                    data-slug-target
-                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-warm focus:ring-2 focus:ring-brand-warm/20"
-                />
-                <p class="text-sm text-slate-500">{{ __('onboarding.organization_slug_help') }}</p>
-                @error('slug')
                     <p class="text-sm text-rose-600">{{ $message }}</p>
                 @enderror
             </div>
