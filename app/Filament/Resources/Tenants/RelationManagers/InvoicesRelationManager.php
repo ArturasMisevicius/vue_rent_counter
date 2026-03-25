@@ -6,6 +6,7 @@ use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Invoice;
+use App\Models\User;
 use App\Services\Billing\InvoicePdfService;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
@@ -17,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class InvoicesRelationManager extends RelationManager
 {
@@ -45,21 +47,25 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('billing_period')
                     ->label(__('admin.tenants.invoices.columns.billing_period'))
                     ->state(fn (Invoice $record): string => collect([
-                        $record->billing_period_start?->format('M j, Y'),
-                        $record->billing_period_end?->format('M j, Y'),
+                        $record->billing_period_start?->locale(app()->getLocale())->isoFormat('ll'),
+                        $record->billing_period_end?->locale(app()->getLocale())->isoFormat('ll'),
                     ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
                     ->label(__('admin.tenants.invoices.columns.total_amount'))
-                    ->state(fn (Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
+                    ->state(function (Invoice $record): string {
+                        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+                        return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
+                    }),
                 TextColumn::make('status')
                     ->label(__('admin.tenants.invoices.columns.status'))
                     ->badge(),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.invoices.columns.issued_date'))
-                    ->date('F j, Y'),
+                    ->state(fn (Invoice $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
                 TextColumn::make('paid_at')
                     ->label(__('admin.tenants.invoices.columns.paid_date'))
-                    ->state(fn (Invoice $record): string => $record->paid_at?->format('F j, Y') ?? '—'),
+                    ->state(fn (Invoice $record): string => $record->paid_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
             ])
             ->recordActions([
                 ViewAction::make()
@@ -83,7 +89,7 @@ class InvoicesRelationManager extends RelationManager
                     ->action(function (Invoice $record, array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
                         $sendInvoiceEmailAction->handle(
                             $record,
-                            auth()->user(),
+                            self::currentUser(),
                             $data['recipient_email'] ?? null,
                             $data['personal_message'] ?? null,
                         );
@@ -95,5 +101,12 @@ class InvoicesRelationManager extends RelationManager
                     }),
             ])
             ->defaultSort('billing_period_start', 'desc');
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

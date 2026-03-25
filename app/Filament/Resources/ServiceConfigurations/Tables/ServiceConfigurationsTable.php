@@ -53,12 +53,12 @@ class ServiceConfigurationsTable
                     ->toggleable(),
                 TextColumn::make('effective_from')
                     ->label(__('admin.service_configurations.fields.effective_from'))
-                    ->dateTime('Y-m-d')
+                    ->state(fn (ServiceConfiguration $record): string => $record->effective_from?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('effective_until')
                     ->label(__('admin.service_configurations.fields.effective_until'))
-                    ->dateTime('Y-m-d')
+                    ->state(fn (ServiceConfiguration $record): string => $record->effective_until?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->placeholder('—')
                     ->toggleable(),
                 IconColumn::make('is_active')

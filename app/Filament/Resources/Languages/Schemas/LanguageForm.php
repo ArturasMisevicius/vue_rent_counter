@@ -15,16 +15,16 @@ class LanguageForm
     {
         return $schema
             ->components([
-                Section::make('Language Details')
+                Section::make(__('superadmin.languages_resource.sections.details'))
                     ->schema([
-                        TextInput::make('code')->label('Code')->required()->maxLength(10),
-                        TextInput::make('name')->label('Name')->required()->maxLength(255),
-                        TextInput::make('native_name')->label('Native Name')->required()->maxLength(255),
+                        TextInput::make('code')->label(__('superadmin.languages_resource.fields.code'))->required()->maxLength(10),
+                        TextInput::make('name')->label(__('superadmin.languages_resource.fields.name'))->required()->maxLength(255),
+                        TextInput::make('native_name')->label(__('superadmin.languages_resource.fields.native_name'))->required()->maxLength(255),
                         Select::make('status')
-                            ->label('Status')
+                            ->label(__('superadmin.languages_resource.fields.status'))
                             ->options(LanguageStatus::options())
                             ->required(),
-                        Toggle::make('is_default')->label('Default Language'),
+                        Toggle::make('is_default')->label(__('superadmin.languages_resource.columns.default')),
                     ])
                     ->columns(2),
             ]);

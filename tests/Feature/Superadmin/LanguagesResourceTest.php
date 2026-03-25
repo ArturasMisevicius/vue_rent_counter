@@ -28,15 +28,15 @@ it('shows language management pages only to superadmins', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.languages.index'))
         ->assertSuccessful()
-        ->assertSeeText('Languages')
+        ->assertSeeText(__('superadmin.languages_resource.plural'))
         ->assertSeeText($language->name);
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.languages.create'))
         ->assertSuccessful()
-        ->assertSeeText('Code')
-        ->assertSeeText('Name')
-        ->assertSeeText('Native Name');
+        ->assertSeeText(__('superadmin.languages_resource.fields.code'))
+        ->assertSeeText(__('superadmin.languages_resource.fields.name'))
+        ->assertSeeText(__('superadmin.languages_resource.fields.native_name'));
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.languages.edit', $language))

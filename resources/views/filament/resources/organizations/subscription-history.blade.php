@@ -12,12 +12,12 @@
                 @endphp
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p class="text-sm font-semibold text-slate-900">
-                        {{ number_format((float) $payment->amount, 2) }} {{ $payment->currency }}
+                        {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY))->formatCurrency((float) $payment->amount, $payment->currency) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.paid_on', [
                             'duration' => $durationLabel,
-                            'date' => $payment->paid_at?->format('d M Y') ?? __('superadmin.organizations.subscription_history.unknown_date'),
+                            'date' => $payment->paid_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown_date'),
                         ]) }}
                     </p>
                     <p class="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
@@ -44,19 +44,19 @@
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p class="text-sm font-semibold text-slate-900">
                         {{ __('superadmin.organizations.subscription_history.renewal_title', [
-                            'method' => $methodLabel === $methodKey ? str($renewal->method)->title() : $methodLabel,
+                            'method' => $methodLabel === $methodKey ? __('superadmin.organizations.subscription_history.unknown') : $methodLabel,
                         ]) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.period_range', [
-                            'from' => $renewal->old_expires_at?->format('d M Y') ?? __('superadmin.organizations.subscription_history.unknown'),
-                            'to' => $renewal->new_expires_at?->format('d M Y') ?? __('superadmin.organizations.subscription_history.unknown'),
+                            'from' => $renewal->old_expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown'),
+                            'to' => $renewal->new_expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown'),
                         ]) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-500">
                         {{ $renewal->user?->name ?? __('superadmin.organizations.subscription_history.system') }}
                         ·
-                        {{ $periodLabel === $periodKey ? str($renewal->period)->replace('_', ' ')->title() : $periodLabel }}
+                        {{ $periodLabel === $periodKey ? __('superadmin.organizations.subscription_history.custom_duration') : $periodLabel }}
                     </p>
                 </div>
             @empty

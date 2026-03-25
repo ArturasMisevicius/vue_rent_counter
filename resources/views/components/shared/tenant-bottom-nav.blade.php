@@ -38,17 +38,6 @@
                     'tenant.invoices.index',
                 ],
             ],
-            [
-                'key' => 'profile',
-                'label' => __('shell.navigation.items.profile'),
-                'icon' => 'heroicon-m-user-circle',
-                'route' => 'filament.admin.pages.profile',
-                'patterns' => [
-                    'filament.admin.pages.profile',
-                    'tenant.profile.edit',
-                    'profile.edit',
-                ],
-            ],
         ];
     @endphp
 
@@ -58,7 +47,7 @@
         class="fixed inset-x-0 bottom-4 z-30 px-4 lg:hidden"
     >
         <div class="mx-auto max-w-md rounded-[2rem] border border-white/70 bg-slate-950/90 p-2 text-white shadow-[0_24px_80px_rgba(15,23,42,0.32)] backdrop-blur-xl">
-            <div class="grid grid-cols-4 gap-2">
+            <div class="grid grid-cols-3 gap-2">
                 @foreach ($items as $item)
                     @php($isActive = request()->routeIs(...$item['patterns']))
 

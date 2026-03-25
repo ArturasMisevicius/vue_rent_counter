@@ -3,6 +3,7 @@
 namespace App\Filament\Support\Tenant\Portal;
 
 use App\Filament\Support\Workspace\WorkspaceResolver;
+use App\Models\MeterReading;
 use App\Models\User;
 
 class TenantPropertyPresenter
@@ -14,7 +15,7 @@ class TenantPropertyPresenter
     /**
      * @return array<string, mixed>
      */
-    public function for(User $tenant): array
+    public function for(User $tenant, string $selectedYear = 'all', string $selectedMonth = 'all'): array
     {
         $workspace = $this->workspaceResolver->resolveFor($tenant);
 
@@ -25,14 +26,25 @@ class TenantPropertyPresenter
                 'property_address' => null,
                 'property_building_name' => null,
                 'assigned_since' => null,
+                'tenant_name' => $tenant->name,
+                'tenant_email' => $tenant->email,
+                'property_unit_number' => null,
+                'property_floor_area' => null,
+                'meter_count' => 0,
                 'meters' => [],
+                'history_entries' => [],
+                'history_count' => 0,
+                'available_years' => [],
+                'available_months' => [],
+                'selected_year' => $selectedYear,
+                'selected_month' => $selectedMonth,
             ];
         }
 
         $organizationId = $workspace->organizationId;
 
         $tenant = User::query()
-            ->select(['id', 'organization_id', 'role'])
+            ->select(['id', 'organization_id', 'role', 'name', 'email'])
             ->with([
                 'currentPropertyAssignment' => fn ($query) => $query
                     ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
@@ -60,16 +72,97 @@ class TenantPropertyPresenter
                 'property_address' => null,
                 'property_building_name' => null,
                 'assigned_since' => null,
+                'tenant_name' => $tenant->name,
+                'tenant_email' => $tenant->email,
+                'property_unit_number' => null,
+                'property_floor_area' => null,
+                'meter_count' => 0,
                 'meters' => [],
+                'history_entries' => [],
+                'history_count' => 0,
+                'available_years' => [],
+                'available_months' => [],
+                'selected_year' => $selectedYear,
+                'selected_month' => $selectedMonth,
             ];
         }
 
+        $historyBaseQuery = MeterReading::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'meter_id',
+                'submitted_by_user_id',
+                'reading_value',
+                'reading_date',
+                'validation_status',
+                'submission_method',
+                'created_at',
+            ])
+            ->forOrganization($organizationId)
+            ->forProperty($property->id)
+            ->submittedBy($tenant->id)
+            ->with([
+                'meter:id,organization_id,property_id,name,identifier,unit',
+            ])
+            ->latestFirst();
+
+        $availableYears = $historyBaseQuery
+            ->clone()
+            ->get()
+            ->map(fn (MeterReading $reading): string => $reading->reading_date->format('Y'))
+            ->unique()
+            ->values();
+
+        $availableMonths = $historyBaseQuery
+            ->clone()
+            ->when(
+                $selectedYear !== 'all',
+                fn ($query) => $query->whereYear('reading_date', (int) $selectedYear),
+            )
+            ->get()
+            ->map(fn (MeterReading $reading): string => $reading->reading_date->format('n'))
+            ->unique()
+            ->sort(fn (string $left, string $right) => (int) $left <=> (int) $right)
+            ->values();
+
+        $historyEntries = $historyBaseQuery
+            ->clone()
+            ->when(
+                $selectedYear !== 'all',
+                fn ($query) => $query->whereYear('reading_date', (int) $selectedYear),
+            )
+            ->when(
+                $selectedMonth !== 'all',
+                fn ($query) => $query->whereMonth('reading_date', (int) $selectedMonth),
+            )
+            ->get()
+            ->map(fn (MeterReading $reading): array => [
+                'id' => $reading->id,
+                'meter_name' => $reading->meter?->name ?? __('dashboard.not_available'),
+                'meter_identifier' => $reading->meter?->identifier ?? '—',
+                'reading_value' => $this->formatDecimal((float) $reading->reading_value, 3),
+                'unit' => $reading->meter?->unit ?? '',
+                'reading_date' => $reading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
+                'month_label' => $reading->reading_date->translatedFormat('F Y'),
+                'status_label' => $reading->validation_status?->label() ?? __('dashboard.not_available'),
+                'submitted_via' => $reading->submission_method?->label() ?? __('dashboard.not_available'),
+                'submitted_at' => $reading->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—',
+            ])
+            ->all();
+
         return [
             'has_assignment' => true,
+            'tenant_name' => $tenant->name,
+            'tenant_email' => $tenant->email,
             'property_name' => $property->name,
             'property_address' => $property->address,
             'property_building_name' => $property->building?->name,
-            'assigned_since' => optional($tenant->currentPropertyAssignment?->assigned_at)?->format('Y-m-d'),
+            'property_unit_number' => $property->unit_number,
+            'property_floor_area' => $property->areaDisplay(),
+            'assigned_since' => optional($tenant->currentPropertyAssignment?->assigned_at)?->locale(app()->getLocale())->isoFormat('ll'),
+            'meter_count' => $property->meters->count(),
             'meters' => $property->meters->map(fn ($meter) => [
                 'id' => $meter->id,
                 'name' => $meter->name,
@@ -77,13 +170,28 @@ class TenantPropertyPresenter
                 'unit' => $meter->unit,
                 'last_reading' => $meter->latestReading
                     ? __('tenant.pages.property.last_reading', [
-                        'value' => number_format((float) $meter->latestReading->reading_value, 3),
+                        'value' => $this->formatDecimal((float) $meter->latestReading->reading_value, 3),
                         'unit' => $meter->unit,
-                        'date' => $meter->latestReading->reading_date->format('Y-m-d'),
+                        'date' => $meter->latestReading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
                     ])
                     : __('tenant.pages.property.last_reading_none'),
                 'has_reading' => $meter->latestReading !== null,
             ])->all(),
+            'history_entries' => $historyEntries,
+            'history_count' => count($historyEntries),
+            'available_years' => $availableYears->all(),
+            'available_months' => $availableMonths->all(),
+            'selected_year' => $selectedYear,
+            'selected_month' => $selectedMonth,
         ];
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

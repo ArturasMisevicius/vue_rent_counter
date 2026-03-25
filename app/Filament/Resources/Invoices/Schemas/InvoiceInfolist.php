@@ -44,10 +44,18 @@ class InvoiceInfolist
                     ->schema([
                         TextEntry::make('total_amount')
                             ->label(__('admin.invoices.fields.total_amount'))
-                            ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
+                            ->state(function ($record): string {
+                                $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+                                return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
+                            }),
                         TextEntry::make('amount_paid')
                             ->label(__('admin.invoices.fields.amount_paid'))
-                            ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format($record->normalized_paid_amount, 2))),
+                            ->state(function ($record): string {
+                                $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+                                return (string) $formatter->formatCurrency((float) $record->normalized_paid_amount, $record->currency);
+                            }),
                         TextEntry::make('outstanding_amount')
                             ->label(__('admin.invoices.status_summaries.outstanding'))
                             ->state(fn ($record): string => app(InvoicePresentationService::class)->present($record)['outstanding_amount_display']),

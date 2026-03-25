@@ -41,21 +41,25 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('billing_period')
                     ->label(__('admin.invoices.columns.billing_period'))
                     ->state(fn (Invoice $record): string => collect([
-                        $record->billing_period_start?->format('M j, Y'),
-                        $record->billing_period_end?->format('M j, Y'),
+                        $record->billing_period_start?->locale(app()->getLocale())->isoFormat('ll'),
+                        $record->billing_period_end?->locale(app()->getLocale())->isoFormat('ll'),
                     ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
                     ->label(__('admin.invoices.columns.amount'))
-                    ->state(fn (Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
+                    ->state(function (Invoice $record): string {
+                        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+                        return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
+                    }),
                 TextColumn::make('status')
                     ->label(__('admin.invoices.columns.status'))
                     ->badge(),
                 TextColumn::make('created_at')
                     ->label(__('admin.invoices.columns.issued_date'))
-                    ->date('F j, Y'),
+                    ->state(fn (Invoice $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
                 TextColumn::make('paid_at')
                     ->label(__('admin.invoices.columns.paid_date'))
-                    ->state(fn (Invoice $record): string => $record->paid_at?->format('F j, Y') ?? '—'),
+                    ->state(fn (Invoice $record): string => $record->paid_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
             ])
             ->recordActions([
                 ViewAction::make()

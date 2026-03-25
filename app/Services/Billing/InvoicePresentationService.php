@@ -61,6 +61,7 @@ final class InvoicePresentationService
             'property:id,organization_id,building_id,name,unit_number',
             'property.building:id,organization_id,name',
             'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+            'invoiceItems:id,invoice_id,description,quantity,unit,unit_price,total,meter_reading_snapshot',
         ]);
 
         $status = $invoice->effectiveStatus();
@@ -85,9 +86,9 @@ final class InvoicePresentationService
             'status' => $status->value,
             'status_label' => $status->label(),
             'status_summary' => $this->statusSummary($invoice, $status),
-            'billing_period_start_display' => $invoice->billing_period_start?->format('Y-m-d') ?? '—',
-            'billing_period_end_display' => $invoice->billing_period_end?->format('Y-m-d') ?? '—',
-            'due_date_display' => $invoice->due_date?->format('Y-m-d') ?? '—',
+            'billing_period_start_display' => $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
+            'billing_period_end_display' => $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
+            'due_date_display' => $invoice->due_date?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
             'property_name' => (string) ($invoice->property?->name ?? '—'),
             'building_name' => (string) ($invoice->property?->building?->name ?? ''),
             'tenant_name' => (string) ($invoice->tenant?->name ?? '—'),
@@ -102,7 +103,7 @@ final class InvoicePresentationService
             'payments' => $invoice->payments
                 ->map(fn (InvoicePayment $payment): array => [
                     'method_label' => (string) ($payment->method?->label() ?? __('dashboard.not_available')),
-                    'paid_at_display' => $payment->paid_at?->format('Y-m-d H:i') ?? '—',
+                    'paid_at_display' => $payment->paid_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—',
                     'amount_display' => $this->formatCurrency($currency, $this->calculator->money($payment->amount ?? '0')),
                     'reference' => (string) ($payment->reference ?? ''),
                     'notes' => (string) ($payment->notes ?? ''),
@@ -184,6 +185,23 @@ final class InvoicePresentationService
 
         if (is_array($snapshotItems) && $snapshotItems !== []) {
             return array_values(array_filter($snapshotItems, is_array(...)));
+        }
+
+        if ($invoice->relationLoaded('invoiceItems') && $invoice->invoiceItems->isNotEmpty()) {
+            return $invoice->invoiceItems
+                ->map(fn ($item): array => [
+                    'description' => (string) $item->description,
+                    'period' => null,
+                    'quantity' => (string) $item->quantity,
+                    'unit' => $item->unit,
+                    'unit_price' => (string) $item->unit_price,
+                    'rate' => (string) $item->unit_price,
+                    'total' => (string) $item->total,
+                    'consumption' => (string) $item->quantity,
+                    'is_adjustment' => false,
+                    'meter_reading_snapshot' => $item->meter_reading_snapshot,
+                ])
+                ->all();
         }
 
         return array_values(array_filter($invoice->items, is_array(...)));

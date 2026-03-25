@@ -46,7 +46,7 @@ class PropertyInfolist
                         TextEntry::make('currentAssignment.unit_area_sqm')
                             ->label(__('admin.tenants.fields.unit_area_sqm'))
                             ->state(fn (Property $record): string => $record->currentAssignment?->unit_area_sqm !== null
-                                ? rtrim(rtrim(number_format((float) $record->currentAssignment->unit_area_sqm, 2, '.', ''), '0'), '.').' m²'
+                                ? self::formatDecimal((float) $record->currentAssignment->unit_area_sqm, 2).' m²'
                                 : '—'),
                         TextEntry::make('currentAssignment.tenant.status')
                             ->label(__('admin.tenants.fields.status'))
@@ -54,7 +54,7 @@ class PropertyInfolist
                             ->default('—'),
                         TextEntry::make('currentAssignment.assigned_at')
                             ->label(__('admin.properties.fields.date_assigned'))
-                            ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->format('F j, Y') ?? '—'),
+                            ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
                     ])
                     ->columns(2)
                     ->visible(fn (Property $record): bool => $record->currentAssignment !== null),
@@ -66,5 +66,14 @@ class PropertyInfolist
                     ])
                     ->visible(fn (Property $record): bool => $record->currentAssignment === null),
             ]);
+    }
+
+    private static function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

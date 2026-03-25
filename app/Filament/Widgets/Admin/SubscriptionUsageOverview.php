@@ -3,8 +3,10 @@
 namespace App\Filament\Widgets\Admin;
 
 use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
+use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionUsageOverview extends StatsOverviewWidget
 {
@@ -14,11 +16,11 @@ class SubscriptionUsageOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Subscription Usage';
+    protected ?string $heading = null;
 
     public static function canView(): bool
     {
-        return auth()->user()?->isAdmin() ?? false;
+        return self::currentUser()?->isAdmin() ?? false;
     }
 
     protected function getHeading(): ?string
@@ -28,8 +30,15 @@ class SubscriptionUsageOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        return collect(app(AdminDashboardStats::class)->subscriptionUsageFor(auth()->user()))
+        return collect(app(AdminDashboardStats::class)->subscriptionUsageFor(self::currentUser()))
             ->map(fn (array $item): Stat => Stat::make($item['label'], $item['value'])->color('gray'))
             ->all();
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

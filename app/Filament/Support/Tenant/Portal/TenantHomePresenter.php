@@ -126,7 +126,7 @@ class TenantHomePresenter
                 ? __('tenant.status.outstanding_balance')
                 : __('tenant.status.all_paid_up'),
             'outstanding_total' => $outstandingTotal,
-            'outstanding_total_display' => trim($outstandingCurrency.' '.number_format($outstandingTotal, 2)),
+            'outstanding_total_display' => $this->formatCurrency($outstandingTotal, $outstandingCurrency),
             'outstanding_invoice_count' => $outstandingInvoices->count(),
             'payment_guidance' => $this->paymentInstructionsResolver->resolve($tenant->organization?->settings),
             'month_heading' => __('tenant.pages.home.month_heading'),
@@ -146,8 +146,8 @@ class TenantHomePresenter
                 'meter_name' => $reading->meter?->name,
                 'meter_type' => $reading->meter?->type?->label(),
                 'unit' => $reading->meter?->unit,
-                'value' => number_format((float) $reading->reading_value, 3),
-                'date' => $reading->reading_date->format('Y-m-d'),
+                'value' => $this->formatDecimal((float) $reading->reading_value, 3),
+                'date' => $reading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
             ])->all(),
         ];
     }
@@ -211,10 +211,26 @@ class TenantHomePresenter
             ->map(fn (array $row): array => [
                 'type' => $row['type'],
                 'unit' => $row['unit'],
-                'value' => number_format((float) $row['amount'], 3, '.', ''),
-                'display' => trim(number_format((float) $row['amount'], 3, '.', '').' '.$row['unit']),
+                'value' => $this->formatDecimal((float) $row['amount'], 3),
+                'display' => trim($this->formatDecimal((float) $row['amount'], 3).' '.$row['unit']),
             ])
             ->values()
             ->all();
+    }
+
+    private function formatCurrency(float $amount, string $currency): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, $currency);
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

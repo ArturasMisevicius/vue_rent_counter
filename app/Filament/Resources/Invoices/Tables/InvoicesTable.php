@@ -210,7 +210,7 @@ class InvoicesTable
                     ->action(function (Invoice $record, array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
                         $sendInvoiceEmailAction->handle(
                             $record,
-                            auth()->user(),
+                            static::currentUser(),
                             $data['recipient_email'] ?? null,
                             $data['personal_message'] ?? null,
                         );
@@ -231,7 +231,7 @@ class InvoicesTable
                     ->visible(fn (Invoice $record): bool => $record->canSendReminderFromAdminWorkspace())
                     ->authorize(fn (Invoice $record): bool => InvoiceResource::canEdit($record))
                     ->action(function (Invoice $record, SendInvoiceReminderAction $sendInvoiceReminderAction): void {
-                        $queued = $sendInvoiceReminderAction->handle($record, auth()->user());
+                        $queued = $sendInvoiceReminderAction->handle($record, static::currentUser());
                         $notification = Notification::make()
                             ->title($queued
                                 ? __('admin.invoices.messages.reminder_sent')
@@ -249,7 +249,7 @@ class InvoicesTable
                     ->label(__('admin.invoices.actions.download_pdf'))
                     ->icon('heroicon-m-arrow-down-tray')
                     ->visible(fn (Invoice $record): bool => $record->canViewFromAdminWorkspace())
-                    ->authorize(fn (Invoice $record): bool => auth()->user()?->can('download', $record) ?? false)
+                    ->authorize(fn (Invoice $record): bool => static::currentUser()?->can('download', $record) ?? false)
                     ->action(fn (Invoice $record, InvoicePdfService $invoicePdfService) => $invoicePdfService->streamDownload($record)),
             ])
             ->searchPlaceholder(__('admin.invoices.search_placeholder'))
@@ -291,11 +291,15 @@ class InvoicesTable
     private static function overrideFilterResetLabel(): void
     {
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Clear All Filters',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_all_filters'),
         ], 'en', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Išvalyti visus filtrus',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_all_filters', locale: 'lt'),
         ], 'lt', 'filament-tables');
+
+        Lang::addLines([
+            'table.filters.actions.reset.label' => __('admin.actions.clear_all_filters', locale: 'ru'),
+        ], 'ru', 'filament-tables');
     }
 }

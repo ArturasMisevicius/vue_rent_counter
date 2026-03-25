@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KycAttachmentController;
 use App\Livewire\Auth\AcceptInvitationPage;
 use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
@@ -83,6 +84,10 @@ Route::post('/locale', [UpdateGuestLocaleEndpoint::class, 'update'])->name('loca
 Route::get('/tenant/invoices/{invoice}/download', [DownloadInvoiceEndpoint::class, 'download'])
     ->middleware('auth')
     ->name('tenant.invoices.download');
+
+Route::get('/kyc/attachments/{attachment}', KycAttachmentController::class)
+    ->middleware('auth')
+    ->name('kyc.attachments.show');
 
 Route::get('/tenant', [TenantPortalRouteEndpoint::class, 'show'])
     ->defaults('destination', 'home')

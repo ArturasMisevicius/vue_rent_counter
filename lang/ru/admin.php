@@ -330,6 +330,7 @@ return [
         'sections' => [
             'details' => 'Детали счета',
             'amounts' => 'Суммы',
+            'charges' => 'Начисления',
         ],
         'fields' => [
             'invoice_number' => 'Номер счета',
@@ -346,6 +347,7 @@ return [
             'payment_reference' => 'Реквизиты платежа',
             'recipient_email' => 'Email получателя',
             'paid_at' => 'Оплачено',
+            'issued_date' => 'Дата выставления',
             'items' => 'Позиции',
             'description' => 'Описание',
             'quantity' => 'Количество',
@@ -482,9 +484,15 @@ return [
             'validate' => 'Подтвердить',
             'reject' => 'Отклонить',
         ],
+        'validation' => [
+            'previous_reading_higher' => 'Значение показания должно быть выше предыдущего показания.',
+            'potential_gap_detected' => 'Обнаружен возможный 60-дневный разрыв с предыдущим показанием.',
+            'potential_anomalous_spike' => 'Обнаружен возможный аномальный скачок по сравнению с предыдущим показанием.',
+        ],
         'messages' => [
             'validated' => 'Показание счетчика подтверждено.',
             'rejected' => 'Показание счетчика отклонено.',
+            'updated' => 'Показание счетчика обновлено.',
         ],
     ],
     'providers' => [
@@ -586,7 +594,11 @@ return [
             'default_pricing_model' => 'Модель тарификации по умолчанию',
             'service_type_bridge' => 'Тип услуги',
             'service_configurations_count' => 'Конфигурации услуг',
+            'template' => 'Шаблон',
             'is_active' => 'Активна',
+        ],
+        'placeholders' => [
+            'global_template' => 'Глобальный шаблон',
         ],
         'pricing_models' => [
             'fixed_monthly' => 'Фиксированная ежемесячная',
@@ -773,6 +785,8 @@ return [
         ],
     ],
     'actions' => [
+        'clear_filters' => 'Очистить фильтры',
+        'clear_all_filters' => 'Очистить все фильтры',
         'save_profile' => 'Сохранить профиль',
         'update_password' => 'Обновить пароль',
         'save_settings' => 'Сохранить настройки',

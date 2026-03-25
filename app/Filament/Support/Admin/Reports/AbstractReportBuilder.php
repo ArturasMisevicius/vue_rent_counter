@@ -12,7 +12,9 @@ abstract class AbstractReportBuilder
 {
     protected function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        return $currency.' '.number_format($amount, 2, '.', '');
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, $currency);
     }
 
     protected function formatDate(CarbonInterface|string|null $date): string
@@ -41,7 +43,11 @@ abstract class AbstractReportBuilder
 
     protected function formatNumber(float $value, int $decimals = 2): string
     {
-        return number_format($value, $decimals, '.', '');
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $decimals);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
+
+        return (string) $formatter->format($value);
     }
 
     protected function monthKey(CarbonInterface|string|null $date): string

@@ -36,7 +36,7 @@ class PropertiesRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Properties';
+        return __('admin.properties.plural');
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -52,26 +52,25 @@ class PropertiesRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withWorkspaceSummary()->ordered())
             ->columns([
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('admin.properties.fields.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('unit_number')
-                    ->label('Unit')
+                    ->label(__('admin.properties.fields.unit_number'))
                     ->sortable(),
-                TextColumn::make('building.name')
-                    ->label('Building')
+                TextColumn::make('building.name')->label(__('admin.buildings.singular'))
                     ->searchable(),
                 TextColumn::make('currentAssignment.tenant.name')
-                    ->label('Tenant')
-                    ->default('Unassigned')
+                    ->label(__('admin.properties.fields.current_tenant'))
+                    ->default(__('admin.properties.empty.unassigned'))
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Type')
+                    ->label(__('admin.properties.fields.type'))
                     ->badge(),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Create property')
+                    ->label(__('admin.properties.actions.new_property'))
                     ->authorize(function (): bool {
                         $user = Auth::guard()->user();
 
@@ -79,8 +78,7 @@ class PropertiesRelationManager extends RelationManager
                             && Gate::forUser($user)->allows('create', Property::class);
                     })
                     ->form([
-                        Select::make('building_id')
-                            ->label('Building')
+                        Select::make('building_id')->label(__('admin.buildings.singular'))
                             ->options(fn (): array => Building::query()
                                 ->forOrganization($this->getOwnerRecord()->getKey())
                                 ->ordered()
@@ -90,19 +88,19 @@ class PropertiesRelationManager extends RelationManager
                             ->searchable()
                             ->preload(),
                         TextInput::make('name')
-                            ->label('Name')
+                            ->label(__('admin.properties.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('unit_number')
-                            ->label('Unit')
+                            ->label(__('admin.properties.fields.unit_number'))
                             ->required()
                             ->maxLength(50),
                         Select::make('type')
-                            ->label('Type')
+                            ->label(__('admin.properties.fields.type'))
                             ->options(PropertyType::options())
                             ->required(),
                         TextInput::make('floor_area_sqm')
-                            ->label('Floor area (sqm)')
+                            ->label(__('admin.properties.fields.floor_area_sqm'))
                             ->numeric()
                             ->minValue(0),
                     ])
@@ -117,8 +115,7 @@ class PropertiesRelationManager extends RelationManager
                             && Gate::forUser($user)->allows('update', $record);
                     })
                     ->form([
-                        Select::make('building_id')
-                            ->label('Building')
+                        Select::make('building_id')->label(__('admin.buildings.singular'))
                             ->options(fn (): array => Building::query()
                                 ->forOrganization($this->getOwnerRecord()->getKey())
                                 ->ordered()
@@ -128,19 +125,19 @@ class PropertiesRelationManager extends RelationManager
                             ->searchable()
                             ->preload(),
                         TextInput::make('name')
-                            ->label('Name')
+                            ->label(__('admin.properties.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('unit_number')
-                            ->label('Unit')
+                            ->label(__('admin.properties.fields.unit_number'))
                             ->required()
                             ->maxLength(50),
                         Select::make('type')
-                            ->label('Type')
+                            ->label(__('admin.properties.fields.type'))
                             ->options(PropertyType::options())
                             ->required(),
                         TextInput::make('floor_area_sqm')
-                            ->label('Floor area (sqm)')
+                            ->label(__('admin.properties.fields.floor_area_sqm'))
                             ->numeric()
                             ->minValue(0),
                     ])

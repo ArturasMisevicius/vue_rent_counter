@@ -70,7 +70,7 @@ class PropertiesTable
                     ->color(fn (Property $record): string => $record->isOccupied() ? 'success' : 'gray'),
                 TextColumn::make('created_at')
                     ->label(__('admin.properties.columns.date_created'))
-                    ->date('F j, Y')
+                    ->state(fn (Property $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
             ])
             ->filters([
@@ -212,11 +212,15 @@ class PropertiesTable
     private static function overrideFilterResetLabel(): void
     {
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Clear Filters',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters'),
         ], 'en', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Išvalyti filtrus',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters', locale: 'lt'),
         ], 'lt', 'filament-tables');
+
+        Lang::addLines([
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters', locale: 'ru'),
+        ], 'ru', 'filament-tables');
     }
 }

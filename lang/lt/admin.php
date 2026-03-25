@@ -706,9 +706,15 @@ return [
             'validate' => 'Patvirtinti',
             'reject' => 'Atmesti',
         ],
+        'validation' => [
+            'previous_reading_higher' => 'Rodmens reikšmė turi būti didesnė už ankstesnį rodmenį.',
+            'potential_gap_detected' => 'Nuo ankstesnio rodmens aptiktas galimas 60 dienų tarpas.',
+            'potential_anomalous_spike' => 'Palyginti su ankstesniu rodmeniu, aptiktas galimas anomalus šuolis.',
+        ],
         'messages' => [
             'validated' => 'Skaitiklio rodmuo patvirtintas.',
             'rejected' => 'Skaitiklio rodmuo atmestas.',
+            'updated' => 'Skaitiklio rodmuo atnaujintas.',
         ],
     ],
     'providers' => [
@@ -828,7 +834,11 @@ return [
             'default_pricing_model' => 'Numatytasis kainodaros modelis',
             'service_type_bridge' => 'Paslaugos tipas',
             'service_configurations_count' => 'Paslaugų konfigūracijos',
+            'template' => 'Šablonas',
             'is_active' => 'Aktyvi',
+        ],
+        'placeholders' => [
+            'global_template' => 'Globalus šablonas',
         ],
         'pricing_models' => [
             'fixed_monthly' => 'Fiksuotas mėnesinis',
@@ -1025,6 +1035,7 @@ return [
         'delete' => 'Ištrinti',
         'save_changes' => 'Išsaugoti pakeitimus',
         'clear_filters' => 'Išvalyti filtrus',
+        'clear_all_filters' => 'Išvalyti visus filtrus',
         'save_profile' => 'Išsaugoti profilį',
         'update_password' => 'Atnaujinti slaptažodį',
         'save_settings' => 'Išsaugoti nustatymus',

@@ -227,6 +227,7 @@ return [
         'super_off_peak' => 'Itin ne piko',
     ],
     'user_role' => [
+        'viewer' => 'Stebėtojas',
         'superadmin' => 'Superadministratorius',
         'admin' => 'Administratorius',
         'manager' => 'Vadybininkas',

@@ -14,16 +14,25 @@ class ProviderFactory extends Factory
 {
     public function definition(): array
     {
+        $serviceType = fake()->randomElement(ServiceType::cases());
+
         return [
-            'organization_id' => null,
+            'organization_id' => Organization::factory(),
             'name' => fake()->company(),
-            'service_type' => fake()->randomElement(ServiceType::cases()),
+            'service_type' => $serviceType,
             'contact_info' => [
                 'phone' => fake()->phoneNumber(),
                 'email' => fake()->companyEmail(),
                 'website' => fake()->url(),
             ],
         ];
+    }
+
+    public function global(): static
+    {
+        return $this->state(fn () => [
+            'organization_id' => null,
+        ]);
     }
 
     public function forOrganization(?Organization $organization = null): static

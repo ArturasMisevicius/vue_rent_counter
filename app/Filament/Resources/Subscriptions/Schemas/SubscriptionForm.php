@@ -16,24 +16,24 @@ class SubscriptionForm
     {
         return $schema
             ->components([
-                Section::make('Subscription Details')
+                Section::make(__('superadmin.subscriptions_resource.sections.details'))
                     ->schema([
                         Select::make('organization_id')
-                            ->label('Organization')
+                            ->label(__('superadmin.subscriptions_resource.fields.organization'))
                             ->options(Organization::query()->select(['id', 'name'])->orderBy('name')->pluck('name', 'id')->all())
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('plan')
-                            ->label('Plan')
+                            ->label(__('superadmin.subscriptions_resource.fields.plan'))
                             ->options(SubscriptionPlan::options())
                             ->required(),
                         Select::make('status')
-                            ->label('Status')
+                            ->label(__('superadmin.subscriptions_resource.fields.status'))
                             ->options(SubscriptionStatus::options())
                             ->required(),
-                        DateTimePicker::make('starts_at')->label('Starts At')->required(),
-                        DateTimePicker::make('expires_at')->label('Expires At')->required(),
+                        DateTimePicker::make('starts_at')->label(__('superadmin.subscriptions_resource.fields.starts_at'))->required(),
+                        DateTimePicker::make('expires_at')->label(__('superadmin.subscriptions_resource.fields.expires_at'))->required(),
                     ])
                     ->columns(2),
             ]);

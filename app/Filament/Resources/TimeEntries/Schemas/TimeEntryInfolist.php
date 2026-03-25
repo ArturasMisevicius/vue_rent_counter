@@ -11,12 +11,11 @@ class TimeEntryInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('user.name')
-                    ->label('User'),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
                 TextEntry::make('task.title')
-                    ->label('Task'),
+                    ->label(__('superadmin.audit_logs.record_types.task')),
                 TextEntry::make('assignment.id')
-                    ->label('Assignment')
+                    ->label(__('superadmin.audit_logs.record_types.task_assignment'))
                     ->placeholder('-'),
                 TextEntry::make('hours')
                     ->numeric(),

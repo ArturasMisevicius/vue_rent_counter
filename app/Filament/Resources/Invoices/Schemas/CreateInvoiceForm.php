@@ -208,7 +208,11 @@ class CreateInvoiceForm
         $quantity = is_numeric($get('quantity')) ? (float) $get('quantity') : 0.0;
         $rate = is_numeric($get('rate')) ? (float) $get('rate') : 0.0;
 
-        $set('total', number_format($quantity * $rate, 2, '.', ''));
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
+
+        $set('total', (string) $formatter->format($quantity * $rate));
     }
 
     private static function subtotal(Get $get): float
@@ -230,7 +234,9 @@ class CreateInvoiceForm
 
     private static function formatMoney(float $amount): string
     {
-        return 'EUR '.number_format($amount, 2, '.', '');
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, 'EUR');
     }
 
     private static function resolvedOrganizationId(mixed $organizationId): ?int

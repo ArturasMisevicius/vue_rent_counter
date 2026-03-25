@@ -22,7 +22,7 @@ class MeterReadingInfolist
                             ->label(__('admin.meter_readings.fields.building')),
                         TextEntry::make('reading_value')
                             ->label(__('admin.meter_readings.fields.reading_value'))
-                            ->formatStateUsing(fn ($state): string => rtrim(rtrim(number_format((float) $state, 3, '.', ''), '0'), '.')),
+                            ->formatStateUsing(fn ($state): string => self::formatDecimal((float) $state, 3)),
                         TextEntry::make('reading_date')
                             ->label(__('admin.meter_readings.fields.reading_date'))
                             ->date(),
@@ -41,5 +41,14 @@ class MeterReadingInfolist
                     ])
                     ->columns(2),
             ]);
+    }
+
+    private static function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

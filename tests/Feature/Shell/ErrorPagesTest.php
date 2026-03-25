@@ -20,7 +20,7 @@ it('shows the branded 403 page with a role-aware dashboard action', function () 
     $this->actingAs($admin)
         ->get(route('test.errors.forbidden'))
         ->assertForbidden()
-        ->assertSeeText('You do not have permission to view this page')
+        ->assertSeeText(__('shell.errors.403.title'))
         ->assertSee(route('filament.admin.pages.dashboard'), false);
 });
 
@@ -30,7 +30,7 @@ it('shows the branded 404 page with a tenant dashboard action', function () {
     $this->actingAs($tenant)
         ->get('/__test/missing-page')
         ->assertNotFound()
-        ->assertSeeText('The page you are looking for does not exist')
+        ->assertSeeText(__('shell.errors.404.title'))
         ->assertSee(route('filament.admin.pages.tenant-dashboard'), false);
 });
 
@@ -42,7 +42,7 @@ it('shows the support-safe 500 page when debug mode is disabled', function () {
     $this->actingAs($tenant)
         ->get(route('test.errors.server'))
         ->assertStatus(500)
-        ->assertSeeText('Something went wrong on our side')
+        ->assertSeeText(__('shell.errors.500.title'))
         ->assertSee(route('filament.admin.pages.tenant-dashboard'), false);
 });
 

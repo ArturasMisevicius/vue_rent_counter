@@ -51,7 +51,7 @@ class AuditTrailRelationManager extends RelationManager
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.audit.columns.date_and_time'))
-                    ->state(fn (OrganizationActivityLog $record): string => $record->created_at?->format('F j, Y g:i A') ?? '—')
+                    ->state(fn (OrganizationActivityLog $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.audit_logs.placeholders.empty'))
                     ->sortable()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 Panel::make([

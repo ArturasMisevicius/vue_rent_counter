@@ -11,10 +11,9 @@ class InvoicePaymentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('invoice.id')
-                    ->label('Invoice'),
+                TextEntry::make('invoice.id')->label(__('admin.invoices.singular')),
                 TextEntry::make('organization.name')
-                    ->label('Organization'),
+                    ->label(__('superadmin.organizations.singular')),
                 TextEntry::make('recorded_by_user_id')
                     ->numeric()
                     ->placeholder('-'),

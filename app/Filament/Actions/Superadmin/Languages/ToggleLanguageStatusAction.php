@@ -12,7 +12,7 @@ class ToggleLanguageStatusAction
     {
         if ($language->is_default) {
             throw ValidationException::withMessages([
-                'language' => 'The default language must remain active.',
+                'language' => __('superadmin.languages_resource.validation.default_must_remain_active'),
             ]);
         }
 

@@ -13,15 +13,13 @@ class CommentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('commentable_type'),
                 TextEntry::make('commentable_id')
                     ->numeric(),
-                TextEntry::make('user.name')
-                    ->label('User'),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
                 TextEntry::make('parent.id')
-                    ->label('Parent')
+                    ->label(__('superadmin.comments_resource.fields.parent'))
                     ->placeholder('-'),
                 TextEntry::make('body')
                     ->columnSpanFull(),

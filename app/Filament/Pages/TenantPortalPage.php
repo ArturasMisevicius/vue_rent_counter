@@ -7,10 +7,16 @@ namespace App\Filament\Pages;
 use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 
 abstract class TenantPortalPage extends Page
 {
     use RefreshesOnShellLocaleUpdate;
+
+    public function getHeading(): string|Htmlable|null
+    {
+        return null;
+    }
 
     public static function canAccess(): bool
     {

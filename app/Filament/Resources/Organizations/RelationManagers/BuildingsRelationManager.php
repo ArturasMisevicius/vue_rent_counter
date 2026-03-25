@@ -59,7 +59,7 @@ class BuildingsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.organizations.relations.buildings.columns.date_created'))
-                    ->date('d M Y')
+                    ->state(fn ($record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
             ])
             ->defaultSort('name');

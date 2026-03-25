@@ -11,6 +11,6 @@ class ViewMeterReading extends ViewRecord
 
     public function getTitle(): string
     {
-        return 'Reading Details';
+        return __('admin.meter_readings.view_title');
     }
 }

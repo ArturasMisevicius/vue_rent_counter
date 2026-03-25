@@ -28,7 +28,7 @@ class BuildingInfolist
                             ->label(__('admin.buildings.fields.meters_count')),
                         TextEntry::make('created_at')
                             ->label(__('admin.buildings.fields.created_at'))
-                            ->date('F j, Y'),
+                            ->state(fn ($record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
                     ])
                     ->columns(3),
             ]);

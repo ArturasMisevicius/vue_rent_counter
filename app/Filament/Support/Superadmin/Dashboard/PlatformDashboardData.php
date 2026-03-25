@@ -387,9 +387,8 @@ class PlatformDashboardData
 
     private function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        return __('dashboard.currency_amount', [
-            'currency' => $currency,
-            'amount' => number_format($amount, 2, '.', ''),
-        ]);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, $currency);
     }
 }

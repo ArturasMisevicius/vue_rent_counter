@@ -1,4 +1,10 @@
 <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+    <x-shared.page-header
+        :title="__('tenant.pages.readings.heading')"
+        :subtitle="__('tenant.pages.readings.description')"
+        class="lg:col-span-2"
+    />
+
     <section class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
         <div wire:show="successMessage" wire:transition>
             @if ($successMessage)

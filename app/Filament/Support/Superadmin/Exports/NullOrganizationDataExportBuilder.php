@@ -17,8 +17,14 @@ class NullOrganizationDataExportBuilder extends OrganizationDataExportBuilder
 
         $archive = new ZipArchive;
         $archive->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $archive->addFromString('properties.csv', "id,name\n");
-        $archive->addFromString('billing.csv', "id,reference\n");
+        $archive->addFromString('properties.csv', implode(',', [
+            __('superadmin.organizations.export_headers.empty.id'),
+            __('superadmin.organizations.export_headers.empty.name'),
+        ]).PHP_EOL);
+        $archive->addFromString('billing.csv', implode(',', [
+            __('superadmin.organizations.export_headers.empty.id'),
+            __('superadmin.organizations.export_headers.empty.reference'),
+        ]).PHP_EOL);
         $archive->close();
 
         return $path;

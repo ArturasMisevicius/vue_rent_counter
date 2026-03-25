@@ -32,7 +32,7 @@ class UpdateOrganizationAction
 
                 if ($owner !== null && $owner->organization_id !== null && $owner->organization_id !== $organization->id) {
                     throw ValidationException::withMessages([
-                        'owner_email' => 'The selected owner already belongs to another organization.',
+                        'owner_email' => __('superadmin.organizations.validation.owner_belongs_to_another_organization'),
                     ]);
                 }
 

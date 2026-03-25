@@ -706,9 +706,15 @@ return [
             'validate' => 'Validate',
             'reject' => 'Reject',
         ],
+        'validation' => [
+            'previous_reading_higher' => 'The reading value must be higher than the previous reading.',
+            'potential_gap_detected' => 'Potential 60-day gap detected since the previous reading.',
+            'potential_anomalous_spike' => 'Potential anomalous spike detected compared with the previous reading.',
+        ],
         'messages' => [
             'validated' => 'Meter reading validated.',
             'rejected' => 'Meter reading rejected.',
+            'updated' => 'Meter reading updated.',
         ],
     ],
     'providers' => [
@@ -828,7 +834,11 @@ return [
             'default_pricing_model' => 'Default Pricing Model',
             'service_type_bridge' => 'Service Type',
             'service_configurations_count' => 'Service Configurations',
+            'template' => 'Template',
             'is_active' => 'Active',
+        ],
+        'placeholders' => [
+            'global_template' => 'Global Template',
         ],
         'pricing_models' => [
             'fixed_monthly' => 'Fixed Monthly',
@@ -1025,6 +1035,7 @@ return [
         'delete' => 'Delete',
         'save_changes' => 'Save Changes',
         'clear_filters' => 'Clear Filters',
+        'clear_all_filters' => 'Clear All Filters',
         'save_profile' => 'Save Profile',
         'update_password' => 'Update Password',
         'save_settings' => 'Save Settings',

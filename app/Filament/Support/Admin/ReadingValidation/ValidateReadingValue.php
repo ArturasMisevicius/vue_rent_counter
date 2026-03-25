@@ -30,7 +30,7 @@ class ValidateReadingValue
 
         if ($normalizedDate > now()->toDateString()) {
             $messages['reading_date'][] = __('validation.before_or_equal', [
-                'attribute' => 'reading date',
+                'attribute' => __('requests.attributes.reading_date'),
                 'date' => now()->toDateString(),
             ]);
         }
@@ -48,7 +48,7 @@ class ValidateReadingValue
             ->first();
 
         if ($previousReading && $normalizedValue < (float) $previousReading->reading_value) {
-            $messages['reading_value'][] = 'The reading value must be higher than the previous reading.';
+            $messages['reading_value'][] = __('admin.meter_readings.validation.previous_reading_higher');
         }
 
         $consumptionDelta = null;
@@ -61,7 +61,7 @@ class ValidateReadingValue
             $consumptionDelta = round($normalizedValue - (float) $previousReading->reading_value, 3);
 
             if ($previousDate->diffInDays($normalizedDate) >= 60) {
-                $notes[] = 'Potential 60-day gap detected since the previous reading.';
+                $notes[] = __('admin.meter_readings.validation.potential_gap_detected');
                 $gapDetected = true;
             }
 
@@ -72,7 +72,7 @@ class ValidateReadingValue
                 && $consumptionDelta !== null
                 && $consumptionDelta > round($averageMonthlyUsage * 3, 3)
             ) {
-                $notes[] = 'Potential anomalous spike detected compared with the previous reading.';
+                $notes[] = __('admin.meter_readings.validation.potential_anomalous_spike');
                 $anomalous = true;
             }
         }

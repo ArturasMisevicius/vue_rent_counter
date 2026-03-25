@@ -1,4 +1,4 @@
-<nav aria-label="Breadcrumb" class="mb-6" data-breadcrumbs="true">
+<nav aria-label="{{ __('shell.accessibility.breadcrumb') }}" class="mb-6" data-breadcrumbs="true">
     <ol class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
         @foreach ($items as $item)
             @php($url = data_get($item, 'url'))

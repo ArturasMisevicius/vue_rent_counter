@@ -97,8 +97,8 @@ final class InvoiceSearchProvider implements GlobalSearchProvider
     protected function subtitleFor(User $user, Invoice $invoice): string
     {
         $period = implode(' → ', array_filter([
-            $invoice->billing_period_start?->format('Y-m-d'),
-            $invoice->billing_period_end?->format('Y-m-d'),
+            $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll'),
+            $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll'),
         ]));
 
         if ($user->isTenant()) {

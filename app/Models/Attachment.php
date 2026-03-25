@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\AttachmentFactory;
@@ -28,6 +30,7 @@ class Attachment extends Model
         'size',
         'disk',
         'path',
+        'document_type',
         'description',
         'metadata',
     ];
@@ -70,6 +73,17 @@ class Attachment extends Model
         return $query
             ->orderByDesc('created_at')
             ->orderByDesc('id');
+    }
+
+    public function scopeForDocumentType(Builder $query, string|array|null $documentType): Builder
+    {
+        if (blank($documentType)) {
+            return $query;
+        }
+
+        return is_array($documentType)
+            ? $query->whereIn('document_type', $documentType)
+            : $query->where('document_type', $documentType);
     }
 
     public function scopeWithUploaderSummary(Builder $query): Builder

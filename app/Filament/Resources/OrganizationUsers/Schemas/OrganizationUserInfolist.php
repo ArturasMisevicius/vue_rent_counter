@@ -12,10 +12,8 @@ class OrganizationUserInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
-                TextEntry::make('user.name')
-                    ->label('User'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
                 TextEntry::make('role'),
                 TextEntry::make('permissions')
                     ->placeholder('-')

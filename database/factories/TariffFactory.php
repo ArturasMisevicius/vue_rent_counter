@@ -13,9 +13,11 @@ class TariffFactory extends Factory
 {
     public function definition(): array
     {
+        $provider = Provider::factory();
+
         return [
-            'provider_id' => Provider::factory(),
-            'remote_id' => null,
+            'provider_id' => $provider,
+            'remote_id' => strtoupper(fake()->bothify('TRF-####-??')),
             'name' => fake()->words(3, true),
             'configuration' => [
                 'type' => 'flat',
@@ -23,7 +25,7 @@ class TariffFactory extends Factory
                 'rate' => fake()->randomFloat(4, 0.05, 0.30),
             ],
             'active_from' => now()->subMonths(3),
-            'active_until' => null,
+            'active_until' => now()->addMonths(fake()->numberBetween(3, 12)),
         ];
     }
 

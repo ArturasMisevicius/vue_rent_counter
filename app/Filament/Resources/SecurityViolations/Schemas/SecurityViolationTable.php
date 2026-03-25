@@ -7,6 +7,7 @@ use App\Enums\SecurityViolationType;
 use App\Filament\Actions\Superadmin\Security\BlockIpAddressAction;
 use App\Filament\Support\Superadmin\SecurityViolations\SecurityViolationTablePresenter;
 use App\Models\SecurityViolation;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
@@ -16,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class SecurityViolationTable
 {
@@ -49,7 +51,7 @@ class SecurityViolationTable
                     ->wrap(),
                 TextColumn::make('occurred_at')
                     ->label(__('superadmin.security_violations.columns.timestamp'))
-                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? __('superadmin.security_violations.placeholders.empty'))
+                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.security_violations.placeholders.empty'))
                     ->sortable(),
             ])
             ->filters([
@@ -80,7 +82,7 @@ class SecurityViolationTable
                 Action::make('blockIp')
                     ->label(__('superadmin.security_violations.actions.block_ip_address'))
                     ->color('danger')
-                    ->authorize(fn (): bool => auth()->user()?->isSuperadmin() ?? false)
+                    ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
                     ->hidden(fn (SecurityViolation $record): bool => blank($record->ip_address))
                     ->requiresConfirmation()
                     ->modalHeading(__('superadmin.security_violations.modals.block_ip_heading'))
@@ -91,7 +93,7 @@ class SecurityViolationTable
                         $blockIpAddressAction->handle([
                             'ip_address' => $record->ip_address,
                             'reason' => __('superadmin.security_violations.messages.block_reason', ['id' => $record->id]),
-                            'blocked_by_user_id' => auth()->id(),
+                            'blocked_by_user_id' => self::currentUser()?->getKey(),
                         ]);
 
                         Notification::make()
@@ -103,5 +105,12 @@ class SecurityViolationTable
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->defaultSort('occurred_at', 'desc');
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

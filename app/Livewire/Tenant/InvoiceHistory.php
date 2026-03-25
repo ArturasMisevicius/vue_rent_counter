@@ -80,9 +80,11 @@ class InvoiceHistory extends Component
                 'billing_period_start',
                 'billing_period_end',
                 'due_date',
+                'finalized_at',
                 'items',
                 'snapshot_data',
                 'document_path',
+                'created_at',
             ])
             ->findOrFail($invoiceId);
 

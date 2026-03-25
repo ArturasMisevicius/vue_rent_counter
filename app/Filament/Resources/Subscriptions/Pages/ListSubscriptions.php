@@ -14,7 +14,7 @@ class ListSubscriptions extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('New Subscription'),
+                ->label(__('superadmin.subscriptions_resource.actions.new')),
         ];
     }
 }

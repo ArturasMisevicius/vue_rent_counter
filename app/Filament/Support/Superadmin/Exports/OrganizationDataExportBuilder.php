@@ -41,10 +41,10 @@ class OrganizationDataExportBuilder
     protected function csv(array $headers, array $rows): string
     {
         $handle = fopen('php://temp', 'r+');
-        fputcsv($handle, $headers);
+        fputcsv($handle, $headers, ',', '"', '');
 
         foreach ($rows as $row) {
-            fputcsv($handle, $row);
+            fputcsv($handle, $row, ',', '"', '');
         }
 
         rewind($handle);
@@ -57,7 +57,16 @@ class OrganizationDataExportBuilder
     protected function invoiceCsv(Organization $organization): string
     {
         return $this->csv(
-            ['Invoice Number', 'Tenant Email', 'Property', 'Status', 'Currency', 'Total Amount', 'Due Date', 'Created'],
+            [
+                __('superadmin.organizations.export_headers.invoices.invoice_number'),
+                __('superadmin.organizations.export_headers.invoices.tenant_email'),
+                __('superadmin.organizations.export_headers.invoices.property'),
+                __('superadmin.organizations.export_headers.invoices.status'),
+                __('superadmin.organizations.export_headers.invoices.currency'),
+                __('superadmin.organizations.export_headers.invoices.total_amount'),
+                __('superadmin.organizations.export_headers.invoices.due_date'),
+                __('superadmin.organizations.export_headers.invoices.created'),
+            ],
             $organization->invoices()
                 ->select([
                     'id',
@@ -83,9 +92,9 @@ class OrganizationDataExportBuilder
                     trim(implode(' ', array_filter([$invoice->property?->name, $invoice->property?->unit_number]))),
                     $invoice->status?->label() ?? $invoice->status,
                     $invoice->currency,
-                    number_format((float) $invoice->total_amount, 2, '.', ''),
-                    $invoice->due_date?->toDateString(),
-                    $invoice->created_at?->toDateString(),
+                    $this->formatDecimal((float) $invoice->total_amount, 2),
+                    $invoice->due_date?->locale(app()->getLocale())->isoFormat('ll'),
+                    $invoice->created_at?->locale(app()->getLocale())->isoFormat('ll'),
                 ])
                 ->all(),
         );
@@ -94,7 +103,13 @@ class OrganizationDataExportBuilder
     protected function tenantCsv(Organization $organization): string
     {
         return $this->csv(
-            ['Full Name', 'Email', 'Status', 'Last Login', 'Date Created'],
+            [
+                __('superadmin.organizations.export_headers.tenants.full_name'),
+                __('superadmin.organizations.export_headers.tenants.email'),
+                __('superadmin.organizations.export_headers.tenants.status'),
+                __('superadmin.organizations.export_headers.tenants.last_login'),
+                __('superadmin.organizations.export_headers.tenants.date_created'),
+            ],
             $organization->users()
                 ->select(['id', 'organization_id', 'name', 'email', 'role', 'status', 'last_login_at', 'created_at'])
                 ->tenants()
@@ -104,8 +119,8 @@ class OrganizationDataExportBuilder
                     $tenant->name,
                     $tenant->email,
                     $tenant->status?->label() ?? $tenant->status,
-                    $tenant->last_login_at?->toDateTimeString(),
-                    $tenant->created_at?->toDateString(),
+                    $tenant->last_login_at?->locale(app()->getLocale())->isoFormat('LLL'),
+                    $tenant->created_at?->locale(app()->getLocale())->isoFormat('ll'),
                 ])
                 ->all(),
         );
@@ -114,7 +129,15 @@ class OrganizationDataExportBuilder
     protected function meterReadingCsv(Organization $organization): string
     {
         return $this->csv(
-            ['Meter', 'Property', 'Submitted By', 'Reading Value', 'Reading Date', 'Validation Status', 'Created'],
+            [
+                __('superadmin.organizations.export_headers.meter_readings.meter'),
+                __('superadmin.organizations.export_headers.meter_readings.property'),
+                __('superadmin.organizations.export_headers.meter_readings.submitted_by'),
+                __('superadmin.organizations.export_headers.meter_readings.reading_value'),
+                __('superadmin.organizations.export_headers.meter_readings.reading_date'),
+                __('superadmin.organizations.export_headers.meter_readings.validation_status'),
+                __('superadmin.organizations.export_headers.meter_readings.created'),
+            ],
             $organization->meterReadings()
                 ->select([
                     'id',
@@ -138,12 +161,21 @@ class OrganizationDataExportBuilder
                     $reading->meter?->name,
                     $reading->property?->name,
                     $reading->submittedBy?->name,
-                    number_format((float) $reading->reading_value, 3, '.', ''),
-                    $reading->reading_date?->toDateString(),
+                    $this->formatDecimal((float) $reading->reading_value, 3),
+                    $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'),
                     $reading->validation_status?->label() ?? $reading->validation_status,
-                    $reading->created_at?->toDateTimeString(),
+                    $reading->created_at?->locale(app()->getLocale())->isoFormat('LLL'),
                 ])
                 ->all(),
         );
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

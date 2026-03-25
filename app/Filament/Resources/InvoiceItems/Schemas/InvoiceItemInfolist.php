@@ -11,8 +11,7 @@ class InvoiceItemInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('invoice.id')
-                    ->label('Invoice'),
+                TextEntry::make('invoice.id')->label(__('admin.invoices.singular')),
                 TextEntry::make('description'),
                 TextEntry::make('quantity')
                     ->numeric(),

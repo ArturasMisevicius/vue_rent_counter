@@ -11,10 +11,9 @@ class TaskInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('project.name')
-                    ->label('Project'),
+                    ->label(__('superadmin.audit_logs.record_types.project')),
                 TextEntry::make('title'),
                 TextEntry::make('description')
                     ->placeholder('-')

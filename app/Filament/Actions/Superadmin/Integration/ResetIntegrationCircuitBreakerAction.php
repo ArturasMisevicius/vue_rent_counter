@@ -15,7 +15,7 @@ class ResetIntegrationCircuitBreakerAction
             'status' => IntegrationHealthStatus::HEALTHY,
             'checked_at' => now(),
             'response_time_ms' => 0,
-            'summary' => 'Circuit breaker reset manually.',
+            'summary' => __('superadmin.integration_health.messages.circuit_breaker_reset', ['label' => $integrationHealthCheck->label]),
             'details' => [
                 ...$details,
                 'reset_manually' => true,

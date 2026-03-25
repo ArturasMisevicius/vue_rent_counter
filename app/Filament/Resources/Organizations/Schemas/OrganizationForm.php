@@ -111,7 +111,8 @@ class OrganizationForm
             'date' => CarbonImmutable::now()
                 ->startOfDay()
                 ->addMonths($selectedDuration->months())
-                ->format('F j, Y'),
+                ->locale(app()->getLocale())
+                ->isoFormat('ll'),
         ]);
     }
 

@@ -3,10 +3,13 @@
 use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\BuildingsRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
 use App\Models\Building;
@@ -79,8 +82,15 @@ it('sends organization notifications from the view page action', function () {
         ]);
 });
 
-it('renders the users, subscriptions, buildings, and activity log relation manager contracts', function () {
+it('renders the users, subscriptions, buildings, managers, properties, and activity log relation manager contracts', function () {
     [$organization, $owner, $subscription, $building, $activityLog] = seedOrganizationViewFixture();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'role' => UserRole::MANAGER,
+        'name' => 'Maya Manager',
+        'email' => 'maya.manager@northwind.test',
+    ]);
+    $property = Property::query()->where('organization_id', $organization->id)->firstOrFail();
     $superadmin = User::factory()->superadmin()->create();
 
     $this->actingAs($superadmin);
@@ -120,6 +130,30 @@ it('renders the users, subscriptions, buildings, and activity log relation manag
         ->assertTableColumnExists('properties_count', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.properties_count'))
         ->assertTableColumnExists('meters_count', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.meters_count'))
         ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.buildings.columns.date_created'));
+
+    Livewire::test(ManagersRelationManager::class, [
+        'ownerRecord' => $organization,
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->assertTableColumnExists('name', fn ($column): bool => $column->getLabel() === __('superadmin.users.fields.name'))
+        ->assertTableColumnExists('email', fn ($column): bool => $column->getLabel() === __('superadmin.users.fields.email'))
+        ->assertTableColumnExists('status', fn ($column): bool => $column->getLabel() === __('superadmin.users.fields.status'))
+        ->assertTableColumnExists('locale', fn ($column): bool => $column->getLabel() === __('superadmin.users.fields.locale'))
+        ->assertTableActionExists('view', record: $manager)
+        ->assertTableActionExists('edit', record: $manager)
+        ->assertTableActionExists('delete', record: $manager);
+
+    Livewire::test(PropertiesRelationManager::class, [
+        'ownerRecord' => $organization,
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->assertTableColumnExists('name', fn ($column): bool => $column->getLabel() === __('admin.properties.fields.name'))
+        ->assertTableColumnExists('unit_number', fn ($column): bool => $column->getLabel() === __('admin.properties.fields.unit_number'))
+        ->assertTableColumnExists('building.name', fn ($column): bool => $column->getLabel() === __('admin.buildings.singular'))
+        ->assertTableColumnExists('currentAssignment.tenant.name', fn ($column): bool => $column->getLabel() === __('admin.properties.fields.current_tenant'))
+        ->assertTableColumnExists('type', fn ($column): bool => $column->getLabel() === __('admin.properties.fields.type'))
+        ->assertTableActionExists('edit', record: $property)
+        ->assertTableActionExists('delete', record: $property);
 
     Livewire::test(ActivityLogsRelationManager::class, [
         'ownerRecord' => $organization,

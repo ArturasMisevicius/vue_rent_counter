@@ -447,7 +447,9 @@ class AdminDashboardStats
 
     private function formatCurrency(float $amount): string
     {
-        return 'EUR '.number_format($amount, 2, '.', '');
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, 'EUR');
     }
 
     private function formatDueLabel(CarbonInterface $dueDate): string

@@ -13,11 +13,11 @@ class LanguageTable
     {
         return $table
             ->columns([
-                TextColumn::make('code')->label('Code')->searchable(),
-                TextColumn::make('name')->label('Name')->searchable(),
-                TextColumn::make('native_name')->label('Native Name'),
-                TextColumn::make('status')->label('Status')->badge(),
-                IconColumn::make('is_default')->label('Default')->boolean(),
+                TextColumn::make('code')->label(__('superadmin.languages_resource.columns.code'))->searchable(),
+                TextColumn::make('name')->label(__('superadmin.languages_resource.columns.name'))->searchable(),
+                TextColumn::make('native_name')->label(__('superadmin.languages_resource.columns.native_name')),
+                TextColumn::make('status')->label(__('superadmin.languages_resource.columns.status'))->badge(),
+                IconColumn::make('is_default')->label(__('superadmin.languages_resource.columns.default'))->boolean(),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -34,22 +34,22 @@ class LanguageResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Language Details')
+            Section::make(__('superadmin.languages_resource.sections.details'))
                 ->schema([
                     TextInput::make('code')
-                        ->label('Code')
+                        ->label(__('superadmin.languages_resource.fields.code'))
                         ->required()
                         ->maxLength(10),
                     TextInput::make('name')
-                        ->label('Name')
+                        ->label(__('superadmin.languages_resource.fields.name'))
                         ->required()
                         ->maxLength(255),
                     TextInput::make('native_name')
-                        ->label('Native Name')
+                        ->label(__('superadmin.languages_resource.fields.native_name'))
                         ->required()
                         ->maxLength(255),
                     Select::make('status')
-                        ->label('Status')
+                        ->label(__('superadmin.languages_resource.fields.status'))
                         ->options(LanguageStatus::options())
                         ->default(LanguageStatus::ACTIVE->value)
                         ->required(),
@@ -63,21 +63,21 @@ class LanguageResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('code')
-                    ->label('Code')
+                    ->label(__('superadmin.languages_resource.columns.code'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('superadmin.languages_resource.columns.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('native_name')
-                    ->label('Native Name')
+                    ->label(__('superadmin.languages_resource.columns.native_name'))
                     ->searchable(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.languages_resource.columns.status'))
                     ->badge(),
                 IconColumn::make('is_default')
-                    ->label('Default')
+                    ->label(__('superadmin.languages_resource.columns.default'))
                     ->boolean(),
             ])
             ->defaultSort('name');
@@ -85,12 +85,12 @@ class LanguageResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Language';
+        return __('superadmin.languages_resource.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Languages';
+        return __('superadmin.languages_resource.plural');
     }
 
     /**

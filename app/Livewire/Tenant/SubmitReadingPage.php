@@ -80,8 +80,8 @@ class SubmitReadingPage extends Component
             'meter_identifier' => (string) ($reading->meter?->identifier ?? ''),
             'meter_name' => (string) ($reading->meter?->name ?? ''),
             'unit' => (string) ($reading->meter?->unit ?? ''),
-            'value' => number_format((float) $reading->reading_value, 3, '.', ''),
-            'date' => $reading->reading_date->format('Y-m-d'),
+            'value' => $this->formatDecimal((float) $reading->reading_value, 3),
+            'date' => $reading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
         ];
 
         $this->dispatch('reading.submitted');
@@ -141,15 +141,24 @@ class SubmitReadingPage extends Component
 
         return [
             'message' => __('tenant.pages.readings.previous_reading', [
-                'value' => number_format((float) $previousReading->reading_value, 3),
+                'value' => $this->formatDecimal((float) $previousReading->reading_value, 3),
                 'unit' => $selectedMeter->unit,
-                'date' => $previousReading->reading_date->format('Y-m-d'),
+                'date' => $previousReading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
             ]),
-            'delta' => number_format($delta, 3),
+            'delta' => $this->formatDecimal($delta, 3),
             'warning' => $delta < 0
                 ? __('tenant.pages.readings.lower_than_previous_warning')
                 : null,
         ];
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 
     /**

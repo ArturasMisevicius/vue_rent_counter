@@ -15,8 +15,7 @@ class InvoiceItemsTable
     {
         return $table
             ->columns([
-                TextColumn::make('invoice.invoice_number')
-                    ->label('Invoice')
+                TextColumn::make('invoice.invoice_number')->label(__('admin.invoices.singular'))
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),

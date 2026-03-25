@@ -80,11 +80,11 @@ class ReadingsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('reading_date')
                     ->label(__('admin.meter_readings.columns.reading_date'))
-                    ->date('M j, Y')
+                    ->state(fn (MeterReading $record): string => $record->reading_date?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
                 TextColumn::make('reading_value')
                     ->label(__('admin.meter_readings.columns.value'))
-                    ->state(fn (MeterReading $record): string => rtrim(rtrim(number_format((float) $record->reading_value, 3, '.', ''), '0'), '.').' '.($record->meter?->unit ?? ''))
+                    ->state(fn (MeterReading $record): string => self::formatDecimal((float) $record->reading_value, 3).' '.($record->meter?->unit ?? ''))
                     ->sortable(),
                 TextColumn::make('consumption_since_previous')
                     ->label(__('admin.meter_readings.columns.consumption_since_previous'))
@@ -97,7 +97,7 @@ class ReadingsRelationManager extends RelationManager
 
                         $consumption = (float) $record->reading_value - (float) $previousValue;
 
-                        return rtrim(rtrim(number_format($consumption, 3, '.', ''), '0'), '.').' '.($record->meter?->unit ?? '');
+                        return self::formatDecimal($consumption, 3).' '.($record->meter?->unit ?? '');
                     }),
                 TextColumn::make('validation_status')
                     ->label(__('admin.meter_readings.columns.validation_status'))
@@ -109,5 +109,14 @@ class ReadingsRelationManager extends RelationManager
                     ->url(fn (MeterReading $record): string => MeterReadingResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('reading_date', 'desc');
+    }
+
+    private static function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

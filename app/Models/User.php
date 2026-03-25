@@ -229,6 +229,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(DashboardCustomization::class);
     }
 
+    public function kycProfile(): HasOne
+    {
+        return $this->hasOne(UserKycProfile::class);
+    }
+
     public function submittedMeterReadings(): HasMany
     {
         return $this->hasMany(MeterReading::class, 'submitted_by_user_id');
@@ -424,7 +429,7 @@ class User extends Authenticatable implements FilamentUser
             return '—';
         }
 
-        return rtrim(rtrim(number_format((float) $unitArea, 2, '.', ''), '0'), '.').' m²';
+        return $this->formatDecimal((float) $unitArea, 2).' m²';
     }
 
     public function totalPaidAmount(): float
@@ -443,7 +448,18 @@ class User extends Authenticatable implements FilamentUser
 
     public function totalPaidDisplay(string $currency = 'EUR'): string
     {
-        return sprintf('%s %s', $currency, number_format($this->totalPaidAmount(), 2));
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($this->totalPaidAmount(), $currency);
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 
     public function canBeDeletedFromAdminWorkspace(): bool

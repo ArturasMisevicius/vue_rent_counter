@@ -18,11 +18,9 @@ class InvoiceReminderLogsTable
     {
         return $table
             ->columns([
-                TextColumn::make('invoice.invoice_number')
-                    ->label('Invoice')
+                TextColumn::make('invoice.invoice_number')->label(__('admin.invoices.singular'))
                     ->searchable(),
-                TextColumn::make('organization.name')
-                    ->label('Organization')
+                TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('sentBy.name')
                     ->sortable(),
@@ -43,8 +41,7 @@ class InvoiceReminderLogsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('organization')
-                    ->label('Organization')
+                SelectFilter::make('organization')->label(__('superadmin.organizations.singular'))
                     ->options(fn (): array => Organization::query()
                         ->select(['id', 'name'])
                         ->ordered()

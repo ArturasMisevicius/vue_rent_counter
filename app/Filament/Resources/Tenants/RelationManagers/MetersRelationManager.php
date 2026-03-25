@@ -66,11 +66,11 @@ class MetersRelationManager extends RelationManager
                     ->badge(),
                 TextColumn::make('latestReading.reading_date')
                     ->label(__('admin.tenants.meters.columns.last_reading_date'))
-                    ->state(fn (Meter $record): string => $record->latestReading?->reading_date?->format('F j, Y') ?? __('admin.tenants.empty.no_readings_yet')),
+                    ->state(fn (Meter $record): string => $record->latestReading?->reading_date?->locale(app()->getLocale())->isoFormat('ll') ?? __('admin.tenants.empty.no_readings_yet')),
                 TextColumn::make('latestReading.reading_value')
                     ->label(__('admin.tenants.meters.columns.last_value'))
                     ->state(fn (Meter $record): string => $record->latestReading !== null
-                        ? rtrim(rtrim(number_format((float) $record->latestReading->reading_value, 3, '.', ''), '0'), '.').' '.($record->unit ?? '')
+                        ? self::formatDecimal((float) $record->latestReading->reading_value, 3).' '.($record->unit ?? '')
                         : '—'),
             ])
             ->recordActions([
@@ -79,5 +79,14 @@ class MetersRelationManager extends RelationManager
                     ->url(fn (Meter $record): string => MeterResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('identifier');
+    }
+
+    private static function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

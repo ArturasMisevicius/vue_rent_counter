@@ -45,8 +45,10 @@ it('lets managers access the organization workspace routes except admin-only set
         ->assertSee('data-shell-group="properties"', false)
         ->assertSee('data-shell-group="billing"', false)
         ->assertSee('data-shell-group="reports"', false)
-        ->assertSee('data-shell-group="account"', false)
-        ->assertSeeText('Profile')
+        ->assertDontSee('data-shell-group="account"', false)
+        ->assertSeeText($manager->name)
+        ->assertSeeText($manager->email)
+        ->assertDontSeeText('Profile')
         ->assertDontSeeText('Settings')
         ->assertDontSee('data-shell-group="platform"', false);
 

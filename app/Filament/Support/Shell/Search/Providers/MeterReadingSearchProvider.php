@@ -94,8 +94,8 @@ final class MeterReadingSearchProvider implements GlobalSearchProvider
     {
         $summary = trim(implode(' · ', array_filter([
             $reading->meter?->identifier,
-            $reading->reading_date?->format('Y-m-d'),
-            rtrim(rtrim(number_format((float) $reading->reading_value, 3, '.', ''), '0'), '.')
+            $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'),
+            $this->formatDecimal((float) $reading->reading_value, 3)
                 .' '
                 .($reading->meter?->unit ?? ''),
         ])));
@@ -134,5 +134,14 @@ final class MeterReadingSearchProvider implements GlobalSearchProvider
         return Route::has($routeName)
             ? route($routeName, $reading)
             : null;
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

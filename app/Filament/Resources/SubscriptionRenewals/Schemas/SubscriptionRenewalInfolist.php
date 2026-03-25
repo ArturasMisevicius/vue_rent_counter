@@ -11,10 +11,8 @@ class SubscriptionRenewalInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('subscription.id')
-                    ->label('Subscription'),
-                TextEntry::make('user.name')
-                    ->label('User')
+                TextEntry::make('subscription.id')->label(__('superadmin.subscriptions_resource.singular')),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular'))
                     ->placeholder('-'),
                 TextEntry::make('method'),
                 TextEntry::make('period'),

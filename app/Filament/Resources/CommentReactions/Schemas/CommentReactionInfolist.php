@@ -12,9 +12,8 @@ class CommentReactionInfolist
         return $schema
             ->components([
                 TextEntry::make('comment.id')
-                    ->label('Comment'),
-                TextEntry::make('user.name')
-                    ->label('User'),
+                    ->label(__('superadmin.audit_logs.record_types.comment')),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
                 TextEntry::make('type'),
                 TextEntry::make('created_at')
                     ->dateTime()

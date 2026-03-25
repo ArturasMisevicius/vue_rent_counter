@@ -68,7 +68,7 @@ class BuildingsTable
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.buildings.columns.date_created'))
-                    ->date('F j, Y')
+                    ->state(fn (Building $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
             ])
             ->filters([
@@ -155,11 +155,15 @@ class BuildingsTable
     private static function overrideFilterResetLabel(): void
     {
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Clear Filters',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters'),
         ], 'en', 'filament-tables');
 
         Lang::addLines([
-            'table.filters.actions.reset.label' => 'Išvalyti filtrus',
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters', locale: 'lt'),
         ], 'lt', 'filament-tables');
+
+        Lang::addLines([
+            'table.filters.actions.reset.label' => __('admin.actions.clear_filters', locale: 'ru'),
+        ], 'ru', 'filament-tables');
     }
 }

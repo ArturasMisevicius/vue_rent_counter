@@ -1,4 +1,30 @@
 <div wire:poll.visible.30s="refreshSummaryOnInterval" class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+    <x-shared.page-header
+        :eyebrow="__('tenant.shell.summary_eyebrow')"
+        :title="__('tenant.pages.home.greeting', ['name' => $summary['tenant_name']])"
+        :subtitle="__('tenant.messages.account_snapshot')"
+        class="lg:col-span-2"
+    >
+        @if ($summary['has_assignment'] ?? false)
+            <x-slot:actions>
+                <div class="flex flex-wrap gap-3">
+                    <a
+                        href="{{ $summary['submit_reading_url'] }}"
+                        class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-900"
+                    >
+                        {{ __('tenant.actions.submit_new_reading') }}
+                    </a>
+                    <a
+                        href="{{ $summary['property_url'] }}"
+                        class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    >
+                        {{ __('tenant.pages.property.title') }}
+                    </a>
+                </div>
+            </x-slot:actions>
+        @endif
+    </x-shared.page-header>
+
     @if (! ($summary['has_assignment'] ?? false))
         <section class="lg:col-span-2">
             <x-shared.empty-state
@@ -9,29 +35,6 @@
         </section>
     @else
     <section class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="space-y-2">
-                <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.shell.summary_eyebrow') }}</p>
-                <h2 class="font-display text-4xl tracking-tight text-slate-950">{{ __('tenant.pages.home.greeting', ['name' => $summary['tenant_name']]) }}</h2>
-                <p class="max-w-2xl text-sm leading-6 text-slate-600">{{ __('tenant.messages.account_snapshot') }}</p>
-            </div>
-
-            <div class="flex flex-wrap gap-3">
-                <a
-                    href="{{ $summary['submit_reading_url'] }}"
-                    class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-900"
-                >
-                    {{ __('tenant.actions.submit_new_reading') }}
-                </a>
-                <a
-                    href="{{ $summary['property_url'] }}"
-                    class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                >
-                    {{ __('tenant.pages.property.title') }}
-                </a>
-            </div>
-        </div>
-
         <div class="grid gap-4 md:grid-cols-2">
             <x-shared.stat-card
                 :label="$summary['outstanding_label']"

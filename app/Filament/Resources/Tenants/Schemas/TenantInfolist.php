@@ -50,10 +50,10 @@ class TenantInfolist
                             ->state(fn (User $record): string => (string) (config('tenanto.locales')[$record->locale] ?? $record->locale)),
                         TextEntry::make('created_at')
                             ->label(__('admin.tenants.fields.account_created'))
-                            ->state(fn (User $record): string => $record->created_at?->format('F j, Y g:i A') ?? '—'),
+                            ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—'),
                         TextEntry::make('last_login_at')
                             ->label(__('admin.tenants.fields.last_login'))
-                            ->state(fn (User $record): string => $record->last_login_at?->format('F j, Y g:i A') ?? __('admin.tenants.empty.never')),
+                            ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('admin.tenants.empty.never')),
                     ])
                     ->columns(2),
                 Section::make(__('admin.tenants.sections.property_assignment'))
@@ -72,7 +72,7 @@ class TenantInfolist
                             ->state(fn (User $record): string => $record->currentProperty?->floorDisplay() ?? '—'),
                         TextEntry::make('currentPropertyAssignment.assigned_at')
                             ->label(__('admin.tenants.fields.assigned_since'))
-                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->format('F j, Y') ?? '—'),
+                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
                     ])
                     ->columns(2),
             ]);

@@ -8,7 +8,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>@yield('title', 'Error').' · '.config('app.name', 'Tenanto')</title>
+        <title>@yield('title', __('shell.errors.eyebrow', ['status' => ''])).' · '.config('app.name', 'Tenanto')</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700|space-grotesk:500,700" rel="stylesheet" />
 
@@ -30,7 +30,7 @@
                             href="{{ $dashboardUrl }}"
                             class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-900"
                         >
-                            Back to dashboard
+                            {{ __('shell.actions.back_to_dashboard') }}
                         </a>
                     </div>
                 </section>

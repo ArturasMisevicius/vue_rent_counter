@@ -34,7 +34,7 @@ class ManagersRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Managers';
+        return __('superadmin.organizations.relations.managers.title');
     }
 
     public function table(Table $table): Table
@@ -45,22 +45,22 @@ class ManagersRelationManager extends RelationManager
                 ->orderedByName())
             ->columns([
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('superadmin.users.fields.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('superadmin.users.fields.email'))
                     ->searchable(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.users.fields.status'))
                     ->badge(),
                 TextColumn::make('locale')
-                    ->label('Locale')
+                    ->label(__('superadmin.users.fields.locale'))
                     ->badge(),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Create manager')
+                    ->label(__('superadmin.organizations.relations.managers.actions.create'))
                     ->authorize(function (): bool {
                         $user = Auth::guard()->user();
 
@@ -69,31 +69,31 @@ class ManagersRelationManager extends RelationManager
                     })
                     ->form([
                         TextInput::make('name')
-                            ->label('Name')
+                            ->label(__('superadmin.users.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
-                            ->label('Email')
+                            ->label(__('superadmin.users.fields.email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(table: User::class, column: 'email'),
                         Select::make('status')
-                            ->label('Status')
+                            ->label(__('superadmin.users.fields.status'))
                             ->options(UserStatus::options())
                             ->required(),
                         Select::make('locale')
-                            ->label('Locale')
+                            ->label(__('superadmin.users.fields.locale'))
                             ->options(config('tenanto.locales', []))
                             ->required(),
                         TextInput::make('password')
-                            ->label('Password')
+                            ->label(__('superadmin.users.fields.password'))
                             ->password()
                             ->required()
                             ->minLength(8)
                             ->same('password_confirmation'),
                         TextInput::make('password_confirmation')
-                            ->label('Confirm password')
+                            ->label(__('shell.profile.fields.password_confirmation'))
                             ->password()
                             ->required(),
                     ])
@@ -119,25 +119,25 @@ class ManagersRelationManager extends RelationManager
                     })
                     ->form([
                         TextInput::make('name')
-                            ->label('Name')
+                            ->label(__('superadmin.users.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
-                            ->label('Email')
+                            ->label(__('superadmin.users.fields.email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(table: User::class, column: 'email', ignoreRecord: true),
                         Select::make('status')
-                            ->label('Status')
+                            ->label(__('superadmin.users.fields.status'))
                             ->options(UserStatus::options())
                             ->required(),
                         Select::make('locale')
-                            ->label('Locale')
+                            ->label(__('superadmin.users.fields.locale'))
                             ->options(config('tenanto.locales', []))
                             ->required(),
                         TextInput::make('password')
-                            ->label('Password')
+                            ->label(__('superadmin.users.fields.password'))
                             ->password()
                             ->minLength(8)
                             ->dehydrated(fn (?string $state): bool => filled($state)),

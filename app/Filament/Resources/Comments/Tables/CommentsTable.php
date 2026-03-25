@@ -22,8 +22,7 @@ class CommentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('organization.name')
-                    ->label('Organization')
+                TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('commentable_type')
                     ->formatStateUsing(fn (?string $state): string => $state ? class_basename($state) : '-')
@@ -34,7 +33,7 @@ class CommentsTable
                 TextColumn::make('user.name')
                     ->searchable(),
                 TextColumn::make('parent.body')
-                    ->label('Parent Comment')
+                    ->label(__('superadmin.comments_resource.fields.parent_comment'))
                     ->limit(40)
                     ->toggleable(),
                 TextColumn::make('body')
@@ -61,8 +60,7 @@ class CommentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('organization')
-                    ->label('Organization')
+                SelectFilter::make('organization')->label(__('superadmin.organizations.singular'))
                     ->options(fn (): array => Organization::query()
                         ->select(['id', 'name'])
                         ->ordered()

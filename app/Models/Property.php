@@ -240,7 +240,16 @@ class Property extends Model
             return '—';
         }
 
-        return rtrim(rtrim(number_format((float) $this->floor_area_sqm, 2, '.', ''), '0'), '.').' m²';
+        return $this->formatDecimal((float) $this->floor_area_sqm, 2).' m²';
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 
     public function tenantAssignmentLabel(): string

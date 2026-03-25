@@ -18,11 +18,10 @@ class SubscriptionPaymentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('organization.name')
-                    ->label('Organization')
+                TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('subscription.plan')
-                    ->label('Subscription Plan')
+                    ->label(__('superadmin.subscriptions_resource.fields.plan'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('duration')
@@ -48,8 +47,7 @@ class SubscriptionPaymentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('organization')
-                    ->label('Organization')
+                SelectFilter::make('organization')->label(__('superadmin.organizations.singular'))
                     ->options(fn (): array => Organization::query()
                         ->select(['id', 'name'])
                         ->ordered()

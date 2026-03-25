@@ -19,7 +19,9 @@ it('shows the tenant filament navigation labels and hides admin resource links',
         ->assertSeeText('Home')
         ->assertSeeText('Readings')
         ->assertSeeText('Invoices')
-        ->assertSeeText('Profile')
+        ->assertSeeText($tenant->name)
+        ->assertSeeText($tenant->email)
+        ->assertDontSeeText('Profile')
         ->assertDontSeeText('Buildings')
         ->assertDontSeeText('Organizations');
 });

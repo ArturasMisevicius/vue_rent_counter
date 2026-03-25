@@ -22,7 +22,7 @@ class AttachmentForm
                     ->required(),
                 Select::make('attachable_type')
                     ->options([
-                        Project::class => 'Project',
+                        Project::class => __('superadmin.audit_logs.record_types.project'),
                     ])
                     ->default(Project::class)
                     ->required(),

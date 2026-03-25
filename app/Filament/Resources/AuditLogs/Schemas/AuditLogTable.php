@@ -48,7 +48,7 @@ class AuditLogTable
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('occurred_at')
                     ->label(__('superadmin.audit_logs.columns.timestamp'))
-                    ->state(fn (AuditLog $record): string => $record->occurred_at?->format('F j, Y g:i A') ?? __('superadmin.audit_logs.placeholders.empty'))
+                    ->state(fn (AuditLog $record): string => $record->occurred_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.audit_logs.placeholders.empty'))
                     ->sortable()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 Panel::make([

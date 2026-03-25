@@ -55,11 +55,11 @@ class SubscriptionsRelationManager extends RelationManager
                     ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('starts_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.start_date'))
-                    ->date('d M Y')
+                    ->state(fn ($record): string => $record->starts_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.expiry_date'))
-                    ->date('d M Y')
+                    ->state(fn ($record): string => $record->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
                 TextColumn::make('property_limit_snapshot')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.property_limit'))
@@ -69,7 +69,7 @@ class SubscriptionsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.date_created'))
-                    ->date('d M Y')
+                    ->state(fn ($record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
             ])
             ->recordActions([

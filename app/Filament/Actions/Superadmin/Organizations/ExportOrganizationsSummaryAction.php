@@ -20,13 +20,13 @@ class ExportOrganizationsSummaryAction
         $path = tempnam(sys_get_temp_dir(), 'organizations-export-');
 
         if ($path === false) {
-            abort(500, 'Unable to prepare the organizations export.');
+            abort(500, __('superadmin.organizations.messages.export_prepare_failed'));
         }
 
         $handle = fopen($path, 'wb');
 
         if ($handle === false) {
-            abort(500, 'Unable to write the organizations export.');
+            abort(500, __('superadmin.organizations.messages.export_write_failed'));
         }
 
         fputcsv($handle, [
@@ -47,7 +47,7 @@ class ExportOrganizationsSummaryAction
                 $organization->currentSubscription?->status?->label(),
                 $organization->buildings_count,
                 $organization->tenants_count,
-                $organization->created_at?->format('d M Y'),
+                $organization->created_at?->locale(app()->getLocale())->isoFormat('ll'),
             ]);
         }
 

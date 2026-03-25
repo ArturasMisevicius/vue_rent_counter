@@ -11,10 +11,8 @@ class SubscriptionPaymentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
-                TextEntry::make('subscription.id')
-                    ->label('Subscription'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
+                TextEntry::make('subscription.id')->label(__('superadmin.subscriptions_resource.singular')),
                 TextEntry::make('duration')
                     ->badge(),
                 TextEntry::make('amount')

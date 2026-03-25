@@ -138,16 +138,19 @@ final class BulkInvoicePagePresenter
         }
 
         $numeric = (float) $value;
-        $formatted = fmod($numeric, 1.0) === 0.0
-            ? number_format($numeric, 0)
-            : number_format($numeric, 2);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, fmod($numeric, 1.0) === 0.0 ? 0 : 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
+        $formatted = (string) $formatter->format($numeric);
 
         return trim($formatted).' m²';
     }
 
     private static function formatMoney(mixed $value): string
     {
-        return 'EUR '.number_format((float) ($value ?? 0), 2);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency((float) ($value ?? 0), 'EUR');
     }
 
     private static function reasonLabel(?string $reason): string

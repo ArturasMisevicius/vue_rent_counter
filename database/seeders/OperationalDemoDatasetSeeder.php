@@ -29,9 +29,11 @@ use App\Models\OrganizationSetting;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\Provider;
 use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
 use App\Models\SystemTenant;
+use App\Models\Tariff;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
@@ -119,6 +121,7 @@ class OperationalDemoDatasetSeeder extends Seeder
             );
 
             $organizationUtilityServices = $this->upsertOrganizationUtilityServices($organization, $sequence);
+            $organizationProviderGraph = $this->upsertOrganizationProvidersAndTariffs($organization, $sequence);
 
             $buildings = collect(range(1, 3))->map(function (int $buildingIndex) use ($blueprint, $cities, $organization, $organizationIndex, $sequence): Building {
                 $city = $cities[(($organizationIndex * 3) + ($buildingIndex - 1)) % count($cities)];
@@ -148,7 +151,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            $properties = collect(range(1, 8))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationUtilityServices): Property {
+            $properties = collect(range(1, 8))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationProviderGraph, $organizationUtilityServices): Property {
                 $building = $buildings[($propertyIndex - 1) % $buildings->count()];
                 $tenant = $tenants[$propertyIndex - 1];
                 $propertyType = PropertyType::cases()[($propertyIndex - 1) % count(PropertyType::cases())];
@@ -199,6 +202,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                     organization: $organization,
                     property: $property,
                     utilityServices: $organizationUtilityServices,
+                    providerGraph: $organizationProviderGraph,
                 );
 
                 $propertyMeters = collect();
@@ -421,14 +425,109 @@ class OperationalDemoDatasetSeeder extends Seeder
         });
     }
 
+    private function upsertOrganizationProvidersAndTariffs(Organization $organization, int $sequence): Collection
+    {
+        $definitions = [
+            ServiceType::ELECTRICITY->value => [
+                'provider_name' => sprintf('Org %02d Grid', $sequence),
+                'contact_info' => [
+                    'phone' => sprintf('+3707001%04d', $sequence),
+                    'email' => sprintf('grid%02d@tenanto-demo.test', $sequence),
+                    'website' => sprintf('https://grid-%02d.tenanto-demo.test', $sequence),
+                ],
+                'tariff_name' => sprintf('Org %02d Peak Electricity', $sequence),
+                'remote_id' => sprintf('EL-%02d-A', $sequence),
+                'configuration' => [
+                    'type' => 'time_of_use',
+                    'currency' => 'EUR',
+                    'zones' => [
+                        ['id' => 'day', 'start' => '07:00', 'end' => '23:00', 'rate' => 0.185],
+                        ['id' => 'night', 'start' => '23:00', 'end' => '07:00', 'rate' => 0.105],
+                    ],
+                ],
+                'active_until' => null,
+            ],
+            ServiceType::WATER->value => [
+                'provider_name' => sprintf('Org %02d Waterworks', $sequence),
+                'contact_info' => [
+                    'phone' => sprintf('+3707002%04d', $sequence),
+                    'email' => sprintf('water%02d@tenanto-demo.test', $sequence),
+                    'website' => sprintf('https://water-%02d.tenanto-demo.test', $sequence),
+                ],
+                'tariff_name' => sprintf('Org %02d Water Standard', $sequence),
+                'remote_id' => sprintf('WT-%02d-A', $sequence),
+                'configuration' => [
+                    'type' => 'flat',
+                    'currency' => 'EUR',
+                    'supply_rate' => 0.97,
+                    'sewage_rate' => 1.23,
+                    'fixed_fee' => 0.85,
+                ],
+                'active_until' => now()->addMonths(18)->startOfDay(),
+            ],
+            ServiceType::HEATING->value => [
+                'provider_name' => sprintf('Org %02d Heating Cooperative', $sequence),
+                'contact_info' => [
+                    'phone' => sprintf('+3707003%04d', $sequence),
+                    'email' => sprintf('heating%02d@tenanto-demo.test', $sequence),
+                    'website' => sprintf('https://heating-%02d.tenanto-demo.test', $sequence),
+                ],
+                'tariff_name' => sprintf('Org %02d Seasonal Heating', $sequence),
+                'remote_id' => sprintf('HT-%02d-A', $sequence),
+                'configuration' => [
+                    'type' => 'flat',
+                    'currency' => 'EUR',
+                    'rate' => 0.42,
+                    'fixed_fee' => 4.25,
+                ],
+                'active_until' => now()->addMonths(12)->startOfDay(),
+            ],
+        ];
+
+        return collect($definitions)->mapWithKeys(function (array $definition, string $serviceType) use ($organization): array {
+            $provider = Provider::query()->updateOrCreate(
+                [
+                    'organization_id' => $organization->id,
+                    'name' => $definition['provider_name'],
+                ],
+                [
+                    'service_type' => $serviceType,
+                    'contact_info' => $definition['contact_info'],
+                ],
+            );
+
+            $tariff = Tariff::query()->updateOrCreate(
+                [
+                    'provider_id' => $provider->id,
+                    'name' => $definition['tariff_name'],
+                ],
+                [
+                    'remote_id' => $definition['remote_id'],
+                    'configuration' => $definition['configuration'],
+                    'active_from' => now()->subMonths(2)->startOfDay(),
+                    'active_until' => $definition['active_until'],
+                ],
+            );
+
+            return [$serviceType => ['provider' => $provider, 'tariff' => $tariff]];
+        });
+    }
+
     private function upsertPropertyServiceConfigurations(
         Organization $organization,
         Property $property,
         Collection $utilityServices,
+        Collection $providerGraph,
     ): void {
         $effectiveFrom = now()->startOfMonth();
 
         foreach ($utilityServices as $serviceType => $utilityService) {
+            $providerGraphEntry = $providerGraph->get($serviceType);
+
+            if ($providerGraphEntry === null) {
+                continue;
+            }
+
             ServiceConfiguration::query()->updateOrCreate(
                 [
                     'organization_id' => $organization->id,
@@ -437,20 +536,79 @@ class OperationalDemoDatasetSeeder extends Seeder
                     'effective_from' => $effectiveFrom,
                 ],
                 [
-                    'pricing_model' => $utilityService->default_pricing_model,
+                    'pricing_model' => $this->serviceConfigurationPricingModel($serviceType),
                     'rate_schedule' => $this->serviceRateSchedule($serviceType),
-                    'distribution_method' => DistributionMethod::EQUAL,
-                    'is_shared_service' => false,
-                    'effective_until' => null,
-                    'configuration_overrides' => null,
-                    'tariff_id' => null,
-                    'provider_id' => null,
-                    'area_type' => null,
-                    'custom_formula' => null,
+                    'distribution_method' => $this->serviceConfigurationDistributionMethod($serviceType),
+                    'is_shared_service' => $serviceType === ServiceType::HEATING->value,
+                    'effective_until' => $this->serviceConfigurationEffectiveUntil($serviceType),
+                    'configuration_overrides' => $this->serviceConfigurationOverrides($serviceType),
+                    'tariff_id' => $providerGraphEntry['tariff']->id,
+                    'provider_id' => $providerGraphEntry['provider']->id,
+                    'area_type' => $this->serviceConfigurationAreaType($serviceType),
+                    'custom_formula' => $this->serviceConfigurationCustomFormula($serviceType),
                     'is_active' => true,
                 ],
             );
         }
+    }
+
+    private function serviceConfigurationPricingModel(string $serviceType): PricingModel
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => PricingModel::TIME_OF_USE,
+            ServiceType::WATER->value => PricingModel::HYBRID,
+            ServiceType::HEATING->value => PricingModel::CUSTOM_FORMULA,
+            default => PricingModel::CONSUMPTION_BASED,
+        };
+    }
+
+    private function serviceConfigurationDistributionMethod(string $serviceType): DistributionMethod
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => DistributionMethod::BY_CONSUMPTION,
+            ServiceType::WATER->value => DistributionMethod::EQUAL,
+            ServiceType::HEATING->value => DistributionMethod::CUSTOM_FORMULA,
+            default => DistributionMethod::EQUAL,
+        };
+    }
+
+    private function serviceConfigurationEffectiveUntil(string $serviceType): ?Carbon
+    {
+        return match ($serviceType) {
+            ServiceType::WATER->value => now()->addMonths(12)->startOfMonth(),
+            default => null,
+        };
+    }
+
+    private function serviceConfigurationOverrides(string $serviceType): ?array
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => [
+                'loss_factor' => 1.02,
+            ],
+            ServiceType::WATER->value => [
+                'base_fee' => 1.35,
+            ],
+            ServiceType::HEATING->value => [
+                'seasonal_index' => 1.15,
+                'shared_floor_weight' => 0.35,
+            ],
+            default => null,
+        };
+    }
+
+    private function serviceConfigurationAreaType(string $serviceType): ?string
+    {
+        return $serviceType === ServiceType::HEATING->value
+            ? 'heated'
+            : null;
+    }
+
+    private function serviceConfigurationCustomFormula(string $serviceType): ?string
+    {
+        return $serviceType === ServiceType::HEATING->value
+            ? '({consumption} * {unit_rate}) + ({area_sqm} * {shared_floor_weight}) + {base_fee}'
+            : null;
     }
 
     private function upsertInvoiceDetailRecords(
@@ -537,7 +695,11 @@ class OperationalDemoDatasetSeeder extends Seeder
     {
         return match ($serviceType) {
             ServiceType::ELECTRICITY->value => [
-                'unit_rate' => 0.185,
+                'zones' => [
+                    ['id' => 'day', 'start' => '07:00', 'end' => '23:00', 'rate' => 0.185],
+                    ['id' => 'night', 'start' => '23:00', 'end' => '07:00', 'rate' => 0.105],
+                ],
+                'base_fee' => 2.10,
             ],
             ServiceType::WATER->value => [
                 'fixed_fee' => 1.35,
@@ -545,6 +707,7 @@ class OperationalDemoDatasetSeeder extends Seeder
             ],
             ServiceType::HEATING->value => [
                 'unit_rate' => 0.42,
+                'base_fee' => 4.25,
             ],
             default => [
                 'unit_rate' => 0.10,

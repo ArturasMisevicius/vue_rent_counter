@@ -212,11 +212,13 @@ final class InvoiceViewPresenter
             return '—';
         }
 
-        return $value->format('F j, Y g:i A');
+        return $value->locale(app()->getLocale())->isoFormat('LLL');
     }
 
     private function formatCurrency(string $currency, float $amount): string
     {
-        return trim($currency.' '.number_format($amount, 2));
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency($amount, $currency);
     }
 }

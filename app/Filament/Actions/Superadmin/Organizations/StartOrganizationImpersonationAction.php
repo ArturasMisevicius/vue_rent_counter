@@ -22,7 +22,7 @@ class StartOrganizationImpersonationAction
         ], $impersonator);
 
         if ($target->organization !== null && ! $target->organization->status->permitsAccess()) {
-            throw new AccessDeniedHttpException('Cannot impersonate an administrator from a suspended organization.');
+            throw new AccessDeniedHttpException(__('superadmin.organizations.messages.cannot_impersonate_suspended'));
         }
 
         $this->impersonationService->start($impersonator, $target);

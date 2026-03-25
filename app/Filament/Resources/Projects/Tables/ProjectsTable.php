@@ -18,8 +18,7 @@ class ProjectsTable
     {
         return $table
             ->columns([
-                TextColumn::make('organization.name')
-                    ->label('Organization')
+                TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('property.name')
                     ->searchable(),
@@ -64,8 +63,7 @@ class ProjectsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('organization')
-                    ->label('Organization')
+                SelectFilter::make('organization')->label(__('superadmin.organizations.singular'))
                     ->options(fn (): array => Organization::query()
                         ->select(['id', 'name'])
                         ->ordered()

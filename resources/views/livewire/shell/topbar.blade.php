@@ -26,16 +26,6 @@
 
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 
-                    @if ($profileUrl && ! $isCurrentProfileRoute)
-                        <a
-                            href="{{ $profileUrl }}"
-                            wire:navigate
-                            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                        >
-                            {{ __('shell.navigation.items.profile') }}
-                        </a>
-                    @endif
-
                     @if ($user && $profileUrl)
                         <a href="{{ $profileUrl }}" wire:navigate>
                             <x-shell.user-avatar :user="$user" />
@@ -98,16 +88,6 @@
                     @endif
 
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
-
-                    @if ($profileUrl)
-                        <a
-                            href="{{ $profileUrl }}"
-                            wire:navigate
-                            class="hidden items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:inline-flex"
-                        >
-                            {{ __('shell.navigation.items.profile') }}
-                        </a>
-                    @endif
 
                     @if ($user && $profileUrl)
                         <a href="{{ $profileUrl }}" wire:navigate class="hidden sm:block">

@@ -8,12 +8,14 @@ use App\Filament\Actions\Superadmin\Subscriptions\UpdateSubscriptionExpiryAction
 use App\Filament\Actions\Superadmin\Subscriptions\UpgradeSubscriptionPlanAction;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewSubscription extends ViewRecord
 {
@@ -29,18 +31,18 @@ class ViewSubscription extends ViewRecord
 
     public function getTitle(): string
     {
-        return 'Subscription Overview';
+        return __('superadmin.subscriptions_resource.sections.overview');
     }
 
     protected function getHeaderActions(): array
     {
         return [
             Action::make('extendExpiry')
-                ->label('Extend Expiry')
-                ->authorize(fn (): bool => auth()->user()?->can('extend', $this->record) ?? false)
+                ->label(__('superadmin.subscriptions_resource.actions.extend_expiry'))
+                ->authorize(fn (): bool => $this->currentUser()?->can('extend', $this->record) ?? false)
                 ->schema([
                     DatePicker::make('expires_at')
-                        ->label('Expires At')
+                        ->label(__('superadmin.subscriptions_resource.fields.expires_at'))
                         ->required()
                         ->default($this->record->expires_at?->toDateString()),
                 ])
@@ -49,16 +51,16 @@ class ViewSubscription extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Subscription expiry updated')
+                        ->title(__('superadmin.subscriptions_resource.messages.expiry_updated'))
                         ->success()
                         ->send();
                 }),
             Action::make('upgradePlan')
-                ->label('Upgrade Plan')
-                ->authorize(fn (): bool => auth()->user()?->can('upgrade', $this->record) ?? false)
+                ->label(__('superadmin.subscriptions_resource.actions.upgrade_plan'))
+                ->authorize(fn (): bool => $this->currentUser()?->can('upgrade', $this->record) ?? false)
                 ->schema([
                     Select::make('plan')
-                        ->label('Plan')
+                        ->label(__('superadmin.subscriptions_resource.fields.plan'))
                         ->options(SubscriptionPlan::options())
                         ->required()
                         ->default($this->record->plan?->value),
@@ -72,22 +74,22 @@ class ViewSubscription extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Subscription plan updated')
+                        ->title(__('superadmin.subscriptions_resource.messages.plan_updated'))
                         ->success()
                         ->send();
                 }),
             Action::make('suspendSubscription')
-                ->label('Suspend')
+                ->label(__('superadmin.subscriptions_resource.actions.suspend'))
                 ->color('danger')
-                ->authorize(fn (): bool => auth()->user()?->can('suspend', $this->record) ?? false)
+                ->authorize(fn (): bool => $this->currentUser()?->can('suspend', $this->record) ?? false)
                 ->requiresConfirmation()
-                ->modalDescription('Suspended subscriptions immediately stop access for organization billing features.')
+                ->modalDescription(__('superadmin.subscriptions_resource.modals.suspend_now_description'))
                 ->action(function (SuspendSubscriptionAction $suspendSubscriptionAction): void {
                     $suspendSubscriptionAction->handle($this->record);
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Subscription suspended')
+                        ->title(__('superadmin.subscriptions_resource.messages.suspended'))
                         ->success()
                         ->send();
                 }),
@@ -98,5 +100,12 @@ class ViewSubscription extends ViewRecord
     private function refreshRecord(): void
     {
         $this->record = SubscriptionResource::getEloquentQuery()->findOrFail($this->record->getKey());
+    }
+
+    private function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

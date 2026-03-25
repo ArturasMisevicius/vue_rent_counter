@@ -5,11 +5,13 @@ namespace App\Filament\Pages\Concerns;
 use App\Filament\Actions\Admin\Settings\UpdatePasswordAction;
 use App\Filament\Actions\Admin\Settings\UpdateProfileAction;
 use App\Filament\Actions\Preferences\UpdateUserLocaleAction;
+use App\Filament\Actions\Profile\UpsertKycProfileAction;
 use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Models\User;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -57,6 +59,7 @@ trait InteractsWithAccountProfileForms
     public function saveChanges(
         UpdateProfileAction $updateProfileAction,
         UpdatePasswordAction $updatePasswordAction,
+        UpsertKycProfileAction $upsertKycProfileAction,
     ): void {
         $this->resetValidation();
 
@@ -98,6 +101,10 @@ trait InteractsWithAccountProfileForms
             ];
         }
 
+        if (! $this->persistKycProfile($upsertKycProfileAction)) {
+            return;
+        }
+
         Notification::make()
             ->success()
             ->title(__('shell.profile.messages.saved'))
@@ -106,9 +113,11 @@ trait InteractsWithAccountProfileForms
         $this->dispatch('shell-locale-updated');
     }
 
-    public function saveProfile(UpdateProfileAction $updateProfileAction): void
-    {
-        $this->saveChanges($updateProfileAction, app(UpdatePasswordAction::class));
+    public function saveProfile(
+        UpdateProfileAction $updateProfileAction,
+        UpsertKycProfileAction $upsertKycProfileAction,
+    ): void {
+        $this->saveChanges($updateProfileAction, app(UpdatePasswordAction::class), $upsertKycProfileAction);
     }
 
     public function updatePassword(UpdatePasswordAction $updatePasswordAction): void
@@ -144,20 +153,21 @@ trait InteractsWithAccountProfileForms
         $this->dispatch('shell-locale-updated');
     }
 
-    public function updatedPasswordFormPassword(mixed $value): void
+    public function updatedPasswordFormPassword(): void
     {
         $this->syncPasswordConfirmationError();
     }
 
-    public function updatedPasswordFormPasswordConfirmation(mixed $value): void
+    public function updatedPasswordFormPasswordConfirmation(): void
     {
         $this->syncPasswordConfirmationError();
     }
 
     protected function user(): User
     {
-        /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
+
+        abort_unless($user instanceof User, 403);
 
         return $user;
     }

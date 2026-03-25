@@ -12,9 +12,8 @@ class TaskAssignmentInfolist
         return $schema
             ->components([
                 TextEntry::make('task.title')
-                    ->label('Task'),
-                TextEntry::make('user.name')
-                    ->label('User'),
+                    ->label(__('superadmin.audit_logs.record_types.task')),
+                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
                 TextEntry::make('role'),
                 TextEntry::make('assigned_at')
                     ->dateTime(),

@@ -1,6 +1,6 @@
 @extends('errors.layout')
 
-@section('title', 'Server Error')
+@section('title', __('shell.errors.500.title'))
 @section('code', '500')
-@section('heading', 'Something went wrong on our side')
-@section('message', 'The request could not be completed right now. Return to the dashboard or try again in a moment.')
+@section('heading', __('shell.errors.500.title'))
+@section('message', __('shell.errors.500.description'))

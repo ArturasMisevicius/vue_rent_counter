@@ -12,8 +12,7 @@ class TagInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('name'),
                 TextEntry::make('slug'),
                 TextEntry::make('color')

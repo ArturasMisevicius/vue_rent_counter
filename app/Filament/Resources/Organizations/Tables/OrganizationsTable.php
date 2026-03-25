@@ -42,23 +42,23 @@ class OrganizationsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Organization Name')
+                    ->label(__('superadmin.organizations.columns.name'))
                     ->url(fn (Organization $record): string => OrganizationResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('owner.email')
-                    ->label('Owner Email')
+                    ->label(__('superadmin.organizations.columns.owner_email'))
                     ->placeholder(__('superadmin.organizations.empty.owner'))
                     ->searchable(),
                 TextColumn::make('currentSubscription.plan')
-                    ->label('Plan')
+                    ->label(__('superadmin.organizations.overview.fields.current_plan'))
                     ->badge()
-                    ->formatStateUsing(fn (?SubscriptionPlan $state): string => $state?->label() ?? 'No plan')
+                    ->formatStateUsing(fn (?SubscriptionPlan $state): string => $state?->label() ?? __('superadmin.organizations.overview.placeholders.no_plan'))
                     ->color('primary'),
                 TextColumn::make('currentSubscription.status')
-                    ->label('Subscription Status')
+                    ->label(__('superadmin.organizations.overview.fields.subscription_status'))
                     ->badge()
-                    ->formatStateUsing(fn (?SubscriptionStatus $state): string => $state?->label() ?? 'No subscription')
+                    ->formatStateUsing(fn (?SubscriptionStatus $state): string => $state?->label() ?? __('superadmin.organizations.overview.placeholders.no_subscription'))
                     ->color(fn (?SubscriptionStatus $state): string => match ($state) {
                         SubscriptionStatus::ACTIVE => 'success',
                         SubscriptionStatus::EXPIRED => 'danger',
@@ -67,23 +67,23 @@ class OrganizationsTable
                         default => 'gray',
                     }),
                 TextColumn::make('buildings_count')
-                    ->label('Properties')
+                    ->label(__('superadmin.organizations.overview.usage_labels.properties'))
                     ->sortable()
                     ->alignCenter(),
                 TextColumn::make('tenants_count')
-                    ->label('Tenants')
+                    ->label(__('superadmin.organizations.overview.usage_labels.tenants'))
                     ->sortable()
                     ->alignCenter(),
                 TextColumn::make('created_at')
-                    ->label('Created')
-                    ->date('d M Y')
+                    ->label(__('superadmin.organizations.columns.created_at'))
+                    ->state(fn (Organization $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('subscription_status')
-                    ->label('Subscription Status')
-                    ->placeholder('All Statuses')
+                    ->label(__('superadmin.organizations.overview.fields.subscription_status'))
+                    ->placeholder(__('superadmin.organizations.filters.all_statuses'))
                     ->options(SubscriptionStatus::options())
                     ->query(function (Builder $query, array $data): Builder {
                         $status = $data['value'] ?? null;
@@ -97,8 +97,8 @@ class OrganizationsTable
                         );
                     }),
                 SelectFilter::make('plan')
-                    ->label('Plan')
-                    ->placeholder('All Plans')
+                    ->label(__('superadmin.organizations.overview.fields.current_plan'))
+                    ->placeholder(__('superadmin.organizations.filters.all_plans'))
                     ->options(SubscriptionPlan::options())
                     ->query(function (Builder $query, array $data): Builder {
                         $plan = $data['value'] ?? null;
@@ -112,12 +112,12 @@ class OrganizationsTable
                         );
                     }),
                 Filter::make('created_between')
-                    ->label('Created')
+                    ->label(__('superadmin.organizations.columns.created_at'))
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created From'),
+                            ->label(__('superadmin.organizations.filters.created_from')),
                         DatePicker::make('created_to')
-                            ->label('Created To'),
+                            ->label(__('superadmin.organizations.filters.created_to')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -133,46 +133,46 @@ class OrganizationsTable
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->label('View'),
+                    ->label(__('superadmin.organizations.actions.view')),
                 EditAction::make()
-                    ->label('Edit'),
+                    ->label(__('superadmin.organizations.actions.edit')),
                 ActionGroup::make([
                     Action::make('suspendOrganization')
-                        ->label('Suspend Organization')
+                        ->label(__('superadmin.organizations.actions.suspend'))
                         ->icon(Heroicon::OutlinedPauseCircle)
                         ->color('danger')
                         ->visible(fn (Organization $record): bool => $record->status->permitsAccess())
                         ->authorize(fn (Organization $record): bool => self::currentUser()?->can('suspend', $record) ?? false)
                         ->requiresConfirmation()
-                        ->modalDescription(fn (Organization $record): string => "Suspend {$record->name} and immediately terminate active sessions.")
+                        ->modalDescription(fn (Organization $record): string => __('superadmin.organizations.modals.suspend_now', ['name' => $record->name]))
                         ->action(function (Organization $record, SuspendOrganizationAction $suspendOrganizationAction): void {
                             $suspendOrganizationAction->handle($record);
 
                             Notification::make()
-                                ->title('Organization suspended')
+                                ->title(__('superadmin.organizations.notifications.suspended'))
                                 ->success()
                                 ->send();
                         }),
                     Action::make('sendNotification')
-                        ->label('Send Notification')
+                        ->label(__('superadmin.organizations.actions.send_notification'))
                         ->icon(Heroicon::OutlinedEnvelope)
                         ->slideOver()
                         ->authorize(fn (Organization $record): bool => self::currentUser()?->can('update', $record) ?? false)
                         ->schema([
                             TextInput::make('title')
-                                ->label('Notification Title')
+                                ->label(__('superadmin.organizations.form.fields.notification_title'))
                                 ->required()
                                 ->maxLength(255),
                             Textarea::make('body')
-                                ->label('Message Body')
+                                ->label(__('superadmin.organizations.form.fields.message_body'))
                                 ->required()
                                 ->rows(5),
                             Select::make('severity')
-                                ->label('Severity')
+                                ->label(__('superadmin.organizations.form.fields.severity'))
                                 ->options([
-                                    'information' => 'Information',
-                                    'warning' => 'Warning',
-                                    'critical' => 'Critical',
+                                    'information' => __('superadmin.organizations.form.severity_options.information'),
+                                    'warning' => __('superadmin.organizations.form.severity_options.warning'),
+                                    'critical' => __('superadmin.organizations.form.severity_options.critical'),
                                 ])
                                 ->default('information')
                                 ->required(),
@@ -186,28 +186,28 @@ class OrganizationsTable
                             );
 
                             Notification::make()
-                                ->title('Notification sent')
+                                ->title(__('superadmin.organizations.notifications.sent'))
                                 ->success()
                                 ->send();
                         }),
                     Action::make('impersonateAdmin')
-                        ->label('Impersonate Admin')
+                        ->label(__('superadmin.organizations.actions.impersonate_admin'))
                         ->icon(Heroicon::OutlinedUserCircle)
                         ->visible(fn (Organization $record): bool => $record->status->permitsAccess())
                         ->authorize(fn (Organization $record): bool => self::currentUser()?->can('impersonate', $record) ?? false)
                         ->requiresConfirmation()
-                        ->modalDescription('Switch into the organization primary admin account until you stop impersonating.')
+                        ->modalDescription(__('superadmin.organizations.modals.impersonate'))
                         ->action(function (Organization $record, StartOrganizationImpersonationAction $startOrganizationImpersonationAction): void {
                             $impersonator = self::currentUser();
                             $admin = self::resolvePrimaryAdmin($record);
 
                             abort_if(! $impersonator instanceof User, 403);
-                            abort_if(! $admin instanceof User, 404, 'No primary admin is available for this organization.');
+                            abort_if(! $admin instanceof User, 404, __('superadmin.organizations.messages.no_primary_admin'));
 
                             $startOrganizationImpersonationAction->handle($impersonator, $admin);
                         }),
                     Action::make('exportData')
-                        ->label('Export Data')
+                        ->label(__('superadmin.organizations.actions.export_data'))
                         ->icon(Heroicon::OutlinedArrowDownTray)
                         ->authorize(fn (Organization $record): bool => self::currentUser()?->can('view', $record) ?? false)
                         ->action(function (Organization $record, ExportOrganizationDataAction $exportOrganizationDataAction) {
@@ -218,16 +218,16 @@ class OrganizationsTable
                                 ->deleteFileAfterSend(true);
                         }),
                     DeleteAction::make('deleteOrganization')
-                        ->label('Delete Organization'),
+                        ->label(__('superadmin.organizations.actions.delete')),
                 ])
-                    ->label('More')
+                    ->label(__('superadmin.organizations.actions.more'))
                     ->icon(Heroicon::OutlinedEllipsisHorizontal),
             ])
             ->toolbarActions([
                 DeleteBulkAction::make('deleteSelected')
-                    ->label('Delete Selected'),
+                    ->label(__('superadmin.organizations.actions.delete_selected')),
                 BulkAction::make('exportSelected')
-                    ->label('Export Selected')
+                    ->label(__('superadmin.organizations.actions.export_selected'))
                     ->icon(Heroicon::OutlinedArrowDownTray)
                     ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
                     ->action(function (Collection $records, ExportOrganizationsSummaryAction $exportOrganizationsSummaryAction) {
@@ -240,7 +240,7 @@ class OrganizationsTable
             ])
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
-            ->searchPlaceholder('Search by organization name or owner email')
+            ->searchPlaceholder(__('superadmin.organizations.search_placeholder'))
             ->defaultPaginationPageOption(20)
             ->paginationPageOptions([20])
             ->defaultSort('created_at', 'desc');

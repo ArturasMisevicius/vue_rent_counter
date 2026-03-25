@@ -11,10 +11,8 @@ class PropertyAssignmentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
-                TextEntry::make('property.name')
-                    ->label('Property'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
+                TextEntry::make('property.name')->label(__('admin.properties.singular')),
                 TextEntry::make('tenant_user_id')
                     ->numeric(),
                 TextEntry::make('unit_area_sqm')

@@ -45,21 +45,12 @@ $organizationNavigation = [
 
 $adminAccountNavigation = [
     [
-        'route' => 'filament.admin.pages.profile',
-        'label' => 'shell.navigation.items.profile',
-    ],
-    [
         'route' => 'filament.admin.pages.settings',
         'label' => 'shell.navigation.items.settings',
     ],
 ];
 
-$managerAccountNavigation = [
-    [
-        'route' => 'filament.admin.pages.profile',
-        'label' => 'shell.navigation.items.profile',
-    ],
-];
+$managerAccountNavigation = [];
 
 return [
     'auth' => [
@@ -249,10 +240,6 @@ return [
                     ],
                     'account' => [
                         [
-                            'route' => 'filament.admin.pages.profile',
-                            'label' => 'shell.navigation.items.profile',
-                        ],
-                        [
                             'route' => 'filament.admin.pages.settings',
                             'label' => 'shell.navigation.items.settings',
                         ],
@@ -372,9 +359,7 @@ return [
                             'active_patterns' => [
                                 'filament.admin.pages.dashboard',
                                 'filament.admin.pages.tenant-dashboard',
-                                'filament.admin.pages.tenant-property-details',
                                 'tenant.home',
-                                'tenant.property.show',
                             ],
                         ],
                         [
@@ -391,10 +376,6 @@ return [
                         ],
                     ],
                     'account' => [
-                        [
-                            'route' => 'filament.admin.pages.profile',
-                            'label' => 'shell.navigation.items.profile',
-                        ],
                     ],
                 ],
             ],

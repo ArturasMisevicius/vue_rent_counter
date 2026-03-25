@@ -46,12 +46,12 @@ class SubscriptionResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Subscription';
+        return __('superadmin.subscriptions_resource.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Subscriptions';
+        return __('superadmin.subscriptions_resource.plural');
     }
 
     /**

@@ -11,13 +11,11 @@ class ProjectInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('property.name')
-                    ->label('Property')
+                    ->label(__('admin.properties.singular'))
                     ->placeholder('-'),
-                TextEntry::make('building.name')
-                    ->label('Building')
+                TextEntry::make('building.name')->label(__('admin.buildings.singular'))
                     ->placeholder('-'),
                 TextEntry::make('created_by_user_id')
                     ->numeric(),

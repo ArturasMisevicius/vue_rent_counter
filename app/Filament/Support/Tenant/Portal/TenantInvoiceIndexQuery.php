@@ -6,7 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TenantInvoiceIndexQuery
 {
@@ -14,14 +14,14 @@ class TenantInvoiceIndexQuery
         private readonly WorkspaceResolver $workspaceResolver,
     ) {}
 
-    public function for(User $tenant, ?string $status = null): Paginator
+    public function for(User $tenant, ?string $status = null): LengthAwarePaginator
     {
         $workspace = $this->workspaceResolver->resolveFor($tenant);
 
         if (! $workspace->isTenant() || $workspace->organizationId === null) {
             return Invoice::query()
                 ->whereKey(-1)
-                ->simplePaginate(10)
+                ->paginate(10)
                 ->withQueryString();
         }
 
@@ -33,6 +33,7 @@ class TenantInvoiceIndexQuery
 
         $query->with([
             'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+            'invoiceItems:id,invoice_id,description,quantity,unit,unit_price,total,meter_reading_snapshot',
         ]);
 
         match ($status) {
@@ -41,6 +42,6 @@ class TenantInvoiceIndexQuery
             default => null,
         };
 
-        return $query->simplePaginate(10)->withQueryString();
+        return $query->paginate(10)->withQueryString();
     }
 }

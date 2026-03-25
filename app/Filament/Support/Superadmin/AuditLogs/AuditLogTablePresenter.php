@@ -44,9 +44,14 @@ class AuditLogTablePresenter
     public static function actionLabel(AuditLog $record): string
     {
         $actionType = self::actionType($record);
+        $translationKey = "enums.audit_log_action.{$actionType}";
+
+        if (__($translationKey) !== $translationKey) {
+            return __($translationKey);
+        }
 
         return self::actionTypeOptions()[$actionType]
-            ?? Str::of($actionType)->replace('_', ' ')->title()->toString();
+            ?? Str::of($actionType)->replace('_', ' ')->headline()->toString();
     }
 
     public static function actionColor(AuditLog $record): string
@@ -86,7 +91,7 @@ class AuditLogTablePresenter
 
                 return [
                     'key' => $key,
-                    'label' => Str::of(Str::afterLast($key, '.'))->headline()->toString(),
+                    'label' => self::fieldLabel($key),
                     'before' => $beforeValue,
                     'after' => $afterValue,
                     'changed' => $beforeValue !== $afterValue,
@@ -138,5 +143,36 @@ class AuditLogTablePresenter
             is_array($value) => json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '[]',
             default => (string) $value,
         };
+    }
+
+    private static function fieldLabel(string $key): string
+    {
+        $segment = Str::afterLast($key, '.');
+
+        $genericTranslationKey = "superadmin.audit_logs.diff.fields.{$segment}";
+
+        if (__($genericTranslationKey) !== $genericTranslationKey) {
+            return __($genericTranslationKey);
+        }
+
+        $translationKey = match ($segment) {
+            'name' => 'superadmin.organizations.relations.users.columns.name',
+            'email' => 'superadmin.organizations.relations.users.columns.email',
+            'status' => 'superadmin.organizations.relations.users.columns.status',
+            'locale' => 'superadmin.users.fields.locale',
+            'role' => 'superadmin.organizations.relations.users.columns.role',
+            'plan' => 'superadmin.subscriptions_resource.fields.plan',
+            'starts_at' => 'superadmin.subscriptions_resource.fields.starts_at',
+            'expires_at' => 'superadmin.subscriptions_resource.fields.expires_at',
+            'organization_id' => 'superadmin.organizations.singular',
+            'user_id' => 'superadmin.users.singular',
+            default => null,
+        };
+
+        if ($translationKey !== null) {
+            return __($translationKey);
+        }
+
+        return Str::of($segment)->headline()->toString();
     }
 }

@@ -258,11 +258,20 @@ class Tariff extends Model
                 return trim(sprintf(
                     '%s %s%s',
                     $currency,
-                    number_format((float) $rate, 4),
+                    $this->formatDecimal((float) $rate, 4),
                     $unit !== null ? sprintf(' / %s', $unit) : '',
                 ));
             },
         );
+    }
+
+    private function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 
     protected function statusDisplay(): Attribute

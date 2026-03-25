@@ -16,7 +16,7 @@ class CommentReactionsTable
         return $table
             ->columns([
                 TextColumn::make('comment.body')
-                    ->label('Comment')
+                    ->label(__('superadmin.audit_logs.record_types.comment'))
                     ->limit(40)
                     ->searchable(),
                 TextColumn::make('user.name')

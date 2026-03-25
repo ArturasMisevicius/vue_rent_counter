@@ -59,7 +59,7 @@ class ReadingHistoryRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('reading_value')
                     ->label(__('admin.meter_readings.columns.reading_value'))
-                    ->formatStateUsing(fn (mixed $state): string => rtrim(rtrim(number_format((float) $state, 3, '.', ''), '0'), '.'))
+                    ->formatStateUsing(fn (mixed $state): string => self::formatDecimal((float) $state, 3))
                     ->sortable(),
                 TextColumn::make('validation_status')
                     ->label(__('admin.meter_readings.columns.validation_status'))
@@ -76,5 +76,14 @@ class ReadingHistoryRelationManager extends RelationManager
                     ->wrap(),
             ])
             ->defaultSort('reading_date', 'desc');
+    }
+
+    private static function formatDecimal(float $value, int $precision): string
+    {
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return (string) $formatter->format($value);
     }
 }

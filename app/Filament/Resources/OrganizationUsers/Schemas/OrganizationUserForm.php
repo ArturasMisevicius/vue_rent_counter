@@ -24,10 +24,10 @@ class OrganizationUserForm
                     ->required(),
                 Select::make('role')
                     ->options([
-                        'viewer' => 'Viewer',
-                        'admin' => 'Admin',
-                        'manager' => 'Manager',
-                        'tenant' => 'Tenant',
+                        'viewer' => __('enums.user_role.viewer'),
+                        'admin' => __('enums.user_role.admin'),
+                        'manager' => __('enums.user_role.manager'),
+                        'tenant' => __('enums.user_role.tenant'),
                     ])
                     ->required()
                     ->default('viewer'),

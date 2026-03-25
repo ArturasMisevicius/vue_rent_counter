@@ -46,12 +46,12 @@ class TariffsTable
                     ->weight('medium'),
                 TextColumn::make('active_from')
                     ->label(__('admin.tariffs.columns.active_from'))
-                    ->date('F j, Y')
+                    ->state(fn (Tariff $record): string => $record->active_from?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
                     ->sortable(),
                 TextColumn::make('active_until')
                     ->label(__('admin.tariffs.columns.active_until'))
                     ->state(
-                        fn (Tariff $record): string => $record->active_until?->format('F j, Y') ?? __('admin.tariffs.empty.ongoing'),
+                        fn (Tariff $record): string => $record->active_until?->locale(app()->getLocale())->isoFormat('ll') ?? __('admin.tariffs.empty.ongoing'),
                     )
                     ->color(fn (Tariff $record): ?string => $record->active_until === null ? 'gray' : null)
                     ->sortable(),

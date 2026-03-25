@@ -45,7 +45,7 @@ class UpdateMeterReadingAction
                 'changed_by_user_id' => auth()->id(),
                 'old_value' => $originalValue,
                 'new_value' => $validated['reading_value'],
-                'change_reason' => $validated['notes'] ?: 'Meter reading updated.',
+                'change_reason' => $validated['notes'] ?: __('admin.meter_readings.messages.updated'),
             ]);
         }
 

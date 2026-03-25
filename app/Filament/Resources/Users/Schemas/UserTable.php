@@ -23,6 +23,7 @@ use Filament\Tables\Enums\FiltersResetActionPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 
 class UserTable
@@ -54,7 +55,7 @@ class UserTable
                         : null),
                 TextColumn::make('last_login_at')
                     ->label(__('superadmin.users.columns.last_login'))
-                    ->state(fn (User $record): string => $record->last_login_at?->format('Y-m-d H:i') ?? __('superadmin.users.placeholders.never'))
+                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.users.placeholders.never'))
                     ->placeholder(__('superadmin.users.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('status')
@@ -116,7 +117,7 @@ class UserTable
                         ? __('superadmin.users.actions.reinstate')
                         : __('superadmin.users.actions.suspend'))
                     ->color(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'success' : 'danger')
-                    ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                    ->authorize(fn (User $record): bool => self::currentUser()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record, UpdateUserStatusAction $updateUserStatusAction): void {
                         $targetStatus = $record->status === UserStatus::SUSPENDED
@@ -134,7 +135,7 @@ class UserTable
                     }),
                 Action::make('resetPassword')
                     ->label(__('superadmin.users.actions.reset_password'))
-                    ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                    ->authorize(fn (User $record): bool => self::currentUser()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record, SendUserPasswordResetAction $sendUserPasswordResetAction): void {
                         $sendUserPasswordResetAction->handle($record);
@@ -146,10 +147,10 @@ class UserTable
                     }),
                 Action::make('impersonateUser')
                     ->label(__('superadmin.users.actions.impersonate'))
-                    ->authorize(fn (): bool => auth()->user()?->isSuperadmin() ?? false)
+                    ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
                     ->requiresConfirmation()
                     ->action(function (User $record, StartUserImpersonationAction $startUserImpersonationAction) {
-                        $impersonator = auth()->user();
+                        $impersonator = self::currentUser();
 
                         abort_unless($impersonator instanceof User, 403);
 
@@ -162,7 +163,7 @@ class UserTable
                     ->using(function (User $record, DeleteUserAction $deleteUserAction): void {
                         $deleteUserAction->handle($record);
                     })
-                    ->authorize(fn (User $record): bool => auth()->user()?->can('delete', $record) ?? false)
+                    ->authorize(fn (User $record): bool => self::currentUser()?->can('delete', $record) ?? false)
                     ->disabled(fn (User $record): bool => ! $record->canBeDeletedFromSuperadmin())
                     ->tooltip(fn (User $record): ?string => $record->superadminDeletionBlockedReason()),
             ])
@@ -190,5 +191,12 @@ class UserTable
         Lang::addLines([
             'table.filters.actions.reset.label' => trans('superadmin.users.filters.clear_all', locale: 'ru'),
         ], 'ru', 'filament-tables');
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

@@ -3,12 +3,16 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
+use App\Filament\Pages\Concerns\InteractsWithKycProfileForms;
 use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
+use App\Models\User;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class Profile extends Page
 {
     use InteractsWithAccountProfileForms;
+    use InteractsWithKycProfileForms;
     use RefreshesOnShellLocaleUpdate;
 
     protected static bool $shouldRegisterNavigation = false;
@@ -21,6 +25,7 @@ class Profile extends Page
     {
         $this->applyShellLocale();
         $this->fillAccountProfileForms();
+        $this->fillKycProfileForm();
     }
 
     public function getTitle(): string
@@ -30,6 +35,6 @@ class Profile extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->check();
+        return Auth::user() instanceof User;
     }
 }

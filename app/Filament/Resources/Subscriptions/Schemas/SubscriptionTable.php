@@ -11,6 +11,7 @@ use App\Filament\Actions\Superadmin\Subscriptions\UpgradeSubscriptionPlanAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Models\Subscription;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -26,6 +27,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionTable
 {
@@ -34,46 +36,54 @@ class SubscriptionTable
         return $table
             ->columns([
                 TextColumn::make('organization.name')
-                    ->label('Organization')
+                    ->label(__('superadmin.subscriptions_resource.columns.organization'))
                     ->url(fn (Subscription $record): ?string => $record->organization === null
                         ? null
                         : OrganizationResource::getUrl('view', ['record' => $record->organization])),
                 TextColumn::make('plan')
-                    ->label('Plan')
+                    ->label(__('superadmin.subscriptions_resource.columns.plan'))
                     ->badge()
-                    ->state(fn (Subscription $record): string => $record->plan->label()),
+                    ->state(function (Subscription $record): string {
+                        $plan = $record->plan;
+
+                        return $plan instanceof SubscriptionPlan ? $plan->label() : (string) $plan;
+                    }),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('superadmin.subscriptions_resource.columns.status'))
                     ->badge()
-                    ->state(fn (Subscription $record): string => $record->status->label()),
+                    ->state(function (Subscription $record): string {
+                        $status = $record->status;
+
+                        return $status instanceof SubscriptionStatus ? $status->label() : (string) $status;
+                    }),
                 TextColumn::make('starts_at')
-                    ->label('Start Date')
-                    ->state(fn (Subscription $record): string => $record->starts_at?->format('Y-m-d') ?? 'Never')
+                    ->label(__('superadmin.subscriptions_resource.columns.start_date'))
+                    ->state(fn (Subscription $record): string => $record->starts_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('expires_at')
-                    ->label('Expiry Date')
-                    ->state(fn (Subscription $record): string => $record->expires_at?->format('Y-m-d') ?? 'Never')
+                    ->label(__('superadmin.subscriptions_resource.columns.expiry_date'))
+                    ->state(fn (Subscription $record): string => $record->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('properties_used')
-                    ->label('Properties Used')
+                    ->label(__('superadmin.subscriptions_resource.columns.properties_used'))
                     ->state(fn (Subscription $record): string => $record->propertiesUsedSummary())
                     ->color(fn (Subscription $record): string => $record->hasReachedPropertyLimit() ? 'danger' : 'gray'),
                 TextColumn::make('tenants_used')
-                    ->label('Tenants Used')
+                    ->label(__('superadmin.subscriptions_resource.columns.tenants_used'))
                     ->state(fn (Subscription $record): string => $record->tenantsUsedSummary())
                     ->color(fn (Subscription $record): string => $record->hasReachedTenantLimit() ? 'danger' : 'gray'),
                 TextColumn::make('created_at')
-                    ->label('Date Created')
-                    ->state(fn (Subscription $record): string => $record->created_at?->format('Y-m-d H:i') ?? 'Never')
+                    ->label(__('superadmin.subscriptions_resource.columns.date_created'))
+                    ->state(fn (Subscription $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('organization')
-                    ->label('Organization')
+                    ->label(__('superadmin.subscriptions_resource.filters.organization'))
                     ->schema([
                         TextInput::make('query')
-                            ->label('Organization')
-                            ->placeholder('Search organizations'),
+                            ->label(__('superadmin.subscriptions_resource.filters.organization'))
+                            ->placeholder(__('superadmin.subscriptions_resource.filters.organization_placeholder')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $organizationQuery = trim((string) ($data['query'] ?? ''));
@@ -85,21 +95,21 @@ class SubscriptionTable
                         return $query->whereRelation('organization', 'name', 'like', '%'.$organizationQuery.'%');
                     }),
                 SelectFilter::make('plan')
-                    ->label('Plan')
-                    ->placeholder('All Plans')
+                    ->label(__('superadmin.subscriptions_resource.filters.plan'))
+                    ->placeholder(__('superadmin.subscriptions_resource.filters.all_plans'))
                     ->options(SubscriptionPlan::options()),
                 SelectFilter::make('status')
-                    ->label('Status')
-                    ->placeholder('All Statuses')
+                    ->label(__('superadmin.subscriptions_resource.filters.status'))
+                    ->placeholder(__('superadmin.subscriptions_resource.filters.all_statuses'))
                     ->options(SubscriptionStatus::options()),
                 SelectFilter::make('expiring_within')
-                    ->label('Expiring Within')
-                    ->placeholder('Any Time')
+                    ->label(__('superadmin.subscriptions_resource.filters.expiring_within'))
+                    ->placeholder(__('superadmin.subscriptions_resource.filters.any_time'))
                     ->options([
-                        7 => '7 Days',
-                        14 => '14 Days',
-                        30 => '30 Days',
-                        60 => '60 Days',
+                        7 => __('superadmin.subscriptions_resource.filters.days', ['count' => 7]),
+                        14 => __('superadmin.subscriptions_resource.filters.days', ['count' => 14]),
+                        30 => __('superadmin.subscriptions_resource.filters.days', ['count' => 30]),
+                        60 => __('superadmin.subscriptions_resource.filters.days', ['count' => 60]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $days = $data['value'] ?? null;
@@ -113,16 +123,16 @@ class SubscriptionTable
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->label('View'),
+                    ->label(__('superadmin.subscriptions_resource.actions.view')),
                 EditAction::make()
-                    ->label('Edit'),
+                    ->label(__('superadmin.subscriptions_resource.actions.edit')),
                 Action::make('extendExpiry')
-                    ->label('Extend Expiry')
+                    ->label(__('superadmin.subscriptions_resource.actions.extend_expiry'))
                     ->slideOver()
-                    ->authorize(fn (Subscription $record): bool => auth()->user()?->can('extend', $record) ?? false)
+                    ->authorize(fn (Subscription $record): bool => self::currentUser()?->can('extend', $record) ?? false)
                     ->schema([
                         DatePicker::make('expires_at')
-                            ->label('New Expiry Date')
+                            ->label(__('superadmin.subscriptions_resource.fields.new_expiry_date'))
                             ->required()
                             ->default(fn (Subscription $record): ?string => $record->expires_at?->toDateString()),
                     ])
@@ -130,22 +140,22 @@ class SubscriptionTable
                         $updateSubscriptionExpiryAction->handle($record, $data);
 
                         Notification::make()
-                            ->title('Subscription expiry updated')
+                            ->title(__('superadmin.subscriptions_resource.messages.expiry_updated'))
                             ->success()
                             ->send();
                     }),
                 Action::make('upgradePlan')
-                    ->label('Upgrade Plan')
+                    ->label(__('superadmin.subscriptions_resource.actions.upgrade_plan'))
                     ->slideOver()
-                    ->authorize(fn (Subscription $record): bool => auth()->user()?->can('upgrade', $record) ?? false)
+                    ->authorize(fn (Subscription $record): bool => self::currentUser()?->can('upgrade', $record) ?? false)
                     ->schema([
                         TextInput::make('current_plan')
-                            ->label('Current Plan')
+                            ->label(__('superadmin.subscriptions_resource.fields.current_plan'))
                             ->default(fn (Subscription $record): string => $record->plan->label())
                             ->disabled()
                             ->dehydrated(false),
                         Select::make('plan')
-                            ->label('New Plan')
+                            ->label(__('superadmin.subscriptions_resource.fields.new_plan'))
                             ->options(SubscriptionPlan::options())
                             ->required()
                             ->default(fn (Subscription $record): string => $record->plan->value)
@@ -153,46 +163,46 @@ class SubscriptionTable
                             ->helperText(fn (Get $get): ?string => self::selectedPlanLimitsNote($get('plan'))),
                     ])
                     ->action(function (Subscription $record, array $data, UpgradeSubscriptionPlanAction $upgradeSubscriptionPlanAction): void {
-                        $validated = app(UpgradeSubscriptionPlanRequest::class)->validatePayload($data, auth()->user());
+                        $validated = app(UpgradeSubscriptionPlanRequest::class)->validatePayload($data, self::currentUser());
 
                         $upgradeSubscriptionPlanAction->handle($record, SubscriptionPlan::from($validated['plan']));
 
                         Notification::make()
-                            ->title('Subscription plan updated')
+                            ->title(__('superadmin.subscriptions_resource.messages.plan_updated'))
                             ->success()
                             ->send();
                     }),
                 Action::make('suspendSubscription')
-                    ->label('Suspend')
+                    ->label(__('superadmin.subscriptions_resource.actions.suspend'))
                     ->color('danger')
-                    ->authorize(fn (Subscription $record): bool => auth()->user()?->can('suspend', $record) ?? false)
+                    ->authorize(fn (Subscription $record): bool => self::currentUser()?->can('suspend', $record) ?? false)
                     ->requiresConfirmation()
-                    ->modalDescription('Suspending this subscription immediately restricts access to subscription-backed billing features.')
+                    ->modalDescription(__('superadmin.subscriptions_resource.modals.suspend_description'))
                     ->action(function (Subscription $record, SuspendSubscriptionAction $suspendSubscriptionAction): void {
                         $suspendSubscriptionAction->handle($record);
 
                         Notification::make()
-                            ->title('Subscription suspended')
+                            ->title(__('superadmin.subscriptions_resource.messages.suspended'))
                             ->success()
                             ->send();
                     }),
                 Action::make('cancelSubscription')
-                    ->label('Cancel')
+                    ->label(__('superadmin.subscriptions_resource.actions.cancel'))
                     ->color('danger')
-                    ->authorize(fn (Subscription $record): bool => auth()->user()?->can('cancel', $record) ?? false)
+                    ->authorize(fn (Subscription $record): bool => self::currentUser()?->can('cancel', $record) ?? false)
                     ->requiresConfirmation()
-                    ->modalDescription('Cancelling this subscription ends the subscription lifecycle and prevents future renewals for the organization.')
+                    ->modalDescription(__('superadmin.subscriptions_resource.modals.cancel_description'))
                     ->action(function (Subscription $record, CancelSubscriptionAction $cancelSubscriptionAction): void {
                         $cancelSubscriptionAction->handle($record);
 
                         Notification::make()
-                            ->title('Subscription cancelled')
+                            ->title(__('superadmin.subscriptions_resource.messages.cancelled'))
                             ->success()
                             ->send();
                     }),
                 DeleteAction::make()
-                    ->label('Delete')
-                    ->authorize(fn (Subscription $record): bool => auth()->user()?->can('delete', $record) ?? false),
+                    ->label(__('superadmin.subscriptions_resource.actions.delete'))
+                    ->authorize(fn (Subscription $record): bool => self::currentUser()?->can('delete', $record) ?? false),
             ])
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
@@ -208,6 +218,16 @@ class SubscriptionTable
         $selectedPlan = SubscriptionPlan::from($plan);
         $limits = $selectedPlan->limits();
 
-        return "New limits: {$limits['properties']} properties and {$limits['tenants']} tenants.";
+        return __('superadmin.subscriptions_resource.messages.selected_plan_limits', [
+            'properties' => $limits['properties'],
+            'tenants' => $limits['tenants'],
+        ]);
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

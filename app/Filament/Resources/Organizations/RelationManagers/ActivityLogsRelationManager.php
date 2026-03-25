@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Organizations\RelationManagers;
 
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Support\Admin\Tenants\OrganizationActivityLogPresenter;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use Filament\Actions\Action;
@@ -57,10 +58,10 @@ class ActivityLogsRelationManager extends RelationManager
                 TextColumn::make('action')
                     ->label(__('superadmin.organizations.relations.activity_logs.columns.action'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => str($state)->replace('_', ' ')->title()->toString()),
+                    ->state(fn (OrganizationActivityLog $record): string => OrganizationActivityLogPresenter::actionLabel($record)),
                 TextColumn::make('resource_label')
                     ->label(__('superadmin.organizations.relations.activity_logs.columns.record'))
-                    ->state(fn (OrganizationActivityLog $record): string => self::resourceLabel($record))
+                    ->state(fn (OrganizationActivityLog $record): string => OrganizationActivityLogPresenter::resourceLabel($record))
                     ->wrap(),
                 TextColumn::make('ip_address')
                     ->label(__('superadmin.organizations.relations.activity_logs.columns.ip_address'))
@@ -78,23 +79,14 @@ class ActivityLogsRelationManager extends RelationManager
                     ->modalCancelActionLabel(__('superadmin.organizations.relations.activity_logs.actions.close'))
                     ->modalContent(fn (OrganizationActivityLog $record): View => view(
                         'filament.resources.organizations.activity-log-diff',
-                        ['activityLog' => $record],
+                        [
+                            'activityLog' => $record,
+                            'resourceLabel' => OrganizationActivityLogPresenter::resourceLabel($record),
+                            'rows' => OrganizationActivityLogPresenter::diffRows($record),
+                        ],
                     )),
             ])
             ->recordAction('viewChanges')
             ->defaultSort('created_at', 'desc');
-    }
-
-    private static function resourceLabel(OrganizationActivityLog $record): string
-    {
-        $resource = $record->resource_type !== null
-            ? class_basename($record->resource_type)
-            : __('superadmin.organizations.relations.activity_logs.placeholders.organization');
-
-        if ($record->resource_id === null) {
-            return $resource;
-        }
-
-        return "{$resource} #{$record->resource_id}";
     }
 }

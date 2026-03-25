@@ -14,7 +14,9 @@ it('renders tenant pages inside the authenticated shell', function () {
         ->assertSuccessful()
         ->assertSeeText(__('shell.search.placeholder'))
         ->assertSeeText(__('tenant.navigation.home'))
-        ->assertSeeText(__('shell.navigation.items.profile'))
+        ->assertSeeText($tenant->name)
+        ->assertSeeText($tenant->email)
+        ->assertDontSeeText(__('shell.navigation.items.profile'))
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertDontSeeText(__('admin.buildings.plural'))
         ->assertDontSeeText(__('superadmin.organizations.plural'));
@@ -142,7 +144,6 @@ it('renders platform navigation for superadmins without organization navigation'
     ]);
 
     assertSidebarGroupLabels($content, 'account', [
-        'Profile',
         'Settings',
     ]);
 });
@@ -222,7 +223,6 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     ]);
 
     assertSidebarGroupLabels($content, 'account', [
-        __('shell.navigation.items.profile', [], 'lt'),
         __('shell.navigation.items.settings', [], 'lt'),
     ]);
 });
@@ -247,9 +247,7 @@ it('renders localized tenant sidebar labels from the authenticated user locale',
         __('tenant.navigation.invoices', [], 'lt'),
     ]);
 
-    assertSidebarGroupLabels($content, 'account', [
-        __('shell.navigation.items.profile', [], 'lt'),
-    ]);
+    assertSidebarGroupLabels($content, 'account', []);
 });
 
 it('redirects admin-like users from the shared profile route into the filament-backed profile page', function () {

@@ -49,7 +49,7 @@ class MeterConsumptionChart extends ChartWidget
             ->get();
 
         $labels = $readings
-            ->map(fn (MeterReading $reading): string => (string) $reading->reading_date?->format('Y-m-d'))
+            ->map(fn (MeterReading $reading): string => (string) $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'))
             ->all();
         $values = $readings
             ->map(fn (MeterReading $reading): float => (float) $reading->reading_value)

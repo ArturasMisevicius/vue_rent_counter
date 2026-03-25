@@ -172,7 +172,7 @@ class ViewOrganization extends ViewRecord
                     $admin = $this->resolvePrimaryAdmin();
                     $impersonator = $this->authenticatedUser();
 
-                    abort_if($admin === null, 404, 'No primary admin is available for this organization.');
+                    abort_if($admin === null, 404, __('superadmin.organizations.messages.no_primary_admin'));
                     abort_if($impersonator === null, 403);
 
                     $startOrganizationImpersonationAction->handle($impersonator, $admin);

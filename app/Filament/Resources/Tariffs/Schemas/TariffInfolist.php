@@ -62,7 +62,10 @@ class TariffInfolist
         }
 
         if (filled($configuration['rate'] ?? null)) {
-            $parts[] = number_format((float) $configuration['rate'], 4);
+            $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+            $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 4);
+            $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 4);
+            $parts[] = (string) $formatter->format((float) $configuration['rate']);
         }
 
         return $parts !== [] ? implode(' · ', $parts) : __('admin.tariffs.empty.configuration');

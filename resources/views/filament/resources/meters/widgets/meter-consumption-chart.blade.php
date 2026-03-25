@@ -6,7 +6,7 @@
         </div>
         @if ($maxValue !== null)
             <p class="text-sm font-medium text-slate-500">
-                {{ number_format((float) $minValue, 3) }} - {{ number_format((float) $maxValue, 3) }} {{ $unit }}
+                {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL))->format((float) $minValue) }} - {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL))->format((float) $maxValue) }} {{ $unit }}
             </p>
         @endif
     </div>
@@ -50,9 +50,9 @@
         <div class="mt-4 grid gap-3 md:grid-cols-3 xl:grid-cols-4">
             @foreach ($readings as $reading)
                 <article class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $reading->reading_date?->format('Y-m-d') }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll') }}</p>
                     <p class="mt-2 text-lg font-semibold tracking-tight text-slate-950">
-                        {{ number_format((float) $reading->reading_value, 3) }} {{ $unit }}
+                        {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL))->format((float) $reading->reading_value) }} {{ $unit }}
                     </p>
                 </article>
             @endforeach

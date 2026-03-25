@@ -100,7 +100,7 @@ class SecurityViolationTablePresenter
         }
 
         return __('superadmin.security_violations.presenter.blocked_until', [
-            'date' => $blockedUntil->format('Y-m-d H:i'),
+            'date' => $blockedUntil->locale(app()->getLocale())->isoFormat('LLL'),
         ]);
     }
 

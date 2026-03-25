@@ -12,8 +12,10 @@ use App\Models\Organization;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\Provider;
 use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
+use App\Models\Tariff;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
@@ -21,11 +23,15 @@ use App\Models\User;
 use App\Models\UtilityService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
 it('seeds a 1000 plus logical baltic demo dataset without breaking organization or geography consistency', function () {
-    $this->seed(DatabaseSeeder::class);
+    Artisan::call('db:seed', [
+        '--class' => DatabaseSeeder::class,
+        '--no-interaction' => true,
+    ]);
 
     $demoOrganizations = Organization::query()
         ->where('slug', 'like', 'demo-baltic-%')
@@ -48,6 +54,10 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     $invoiceItemCount = InvoiceItem::query()->whereHas('invoice', fn ($query) => $query->whereIn('organization_id', $demoOrganizationIds))->count();
     $billingRecordCount = BillingRecord::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $leaseCount = Lease::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $providerCount = Provider::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $tariffCount = Tariff::query()
+        ->whereHas('provider', fn ($query) => $query->whereIn('organization_id', $demoOrganizationIds))
+        ->count();
     $serviceConfigurationCount = ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $utilityServiceCount = UtilityService::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $subscriptionCount = Subscription::query()->whereIn('organization_id', $demoOrganizationIds)->count();
@@ -66,6 +76,8 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         + $invoiceItemCount
         + $billingRecordCount
         + $leaseCount
+        + $providerCount
+        + $tariffCount
         + $serviceConfigurationCount
         + $utilityServiceCount
         + $projectCount
@@ -85,6 +97,8 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($invoiceItemCount)->toBe(720)
         ->and($billingRecordCount)->toBe(720)
         ->and($leaseCount)->toBe(80)
+        ->and($providerCount)->toBe(30)
+        ->and($tariffCount)->toBe(30)
         ->and($serviceConfigurationCount)->toBe(240)
         ->and($utilityServiceCount)->toBe(30)
         ->and($projectCount)->toBe(10)
@@ -120,4 +134,20 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
                 ->and($property->currentAssignment?->organization_id)->toBe($property->organization_id)
                 ->and($property->currentAssignment?->tenant?->organization_id)->toBe($property->organization_id);
         });
+
+    ServiceConfiguration::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->with(['provider:id,organization_id,service_type', 'tariff:id,provider_id'])
+        ->get()
+        ->each(function (ServiceConfiguration $serviceConfiguration): void {
+            expect($serviceConfiguration->provider_id)->not->toBeNull()
+                ->and($serviceConfiguration->tariff_id)->not->toBeNull()
+                ->and($serviceConfiguration->provider?->organization_id)->toBe($serviceConfiguration->organization_id)
+                ->and($serviceConfiguration->tariff?->provider_id)->toBe($serviceConfiguration->provider_id)
+                ->and($serviceConfiguration->configuration_overrides)->not->toBeNull();
+        });
+
+    expect(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('effective_until')->exists())->toBeTrue()
+        ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('area_type')->exists())->toBeTrue()
+        ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('custom_formula')->exists())->toBeTrue();
 });

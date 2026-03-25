@@ -9,8 +9,8 @@ class InvoiceTablePresenter
 {
     public static function billingPeriod(Invoice $invoice): string
     {
-        $start = $invoice->billing_period_start?->format('M j, Y');
-        $end = $invoice->billing_period_end?->format('M j, Y');
+        $start = $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll');
+        $end = $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll');
 
         if ($start === null && $end === null) {
             return '—';
@@ -29,18 +29,20 @@ class InvoiceTablePresenter
 
     public static function amount(Invoice $invoice): string
     {
-        return sprintf('%s %s', $invoice->currency, number_format((float) $invoice->total_amount, 2));
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+
+        return (string) $formatter->formatCurrency((float) $invoice->total_amount, $invoice->currency);
     }
 
     public static function issuedDate(Invoice $invoice): string
     {
-        return $invoice->finalized_at?->format('F j, Y g:i A')
+        return $invoice->finalized_at?->locale(app()->getLocale())->isoFormat('LLL')
             ?? __('admin.invoices.empty.issued_date');
     }
 
     public static function paidDate(Invoice $invoice): string
     {
-        return $invoice->paid_at?->format('F j, Y g:i A') ?? '—';
+        return $invoice->paid_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—';
     }
 
     public static function status(Invoice $invoice): InvoiceStatus

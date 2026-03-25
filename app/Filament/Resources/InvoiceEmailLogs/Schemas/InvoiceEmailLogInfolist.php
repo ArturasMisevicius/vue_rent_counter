@@ -11,10 +11,8 @@ class InvoiceEmailLogInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('invoice.id')
-                    ->label('Invoice'),
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('invoice.id')->label(__('admin.invoices.singular')),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('sent_by_user_id')
                     ->numeric()
                     ->placeholder('-'),

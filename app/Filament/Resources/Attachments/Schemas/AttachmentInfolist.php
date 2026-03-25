@@ -12,8 +12,7 @@ class AttachmentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('organization.name')
-                    ->label('Organization'),
+                TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('attachable_type'),
                 TextEntry::make('attachable_id')
                     ->numeric(),

@@ -22,7 +22,7 @@ class UpdateSubscriptionExpiryAction
 
         if ($currentExpiryDate !== null && $nextExpiryDate->lessThanOrEqualTo($currentExpiryDate)) {
             throw ValidationException::withMessages([
-                'expires_at' => 'The expires at date must be later than the current expiry date.',
+                'expires_at' => __('superadmin.subscriptions_resource.validation.expires_at_must_extend'),
             ]);
         }
 

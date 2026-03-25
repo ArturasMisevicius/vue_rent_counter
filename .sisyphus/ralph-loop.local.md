@@ -1,12 +1,12 @@
 ---
 active: true
-iteration: 1
+iteration: 11
 completion_promise: "DONE"
 initial_completion_promise: "DONE"
-started_at: "2026-03-24T16:36:06.288Z"
-session_id: "ses_2df605bdeffeeR4NFxi7Pt4CJn"
+started_at: "2026-03-24T22:06:40.270Z"
+session_id: "ses_2de8d2413ffe0bupGAuT3zqQDH"
 ultrawork: true
 strategy: "continue"
-message_count_at_start: 73
+message_count_at_start: 234
 ---
-make showing on page https://tenanto.test/app/tenant-invoice-history on invoces all items and fix pdf printing for all languages and upgrade pdf invoice template
+find in code all not translated and harcoded values, human language written values, like a 'Emergency Contacts', and translate for lt en ru languages, and make skill or create agent to recheck to all existing files in filament and in blades, or in livewire all not translated strings in future

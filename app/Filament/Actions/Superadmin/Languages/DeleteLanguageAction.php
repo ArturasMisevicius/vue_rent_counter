@@ -12,13 +12,13 @@ class DeleteLanguageAction
     {
         if ($language->is_default) {
             throw ValidationException::withMessages([
-                'language' => 'The default language cannot be deleted.',
+                'language' => __('superadmin.languages_resource.validation.default_cannot_be_deleted'),
             ]);
         }
 
         if (User::query()->where('locale', $language->code)->exists()) {
             throw ValidationException::withMessages([
-                'language' => 'The selected language is currently assigned to users.',
+                'language' => __('superadmin.languages_resource.validation.assigned_to_users'),
             ]);
         }
 

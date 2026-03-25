@@ -23,12 +23,16 @@ class LegacyReferenceFoundationSeeder extends Seeder
     public function run(): void
     {
         $currencies = $this->seedCurrencies();
+        $organizations = Organization::query()
+            ->select(['id'])
+            ->orderBy('id')
+            ->get();
 
         $this->seedExchangeRates($currencies);
         $this->seedFaqs();
         $this->seedTranslations();
 
-        $providers = $this->seedProviders();
+        $providers = $this->seedProviders($organizations);
         $tariffs = $this->seedTariffs($providers);
         $utilityServices = $this->seedUtilityServices();
 
@@ -67,6 +71,8 @@ class LegacyReferenceFoundationSeeder extends Seeder
      */
     private function seedExchangeRates(Collection $currencies): void
     {
+        $effectiveDate = now()->startOfDay();
+
         $pairs = [
             ['from' => 'EUR', 'to' => 'USD', 'rate' => 1.09],
             ['from' => 'USD', 'to' => 'EUR', 'rate' => 0.92],
@@ -75,18 +81,27 @@ class LegacyReferenceFoundationSeeder extends Seeder
         ];
 
         foreach ($pairs as $pair) {
-            ExchangeRate::query()->updateOrCreate(
-                [
+            $exchangeRate = ExchangeRate::query()
+                ->where('from_currency_id', $currencies[$pair['from']]->id)
+                ->where('to_currency_id', $currencies[$pair['to']]->id)
+                ->whereDate('effective_date', $effectiveDate)
+                ->first();
+
+            if ($exchangeRate === null) {
+                $exchangeRate = new ExchangeRate([
                     'from_currency_id' => $currencies[$pair['from']]->id,
                     'to_currency_id' => $currencies[$pair['to']]->id,
-                    'effective_date' => now()->toDateString(),
-                ],
-                [
-                    'rate' => $pair['rate'],
-                    'source' => 'legacy_reference_foundation',
-                    'is_active' => true,
-                ],
-            );
+                    'effective_date' => $effectiveDate,
+                ]);
+            }
+
+            $exchangeRate->fill([
+                'rate' => $pair['rate'],
+                'source' => 'legacy_reference_foundation',
+                'is_active' => true,
+            ]);
+
+            $exchangeRate->save();
         }
     }
 
@@ -141,9 +156,13 @@ class LegacyReferenceFoundationSeeder extends Seeder
     /**
      * @return Collection<string, Provider>
      */
-    private function seedProviders(): Collection
+    private function seedProviders(Collection $organizations): Collection
     {
-        return collect([
+        if ($organizations->isEmpty()) {
+            return collect();
+        }
+
+        $definitions = collect([
             [
                 'name' => 'Ignitis',
                 'service_type' => ServiceType::ELECTRICITY,
@@ -171,19 +190,23 @@ class LegacyReferenceFoundationSeeder extends Seeder
                     'website' => 'https://www.ve.lt',
                 ],
             ],
-        ])->mapWithKeys(function (array $provider): array {
-            $record = Provider::query()->updateOrCreate(
-                [
-                    'organization_id' => null,
-                    'name' => $provider['name'],
-                ],
-                [
-                    'service_type' => $provider['service_type']->value,
-                    'contact_info' => $provider['contact_info'],
-                ],
-            );
+        ]);
 
-            return [$provider['service_type']->value => $record];
+        return $organizations->flatMap(function (Organization $organization) use ($definitions): Collection {
+            return $definitions->mapWithKeys(function (array $provider) use ($organization): array {
+                $record = Provider::query()->updateOrCreate(
+                    [
+                        'organization_id' => $organization->id,
+                        'name' => $provider['name'],
+                    ],
+                    [
+                        'service_type' => $provider['service_type']->value,
+                        'contact_info' => $provider['contact_info'],
+                    ],
+                );
+
+                return [$this->providerMapKey($organization->id, $provider['service_type']->value) => $record];
+            });
         });
     }
 
@@ -230,8 +253,10 @@ class LegacyReferenceFoundationSeeder extends Seeder
             ],
         ];
 
-        return collect($definitions)->map(function (array $definition) use ($providers): Tariff {
-            $provider = $providers[$definition['provider']];
+        $definitionsByServiceType = collect($definitions)->keyBy('provider');
+
+        return $providers->map(function (Provider $provider) use ($definitionsByServiceType): Tariff {
+            $definition = $definitionsByServiceType->get($provider->service_type->value);
 
             return Tariff::query()->updateOrCreate(
                 [
@@ -239,10 +264,12 @@ class LegacyReferenceFoundationSeeder extends Seeder
                     'name' => $definition['name'],
                 ],
                 [
-                    'remote_id' => null,
+                    'remote_id' => sprintf('LEG-%d-%s', $provider->organization_id, strtoupper($provider->service_type->value)),
                     'configuration' => $definition['configuration'],
                     'active_from' => now()->subMonths(6)->startOfDay(),
-                    'active_until' => null,
+                    'active_until' => $provider->service_type === ServiceType::WATER
+                        ? now()->addYear()->startOfDay()
+                        : null,
                 ],
             );
         });
@@ -333,13 +360,16 @@ class LegacyReferenceFoundationSeeder extends Seeder
             ->get()
             ->keyBy('id');
 
+        $providersByOrganizationAndType = $providers->keyBy(
+            fn (Provider $provider): string => $this->providerMapKey($provider->organization_id, $provider->service_type->value),
+        );
         $tariffsByProvider = $tariffs->keyBy('provider_id');
         $effectiveFrom = now()->startOfMonth();
 
         $properties->each(function (Property $property) use (
             $effectiveFrom,
             $organizations,
-            $providers,
+            $providersByOrganizationAndType,
             $tariffsByProvider,
             $utilityServices,
         ): void {
@@ -350,7 +380,7 @@ class LegacyReferenceFoundationSeeder extends Seeder
             }
 
             foreach ($utilityServices as $serviceType => $utilityService) {
-                $provider = $providers->get($serviceType);
+                $provider = $providersByOrganizationAndType->get($this->providerMapKey($organization->id, $serviceType));
                 $tariff = $provider === null ? null : $tariffsByProvider->get($provider->id);
 
                 ServiceConfiguration::query()->updateOrCreate(
@@ -361,21 +391,60 @@ class LegacyReferenceFoundationSeeder extends Seeder
                         'effective_from' => $effectiveFrom,
                     ],
                     [
-                        'pricing_model' => $utilityService->default_pricing_model->value,
+                        'pricing_model' => $this->pricingModelFor($serviceType)->value,
                         'rate_schedule' => $this->rateScheduleFor($serviceType),
-                        'distribution_method' => DistributionMethod::EQUAL->value,
-                        'is_shared_service' => false,
-                        'effective_until' => null,
-                        'configuration_overrides' => null,
+                        'distribution_method' => $this->distributionMethodFor($serviceType)->value,
+                        'is_shared_service' => $serviceType === ServiceType::HEATING->value,
+                        'effective_until' => $serviceType === ServiceType::WATER->value
+                            ? now()->addMonths(9)->startOfDay()
+                            : null,
+                        'configuration_overrides' => $this->configurationOverridesFor($serviceType),
                         'tariff_id' => $tariff?->id,
                         'provider_id' => $provider?->id,
-                        'area_type' => null,
-                        'custom_formula' => null,
+                        'area_type' => $serviceType === ServiceType::HEATING->value ? 'heated' : 'gross',
+                        'custom_formula' => $serviceType === ServiceType::HEATING->value
+                            ? '({consumption} * {unit_rate}) + ({area_sqm} * 0.35) + {base_fee}'
+                            : '({quantity} * {unit_rate}) + {base_fee}',
                         'is_active' => true,
                     ],
                 );
             }
         });
+    }
+
+    private function providerMapKey(?int $organizationId, string $serviceType): string
+    {
+        return sprintf('%s:%s', (string) $organizationId, $serviceType);
+    }
+
+    private function pricingModelFor(string $serviceType): PricingModel
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => PricingModel::TIME_OF_USE,
+            ServiceType::WATER->value => PricingModel::HYBRID,
+            ServiceType::HEATING->value => PricingModel::CUSTOM_FORMULA,
+            default => PricingModel::CONSUMPTION_BASED,
+        };
+    }
+
+    private function distributionMethodFor(string $serviceType): DistributionMethod
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => DistributionMethod::BY_CONSUMPTION,
+            ServiceType::WATER->value => DistributionMethod::EQUAL,
+            ServiceType::HEATING->value => DistributionMethod::CUSTOM_FORMULA,
+            default => DistributionMethod::EQUAL,
+        };
+    }
+
+    private function configurationOverridesFor(string $serviceType): ?array
+    {
+        return match ($serviceType) {
+            ServiceType::ELECTRICITY->value => ['loss_factor' => 1.02],
+            ServiceType::WATER->value => ['base_fee' => 0.85],
+            ServiceType::HEATING->value => ['seasonal_index' => 1.10],
+            default => null,
+        };
     }
 
     /**
@@ -386,6 +455,7 @@ class LegacyReferenceFoundationSeeder extends Seeder
         return match ($serviceType) {
             ServiceType::ELECTRICITY->value => [
                 'unit_rate' => 0.18,
+                'base_fee' => 1.50,
             ],
             ServiceType::WATER->value => [
                 'fixed_fee' => 0.85,
@@ -393,6 +463,7 @@ class LegacyReferenceFoundationSeeder extends Seeder
             ],
             ServiceType::HEATING->value => [
                 'unit_rate' => 0.065,
+                'base_fee' => 3.50,
             ],
             default => [
                 'unit_rate' => 0.10,

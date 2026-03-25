@@ -33,6 +33,12 @@ return [
         'maintenance' => 'Maintenance',
         'unknown' => 'Unknown',
     ],
+    'kyc_verification_status' => [
+        'unverified' => 'Unverified',
+        'pending' => 'Pending',
+        'verified' => 'Verified',
+        'rejected' => 'Rejected',
+    ],
     'invoice_status' => [
         'draft' => 'Draft',
         'finalized' => 'Finalized',
@@ -227,6 +233,7 @@ return [
         'super_off_peak' => 'Super off-peak',
     ],
     'user_role' => [
+        'viewer' => 'Viewer',
         'superadmin' => 'Superadmin',
         'admin' => 'Admin',
         'manager' => 'Manager',

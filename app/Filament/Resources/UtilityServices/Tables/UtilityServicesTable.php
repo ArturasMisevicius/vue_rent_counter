@@ -27,7 +27,7 @@ class UtilityServicesTable
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
                     ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
-                    ->placeholder('Global Template')
+                    ->placeholder(__('admin.utility_services.placeholders.global_template'))
                     ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.utility_services.columns.name'))
@@ -51,7 +51,7 @@ class UtilityServicesTable
                     ->sortable()
                     ->toggleable(),
                 IconColumn::make('is_global_template')
-                    ->label('Template')
+                    ->label(__('admin.utility_services.columns.template'))
                     ->boolean(),
                 IconColumn::make('is_active')
                     ->label(__('admin.utility_services.fields.is_active'))
@@ -72,7 +72,7 @@ class UtilityServicesTable
                     ->options(ServiceType::options())
                     ->query(fn (Builder $query, array $data): Builder => $query->forServiceTypeValue($data['value'] ?? null)),
                 TernaryFilter::make('is_global_template')
-                    ->label('Template')
+                    ->label(__('admin.utility_services.columns.template'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->forGlobalTemplateValue(true),
                         false: fn (Builder $query): Builder => $query->forGlobalTemplateValue(false),
