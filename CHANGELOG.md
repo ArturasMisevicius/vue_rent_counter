@@ -2,6 +2,21 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328170244 -->
+### Commit updates
+
+- updated `app/Filament/Resources/OrganizationUsers/Pages/ListOrganizationUsers.php`
+- updated `app/Filament/Resources/OrganizationUsers/Tables/OrganizationUsersTable.php`
+- updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260328170244 -->
+
+### fix: tighten organization user list affordances
+
+- removed the dead create action from the organization-user list for org admins while preserving it for superadmins
+- limited organization-user bulk deletion affordances to superadmins and made the bulk action authorization explicit
+- hid the redundant organization column for org-admin manager-membership views while keeping it visible in the superadmin list
+- added focused Pest coverage for the admin versus superadmin organization-user list contract
+
 ### fix: seed showcase organization memberships
 
 - synced `organization_user` membership rows for showcase admins, managers, and tenants inside `OperationalDemoDatasetSeeder`

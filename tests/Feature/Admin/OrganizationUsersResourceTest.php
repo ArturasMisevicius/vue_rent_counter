@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use App\Enums\UserRole;
+use App\Filament\Resources\OrganizationUsers\Pages\ListOrganizationUsers;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -57,6 +60,68 @@ it('lets admins browse manager memberships in their current organization only', 
         ->assertSeeText('Current Organization Manager')
         ->assertDontSeeText('Current Organization Viewer')
         ->assertDontSeeText('Other Organization Manager');
+});
+
+it('scopes organization user list affordances by actor context', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Scoped Organization Manager',
+    ]);
+
+    $scopedMembership = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    $otherOrganization = Organization::factory()->create([
+        'name' => 'Other Organization',
+    ]);
+
+    $otherManager = User::factory()->manager()->create([
+        'organization_id' => $otherOrganization->id,
+        'name' => 'Other Organization Manager',
+    ]);
+
+    $otherMembership = OrganizationUser::factory()->create([
+        'organization_id' => $otherOrganization->id,
+        'user_id' => $otherManager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.organization-users.index'))
+        ->assertSuccessful()
+        ->assertDontSee(route('filament.admin.resources.organization-users.create'), false);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListOrganizationUsers::class)
+        ->assertActionDoesNotExist('create')
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.singular'))
+        ->assertTableColumnHidden('organization.name')
+        ->assertTableBulkActionDoesNotExist('deleteSelected')
+        ->assertCanSeeTableRecords([$scopedMembership])
+        ->assertCanNotSeeTableRecords([$otherMembership]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organization-users.index'))
+        ->assertSuccessful()
+        ->assertSee(route('filament.admin.resources.organization-users.create'), false);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListOrganizationUsers::class)
+        ->assertActionExists('create')
+        ->assertTableColumnVisible('organization.name')
+        ->assertTableBulkActionExists('deleteSelected')
+        ->assertCanSeeTableRecords([$scopedMembership, $otherMembership]);
 });
 
 it('lets admins view and edit manager memberships in their current organization', function (): void {
