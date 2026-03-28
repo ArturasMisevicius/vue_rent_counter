@@ -13,12 +13,14 @@ use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\BillingRecord;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lease;
+use App\Models\ManagerPermission;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
@@ -95,6 +97,13 @@ class OperationalDemoDatasetSeeder extends Seeder
                 'owner_user_id' => $admin->id,
                 'system_tenant_id' => $systemTenant->id,
             ])->save();
+
+            // Showcase managers intentionally demonstrate different write profiles per organization.
+            ManagerPermission::syncForManager(
+                $manager,
+                $organization,
+                $this->showcaseManagerPermissionMatrix($blueprint['slug']),
+            );
 
             $subscriptionStartsAt = Carbon::create(2026, 1, 1)->addDays($organizationIndex);
             $subscriptionExpiresAt = $blueprint['is_trial']
@@ -788,6 +797,55 @@ class OperationalDemoDatasetSeeder extends Seeder
         };
     }
 
+    /**
+     * @return array<string, array{can_create: bool, can_edit: bool, can_delete: bool}>
+     */
+    private function showcaseManagerPermissionMatrix(string $organizationSlug): array
+    {
+        $presets = ManagerPermissionCatalog::presets();
+
+        return match ($organizationSlug) {
+            'demo-baltic-starter' => $presets['read_only']['matrix'],
+            'demo-baltic-basic' => $presets['property_manager']['matrix'],
+            'demo-baltic-professional' => $presets['billing_manager']['matrix'],
+            'demo-baltic-enterprise' => $presets['full_access']['matrix'],
+            'demo-baltic-custom' => $this->customUtilityManagerMatrix(),
+            default => ManagerPermissionCatalog::defaultMatrix(),
+        };
+    }
+
+    /**
+     * @return array<string, array{can_create: bool, can_edit: bool, can_delete: bool}>
+     */
+    private function customUtilityManagerMatrix(): array
+    {
+        $matrix = ManagerPermissionCatalog::defaultMatrix();
+
+        foreach ([
+            'billing',
+            'meters',
+            'meter_readings',
+            'providers',
+            'tariffs',
+            'service_configurations',
+            'utility_services',
+        ] as $resource) {
+            $matrix[$resource] = [
+                'can_create' => true,
+                'can_edit' => true,
+                'can_delete' => false,
+            ];
+        }
+
+        $matrix['properties'] = [
+            'can_create' => false,
+            'can_edit' => true,
+            'can_delete' => false,
+        ];
+
+        return $matrix;
+    }
+
     private function upsertPlatformSuperadmin(): User
     {
         return User::query()->updateOrCreate(
@@ -879,5 +937,4 @@ class OperationalDemoDatasetSeeder extends Seeder
             return $digit;
         });
     }
-
 }

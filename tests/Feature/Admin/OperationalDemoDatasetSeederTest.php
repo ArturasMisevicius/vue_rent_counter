@@ -1,12 +1,15 @@
 <?php
 
 use App\Enums\SubscriptionPlan;
+use App\Enums\UserRole;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\BillingRecord;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lease;
+use App\Models\ManagerPermission;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
@@ -64,6 +67,7 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     $invoiceItemCount = InvoiceItem::query()->whereHas('invoice', fn ($query) => $query->whereIn('organization_id', $demoOrganizationIds))->count();
     $billingRecordCount = BillingRecord::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $leaseCount = Lease::query()->whereIn('organization_id', $demoOrganizationIds)->count();
+    $managerPermissionRowCount = ManagerPermission::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $providerCount = Provider::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $tariffCount = Tariff::query()
         ->whereHas('provider', fn ($query) => $query->whereIn('organization_id', $demoOrganizationIds))
@@ -86,6 +90,7 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         + $invoiceItemCount
         + $billingRecordCount
         + $leaseCount
+        + $managerPermissionRowCount
         + $providerCount
         + $tariffCount
         + $serviceConfigurationCount
@@ -121,6 +126,7 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($invoiceItemCount)->toBeGreaterThanOrEqual($invoiceCount * 3)
         ->and($billingRecordCount)->toBeGreaterThanOrEqual($invoiceCount * 3)
         ->and($leaseCount)->toBe($assignmentCount)
+        ->and($managerPermissionRowCount)->toBe(30)
         ->and($providerCount)->toBeGreaterThanOrEqual(15)
         ->and($tariffCount)->toBeGreaterThanOrEqual(15)
         ->and($serviceConfigurationCount)->toBeGreaterThanOrEqual($propertyCount * 3)
@@ -134,12 +140,30 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
 
     $starterOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-starter');
     $basicOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-basic');
+    $professionalOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-professional');
     $enterpriseOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-enterprise');
     $customOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-custom');
+    $showcaseManagers = User::query()
+        ->select(['id', 'organization_id', 'email', 'role'])
+        ->with('organization:id,slug')
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->where('role', UserRole::MANAGER)
+        ->get()
+        ->keyBy(fn (User $user): ?string => $user->organization?->slug);
+    $managerPermissionService = app(ManagerPermissionService::class);
 
     expect($enterpriseOrganization?->buildings()->count())->toBeGreaterThan($starterOrganization?->buildings()->count() ?? 0)
         ->and($customOrganization?->properties()->count())->toBeGreaterThan($basicOrganization?->properties()->count() ?? 0)
-        ->and($customOrganization?->users()->count())->toBeGreaterThan($starterOrganization?->users()->count() ?? 0);
+        ->and($customOrganization?->users()->count())->toBeGreaterThan($starterOrganization?->users()->count() ?? 0)
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-starter'], $starterOrganization, 'buildings', 'create'))->toBeFalse()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-basic'], $basicOrganization, 'properties', 'create'))->toBeTrue()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-basic'], $basicOrganization, 'invoices', 'create'))->toBeFalse()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-professional'], $professionalOrganization, 'billing', 'create'))->toBeTrue()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-professional'], $professionalOrganization, 'buildings', 'create'))->toBeFalse()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-enterprise'], $enterpriseOrganization, 'utility_services', 'delete'))->toBeTrue()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-custom'], $customOrganization, 'meters', 'edit'))->toBeTrue()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-custom'], $customOrganization, 'properties', 'create'))->toBeFalse()
+        ->and($managerPermissionService->can($showcaseManagers['demo-baltic-custom'], $customOrganization, 'billing', 'create'))->toBeTrue();
 
     $firstDemoMeter = Meter::query()
         ->whereIn('organization_id', $demoOrganizationIds)
@@ -200,6 +224,7 @@ it('reruns the database seeder without duplicating showcase organizations or sub
         'showcase_organizations' => count($firstShowcaseOrganizationIds),
         'showcase_subscriptions' => Subscription::query()->whereIn('organization_id', $firstShowcaseOrganizationIds)->count(),
         'showcase_settings' => OrganizationSetting::query()->whereIn('organization_id', $firstShowcaseOrganizationIds)->count(),
+        'showcase_manager_permissions' => ManagerPermission::query()->whereIn('organization_id', $firstShowcaseOrganizationIds)->count(),
         'login_organization_count' => Organization::query()->where('slug', 'tenanto-demo-organization')->count(),
         'login_subscription_count' => Subscription::query()
             ->where('organization_id', Organization::query()->where('slug', 'tenanto-demo-organization')->value('id'))
@@ -220,6 +245,7 @@ it('reruns the database seeder without duplicating showcase organizations or sub
         ->and($showcaseOrganizations->pluck('slug')->duplicates()->all())->toBeEmpty()
         ->and(Subscription::query()->whereIn('organization_id', $showcaseOrganizations->modelKeys())->count())->toBe($firstSnapshot['showcase_subscriptions'])
         ->and(OrganizationSetting::query()->whereIn('organization_id', $showcaseOrganizations->modelKeys())->count())->toBe($firstSnapshot['showcase_settings'])
+        ->and(ManagerPermission::query()->whereIn('organization_id', $showcaseOrganizations->modelKeys())->count())->toBe($firstSnapshot['showcase_manager_permissions'])
         ->and(Organization::query()->where('slug', 'tenanto-demo-organization')->count())->toBe($firstSnapshot['login_organization_count'])
         ->and(Subscription::query()
             ->where('organization_id', Organization::query()->where('slug', 'tenanto-demo-organization')->value('id'))
