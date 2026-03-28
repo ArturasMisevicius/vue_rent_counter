@@ -8,12 +8,9 @@ use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
-use App\Enums\OrganizationStatus;
 use App\Enums\PricingModel;
 use App\Enums\PropertyType;
 use App\Enums\ServiceType;
-use App\Enums\SubscriptionPlan;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Support\Geography\BalticReferenceCatalog;
@@ -39,6 +36,7 @@ use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
 use App\Models\User;
 use App\Models\UtilityService;
+use Database\Seeders\Support\OrganizationShowcaseCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -54,14 +52,25 @@ class OperationalDemoDatasetSeeder extends Seeder
         $cities = BalticReferenceCatalog::cities();
         $locales = BalticReferenceCatalog::supportedLocaleCodes();
 
-        foreach ($this->organizationBlueprints() as $organizationIndex => $blueprint) {
+        foreach (OrganizationShowcaseCatalog::blueprints() as $organizationIndex => $blueprint) {
             $sequence = $organizationIndex + 1;
+            $volumes = $blueprint['volumes'];
+
+            $organizationPrototype = Organization::factory()
+                ->{$blueprint['organization_factory_state']}()
+                ->make([
+                    'name' => $blueprint['name'],
+                    'slug' => $blueprint['slug'],
+                    'status' => $blueprint['status'],
+                    'owner_user_id' => null,
+                    'system_tenant_id' => $systemTenant->id,
+                ]);
 
             $organization = Organization::query()->updateOrCreate(
-                ['slug' => sprintf('demo-baltic-%02d', $sequence)],
+                ['slug' => $organizationPrototype->slug],
                 [
-                    'name' => $blueprint['name'],
-                    'status' => OrganizationStatus::ACTIVE,
+                    'name' => $organizationPrototype->name,
+                    'status' => $organizationPrototype->status,
                     'system_tenant_id' => $systemTenant->id,
                 ],
             );
@@ -87,20 +96,35 @@ class OperationalDemoDatasetSeeder extends Seeder
                 'system_tenant_id' => $systemTenant->id,
             ])->save();
 
+            $subscriptionStartsAt = Carbon::create(2026, 1, 1)->addDays($organizationIndex);
+            $subscriptionExpiresAt = $blueprint['is_trial']
+                ? $subscriptionStartsAt->copy()->addDays(14)
+                : Carbon::create(2027, 1, 1)->addDays($organizationIndex);
+
+            $subscriptionPrototype = Subscription::factory()
+                ->forPlan($blueprint['plan'])
+                ->make([
+                    'organization_id' => $organization->id,
+                    'status' => $blueprint['subscription_status'],
+                    'starts_at' => $subscriptionStartsAt,
+                    'expires_at' => $subscriptionExpiresAt,
+                    'is_trial' => $blueprint['is_trial'],
+                ]);
+
             Subscription::query()->updateOrCreate(
                 [
                     'organization_id' => $organization->id,
-                    'starts_at' => Carbon::create(2026, 1, 1)->addDays($organizationIndex),
+                    'starts_at' => $subscriptionStartsAt,
                 ],
                 [
-                    'plan' => SubscriptionPlan::PROFESSIONAL,
-                    'status' => SubscriptionStatus::ACTIVE,
-                    'expires_at' => Carbon::create(2027, 1, 1)->addDays($organizationIndex),
-                    'is_trial' => false,
-                    'property_limit_snapshot' => SubscriptionPlan::PROFESSIONAL->limits()['properties'],
-                    'tenant_limit_snapshot' => SubscriptionPlan::PROFESSIONAL->limits()['tenants'],
-                    'meter_limit_snapshot' => SubscriptionPlan::PROFESSIONAL->limits()['meters'],
-                    'invoice_limit_snapshot' => SubscriptionPlan::PROFESSIONAL->limits()['invoices'],
+                    'plan' => $subscriptionPrototype->plan,
+                    'status' => $subscriptionPrototype->status,
+                    'expires_at' => $subscriptionPrototype->expires_at,
+                    'is_trial' => $subscriptionPrototype->is_trial,
+                    'property_limit_snapshot' => $subscriptionPrototype->property_limit_snapshot,
+                    'tenant_limit_snapshot' => $subscriptionPrototype->tenant_limit_snapshot,
+                    'meter_limit_snapshot' => $subscriptionPrototype->meter_limit_snapshot,
+                    'invoice_limit_snapshot' => $subscriptionPrototype->invoice_limit_snapshot,
                 ],
             );
 
@@ -123,7 +147,7 @@ class OperationalDemoDatasetSeeder extends Seeder
             $organizationUtilityServices = $this->upsertOrganizationUtilityServices($organization, $sequence);
             $organizationProviderGraph = $this->upsertOrganizationProvidersAndTariffs($organization, $sequence);
 
-            $buildings = collect(range(1, 3))->map(function (int $buildingIndex) use ($blueprint, $cities, $organization, $organizationIndex, $sequence): Building {
+            $buildings = collect(range(1, $volumes['buildings']))->map(function (int $buildingIndex) use ($blueprint, $cities, $organization, $organizationIndex, $sequence): Building {
                 $city = $cities[(($organizationIndex * 3) + ($buildingIndex - 1)) % count($cities)];
 
                 return Building::query()->updateOrCreate(
@@ -141,7 +165,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            $tenants = collect(range(1, 8))->map(function (int $tenantIndex) use ($blueprint, $locales, $organization, $sequence): User {
+            $tenants = collect(range(1, $volumes['tenants']))->map(function (int $tenantIndex) use ($blueprint, $locales, $organization, $sequence): User {
                 return $this->upsertOrganizationUser(
                     organization: $organization,
                     email: sprintf('org%02d-tenant%02d@tenanto-demo.test', $sequence, $tenantIndex),
@@ -151,9 +175,9 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            $properties = collect(range(1, 8))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationProviderGraph, $organizationUtilityServices): Property {
+            $properties = collect(range(1, $volumes['properties']))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationProviderGraph, $organizationUtilityServices, $volumes): Property {
                 $building = $buildings[($propertyIndex - 1) % $buildings->count()];
-                $tenant = $tenants[$propertyIndex - 1];
+                $tenant = $tenants[($propertyIndex - 1) % $tenants->count()];
                 $propertyType = PropertyType::cases()[($propertyIndex - 1) % count(PropertyType::cases())];
                 $floorArea = 42 + ($propertyIndex * 3.5);
 
@@ -207,7 +231,7 @@ class OperationalDemoDatasetSeeder extends Seeder
 
                 $propertyMeters = collect();
 
-                collect(range(1, 2))->each(function (int $meterIndex) use ($manager, $organization, $property, $propertyIndex, $sequence, $tenant, $propertyMeters): void {
+                collect(range(1, $volumes['meters_per_property']))->each(function (int $meterIndex) use ($manager, $organization, $property, $propertyIndex, $sequence, $tenant, $propertyMeters): void {
                     $meterType = MeterType::cases()[($propertyIndex + $meterIndex - 2) % count(MeterType::cases())];
                     $meter = Meter::query()->updateOrCreate(
                         [
@@ -252,7 +276,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                     });
                 });
 
-                collect(range(0, 2))->each(function (int $invoiceIndex) use ($organization, $property, $tenant, $propertyIndex, $sequence, $organizationUtilityServices, $propertyMeters): void {
+                collect(range(0, $volumes['invoices_per_property'] - 1))->each(function (int $invoiceIndex) use ($organization, $property, $tenant, $propertyIndex, $sequence, $organizationUtilityServices, $propertyMeters): void {
                     $periodStart = now()->startOfMonth()->subMonths(2 - $invoiceIndex);
                     $periodEnd = $periodStart->copy()->endOfMonth();
                     $totalAmount = 95 + ($propertyIndex * 7.5) + ($invoiceIndex * 6.25);
@@ -323,7 +347,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                 ],
             );
 
-            collect(range(1, 2))->each(function (int $taskIndex) use ($manager, $project, $sequence, $tenants): void {
+            collect(range(1, $volumes['tasks']))->each(function (int $taskIndex) use ($manager, $project, $sequence, $tenants): void {
                 $task = Task::query()->updateOrCreate(
                     [
                         'project_id' => $project->id,
@@ -343,7 +367,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                     ],
                 );
 
-                $assignee = $taskIndex === 1 ? $manager : $tenants[$taskIndex - 1];
+                $assignee = $taskIndex === 1 ? $manager : $tenants[($taskIndex - 1) % $tenants->count()];
 
                 $assignment = TaskAssignment::query()->updateOrCreate(
                     [
@@ -792,29 +816,4 @@ class OperationalDemoDatasetSeeder extends Seeder
         });
     }
 
-    /**
-     * @return array<int, array{
-     *     name: string,
-     *     short_name: string,
-     *     street: string,
-     *     admin_name: string,
-     *     manager_name: string,
-     *     tenant_prefix: string
-     * }>
-     */
-    private function organizationBlueprints(): array
-    {
-        return [
-            ['name' => 'Vilnius Riverside Homes', 'short_name' => 'Vilnius Riverside', 'street' => 'Neries Quay', 'admin_name' => 'Austeja Petrauskaite', 'manager_name' => 'Mantas Vaitkus', 'tenant_prefix' => 'Vilnius'],
-            ['name' => 'Kaunas Central Lofts', 'short_name' => 'Kaunas Central', 'street' => 'Laisves Avenue', 'admin_name' => 'Monika Jankauskaite', 'manager_name' => 'Tadas Kazlauskas', 'tenant_prefix' => 'Kaunas'],
-            ['name' => 'Klaipeda Port Residences', 'short_name' => 'Klaipeda Port', 'street' => 'Danes Street', 'admin_name' => 'Greta Mockute', 'manager_name' => 'Rokas Butkus', 'tenant_prefix' => 'Klaipeda'],
-            ['name' => 'Riga Old Town Suites', 'short_name' => 'Riga Old Town', 'street' => 'Valnu Street', 'admin_name' => 'Elina Ozola', 'manager_name' => 'Janis Berzins', 'tenant_prefix' => 'Riga'],
-            ['name' => 'Jurmala Coast Apartments', 'short_name' => 'Jurmala Coast', 'street' => 'Jomas Street', 'admin_name' => 'Liga Kalnina', 'manager_name' => 'Martins Liepins', 'tenant_prefix' => 'Jurmala'],
-            ['name' => 'Daugavpils Civic Center', 'short_name' => 'Daugavpils Civic', 'street' => 'Rigas Street', 'admin_name' => 'Anete Zalite', 'manager_name' => 'Edgars Sile', 'tenant_prefix' => 'Daugavpils'],
-            ['name' => 'Tallinn Harbor Offices', 'short_name' => 'Tallinn Harbor', 'street' => 'Sadama Street', 'admin_name' => 'Mari Tamm', 'manager_name' => 'Rasmus Saar', 'tenant_prefix' => 'Tallinn'],
-            ['name' => 'Tartu Innovation Campus', 'short_name' => 'Tartu Innovation', 'street' => 'Riia Street', 'admin_name' => 'Kertu Ots', 'manager_name' => 'Karl Pold', 'tenant_prefix' => 'Tartu'],
-            ['name' => 'Parnu Seaside Residences', 'short_name' => 'Parnu Seaside', 'street' => 'Ruutli Street', 'admin_name' => 'Liis Kask', 'manager_name' => 'Henri Mets', 'tenant_prefix' => 'Parnu'],
-            ['name' => 'Narva Border Plaza', 'short_name' => 'Narva Border', 'street' => 'Pushkini Street', 'admin_name' => 'Kristi Toom', 'manager_name' => 'Marko Vaher', 'tenant_prefix' => 'Narva'],
-        ];
-    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SubscriptionPlan;
 use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\BillingRecord;
 use App\Models\Building;
@@ -38,6 +39,14 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->get();
 
     $demoOrganizationIds = $demoOrganizations->modelKeys();
+    $seededPlans = Subscription::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->pluck('plan')
+        ->map(fn ($plan) => $plan instanceof SubscriptionPlan ? $plan->value : (string) $plan)
+        ->unique()
+        ->sort()
+        ->values()
+        ->all();
     $demoTasks = Task::query()->whereIn('organization_id', $demoOrganizationIds)->get();
     $demoTaskIds = $demoTasks->modelKeys();
 
@@ -85,26 +94,40 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         + $taskAssignmentCount
         + $timeEntryCount;
 
-    expect($demoOrganizations)->toHaveCount(10)
-        ->and($demoUserCount)->toBe(101)
-        ->and($subscriptionCount)->toBe(10)
-        ->and($buildingCount)->toBe(30)
-        ->and($propertyCount)->toBe(80)
-        ->and($assignmentCount)->toBe(80)
-        ->and($meterCount)->toBe(160)
-        ->and($readingCount)->toBe(1920)
-        ->and($invoiceCount)->toBe(240)
-        ->and($invoiceItemCount)->toBe(720)
-        ->and($billingRecordCount)->toBe(720)
-        ->and($leaseCount)->toBe(80)
-        ->and($providerCount)->toBe(30)
-        ->and($tariffCount)->toBe(30)
-        ->and($serviceConfigurationCount)->toBe(240)
-        ->and($utilityServiceCount)->toBe(30)
-        ->and($projectCount)->toBe(10)
-        ->and($demoTasks->count())->toBe(20)
-        ->and($taskAssignmentCount)->toBe(20)
-        ->and($timeEntryCount)->toBe(20)
+    expect($demoOrganizations)->toHaveCount(5)
+        ->and($demoOrganizations->pluck('slug')->sort()->values()->all())->toEqual([
+            'demo-baltic-basic',
+            'demo-baltic-custom',
+            'demo-baltic-enterprise',
+            'demo-baltic-professional',
+            'demo-baltic-starter',
+        ])
+        ->and($demoUserCount)->toBeGreaterThanOrEqual(40)
+        ->and($subscriptionCount)->toBe(5)
+        ->and($seededPlans)->toEqual([
+            SubscriptionPlan::BASIC->value,
+            SubscriptionPlan::CUSTOM->value,
+            SubscriptionPlan::ENTERPRISE->value,
+            SubscriptionPlan::PROFESSIONAL->value,
+            SubscriptionPlan::STARTER->value,
+        ])
+        ->and($buildingCount)->toBeGreaterThanOrEqual(5)
+        ->and($propertyCount)->toBeGreaterThanOrEqual(20)
+        ->and($assignmentCount)->toBe($propertyCount)
+        ->and($meterCount)->toBeGreaterThanOrEqual($propertyCount * 2)
+        ->and($readingCount)->toBeGreaterThanOrEqual($meterCount * 12)
+        ->and($invoiceCount)->toBeGreaterThanOrEqual($propertyCount * 3)
+        ->and($invoiceItemCount)->toBeGreaterThanOrEqual($invoiceCount * 3)
+        ->and($billingRecordCount)->toBeGreaterThanOrEqual($invoiceCount * 3)
+        ->and($leaseCount)->toBe($assignmentCount)
+        ->and($providerCount)->toBeGreaterThanOrEqual(15)
+        ->and($tariffCount)->toBeGreaterThanOrEqual(15)
+        ->and($serviceConfigurationCount)->toBeGreaterThanOrEqual($propertyCount * 3)
+        ->and($utilityServiceCount)->toBeGreaterThanOrEqual(15)
+        ->and($projectCount)->toBe(5)
+        ->and($demoTasks->count())->toBe(10)
+        ->and($taskAssignmentCount)->toBe(10)
+        ->and($timeEntryCount)->toBe(10)
         ->and($datasetTotal)->toBeGreaterThanOrEqual(1000)
         ->and(User::query()->where('email', 'like', '%@tenanto-demo.test')->pluck('locale')->unique()->sort()->values()->all())->toEqual(['en', 'lt', 'ru']);
 
