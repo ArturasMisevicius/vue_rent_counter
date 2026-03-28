@@ -14,6 +14,7 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Models\OrganizationUser;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -56,6 +57,12 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
 
     $demoUserCount = User::query()
         ->where('email', 'like', '%@tenanto-demo.test')
+        ->count();
+    $demoOrganizationUserCount = User::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->count();
+    $demoMembershipCount = OrganizationUser::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
         ->count();
 
     $buildingCount = Building::query()->whereIn('organization_id', $demoOrganizationIds)->count();
@@ -109,6 +116,8 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
             'demo-baltic-starter',
         ])
         ->and($demoUserCount)->toBeGreaterThanOrEqual(40)
+        ->and($demoMembershipCount)->toBe($demoOrganizationUserCount)
+        ->and(OrganizationUser::query()->whereIn('organization_id', $demoOrganizationIds)->whereNull('invited_by')->exists())->toBeFalse()
         ->and($subscriptionCount)->toBe(5)
         ->and($seededPlans)->toEqual([
             SubscriptionPlan::BASIC->value,

@@ -19,10 +19,19 @@ trait HasContainedSuperadminSurface
 
     protected function wrapSuperadminSurface(Component $component): Component
     {
+        if (! $this->shouldWrapSuperadminSurface()) {
+            return $component;
+        }
+
         return Section::make()
             ->schema([$component])
             ->extraAttributes([
                 'data-superadmin-surface' => 'true',
             ]);
+    }
+
+    protected function shouldWrapSuperadminSurface(): bool
+    {
+        return true;
     }
 }

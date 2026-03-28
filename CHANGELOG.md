@@ -2,6 +2,17 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328165017 -->
+### Commit updates
+
+- updated `app/Filament/Resources/OrganizationUsers/Pages/EditOrganizationUser.php`
+- updated `app/Filament/Resources/OrganizationUsers/Pages/ViewOrganizationUser.php`
+- updated `app/Filament/Resources/OrganizationUsers/Schemas/OrganizationUserInfolist.php`
+- updated `app/Filament/Resources/Pages/Concerns/HasContainedSuperadminSurface.php`
+- updated `tests/Feature/Admin/OperationalDemoDatasetSeederTest.php`
+- updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260328165017 -->
+
 <!-- changelog:auto:start:staged-20260328163744 -->
 ### Commit updates
 

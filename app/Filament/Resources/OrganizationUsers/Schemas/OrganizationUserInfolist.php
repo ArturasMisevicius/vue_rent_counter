@@ -25,8 +25,8 @@ class OrganizationUserInfolist
                     ->placeholder('-'),
                 IconEntry::make('is_active')
                     ->boolean(),
-                TextEntry::make('invited_by')
-                    ->numeric()
+                TextEntry::make('inviter.name')
+                    ->label('Invited by')
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()

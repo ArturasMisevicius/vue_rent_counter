@@ -40,4 +40,9 @@ class EditOrganizationUser extends EditRecord
 
         return $user instanceof User ? $user : null;
     }
+
+    protected function shouldWrapSuperadminSurface(): bool
+    {
+        return $this->currentUser()?->isSuperadmin() ?? false;
+    }
 }
