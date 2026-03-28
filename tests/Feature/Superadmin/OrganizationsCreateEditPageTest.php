@@ -107,6 +107,35 @@ it('creates platform invitations for new owner emails from the create page', fun
         ->exists())->toBeTrue();
 });
 
+it('surfaces owner email conflicts on the create page instead of failing silently', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $claimedOrganization = Organization::factory()->create();
+
+    User::factory()->admin()->create([
+        'organization_id' => $claimedOrganization->id,
+        'email' => 'claimed.owner@example.com',
+        'name' => 'Claimed Owner',
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(CreateOrganization::class)
+        ->fillForm([
+            'name' => 'Blocked Harbor',
+            'owner_email' => 'claimed.owner@example.com',
+            'plan' => SubscriptionPlan::BASIC->value,
+            'duration' => SubscriptionDuration::MONTHLY->value,
+        ])
+        ->call('create')
+        ->assertHasFormErrors([
+            'owner_email' => __('superadmin.organizations.validation.owner_belongs_to_another_organization'),
+        ]);
+
+    expect(Organization::query()
+        ->where('name', 'Blocked Harbor')
+        ->exists())->toBeFalse();
+});
+
 it('renders the edit page without a slug field and updates the slug automatically when the name changes', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create([
@@ -176,4 +205,43 @@ it('renders the edit page without a slug field and updates the slug automaticall
         ->and($organization->slug)->toBe('northwind-towers-updated')
         ->and($subscription->plan)->toBe(SubscriptionPlan::PROFESSIONAL)
         ->and($subscription->expires_at?->toDateString())->toBe(now()->addMonths(6)->startOfDay()->toDateString());
+});
+
+it('surfaces owner email conflicts on the edit page instead of failing silently', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+        'slug' => 'northwind-towers',
+    ]);
+
+    Subscription::factory()->for($organization)->create([
+        'plan' => SubscriptionPlan::BASIC,
+        'status' => SubscriptionStatus::ACTIVE,
+        'is_trial' => false,
+        'starts_at' => now()->subMonth(),
+        'expires_at' => now()->addMonth()->startOfDay(),
+    ]);
+
+    $foreignOrganization = Organization::factory()->create();
+
+    User::factory()->admin()->create([
+        'organization_id' => $foreignOrganization->id,
+        'email' => 'claimed.owner@example.com',
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(EditOrganization::class, ['record' => $organization->getRouteKey()])
+        ->fillForm([
+            'name' => 'Northwind Towers Updated',
+            'owner_email' => 'claimed.owner@example.com',
+            'plan' => SubscriptionPlan::BASIC->value,
+            'expires_at' => now()->addMonth()->startOfDay()->toDateString(),
+        ])
+        ->call('save')
+        ->assertHasFormErrors([
+            'owner_email' => __('superadmin.organizations.validation.owner_belongs_to_another_organization'),
+        ]);
+
+    expect($organization->fresh()?->name)->toBe('Northwind Towers');
 });

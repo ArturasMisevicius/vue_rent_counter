@@ -94,6 +94,10 @@ class OrganizationForm
             ->where('email', $email)
             ->first();
 
+        if ($owner !== null && $owner->organization_id !== null) {
+            return __('superadmin.organizations.validation.owner_belongs_to_another_organization');
+        }
+
         if ($owner !== null && $owner->organization_id === null) {
             return __('superadmin.organizations.form.helper.owner_existing');
         }

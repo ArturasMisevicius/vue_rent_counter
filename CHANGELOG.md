@@ -2,6 +2,16 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328183354 -->
+### Commit updates
+
+- updated `app/Filament/Resources/Organizations/Pages/CreateOrganization.php`
+- updated `app/Filament/Resources/Organizations/Pages/EditOrganization.php`
+- updated `app/Filament/Resources/Organizations/Schemas/OrganizationForm.php`
+- added `app/Filament/Resources/Pages/Concerns/InteractsWithRecordFormValidationExceptions.php`
+- updated `tests/Feature/Superadmin/OrganizationsCreateEditPageTest.php`
+<!-- changelog:auto:end:staged-20260328183354 -->
+
 <!-- changelog:auto:start:staged-20260328183013 -->
 ### Commit updates
 
