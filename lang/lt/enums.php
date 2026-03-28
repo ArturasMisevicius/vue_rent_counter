@@ -33,6 +33,12 @@ return [
         'maintenance' => 'Priežiūra',
         'unknown' => 'Nežinoma',
     ],
+    'kyc_verification_status' => [
+        'unverified' => 'Nepatvirtinta',
+        'pending' => 'Laukiama',
+        'verified' => 'Patvirtinta',
+        'rejected' => 'Atmesta',
+    ],
     'invoice_status' => [
         'draft' => 'Juodraštis',
         'finalized' => 'Patvirtinta',

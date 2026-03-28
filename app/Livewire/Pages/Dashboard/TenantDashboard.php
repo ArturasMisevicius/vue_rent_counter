@@ -88,6 +88,8 @@ class TenantDashboard extends Component
     {
         return [
             'tenant_name' => '',
+            'tenant_email' => null,
+            'tenant_phone' => null,
             'has_assignment' => false,
             'property_name' => null,
             'property_building_name' => null,

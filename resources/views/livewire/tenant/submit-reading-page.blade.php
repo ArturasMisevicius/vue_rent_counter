@@ -125,6 +125,21 @@
     </section>
 
     <aside class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
+        <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.property.tenant_information') }}</p>
+            <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $tenant->name }}</p>
+
+            <div class="mt-3 space-y-2 text-sm text-slate-600">
+                @if (filled($tenant->email))
+                    <p>{{ $tenant->email }}</p>
+                @endif
+
+                @if (filled($tenant->phone))
+                    <p>{{ $tenant->phone }}</p>
+                @endif
+            </div>
+        </div>
+
         <x-shared.form-section :title="__('tenant.pages.readings.preview_heading')">
             @if ($selectedMeter)
                 <div class="rounded-[1.75rem] bg-slate-50 px-5 py-5">

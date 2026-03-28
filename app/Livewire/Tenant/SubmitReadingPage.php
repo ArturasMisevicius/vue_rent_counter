@@ -107,11 +107,15 @@ class SubmitReadingPage extends Component
 
     public function render(): View
     {
+        /** @var User $tenant */
+        $tenant = auth()->user();
+
         return view('livewire.tenant.submit-reading-page', [
             'meters' => $this->availableMeters,
             'selectedMeter' => $this->selectedMeter,
             'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
+            'tenant' => $tenant,
         ]);
     }
 

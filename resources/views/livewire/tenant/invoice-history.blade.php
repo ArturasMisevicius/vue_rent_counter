@@ -49,7 +49,14 @@
             <div class="space-y-5">
                 @forelse ($invoices as $invoice)
                     <div wire:key="tenant-invoice-{{ $invoice->id }}" class="space-y-4 rounded-[1.75rem] border border-slate-200/80 bg-slate-50/70 p-4 sm:p-5">
-                        <x-shared.invoice-summary :invoice="$invoice" :presentation="$invoicePresentations[$invoice->id] ?? null" />
+                        <x-shared.invoice-summary
+                            :invoice="$invoice"
+                            :presentation="$invoicePresentations[$invoice->id] ?? null"
+                            :period-display="__('tenant.pages.invoices.period', [
+                                'start' => $invoice->billing_period_start?->toDateString() ?? '—',
+                                'end' => $invoice->billing_period_end?->toDateString() ?? '—',
+                            ])"
+                        />
 
                         <div class="flex justify-end">
                             <button
@@ -84,6 +91,21 @@
         </section>
 
         <aside class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur sm:p-8">
+            <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.property.tenant_information') }}</p>
+                <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $tenant->name }}</p>
+
+                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                    @if (filled($tenant->email))
+                        <p>{{ $tenant->email }}</p>
+                    @endif
+
+                    @if (filled($tenant->phone))
+                        <p>{{ $tenant->phone }}</p>
+                    @endif
+                </div>
+            </div>
+
             @if (filled($paymentGuidance['content'] ?? null))
                 <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.invoices.payment_guidance') }}</p>

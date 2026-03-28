@@ -30,6 +30,7 @@ use App\Filament\Resources\TaskAssignments\TaskAssignmentResource;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\TimeEntries\TimeEntryResource;
+use App\Filament\Resources\UserKycProfiles\UserKycProfileResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use Illuminate\Support\Facades\File;
@@ -156,6 +157,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         TimeEntryResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+        ],
+        UserKycProfileResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Admin/KycProfilesResourceTest.php',
         ],
         UtilityServiceResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

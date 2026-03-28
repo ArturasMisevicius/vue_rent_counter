@@ -92,5 +92,9 @@ return [
         'user' => 'user',
         'value' => 'value',
         'is_active' => 'active status',
+        'organization_id' => 'organization',
+        'personal_message' => 'personal message',
+        'tenant_user_id' => 'tenant',
+        'adjustments' => 'adjustments',
     ],
 ];

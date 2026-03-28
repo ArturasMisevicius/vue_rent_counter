@@ -29,6 +29,7 @@ it('updates the tenant profile and locale', function () {
         ->test(Profile::class)
         ->set('profileForm.name', 'Taylor Updated')
         ->set('profileForm.email', 'taylor.updated@example.com')
+        ->set('profileForm.phone', '+37069999123')
         ->set('profileForm.locale', 'lt')
         ->call('saveProfile')
         ->assertHasNoErrors();
@@ -36,7 +37,21 @@ it('updates the tenant profile and locale', function () {
     expect($tenant->user->fresh())
         ->name->toBe('Taylor Updated')
         ->email->toBe('taylor.updated@example.com')
+        ->phone->toBe('+37069999123')
         ->locale->toBe('lt');
+});
+
+it('shows the tenant phone on the profile form', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $tenant->user->forceFill([
+        'phone' => '+37061112222',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.profile'))
+        ->assertSuccessful()
+        ->assertSee('value="+37061112222"', false);
 });
 
 it('uses the newly selected locale on the redirected response', function () {

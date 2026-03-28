@@ -35,7 +35,6 @@ final class InvoiceOverdueReminderNotification extends Notification
         $periodStart = $this->invoice->billing_period_start?->toDateString() ?? __('dashboard.not_available');
         $periodEnd = $this->invoice->billing_period_end?->toDateString() ?? __('dashboard.not_available');
         $downloadUrl = route('tenant.invoices.download', $this->invoice);
-        $currencyFormatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
 
         return (new MailMessage)
             ->subject(__('admin.reports.notifications.overdue_subject', [
@@ -50,7 +49,10 @@ final class InvoiceOverdueReminderNotification extends Notification
                 'to' => $periodEnd,
             ]))
             ->line(__('admin.reports.notifications.overdue_balance', [
-                'amount' => $currencyFormatter->formatCurrency((float) $this->invoice->outstanding_balance, $this->invoice->currency),
+                'amount' => $this->formatCurrency(
+                    (string) $this->invoice->currency,
+                    (float) $this->invoice->outstanding_balance,
+                ),
             ]))
             ->line(__('admin.reports.notifications.overdue_days', [
                 'count' => $this->daysOverdue(),
@@ -70,5 +72,10 @@ final class InvoiceOverdueReminderNotification extends Notification
         }
 
         return (int) max(0, $referenceDate->startOfDay()->diffInDays(now()->startOfDay(), false));
+    }
+
+    private function formatCurrency(string $currency, float $amount): string
+    {
+        return sprintf('%s %s', $currency, number_format($amount, 2, '.', ''));
     }
 }

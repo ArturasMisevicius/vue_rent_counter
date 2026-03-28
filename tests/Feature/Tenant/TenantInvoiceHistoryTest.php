@@ -34,6 +34,22 @@ it('shows the tenant invoice history with paid and outstanding invoices', functi
         ->assertSeeText('Pay by bank transfer before the due date.');
 });
 
+it('shows the tenant phone in the invoice history sidebar', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'phone' => '+37064445555',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
+        ->assertSuccessful()
+        ->assertSeeText('+37064445555');
+});
+
 it('filters the invoice history by unpaid status', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

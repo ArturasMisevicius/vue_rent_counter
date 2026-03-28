@@ -104,6 +104,9 @@
                                 >
                                     {{ $invoice['tenant'] }}
                                 </a>
+                                <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                                    {{ $invoice['number'] }}
+                                </p>
                                 <p class="text-sm text-slate-600">{{ $invoice['property'] }}</p>
                                 <p class="text-xs uppercase tracking-wide text-slate-500">{{ $invoice['billing_period'] }}</p>
                             </div>

@@ -33,6 +33,12 @@ return [
         'maintenance' => 'Обслуживание',
         'unknown' => 'Неизвестно',
     ],
+    'kyc_verification_status' => [
+        'unverified' => 'Не подтверждено',
+        'pending' => 'Ожидает',
+        'verified' => 'Подтверждено',
+        'rejected' => 'Отклонено',
+    ],
     'invoice_status' => [
         'draft' => 'Черновик',
         'finalized' => 'Подтверждено',
@@ -118,6 +124,7 @@ return [
         'garage' => 'Гараж',
         'parking' => 'Парковка',
         'storage' => 'Кладовая',
+        'other' => 'Другое',
     ],
     'security_violation_severity' => [
         'low' => 'Низкая',

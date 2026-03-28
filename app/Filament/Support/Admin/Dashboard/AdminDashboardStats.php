@@ -42,6 +42,7 @@ class AdminDashboardStats
      *     }>,
      *     recent_invoices: array<int, array{
      *         id: int,
+     *         number: string,
      *         tenant: string,
      *         property: string,
      *         billing_period: string,
@@ -101,6 +102,7 @@ class AdminDashboardStats
     /**
      * @return array<int, array{
      *     id: int,
+     *     number: string,
      *     tenant: string,
      *     property: string,
      *     billing_period: string,
@@ -154,6 +156,7 @@ class AdminDashboardStats
      *     }>,
      *     recent_invoices: array<int, array{
      *         id: int,
+     *         number: string,
      *         tenant: string,
      *         property: string,
      *         billing_period: string,
@@ -269,7 +272,10 @@ class AdminDashboardStats
                         $invoice->billing_period_start,
                         $invoice->billing_period_end,
                     ),
-                    'amount' => $this->formatCurrency((float) $invoice->total_amount),
+                    'amount' => $this->formatCurrency(
+                        (float) $invoice->total_amount,
+                        (string) $invoice->currency,
+                    ),
                     'status' => $invoice->effectiveStatus()->label(),
                     'can_process_payment' => $invoice->status === InvoiceStatus::FINALIZED,
                 ];
@@ -445,11 +451,13 @@ class AdminDashboardStats
         ];
     }
 
-    private function formatCurrency(float $amount): string
+    private function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
 
-        return (string) $formatter->formatCurrency($amount, 'EUR');
+        return trim($currency.' '.(string) $formatter->format($amount));
     }
 
     private function formatDueLabel(CarbonInterface $dueDate): string

@@ -178,9 +178,13 @@ return [
                 'billing_contact_phone' => 'Телефон платежного контакта',
                 'payment_instructions' => 'Инструкции по оплате',
                 'invoice_footer' => 'Подвал счета',
+                'organization_name' => 'Organization Name',
             ],
             'actions' => [
                 'save' => 'Сохранить настройки организации',
+            ],
+            'help' => [
+                'billing_contact_email' => 'This email receives billing-related notifications.',
             ],
         ],
         'notifications' => [
@@ -208,6 +212,9 @@ return [
             'fields' => [
                 'plan' => 'План',
                 'duration' => 'Срок',
+                'current_plan' => 'Current Plan',
+                'status' => 'Subscription Status',
+                'expiry_date' => 'Subscription Expiry Date',
             ],
             'plans' => [
                 'basic' => 'Basic',
@@ -221,12 +228,24 @@ return [
             ],
             'actions' => [
                 'renew' => 'Продлить подписку',
+                'renew_upgrade' => 'Renew or Upgrade Plan',
+                'cancel' => 'Cancel',
+                'confirm' => 'Renew or Upgrade Plan',
+            ],
+            'usage_summary' => ':used of :limit :label used',
+            'limit_reached' => 'The :label limit has been reached.',
+            'panel' => [
+                'heading' => 'Renew or Upgrade Plan',
+                'description' => 'Select a new plan and duration to continue with updated limits.',
             ],
         ],
         'messages' => [
             'organization_saved' => 'Настройки организации обновлены.',
             'notifications_saved' => 'Настройки уведомлений обновлены.',
             'subscription_renewed' => 'Подписка продлена.',
+        ],
+        'actions' => [
+            'save' => 'Save Changes',
         ],
     ],
     'actions' => [

@@ -148,9 +148,11 @@ final class BulkInvoicePagePresenter
 
     private static function formatMoney(mixed $value): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
 
-        return (string) $formatter->formatCurrency((float) ($value ?? 0), 'EUR');
+        return trim('EUR '.(string) $formatter->format((float) ($value ?? 0)));
     }
 
     private static function reasonLabel(?string $reason): string

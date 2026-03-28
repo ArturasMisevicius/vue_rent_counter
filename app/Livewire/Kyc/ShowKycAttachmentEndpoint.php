@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Kyc;
 
 use App\Models\Attachment;
 use App\Models\User;
 use App\Models\UserKycProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class KycAttachmentController extends Controller
+final class ShowKycAttachmentEndpoint extends Component
 {
-    public function __invoke(Request $request, Attachment $attachment): BinaryFileResponse
+    public function show(Request $request, Attachment $attachment): BinaryFileResponse
     {
         $user = $request->user();
 

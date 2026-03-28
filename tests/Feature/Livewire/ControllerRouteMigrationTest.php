@@ -5,6 +5,7 @@ use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
 use App\Livewire\Auth\RegisterPage;
 use App\Livewire\Auth\ResetPasswordPage;
+use App\Livewire\Kyc\ShowKycAttachmentEndpoint;
 use App\Livewire\Onboarding\WelcomePage;
 use App\Livewire\Preferences\SwitchGuestLocaleEndpoint;
 use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
@@ -171,6 +172,7 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     ],
     'guest locale switch' => ['language.switch', SwitchGuestLocaleEndpoint::class.'@change'],
     'tenant invoice download' => ['tenant.invoices.download', DownloadInvoiceEndpoint::class.'@download'],
+    'kyc attachment' => ['kyc.attachments.show', ShowKycAttachmentEndpoint::class.'@show'],
     'tenant home alias' => ['tenant.home', TenantPortalRouteEndpoint::class.'@show'],
     'tenant reading alias' => ['tenant.readings.create', TenantPortalRouteEndpoint::class.'@show'],
     'tenant invoices alias' => ['tenant.invoices.index', TenantPortalRouteEndpoint::class.'@show'],

@@ -73,10 +73,13 @@ return [
         'sections' => [
             'details' => 'Данные здания',
             'activity' => 'Активность здания',
+            'information' => 'Building Information',
+            'summary' => 'Summary',
         ],
         'tabs' => [
             'overview' => 'Обзор',
             'properties' => 'Объекты',
+            'meters' => 'Meters',
         ],
         'fields' => [
             'name' => 'Название',
@@ -88,6 +91,9 @@ return [
             'properties_count' => 'Объекты',
             'meters_count' => 'Счетчики',
             'updated_at' => 'Обновлено',
+            'building_name' => 'Building Name',
+            'full_address' => 'Full Address',
+            'created_at' => 'Date Created',
         ],
         'columns' => [
             'name' => 'Название',
@@ -99,6 +105,11 @@ return [
             'properties_count' => 'Объекты',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
+            'building_name' => 'Building Name',
+            'address' => 'Address',
+            'properties' => 'Properties',
+            'meters' => 'Meters',
+            'date_created' => 'Date Created',
         ],
         'empty' => [
             'address_line_2' => 'Не задано',
@@ -111,6 +122,15 @@ return [
         'messages' => [
             'delete_blocked' => 'Нельзя удалить здание, пока у него есть объекты.',
         ],
+        'titles' => [
+            'new' => 'New Building',
+            'edit' => 'Edit Building: :name',
+        ],
+        'actions' => [
+            'new_building' => 'New Building',
+            'save_building' => 'Save Building',
+        ],
+        'search_placeholder' => 'Search by name or address',
     ],
     'properties' => [
         'singular' => 'Объект',
@@ -121,6 +141,9 @@ return [
             'details' => 'Данные объекта',
             'current_occupancy' => 'Текущее размещение',
             'assignment_history' => 'История назначений',
+            'information' => 'Property Information',
+            'summary' => 'Summary',
+            'tenant_details' => 'Tenant Details',
         ],
         'tabs' => [
             'tenant' => 'Арендатор',
@@ -138,6 +161,12 @@ return [
             'assigned_since' => 'Назначен с',
             'assignment_history' => 'История назначений',
             'meters_count' => 'Счетчики',
+            'property_name' => 'Property Name',
+            'floor' => 'Floor',
+            'area' => 'Area',
+            'area_square_meters' => 'Area in Square Meters',
+            'date_assigned' => 'Date Assigned',
+            'meter_count' => 'Meter Count',
         ],
         'columns' => [
             'name' => 'Название',
@@ -149,6 +178,12 @@ return [
             'assigned_since' => 'Назначен с',
             'created_at' => 'Создано',
             'meters_count' => 'Счетчики',
+            'property_name' => 'Property Name',
+            'floor' => 'Floor',
+            'area' => 'Area',
+            'current_tenant' => 'Current Tenant',
+            'status' => 'Status',
+            'date_created' => 'Date Created',
         ],
         'filters' => [
             'occupancy_status' => 'Заполненность',
@@ -156,6 +191,9 @@ return [
                 'occupied' => 'Занято',
                 'vacant' => 'Свободно',
             ],
+            'all_buildings' => 'All Buildings',
+            'all_types' => 'All Types',
+            'all_statuses' => 'All',
         ],
         'types' => [
             'apartment' => 'Квартира',
@@ -173,6 +211,7 @@ return [
             'vacant' => 'Свободно',
             'none' => 'Нет',
             'assignment_history' => 'История назначений пока отсутствует.',
+            'no_tenant_assigned' => 'No tenant is currently assigned to this property.',
         ],
         'empty_state' => [
             'heading' => 'Создайте первый объект',
@@ -182,6 +221,9 @@ return [
         'actions' => [
             'assign_tenant' => 'Назначить арендатора',
             'unassign_tenant' => 'Снять назначение',
+            'new_property' => 'New Property',
+            'save_property' => 'Save Property',
+            'reassign_tenant' => 'Reassign Tenant',
         ],
         'messages' => [
             'invalid_building' => 'Выбранное здание не принадлежит этой организации.',
@@ -189,7 +231,23 @@ return [
             'limit_reached' => 'Лимит объектов для этой организации уже достигнут.',
             'delete_blocked' => 'Нельзя удалить объект с историей назначений, счетчиков или счетов.',
             'tenant_assigned' => 'Назначение арендатора обновлено.',
+            'delete_blocked_active_tenant' => 'This property has an active tenant assignment. Unassign the tenant before deleting the property.',
+            'tenant_unassigned' => 'The tenant was unassigned from this property.',
+            'reassign_tenant_warning' => 'The current tenant :tenant will lose access to this property\'s readings and invoices through the tenant portal.',
+            'unassign_tenant_confirmation' => 'Are you sure you want to remove the tenant from this property?',
         ],
+        'titles' => [
+            'new' => 'New Property',
+            'edit' => 'Edit Property: :name',
+        ],
+        'statuses' => [
+            'occupied' => 'Occupied',
+            'vacant' => 'Vacant',
+        ],
+        'floor' => [
+            'ground' => 'Ground',
+        ],
+        'search_placeholder' => 'Search properties',
     ],
     'tenants' => [
         'singular' => 'Арендатор',
@@ -200,6 +258,9 @@ return [
             'details' => 'Данные арендатора',
             'current_property' => 'Текущий объект',
             'invoice_history' => 'История счетов',
+            'summary' => 'Tenant Summary',
+            'personal_information' => 'Personal Information',
+            'property_assignment' => 'Property Assignment',
         ],
         'tabs' => [
             'profile' => 'Профиль',
@@ -220,6 +281,17 @@ return [
             'assigned_since' => 'Назначен с',
             'invoice_history' => 'История счетов',
             'last_login_at' => 'Последний вход',
+            'full_name' => 'Full Name',
+            'email_address' => 'Email Address',
+            'phone_number' => 'Phone Number',
+            'phone' => 'Phone',
+            'preferred_language' => 'Preferred Language',
+            'account_status' => 'Account Status',
+            'unit_area' => 'Unit Area',
+            'floor' => 'Floor',
+            'account_created' => 'Account Created',
+            'last_login' => 'Last Login',
+            'total_paid' => 'Total Paid',
         ],
         'columns' => [
             'name' => 'Имя',
@@ -228,11 +300,18 @@ return [
             'status' => 'Статус',
             'property' => 'Объект',
             'last_login_at' => 'Последний вход',
+            'full_name' => 'Full Name',
+            'unit_area' => 'Unit Area',
+            'phone' => 'Phone',
+            'date_added' => 'Date Added',
         ],
         'empty' => [
             'property' => 'Не назначено',
             'invoices' => 'Счетов пока нет.',
             'never' => 'Никогда',
+            'unassigned' => 'Unassigned',
+            'no_assignment_yet' => 'No assignment yet',
+            'no_readings_yet' => 'No readings yet',
         ],
         'empty_state' => [
             'heading' => 'Пригласите первого арендатора',
@@ -242,6 +321,11 @@ return [
         'actions' => [
             'resend_invitation' => 'Отправить приглашение снова',
             'reassign_property' => 'Переназначить объект',
+            'new_tenant' => 'New Tenant',
+            'save_tenant' => 'Save Tenant',
+            'assign_to_property' => 'Assign to Property',
+            'deactivate' => 'Deactivate',
+            'reactivate' => 'Reactivate',
         ],
         'messages' => [
             'limit_reached' => 'Лимит арендаторов для этой организации уже достигнут.',
@@ -249,6 +333,13 @@ return [
             'invitation_resent' => 'Новое приглашение отправлено.',
             'reassign_property_warning' => 'После переназначения доступ арендатора в портале будет привязан к новому объекту, а данные текущего объекта станут недоступны.',
             'property_reassigned' => 'Назначение объекта для арендатора обновлено.',
+            'tenant_created' => 'Tenant created.',
+            'invitation_sent' => 'An invitation email was sent to :email.',
+            'unit_area_defaults_to_property' => 'Defaults to the selected property area of :area.',
+            'deactivate_confirmation' => 'Deactivating this tenant prevents portal access until the account is reactivated.',
+            'reactivate_confirmation' => 'Reactivating this tenant restores portal access for their current property.',
+            'tenant_deactivated' => 'The tenant account was deactivated.',
+            'tenant_reactivated' => 'The tenant account was reactivated.',
         ],
         'audit' => [
             'columns' => [
@@ -256,9 +347,60 @@ return [
                 'actor' => 'Исполнитель',
                 'action' => 'Действие',
                 'description' => 'Описание',
+                'performed_by' => 'Performed By',
+                'date_and_time' => 'Date and Time',
             ],
             'empty' => [
                 'system' => 'Система',
+            ],
+        ],
+        'search_placeholder' => 'Search by name or email',
+        'titles' => [
+            'new' => 'New Tenant',
+            'edit' => 'Edit Tenant: :name',
+        ],
+        'filters' => [
+            'all_properties' => 'All Properties',
+            'all_statuses' => 'All',
+        ],
+        'meters' => [
+            'columns' => [
+                'serial_number' => 'Serial Number',
+                'meter_type' => 'Meter Type',
+                'status' => 'Status',
+                'last_reading_date' => 'Last Reading Date',
+                'last_value' => 'Last Value',
+            ],
+        ],
+        'readings' => [
+            'columns' => [
+                'meter' => 'Meter',
+                'reading_date' => 'Reading Date',
+                'value' => 'Value',
+                'consumption' => 'Consumption',
+                'status' => 'Status',
+                'submitted_by' => 'Submitted By',
+                'submission_method' => 'Submission Method',
+            ],
+            'submission_methods' => [
+                'tenant' => 'Tenant',
+                'admin' => 'Admin',
+            ],
+        ],
+        'invoices' => [
+            'columns' => [
+                'invoice_number' => 'Invoice Number',
+                'billing_period' => 'Billing Period',
+                'total_amount' => 'Total Amount',
+                'status' => 'Status',
+                'issued_date' => 'Issued Date',
+                'paid_date' => 'Paid Date',
+            ],
+            'actions' => [
+                'send_invoice_email' => 'Send Invoice Email',
+            ],
+            'fields' => [
+                'personal_message' => 'Personal Message',
             ],
         ],
     ],
@@ -294,6 +436,10 @@ return [
             'status' => 'Статус',
             'unit' => 'Ед. изм.',
             'latest_reading' => 'Последнее показание',
+            'serial_number' => 'Serial Number',
+            'meter_type' => 'Meter Type',
+            'last_reading_date' => 'Last Reading Date',
+            'last_value' => 'Last Value',
         ],
         'types' => [
             'water' => 'Вода',
@@ -308,6 +454,7 @@ return [
         'empty' => [
             'readings' => 'Показаний пока нет.',
             'chart' => 'График скоро появится.',
+            'no_readings_yet' => 'No readings yet',
         ],
         'chart' => [
             'description' => 'Значения показаний показаны по времени, чтобы было проще заметить скачки до запуска биллинга.',
@@ -331,6 +478,9 @@ return [
             'details' => 'Детали счета',
             'amounts' => 'Суммы',
             'charges' => 'Начисления',
+            'line_items' => 'Line Items',
+            'payment_history' => 'Payment History',
+            'email_history' => 'Email History',
         ],
         'fields' => [
             'invoice_number' => 'Номер счета',
@@ -356,6 +506,23 @@ return [
             'notes' => 'Примечания',
             'document_path' => 'Документ',
             'status_summary' => 'Сводка',
+            'billing_period_from' => 'Billing Period From',
+            'billing_period_to' => 'Billing Period To',
+            'personal_message' => 'Personal Message',
+            'payment_amount' => 'Payment Amount',
+            'payment_date' => 'Payment Date',
+            'payment_method' => 'Payment Method',
+            'finalized_date' => 'Finalized Date',
+            'paid_date' => 'Paid Date',
+            'rate' => 'Rate',
+            'period' => 'Period',
+            'total' => 'Total',
+            'adjustment' => 'Adjustment',
+            'adjustments' => 'Adjustments',
+            'adjustments_total' => 'Adjustments',
+            'final_total' => 'Final Total',
+            'line_items' => 'Line Items',
+            'invoice_notes' => 'Invoice Notes',
         ],
         'columns' => [
             'invoice_number' => 'Номер счета',
@@ -364,6 +531,10 @@ return [
             'status' => 'Статус',
             'total_amount' => 'Сумма',
             'due_date' => 'Срок оплаты',
+            'billing_period' => 'Billing Period',
+            'amount' => 'Amount',
+            'issued_date' => 'Issued Date',
+            'paid_date' => 'Paid Date',
         ],
         'statuses' => [
             'draft' => 'Черновик',
@@ -382,6 +553,9 @@ return [
             'document_path' => 'Документ еще не создан.',
             'property' => 'Помещение не назначено',
             'tenant' => 'Арендатор не назначен',
+            'issued_date' => 'Not issued',
+            'payment_history' => 'No payments recorded yet.',
+            'email_history' => 'Invoice not yet sent.',
         ],
         'generated' => [
             'default_line_item' => 'Сгенерированный счет для :property (:period_start - :period_end)',
@@ -408,12 +582,32 @@ return [
             ],
             'status' => [
                 'already_billed' => 'Уже выставлен',
+                'no_meter_readings' => 'No meter readings for this period',
+                'unavailable' => 'Unavailable',
             ],
             'actions' => [
                 'preview' => 'Предпросмотр счетов',
                 'review_tenants' => 'Просмотреть арендаторов',
                 'back' => 'Назад к периоду',
                 'generate' => 'Сформировать счета',
+                'select_all' => 'Select All',
+                'view_created_invoices' => 'View Created Invoices',
+            ],
+            'summary_issues' => 'Generation issues',
+            'preview_refreshing' => 'Refreshing preview',
+            'sections' => [
+                'billing_period' => 'Billing Period',
+                'select_tenants' => 'Select Tenants',
+            ],
+            'preview' => [
+                'title' => 'Live Preview',
+                'description' => 'This summary updates as the billing period and tenant selection change.',
+                'invoice_count' => 'Number of invoices to be generated',
+                'estimated_combined_total' => 'Estimated combined total',
+                'missing_readings_title' => 'Tenants with no meter readings',
+                'missing_readings_help' => 'These tenants cannot be billed for the selected period until readings are available.',
+                'no_missing_readings' => 'All selected tenants have enough readings for invoice generation.',
+                'selected_summary' => ':count tenants selected',
             ],
         ],
         'actions' => [
@@ -421,6 +615,22 @@ return [
             'process_payment' => 'Провести оплату',
             'send_email' => 'Отправить по email',
             'download_pdf' => 'Скачать PDF',
+            'new_invoice' => 'New Invoice',
+            'generate_bulk' => 'Generate Bulk',
+            'save_as_draft' => 'Save as Draft',
+            'generate_and_finalize' => 'Generate and Finalize',
+            'generate_line_items' => 'Generate Line Items',
+            'add_manual_line' => 'Add Manual Line',
+            'add_adjustment' => 'Add Adjustment',
+            'remove_line' => 'Remove',
+            'cancel' => 'Cancel',
+            'finalize_heading' => 'Finalize Invoice :number',
+            'finalize_invoice' => 'Finalize Invoice',
+            'record_payment' => 'Record Payment',
+            'record_payment_heading' => 'Record Payment for Invoice :number',
+            'send_invoice_heading' => 'Send Invoice to Tenant',
+            'send_invoice' => 'Send Invoice',
+            'send_reminder' => 'Send Reminder',
         ],
         'messages' => [
             'finalized' => 'Счет успешно подтвержден.',
@@ -431,11 +641,38 @@ return [
             'email_subject' => 'Счет :number',
             'reminder_sent' => 'Письмо-напоминание успешно отправлено.',
             'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
+            'draft_saved_named' => 'Invoice :number has been saved as a draft.',
+            'finalized_named' => 'Invoice :number has been finalized.',
+            'finalize_confirmation' => 'Finalizing this invoice will lock it. You will no longer be able to edit the amounts or line items. The tenant will not receive the invoice automatically until you send it. Are you sure?',
+            'assignment_required' => 'Select a tenant who is assigned to a property for the chosen billing period.',
+            'invoice_exists_for_period' => 'This tenant already has an invoice for the selected billing period.',
+            'no_generated_items' => 'No generated charges were found.',
+            'no_generated_items_help' => 'No billable readings were available for this billing period. You can still add manual lines and adjustments before saving the invoice.',
+            'draft_notice' => 'This is a draft invoice. It has not been sent to the tenant. Finalize it when ready.',
+            'overdue_notice_prefix' => 'This invoice is overdue.',
+            'overdue_notice_with_reminder' => 'Last reminder sent :date.',
+            'overdue_notice_without_reminder' => 'No reminder has been sent.',
+            'send_reminder_confirmation' => 'Send an overdue reminder for invoice :number?',
+            'reminder_not_sent' => 'Reminder email could not be queued for this invoice.',
         ],
         'pdf' => [
             'title' => 'Счет :number',
             'empty_items' => 'Для этого документа нет строк счета.',
         ],
+        'titles' => [
+            'new' => 'New Invoice',
+        ],
+        'tabs' => [
+            'all_invoices' => 'All Invoices',
+            'drafts' => 'Drafts',
+            'awaiting_payment' => 'Awaiting Payment',
+            'overdue' => 'Overdue',
+        ],
+        'filters' => [
+            'all_statuses' => 'All Statuses',
+            'all_properties' => 'All Properties',
+        ],
+        'search_placeholder' => 'Search by tenant name',
     ],
     'meter_readings' => [
         'singular' => 'Показание счетчика',
@@ -464,6 +701,9 @@ return [
             'reading_date' => 'Дата',
             'validation_status' => 'Статус проверки',
             'submission_method' => 'Способ отправки',
+            'meter_serial' => 'Meter Serial',
+            'value' => 'Value',
+            'consumption_since_previous' => 'Consumption Since Previous',
         ],
         'statuses' => [
             'pending' => 'Ожидает',
@@ -517,6 +757,7 @@ return [
             'phone' => 'Телефон',
             'email' => 'Эл. почта',
             'tariffs_count' => 'Тарифы',
+            'code' => 'Code',
         ],
         'service_types' => [
             'electricity' => 'Электричество',
@@ -529,6 +770,9 @@ return [
         ],
         'messages' => [
             'delete_blocked' => 'Нельзя удалить поставщиков, связанных с тарифами или конфигурациями услуг.',
+        ],
+        'actions' => [
+            'new_provider' => 'New Provider',
         ],
     ],
     'tariffs' => [
@@ -558,6 +802,9 @@ return [
             'configuration' => 'Конфигурация',
             'active_from' => 'Действует с',
             'active_until' => 'Действует до',
+            'type' => 'Type',
+            'rate' => 'Rate',
+            'status' => 'Status',
         ],
         'types' => [
             'flat' => 'Фиксированный',
@@ -567,9 +814,22 @@ return [
             'remote_id' => 'Не указано',
             'active_until' => 'Без даты окончания',
             'configuration' => 'Конфигурация не указана',
+            'ongoing' => 'Ongoing',
         ],
         'messages' => [
             'delete_blocked' => 'Нельзя удалить тарифы, связанные с конфигурациями услуг.',
+        ],
+        'actions' => [
+            'new_tariff' => 'New Tariff',
+        ],
+        'filters' => [
+            'all_providers' => 'All Providers',
+            'all_types' => 'All Types',
+            'all_statuses' => 'All',
+        ],
+        'statuses' => [
+            'active' => 'Active',
+            'inactive' => 'Inactive',
         ],
     ],
     'utility_services' => [
@@ -792,5 +1052,14 @@ return [
         'save_settings' => 'Сохранить настройки',
         'save_notifications' => 'Сохранить уведомления',
         'renew_subscription' => 'Продлить подписку',
+        'view' => 'View',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'save_changes' => 'Save Changes',
+    ],
+    'filters' => [
+        'date_range' => 'Date Range',
+        'from' => 'From',
+        'to' => 'To',
     ],
 ];

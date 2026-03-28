@@ -115,7 +115,7 @@ it('renders the superadmin users list page contract', function () {
         )
         ->assertTableColumnStateSet('role', UserRole::ADMIN->label(), $managedUser)
         ->assertTableColumnStateSet('organization.name', $organization->name, $managedUser)
-        ->assertTableColumnStateSet('last_login_at', $managedUser->last_login_at?->format('Y-m-d H:i'), $managedUser)
+        ->assertTableColumnStateSet('last_login_at', $managedUser->last_login_at?->locale(app()->getLocale())->isoFormat('LLL'), $managedUser)
         ->assertTableColumnStateSet('last_login_at', __('superadmin.users.placeholders.never'), $suspendedUser)
         ->assertTableColumnStateSet('status', UserStatus::ACTIVE->label(), $managedUser);
 

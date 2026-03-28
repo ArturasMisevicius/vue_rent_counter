@@ -29,7 +29,7 @@ trait ResolvesTenantWorkspace
         $workspace = $this->tenantWorkspace(requireOrganization: false);
 
         $tenantQuery = User::query()
-            ->select(['id', 'organization_id', 'role', 'locale'])
+            ->select(['id', 'organization_id', 'role', 'locale', 'name', 'email', 'phone'])
             ->whereKey($workspace->userId)
             ->where('role', UserRole::TENANT);
 

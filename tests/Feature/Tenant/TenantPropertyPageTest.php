@@ -32,6 +32,7 @@ it('shows normal tenant information in lithuanian instead of a not-available fal
 
     $tenant->user->forceFill([
         'locale' => 'lt',
+        'phone' => '+37067778888',
     ])->save();
 
     app()->setLocale('lt');
@@ -41,7 +42,8 @@ it('shows normal tenant information in lithuanian instead of a not-available fal
         ->assertSuccessful()
         ->assertSeeText('Nuomininko informacija')
         ->assertSeeText($tenant->user->name)
-        ->assertSeeText($tenant->user->email);
+        ->assertSeeText($tenant->user->email)
+        ->assertSeeText('+37067778888');
 });
 
 it('shows the empty reading state when a meter has no recorded reading', function () {

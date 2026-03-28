@@ -114,6 +114,24 @@
     </section>
 
     <aside class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
+        <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.property.tenant_information') }}</p>
+
+            @if (filled($summary['tenant_name'] ?? null))
+                <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $summary['tenant_name'] }}</p>
+            @endif
+
+            <div class="mt-2 space-y-1 text-sm text-slate-600">
+                @if (filled($summary['tenant_email'] ?? null))
+                    <p>{{ $summary['tenant_email'] }}</p>
+                @endif
+
+                @if (filled($summary['tenant_phone'] ?? null))
+                    <p>{{ $summary['tenant_phone'] }}</p>
+                @endif
+            </div>
+        </div>
+
         <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.shell.billing_guidance') }}</p>
             <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.shell.payment_instructions') }}</h3>

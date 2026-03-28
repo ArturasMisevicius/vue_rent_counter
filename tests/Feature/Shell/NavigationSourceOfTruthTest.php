@@ -35,12 +35,15 @@ it('builds sidebar navigation from the configured navigation roles', function ()
     );
 
     $configuredSuperadminGroups = collect(config('tenanto.shell.navigation.roles.superadmin'))
+        ->filter(fn (array $items): bool => $items !== [])
         ->map(fn (array $items): array => collect($items)->pluck('route')->all())
         ->all();
     $configuredAdminGroups = collect(config('tenanto.shell.navigation.roles.admin'))
+        ->filter(fn (array $items): bool => $items !== [])
         ->map(fn (array $items): array => collect($items)->pluck('route')->all())
         ->all();
     $configuredTenantGroups = collect(config('tenanto.shell.navigation.roles.tenant'))
+        ->filter(fn (array $items): bool => $items !== [])
         ->map(fn (array $items): array => collect($items)->pluck('route')->all())
         ->all();
 

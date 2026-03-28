@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\Subscription;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
@@ -41,7 +42,11 @@ it('renders the create organization page without a slug field and with an expiry
             'duration' => SubscriptionDuration::YEARLY->value,
         ])
         ->assertSeeText(__('superadmin.organizations.form.preview.subscription_expires', [
-            'date' => now()->startOfDay()->addMonths(SubscriptionDuration::YEARLY->months())->format('F j, Y'),
+            'date' => CarbonImmutable::now()
+                ->startOfDay()
+                ->addMonths(SubscriptionDuration::YEARLY->months())
+                ->locale(app()->getLocale())
+                ->isoFormat('ll'),
         ]));
 });
 

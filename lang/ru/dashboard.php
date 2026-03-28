@@ -30,6 +30,7 @@ return [
         'draft_invoices_trend' => 'Счета, которые еще не были финализированы.',
         'revenue_this_month' => 'Доход за месяц',
         'revenue_this_month_trend' => 'Сумма оплаченных счетов за текущий месяц.',
+        'pending_invoices_trend' => 'Draft invoices that have not been finalized yet.',
     ],
     'organization_usage' => [
         'heading' => 'Использование подписки',
@@ -38,6 +39,9 @@ return [
         'tenants' => 'Арендаторы',
         'meters' => 'Счетчики',
         'invoices' => 'Счета',
+        'usage_summary' => ':used of :limit :label used',
+        'limit_reached' => 'The :label limit has been reached.',
+        'upgrade_action' => 'Upgrade Plan',
     ],
     'platform_sections' => [
         'revenue_by_plan' => 'Доход по планам за последние 12 месяцев',
@@ -96,6 +100,8 @@ return [
         'upcoming_reading_deadlines_description' => 'Счетчики, требующие внимания в ближайшие 14 дней.',
         'no_recent_invoices' => 'Счетов пока нет.',
         'no_upcoming_deadlines' => 'Ближайших сроков нет.',
+        'view_all' => 'View All',
+        'process_payment' => 'Process Payment',
     ],
     'organization_deadlines' => [
         'due_today' => 'Срок сегодня',
@@ -108,4 +114,5 @@ return [
     'tenant_heading' => 'Главная страница арендатора готова.',
     'tenant_body' => 'История счетов, отправка показаний и действия с профилем будут расширяться от этой страницы для арендатора.',
     'logout_button' => 'Выйти',
+    'organization_invoice_period' => ':from to :to',
 ];

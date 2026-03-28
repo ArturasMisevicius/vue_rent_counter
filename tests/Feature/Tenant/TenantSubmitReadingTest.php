@@ -133,6 +133,22 @@ it('preselects and locks the meter picker for single-meter tenant accounts', fun
         ->assertSeeHtml('disabled');
 });
 
+it('shows the tenant phone on the submit reading page', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'phone' => '+37066667777',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
+        ->assertSuccessful()
+        ->assertSeeText('+37066667777');
+});
+
 it('does not expose outside meters and rejects submissions for them', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

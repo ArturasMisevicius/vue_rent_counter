@@ -159,6 +159,7 @@ it('calculates invoice totals from valid meter readings and tariff rates', funct
         'pricing_model' => PricingModel::CONSUMPTION_BASED,
         'distribution_method' => DistributionMethod::BY_CONSUMPTION,
         'rate_schedule' => ['unit_rate' => 1.75],
+        'is_shared_service' => false,
     ]);
 
     $meter = Meter::factory()->for($organization)->for($property)->create([

@@ -39,6 +39,9 @@ class TenantHomePresenter
 
         if (! $workspace->isTenant() || $workspace->organizationId === null) {
             return [
+                'tenant_name' => $tenant->name,
+                'tenant_email' => $tenant->email,
+                'tenant_phone' => $tenant->phone,
                 'has_assignment' => false,
             ];
         }
@@ -110,6 +113,8 @@ class TenantHomePresenter
 
         return [
             'tenant_name' => $tenant->name,
+            'tenant_email' => $tenant->email,
+            'tenant_phone' => $tenant->phone,
             'has_assignment' => $hasAssignment,
             'property_name' => $property?->name,
             'property_building_name' => $property?->building?->name,
@@ -220,9 +225,11 @@ class TenantHomePresenter
 
     private function formatCurrency(float $amount, string $currency): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
 
-        return (string) $formatter->formatCurrency($amount, $currency);
+        return trim($currency.' '.(string) $formatter->format($amount));
     }
 
     private function formatDecimal(float $value, int $precision): string

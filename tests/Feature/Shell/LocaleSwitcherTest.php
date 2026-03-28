@@ -77,6 +77,7 @@ it('uses the updated locale on the next authenticated response', function () {
 
     get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Nuomininko portalas')
-        ->assertSeeText('Profilis');
+        ->assertSeeText(__('tenant.shell.eyebrow', [], 'lt'))
+        ->assertSeeText(__('tenant.navigation.home', [], 'lt'))
+        ->assertSeeText(__('dashboard.logout_button', [], 'lt'));
 });

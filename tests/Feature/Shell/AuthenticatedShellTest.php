@@ -7,7 +7,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('renders tenant pages inside the authenticated shell', function () {
-    $tenant = User::factory()->tenant()->create();
+    $tenant = User::factory()->tenant()->create([
+        'phone' => '+37061234567',
+    ]);
 
     $this->actingAs($tenant)
         ->get(route('filament.admin.pages.tenant-dashboard'))
@@ -16,6 +18,7 @@ it('renders tenant pages inside the authenticated shell', function () {
         ->assertSeeText(__('tenant.navigation.home'))
         ->assertSeeText($tenant->name)
         ->assertSeeText($tenant->email)
+        ->assertSeeText('+37061234567')
         ->assertDontSeeText(__('shell.navigation.items.profile'))
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertDontSeeText(__('admin.buildings.plural'))
@@ -50,7 +53,9 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSeeText(__('admin.properties.plural'))
         ->assertSeeText(__('shell.navigation.items.reports'))
         ->assertSeeText(__('shell.navigation.groups.account'))
+        ->assertSeeText(__('shell.navigation.items.profile'))
         ->assertSeeText(__('shell.navigation.items.settings'))
+        ->assertSee(route('profile.edit'), false)
         ->assertSeeText(__('dashboard.logout_button'))
         ->assertSee(route('filament.admin.resources.buildings.index'), false)
         ->assertSee(route('filament.admin.resources.properties.index'), false)
@@ -223,6 +228,7 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     ]);
 
     assertSidebarGroupLabels($content, 'account', [
+        __('shell.navigation.items.profile', [], 'lt'),
         __('shell.navigation.items.settings', [], 'lt'),
     ]);
 });

@@ -28,6 +28,7 @@ class TenantPropertyPresenter
                 'assigned_since' => null,
                 'tenant_name' => $tenant->name,
                 'tenant_email' => $tenant->email,
+                'tenant_phone' => $tenant->phone,
                 'property_unit_number' => null,
                 'property_floor_area' => null,
                 'meter_count' => 0,
@@ -44,7 +45,7 @@ class TenantPropertyPresenter
         $organizationId = $workspace->organizationId;
 
         $tenant = User::query()
-            ->select(['id', 'organization_id', 'role', 'name', 'email'])
+            ->select(['id', 'organization_id', 'role', 'name', 'email', 'phone'])
             ->with([
                 'currentPropertyAssignment' => fn ($query) => $query
                     ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
@@ -74,6 +75,7 @@ class TenantPropertyPresenter
                 'assigned_since' => null,
                 'tenant_name' => $tenant->name,
                 'tenant_email' => $tenant->email,
+                'tenant_phone' => $tenant->phone,
                 'property_unit_number' => null,
                 'property_floor_area' => null,
                 'meter_count' => 0,
@@ -156,6 +158,7 @@ class TenantPropertyPresenter
             'has_assignment' => true,
             'tenant_name' => $tenant->name,
             'tenant_email' => $tenant->email,
+            'tenant_phone' => $tenant->phone,
             'property_name' => $property->name,
             'property_address' => $property->address,
             'property_building_name' => $property->building?->name,

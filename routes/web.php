@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\KycAttachmentController;
 use App\Livewire\Auth\AcceptInvitationPage;
 use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
 use App\Livewire\Auth\RegisterPage;
 use App\Livewire\Auth\ResetPasswordPage;
+use App\Livewire\Kyc\ShowKycAttachmentEndpoint;
 use App\Livewire\Onboarding\WelcomePage;
 use App\Livewire\Preferences\SwitchGuestLocaleEndpoint;
 use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
@@ -85,7 +85,7 @@ Route::get('/tenant/invoices/{invoice}/download', [DownloadInvoiceEndpoint::clas
     ->middleware('auth')
     ->name('tenant.invoices.download');
 
-Route::get('/kyc/attachments/{attachment}', KycAttachmentController::class)
+Route::get('/kyc/attachments/{attachment}', [ShowKycAttachmentEndpoint::class, 'show'])
     ->middleware('auth')
     ->name('kyc.attachments.show');
 

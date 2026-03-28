@@ -45,6 +45,10 @@ $organizationNavigation = [
 
 $adminAccountNavigation = [
     [
+        'route' => 'profile.edit',
+        'label' => 'shell.navigation.items.profile',
+    ],
+    [
         'route' => 'filament.admin.pages.settings',
         'label' => 'shell.navigation.items.settings',
     ],

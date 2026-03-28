@@ -125,6 +125,7 @@ return [
         'password' => [
             'heading' => 'Change Password',
             'description' => 'Set a new password for your account and confirm it before saving.',
+            'note' => 'Leave all password fields empty to keep your current password.',
         ],
         'fields' => [
             'name' => 'Name',
@@ -133,6 +134,7 @@ return [
             'current_password' => 'Current Password',
             'password' => 'New Password',
             'password_confirmation' => 'Confirm New Password',
+            'phone' => 'Phone Number',
         ],
         'actions' => [
             'save' => 'Save Profile',
@@ -141,6 +143,75 @@ return [
         'messages' => [
             'saved' => 'Your profile has been updated.',
             'password_updated' => 'Your password has been updated.',
+        ],
+        'kyc' => [
+            'sections' => [
+                'identity_verification' => [
+                    'heading' => 'Identity Verification',
+                    'description' => 'Provide the core personal details needed for identity verification and later compliance review.',
+                ],
+                'emergency_contacts' => [
+                    'heading' => 'Emergency Contacts',
+                    'description' => 'Capture secondary and tertiary contact details so the profile remains usable for tenant and admin follow-up.',
+                ],
+                'professional_information' => [
+                    'heading' => 'Professional Information',
+                    'description' => 'Keep employment details in the same profile flow so verification can be completed without leaving the page.',
+                ],
+                'banking_details' => [
+                    'heading' => 'Banking Details',
+                    'description' => 'Group payment and account details with the same familiar form treatment used elsewhere on the profile page.',
+                ],
+                'consent_and_risk' => [
+                    'heading' => 'Consent and Risk',
+                    'description' => 'Surface consent details for all users and keep risk-review fields reserved for admin review flows.',
+                ],
+                'document_uploads' => [
+                    'heading' => 'Document Uploads',
+                    'description' => 'Keep supporting files in the same shared profile flow so the later save logic can attach each document from a single screen.',
+                ],
+            ],
+            'fields' => [
+                'full_legal_name' => 'Full Legal Name',
+                'birth_date' => 'Birth Date',
+                'nationality' => 'Nationality',
+                'gender' => 'Gender',
+                'marital_status' => 'Marital Status',
+                'tax_id_number' => 'Tax ID Number',
+                'social_security_number' => 'Social Security / Insurance Number',
+                'secondary_contact_name' => 'Secondary Contact Name',
+                'secondary_contact_relationship' => 'Secondary Contact Relationship',
+                'secondary_contact_phone' => 'Secondary Contact Phone',
+                'secondary_contact_email' => 'Secondary Contact Email',
+                'tertiary_contact_name' => 'Tertiary Contact Name',
+                'tertiary_contact_relationship' => 'Tertiary Contact Relationship',
+                'tertiary_contact_phone' => 'Tertiary Contact Phone',
+                'tertiary_contact_email' => 'Tertiary Contact Email',
+                'employer_name' => 'Employer Name',
+                'employment_position' => 'Position',
+                'employment_contract_type' => 'Contract Type',
+                'monthly_income_range' => 'Monthly Income Range',
+                'iban' => 'IBAN',
+                'swift_bic' => 'SWIFT / BIC',
+                'bank_name' => 'Bank Name',
+                'bank_account_holder_name' => 'Account Holder Name',
+                'facial_recognition_consent' => 'Facial Recognition Consent',
+                'payment_history_score' => 'Payment History Score',
+                'external_credit_bureau_reference' => 'External Credit Bureau Reference',
+                'internal_credit_score' => 'Internal Credit Score',
+                'blacklist_status' => 'Blacklist Status',
+                'profile_photo' => 'Profile Photo',
+                'passport_scan' => 'Passport Scan',
+                'national_id_front' => 'National ID Front',
+                'national_id_back' => 'National ID Back',
+                'drivers_license' => 'Driver\'s License',
+                'employment_verification_letter' => 'Employment Verification Letter',
+                'direct_debit_mandate' => 'Direct Debit Mandate',
+            ],
+            'messages' => [
+                'facial_recognition_consent' => 'Consent granted for identity matching and verification checks.',
+                'blacklist_status' => 'Mark this profile if payment or compliance issues require added review.',
+            ],
         ],
     ],
     'roles' => [
@@ -176,9 +247,13 @@ return [
                 'billing_contact_phone' => 'Billing Contact Phone',
                 'payment_instructions' => 'Payment Instructions',
                 'invoice_footer' => 'Factura Footer',
+                'organization_name' => 'Organization Name',
             ],
             'actions' => [
                 'save' => 'Save Organización Configuración',
+            ],
+            'help' => [
+                'billing_contact_email' => 'This email receives billing-related notifications.',
             ],
         ],
         'notifications' => [
@@ -206,6 +281,9 @@ return [
             'fields' => [
                 'plan' => 'Plan',
                 'duration' => 'Duration',
+                'current_plan' => 'Current Plan',
+                'status' => 'Subscription Status',
+                'expiry_date' => 'Subscription Expiry Date',
             ],
             'plans' => [
                 'basic' => 'Basic',
@@ -219,6 +297,15 @@ return [
             ],
             'actions' => [
                 'renew' => 'Renew Suscripción',
+                'renew_upgrade' => 'Renew or Upgrade Plan',
+                'cancel' => 'Cancel',
+                'confirm' => 'Renew or Upgrade Plan',
+            ],
+            'usage_summary' => ':used of :limit :label used',
+            'limit_reached' => 'The :label limit has been reached.',
+            'panel' => [
+                'heading' => 'Renew or Upgrade Plan',
+                'description' => 'Select a new plan and duration to continue with updated limits.',
             ],
         ],
         'messages' => [
@@ -226,5 +313,11 @@ return [
             'notifications_saved' => 'Notification preferences have been updated.',
             'subscription_renewed' => 'Suscripción has been renewed.',
         ],
+        'actions' => [
+            'save' => 'Save Changes',
+        ],
+    ],
+    'accessibility' => [
+        'breadcrumb' => 'Breadcrumb',
     ],
 ];

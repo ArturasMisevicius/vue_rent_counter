@@ -1,6 +1,7 @@
 @props([
     'invoice',
     'presentation' => null,
+    'periodDisplay' => null,
 ])
 
 @php
@@ -8,6 +9,10 @@
     $presentation = is_array($presentation) ? $presentation : [];
     $lineItems = $presentation['items'] ?? [];
     $payments = $presentation['payments'] ?? [];
+    $resolvedPeriodDisplay = $periodDisplay ?: __('tenant.pages.invoices.period', [
+        'start' => $presentation['billing_period_start_display'] ?? '—',
+        'end' => $presentation['billing_period_end_display'] ?? '—',
+    ]);
 @endphp
 
 <article class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur sm:p-8">
@@ -19,7 +24,7 @@
             </div>
 
             <div class="grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                <p>{{ __('tenant.pages.invoices.period', ['start' => $presentation['billing_period_start_display'] ?? '—', 'end' => $presentation['billing_period_end_display'] ?? '—']) }}</p>
+                <p>{{ $resolvedPeriodDisplay }}</p>
                 <p>{{ __('admin.invoices.fields.due_date') }}: {{ $presentation['due_date_display'] ?? '—' }}</p>
                 <p>{{ __('tenant.navigation.property') }}: {{ $presentation['property_name'] ?? '—' }}</p>
                 <p>{{ __('admin.invoices.fields.tenant') }}: {{ $presentation['tenant_name'] ?? '—' }}</p>

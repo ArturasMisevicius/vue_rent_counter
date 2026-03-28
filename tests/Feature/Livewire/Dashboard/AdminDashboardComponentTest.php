@@ -34,6 +34,7 @@ it('renders the admin dashboard component for admin users with the new contract'
         ->assertSeeText('Upgrade Plan')
         ->assertSeeText('Recent Invoices')
         ->assertSeeText('Upcoming Reading Deadlines')
+        ->assertSeeText('INV-FINALIZED-001')
         ->assertSeeText('EUR 321.45')
         ->assertSeeText('WM-A1')
         ->assertDontSeeText('INV-OUTSIDE-001')

@@ -60,6 +60,7 @@ class InvoiceHistory extends Component
             'invoicePresentations' => $invoicePresentations,
             'paymentGuidance' => $this->paymentGuidance,
             'selectedStatus' => $this->selectedStatus,
+            'tenant' => $this->tenant,
         ]);
     }
 

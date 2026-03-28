@@ -71,6 +71,7 @@ it('bulk generates invoices while skipping tenants already billed for the select
             'pricing_model' => PricingModel::CONSUMPTION_BASED,
             'distribution_method' => DistributionMethod::BY_CONSUMPTION,
             'rate_schedule' => ['unit_rate' => 1.75],
+            'is_shared_service' => false,
         ]);
 
         $meter = Meter::factory()->for($organization)->for($property)->create([
@@ -258,6 +259,7 @@ function buildBulkInvoicePageScenario(): array
             'pricing_model' => PricingModel::CONSUMPTION_BASED,
             'distribution_method' => DistributionMethod::BY_CONSUMPTION,
             'rate_schedule' => ['unit_rate' => 1.75],
+            'is_shared_service' => false,
         ]);
     }
 

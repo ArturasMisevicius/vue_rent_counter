@@ -11,6 +11,11 @@
     if ($selectedMonth !== 'all') {
         $historyScope .= ' • '.$selectedMonthLabel;
     }
+
+    $tenantContactLine = collect([
+        $summary['tenant_email'] ?? null,
+        $summary['tenant_phone'] ?? null,
+    ])->filter()->implode(' · ');
 @endphp
 
 <div class="space-y-6">
@@ -36,7 +41,7 @@
             <x-shared.stat-card
                 :label="__('tenant.pages.property.tenant_information')"
                 :value="$summary['tenant_name']"
-                :trend="$summary['tenant_email']"
+                :trend="$tenantContactLine"
             />
 
             <x-shared.stat-card
@@ -135,6 +140,9 @@
                     <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $summary['tenant_name'] }}</p>
                     @if (filled($summary['tenant_email'] ?? null))
                         <p class="mt-2 text-sm text-slate-600">{{ $summary['tenant_email'] }}</p>
+                    @endif
+                    @if (filled($summary['tenant_phone'] ?? null))
+                        <p class="mt-2 text-sm text-slate-600">{{ $summary['tenant_phone'] }}</p>
                     @endif
                 </div>
 

@@ -7,6 +7,12 @@ return [
         'save_settings' => 'Save Configuración',
         'save_notifications' => 'Save Notification Preferences',
         'renew_subscription' => 'Renew Suscripción',
+        'view' => 'View',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'save_changes' => 'Save Changes',
+        'clear_filters' => 'Clear Filters',
+        'clear_all_filters' => 'Clear All Filters',
     ],
     'buildings' => [
         'singular' => 'Edificio',
@@ -16,10 +22,13 @@ return [
         'sections' => [
             'details' => 'Edificio Details',
             'activity' => 'Edificio Activity',
+            'information' => 'Building Information',
+            'summary' => 'Summary',
         ],
         'tabs' => [
             'overview' => 'Overview',
             'properties' => 'Properties',
+            'meters' => 'Meters',
         ],
         'fields' => [
             'name' => 'Name',
@@ -31,6 +40,9 @@ return [
             'properties_count' => 'Properties',
             'meters_count' => 'Contadors',
             'updated_at' => 'Updated At',
+            'building_name' => 'Building Name',
+            'full_address' => 'Full Address',
+            'created_at' => 'Date Created',
         ],
         'columns' => [
             'name' => 'Name',
@@ -42,6 +54,11 @@ return [
             'properties_count' => 'Properties',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'building_name' => 'Building Name',
+            'address' => 'Address',
+            'properties' => 'Properties',
+            'meters' => 'Meters',
+            'date_created' => 'Date Created',
         ],
         'empty' => [
             'address_line_2' => 'Not set',
@@ -54,6 +71,15 @@ return [
         'messages' => [
             'delete_blocked' => 'Edificios with properties cannot be deleted.',
         ],
+        'titles' => [
+            'new' => 'New Building',
+            'edit' => 'Edit Building: :name',
+        ],
+        'actions' => [
+            'new_building' => 'New Building',
+            'save_building' => 'Save Building',
+        ],
+        'search_placeholder' => 'Search by name or address',
     ],
     'invoices' => [
         'singular' => 'Factura',
@@ -64,6 +90,9 @@ return [
             'details' => 'Factura Details',
             'amounts' => 'Amounts',
             'charges' => 'Conceptos',
+            'line_items' => 'Line Items',
+            'payment_history' => 'Payment History',
+            'email_history' => 'Email History',
         ],
         'fields' => [
             'invoice_number' => 'Número de factura',
@@ -90,6 +119,22 @@ return [
             'document_path' => 'Document',
             'status_summary' => 'Summary',
             'total' => 'Total',
+            'billing_period_from' => 'Billing Period From',
+            'billing_period_to' => 'Billing Period To',
+            'personal_message' => 'Personal Message',
+            'payment_amount' => 'Payment Amount',
+            'payment_date' => 'Payment Date',
+            'payment_method' => 'Payment Method',
+            'finalized_date' => 'Finalized Date',
+            'paid_date' => 'Paid Date',
+            'rate' => 'Rate',
+            'period' => 'Period',
+            'adjustment' => 'Adjustment',
+            'adjustments' => 'Adjustments',
+            'adjustments_total' => 'Adjustments',
+            'final_total' => 'Final Total',
+            'line_items' => 'Line Items',
+            'invoice_notes' => 'Invoice Notes',
         ],
         'columns' => [
             'invoice_number' => 'Factura Number',
@@ -98,6 +143,10 @@ return [
             'status' => 'Status',
             'total_amount' => 'Total Amount',
             'due_date' => 'Due Date',
+            'billing_period' => 'Billing Period',
+            'amount' => 'Amount',
+            'issued_date' => 'Issued Date',
+            'paid_date' => 'Paid Date',
         ],
         'statuses' => [
             'draft' => 'Borrador',
@@ -116,6 +165,9 @@ return [
             'document_path' => 'No document generated yet.',
             'property' => 'No propiedad assigned',
             'tenant' => 'No inquilino assigned',
+            'issued_date' => 'Not issued',
+            'payment_history' => 'No payments recorded yet.',
+            'email_history' => 'Invoice not yet sent.',
         ],
         'generated' => [
             'default_line_item' => 'Generated factura for :propiedad (:period_start to :period_end)',
@@ -142,12 +194,32 @@ return [
             ],
             'status' => [
                 'already_billed' => 'Already billed',
+                'no_meter_readings' => 'No meter readings for this period',
+                'unavailable' => 'Unavailable',
             ],
             'actions' => [
                 'preview' => 'Preview facturas',
                 'review_tenants' => 'Review inquilinos',
                 'back' => 'Back to billing period',
                 'generate' => 'Generate facturas',
+                'select_all' => 'Select All',
+                'view_created_invoices' => 'View Created Invoices',
+            ],
+            'summary_issues' => 'Generation issues',
+            'preview_refreshing' => 'Refreshing preview',
+            'sections' => [
+                'billing_period' => 'Billing Period',
+                'select_tenants' => 'Select Tenants',
+            ],
+            'preview' => [
+                'title' => 'Live Preview',
+                'description' => 'This summary updates as the billing period and tenant selection change.',
+                'invoice_count' => 'Number of invoices to be generated',
+                'estimated_combined_total' => 'Estimated combined total',
+                'missing_readings_title' => 'Tenants with no meter readings',
+                'missing_readings_help' => 'These tenants cannot be billed for the selected period until readings are available.',
+                'no_missing_readings' => 'All selected tenants have enough readings for invoice generation.',
+                'selected_summary' => ':count tenants selected',
             ],
         ],
         'actions' => [
@@ -155,6 +227,22 @@ return [
             'process_payment' => 'Process Payment',
             'send_email' => 'Send Email',
             'download_pdf' => 'Descargar PDF',
+            'new_invoice' => 'New Invoice',
+            'generate_bulk' => 'Generate Bulk',
+            'save_as_draft' => 'Save as Draft',
+            'generate_and_finalize' => 'Generate and Finalize',
+            'generate_line_items' => 'Generate Line Items',
+            'add_manual_line' => 'Add Manual Line',
+            'add_adjustment' => 'Add Adjustment',
+            'remove_line' => 'Remove',
+            'cancel' => 'Cancel',
+            'finalize_heading' => 'Finalize Invoice :number',
+            'finalize_invoice' => 'Finalize Invoice',
+            'record_payment' => 'Record Payment',
+            'record_payment_heading' => 'Record Payment for Invoice :number',
+            'send_invoice_heading' => 'Send Invoice to Tenant',
+            'send_invoice' => 'Send Invoice',
+            'send_reminder' => 'Send Reminder',
         ],
         'messages' => [
             'finalized' => 'Factura finalizado successfully.',
@@ -165,11 +253,38 @@ return [
             'email_queued' => 'Factura email queued successfully.',
             'email_subject' => 'Factura :number',
             'reminder_sent' => 'Reminder email sent successfully.',
+            'draft_saved_named' => 'Invoice :number has been saved as a draft.',
+            'finalized_named' => 'Invoice :number has been finalized.',
+            'finalize_confirmation' => 'Finalizing this invoice will lock it. You will no longer be able to edit the amounts or line items. The tenant will not receive the invoice automatically until you send it. Are you sure?',
+            'assignment_required' => 'Select a tenant who is assigned to a property for the chosen billing period.',
+            'invoice_exists_for_period' => 'This tenant already has an invoice for the selected billing period.',
+            'no_generated_items' => 'No generated charges were found.',
+            'no_generated_items_help' => 'No billable readings were available for this billing period. You can still add manual lines and adjustments before saving the invoice.',
+            'draft_notice' => 'This is a draft invoice. It has not been sent to the tenant. Finalize it when ready.',
+            'overdue_notice_prefix' => 'This invoice is overdue.',
+            'overdue_notice_with_reminder' => 'Last reminder sent :date.',
+            'overdue_notice_without_reminder' => 'No reminder has been sent.',
+            'send_reminder_confirmation' => 'Send an overdue reminder for invoice :number?',
+            'reminder_not_sent' => 'Reminder email could not be queued for this invoice.',
         ],
         'pdf' => [
             'title' => 'Factura :number',
             'empty_items' => 'No hay líneas de factura disponibles para este documento.',
         ],
+        'titles' => [
+            'new' => 'New Invoice',
+        ],
+        'tabs' => [
+            'all_invoices' => 'All Invoices',
+            'drafts' => 'Drafts',
+            'awaiting_payment' => 'Awaiting Payment',
+            'overdue' => 'Overdue',
+        ],
+        'filters' => [
+            'all_statuses' => 'All Statuses',
+            'all_properties' => 'All Properties',
+        ],
+        'search_placeholder' => 'Search by tenant name',
     ],
     'meter_readings' => [
         'singular' => 'Lectura de medidor',
@@ -198,6 +313,9 @@ return [
             'reading_date' => 'Reading Date',
             'validation_status' => 'Validation Status',
             'submission_method' => 'Submission Method',
+            'meter_serial' => 'Meter Serial',
+            'value' => 'Value',
+            'consumption_since_previous' => 'Consumption Since Previous',
         ],
         'statuses' => [
             'pending' => 'Pending',
@@ -221,6 +339,12 @@ return [
         'messages' => [
             'validated' => 'Contador reading validated.',
             'rejected' => 'Contador reading rejected.',
+            'updated' => 'Meter reading updated.',
+        ],
+        'validation' => [
+            'previous_reading_higher' => 'The reading value must be higher than the previous reading.',
+            'potential_gap_detected' => 'Potential 60-day gap detected since the previous reading.',
+            'potential_anomalous_spike' => 'Potential anomalous spike detected compared with the previous reading.',
         ],
     ],
     'meters' => [
@@ -255,6 +379,10 @@ return [
             'status' => 'Status',
             'unit' => 'Unit',
             'latest_reading' => 'Latest Reading',
+            'serial_number' => 'Serial Number',
+            'meter_type' => 'Meter Type',
+            'last_reading_date' => 'Last Reading Date',
+            'last_value' => 'Last Value',
         ],
         'types' => [
             'water' => 'Water',
@@ -269,6 +397,7 @@ return [
         'empty' => [
             'readings' => 'No readings yet.',
             'chart' => 'Chart coming soon.',
+            'no_readings_yet' => 'No readings yet',
         ],
         'chart' => [
             'description' => 'Reading values are plotted chronologically so you can spot unexpected jumps before billing runs.',
@@ -313,6 +442,9 @@ return [
             'details' => 'Propiedad Details',
             'current_occupancy' => 'Current Occupancy',
             'assignment_history' => 'Assignment History',
+            'information' => 'Property Information',
+            'summary' => 'Summary',
+            'tenant_details' => 'Tenant Details',
         ],
         'tabs' => [
             'tenant' => 'Inquilino',
@@ -330,6 +462,12 @@ return [
             'assigned_since' => 'Assigned Since',
             'assignment_history' => 'Assignment History',
             'meters_count' => 'Contadors',
+            'property_name' => 'Property Name',
+            'floor' => 'Floor',
+            'area' => 'Area',
+            'area_square_meters' => 'Area in Square Meters',
+            'date_assigned' => 'Date Assigned',
+            'meter_count' => 'Meter Count',
         ],
         'columns' => [
             'name' => 'Name',
@@ -341,6 +479,12 @@ return [
             'assigned_since' => 'Assigned Since',
             'created_at' => 'Created At',
             'meters_count' => 'Contadors',
+            'property_name' => 'Property Name',
+            'floor' => 'Floor',
+            'area' => 'Area',
+            'current_tenant' => 'Current Tenant',
+            'status' => 'Status',
+            'date_created' => 'Date Created',
         ],
         'filters' => [
             'occupancy_status' => 'Occupancy Status',
@@ -348,6 +492,9 @@ return [
                 'occupied' => 'Occupied',
                 'vacant' => 'Vacant',
             ],
+            'all_buildings' => 'All Buildings',
+            'all_types' => 'All Types',
+            'all_statuses' => 'All',
         ],
         'types' => [
             'apartment' => 'Apartment',
@@ -365,6 +512,7 @@ return [
             'vacant' => 'Vacant',
             'none' => 'None',
             'assignment_history' => 'No assignment history yet.',
+            'no_tenant_assigned' => 'No tenant is currently assigned to this property.',
         ],
         'empty_state' => [
             'heading' => 'Create your first propiedad',
@@ -374,6 +522,9 @@ return [
         'actions' => [
             'assign_tenant' => 'Assign Inquilino',
             'unassign_tenant' => 'Unassign Inquilino',
+            'new_property' => 'New Property',
+            'save_property' => 'Save Property',
+            'reassign_tenant' => 'Reassign Tenant',
         ],
         'messages' => [
             'invalid_building' => 'The selected edificio does not belong to this organización.',
@@ -381,7 +532,23 @@ return [
             'limit_reached' => 'The propiedad limit for this organización has been reached.',
             'delete_blocked' => 'Properties with assignment, contador, or factura history cannot be deleted.',
             'tenant_assigned' => 'The inquilino assignment was updated.',
+            'delete_blocked_active_tenant' => 'This property has an active tenant assignment. Unassign the tenant before deleting the property.',
+            'tenant_unassigned' => 'The tenant was unassigned from this property.',
+            'reassign_tenant_warning' => 'The current tenant :tenant will lose access to this property\'s readings and invoices through the tenant portal.',
+            'unassign_tenant_confirmation' => 'Are you sure you want to remove the tenant from this property?',
         ],
+        'titles' => [
+            'new' => 'New Property',
+            'edit' => 'Edit Property: :name',
+        ],
+        'statuses' => [
+            'occupied' => 'Occupied',
+            'vacant' => 'Vacant',
+        ],
+        'floor' => [
+            'ground' => 'Ground',
+        ],
+        'search_placeholder' => 'Search properties',
     ],
     'providers' => [
         'singular' => 'Proveedor',
@@ -405,6 +572,7 @@ return [
             'phone' => 'Phone',
             'email' => 'Email',
             'tariffs_count' => 'Tarifas',
+            'code' => 'Code',
         ],
         'service_types' => [
             'electricity' => 'Electricity',
@@ -417,6 +585,9 @@ return [
         ],
         'messages' => [
             'delete_blocked' => 'Proveedors linked to tarifas or service configurations cannot be deleted.',
+        ],
+        'actions' => [
+            'new_provider' => 'New Provider',
         ],
     ],
     'reports' => [
@@ -657,6 +828,9 @@ return [
             'configuration' => 'Configuration',
             'active_from' => 'Activo From',
             'active_until' => 'Activo Until',
+            'type' => 'Type',
+            'rate' => 'Rate',
+            'status' => 'Status',
         ],
         'types' => [
             'flat' => 'Flat',
@@ -666,9 +840,22 @@ return [
             'remote_id' => 'Not set',
             'active_until' => 'No end date',
             'configuration' => 'No configuration',
+            'ongoing' => 'Ongoing',
         ],
         'messages' => [
             'delete_blocked' => 'Tarifas linked to service configurations cannot be deleted.',
+        ],
+        'actions' => [
+            'new_tariff' => 'New Tariff',
+        ],
+        'filters' => [
+            'all_providers' => 'All Providers',
+            'all_types' => 'All Types',
+            'all_statuses' => 'All',
+        ],
+        'statuses' => [
+            'active' => 'Active',
+            'inactive' => 'Inactive',
         ],
     ],
     'tenants' => [
@@ -680,6 +867,9 @@ return [
             'details' => 'Inquilino Details',
             'current_property' => 'Current Propiedad',
             'invoice_history' => 'Factura History',
+            'summary' => 'Tenant Summary',
+            'personal_information' => 'Personal Information',
+            'property_assignment' => 'Property Assignment',
         ],
         'tabs' => [
             'profile' => 'Profile',
@@ -700,6 +890,17 @@ return [
             'assigned_since' => 'Assigned Since',
             'invoice_history' => 'Factura History',
             'last_login_at' => 'Last Login',
+            'full_name' => 'Full Name',
+            'email_address' => 'Email Address',
+            'phone_number' => 'Phone Number',
+            'phone' => 'Phone',
+            'preferred_language' => 'Preferred Language',
+            'account_status' => 'Account Status',
+            'unit_area' => 'Unit Area',
+            'floor' => 'Floor',
+            'account_created' => 'Account Created',
+            'last_login' => 'Last Login',
+            'total_paid' => 'Total Paid',
         ],
         'columns' => [
             'name' => 'Name',
@@ -708,11 +909,18 @@ return [
             'status' => 'Status',
             'property' => 'Propiedad',
             'last_login_at' => 'Last Login',
+            'full_name' => 'Full Name',
+            'unit_area' => 'Unit Area',
+            'phone' => 'Phone',
+            'date_added' => 'Date Added',
         ],
         'empty' => [
             'property' => 'Unassigned',
             'invoices' => 'No facturas yet.',
             'never' => 'Never',
+            'unassigned' => 'Unassigned',
+            'no_assignment_yet' => 'No assignment yet',
+            'no_readings_yet' => 'No readings yet',
         ],
         'empty_state' => [
             'heading' => 'Invite your first inquilino',
@@ -722,6 +930,11 @@ return [
         'actions' => [
             'resend_invitation' => 'Resend Invitation',
             'reassign_property' => 'Reassign Propiedad',
+            'new_tenant' => 'New Tenant',
+            'save_tenant' => 'Save Tenant',
+            'assign_to_property' => 'Assign to Property',
+            'deactivate' => 'Deactivate',
+            'reactivate' => 'Reactivate',
         ],
         'messages' => [
             'limit_reached' => 'The inquilino limit for this organización has been reached.',
@@ -729,6 +942,13 @@ return [
             'invitation_resent' => 'A fresh invitation has been sent.',
             'reassign_property_warning' => 'Reassigning this inquilino moves portal access to the newly selected propiedad and removes access to the current propiedad data.',
             'property_reassigned' => 'The inquilino propiedad assignment was updated.',
+            'tenant_created' => 'Tenant created.',
+            'invitation_sent' => 'An invitation email was sent to :email.',
+            'unit_area_defaults_to_property' => 'Defaults to the selected property area of :area.',
+            'deactivate_confirmation' => 'Deactivating this tenant prevents portal access until the account is reactivated.',
+            'reactivate_confirmation' => 'Reactivating this tenant restores portal access for their current property.',
+            'tenant_deactivated' => 'The tenant account was deactivated.',
+            'tenant_reactivated' => 'The tenant account was reactivated.',
         ],
         'audit' => [
             'columns' => [
@@ -736,9 +956,60 @@ return [
                 'actor' => 'Actor',
                 'action' => 'Action',
                 'description' => 'Description',
+                'performed_by' => 'Performed By',
+                'date_and_time' => 'Date and Time',
             ],
             'empty' => [
                 'system' => 'System',
+            ],
+        ],
+        'search_placeholder' => 'Search by name or email',
+        'titles' => [
+            'new' => 'New Tenant',
+            'edit' => 'Edit Tenant: :name',
+        ],
+        'filters' => [
+            'all_properties' => 'All Properties',
+            'all_statuses' => 'All',
+        ],
+        'meters' => [
+            'columns' => [
+                'serial_number' => 'Serial Number',
+                'meter_type' => 'Meter Type',
+                'status' => 'Status',
+                'last_reading_date' => 'Last Reading Date',
+                'last_value' => 'Last Value',
+            ],
+        ],
+        'readings' => [
+            'columns' => [
+                'meter' => 'Meter',
+                'reading_date' => 'Reading Date',
+                'value' => 'Value',
+                'consumption' => 'Consumption',
+                'status' => 'Status',
+                'submitted_by' => 'Submitted By',
+                'submission_method' => 'Submission Method',
+            ],
+            'submission_methods' => [
+                'tenant' => 'Tenant',
+                'admin' => 'Admin',
+            ],
+        ],
+        'invoices' => [
+            'columns' => [
+                'invoice_number' => 'Invoice Number',
+                'billing_period' => 'Billing Period',
+                'total_amount' => 'Total Amount',
+                'status' => 'Status',
+                'issued_date' => 'Issued Date',
+                'paid_date' => 'Paid Date',
+            ],
+            'actions' => [
+                'send_invoice_email' => 'Send Invoice Email',
+            ],
+            'fields' => [
+                'personal_message' => 'Personal Message',
             ],
         ],
     ],
@@ -765,6 +1036,7 @@ return [
             'service_type_bridge' => 'Service Type',
             'service_configurations_count' => 'Service Configurations',
             'is_active' => 'Activo',
+            'template' => 'Template',
         ],
         'pricing_models' => [
             'fixed_monthly' => 'Fixed Monthly',
@@ -781,5 +1053,13 @@ return [
             'heating' => 'Heating',
             'gas' => 'Gas',
         ],
+        'placeholders' => [
+            'global_template' => 'Global Template',
+        ],
+    ],
+    'filters' => [
+        'date_range' => 'Date Range',
+        'from' => 'From',
+        'to' => 'To',
     ],
 ];

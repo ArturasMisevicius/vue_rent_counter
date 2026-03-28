@@ -101,6 +101,21 @@ it('shows the my property link on the tenant home screen', function () {
         ->assertSee(route('filament.admin.pages.tenant-property-details'), false);
 });
 
+it('shows the tenant phone in the tenant home summary', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->create();
+
+    $tenant->user->forceFill([
+        'phone' => '+37063334444',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSeeText('+37063334444');
+});
+
 it('builds payment guidance from organization billing contact settings when no instructions are configured', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

@@ -22,6 +22,7 @@ use App\Http\Requests\Admin\Invoices\PreviewInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\SendInvoiceEmailRequest;
+use App\Http\Requests\Admin\Kyc\RejectKycProfileRequest;
 use App\Http\Requests\Admin\MeterReadings\RejectMeterReadingRequest;
 use App\Http\Requests\Admin\MeterReadings\StoreMeterReadingRequest as AdminStoreMeterReadingRequest;
 use App\Http\Requests\Admin\MeterReadings\UpdateMeterReadingRequest;
@@ -52,6 +53,7 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Preferences\SetLocaleRequest;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
+use App\Http\Requests\Profile\UpsertKycProfileRequest;
 use App\Http\Requests\Security\CspViolationRequest;
 use App\Http\Requests\Shell\SearchQueryRequest;
 use App\Http\Requests\Superadmin\Organizations\ImpersonateUserRequest;
@@ -62,6 +64,7 @@ use App\Http\Requests\Superadmin\Subscriptions\ExtendSubscriptionExpiryRequest;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
+use App\Http\Requests\Tenant\PropertyHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -223,6 +226,20 @@ final class FormRequestScenarioFactory
                     ],
                 ],
             ],
+            'UpsertKycProfileRequest' => [
+                'request' => static fn (array $context): FormRequest => new UpsertKycProfileRequest,
+                'valid' => static fn (array $context): array => [
+                    'full_legal_name' => 'Taylor Tenant',
+                    'birth_date' => now()->subYears(30)->toDateString(),
+                    'nationality' => 'Lithuanian',
+                    'secondary_contact_email' => 'contact@example.com',
+                    'facial_recognition_consent' => true,
+                    'payment_history_score' => 80,
+                    'internal_credit_score' => 640,
+                ],
+                'required' => ['full_legal_name'],
+                'authorize' => self::authenticatedOnly(),
+            ],
             'SearchQueryRequest' => [
                 'request' => static fn (array $context): FormRequest => new SearchQueryRequest,
                 'valid' => static fn (array $context): array => [
@@ -235,6 +252,15 @@ final class FormRequestScenarioFactory
                 'request' => static fn (array $context): FormRequest => new InvoiceHistoryFilterRequest,
                 'valid' => static fn (array $context): array => [
                     'selectedStatus' => 'unpaid',
+                ],
+                'required' => [],
+                'authorize' => self::tenantOnly(),
+            ],
+            'PropertyHistoryFilterRequest' => [
+                'request' => static fn (array $context): FormRequest => new PropertyHistoryFilterRequest,
+                'valid' => static fn (array $context): array => [
+                    'selectedYear' => now()->format('Y'),
+                    'selectedMonth' => '3',
                 ],
                 'required' => [],
                 'authorize' => self::tenantOnly(),
@@ -468,6 +494,14 @@ final class FormRequestScenarioFactory
                     'recipient_email' => $context['tenant']->email,
                 ],
                 'required' => ['recipient_email'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'RejectKycProfileRequest' => [
+                'request' => static fn (array $context): FormRequest => new RejectKycProfileRequest,
+                'valid' => static fn (array $context): array => [
+                    'rejection_reason' => 'The submitted KYC documents need clearer scans.',
+                ],
+                'required' => ['rejection_reason'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'RejectMeterReadingRequest' => [

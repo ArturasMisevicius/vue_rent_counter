@@ -11,6 +11,7 @@ it('shows the tenant filament navigation labels and hides admin resource links',
     $organization = Organization::factory()->create();
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
+        'phone' => '+37069876543',
     ]);
 
     $this->actingAs($tenant)
@@ -21,6 +22,7 @@ it('shows the tenant filament navigation labels and hides admin resource links',
         ->assertSeeText('Invoices')
         ->assertSeeText($tenant->name)
         ->assertSeeText($tenant->email)
+        ->assertSeeText('+37069876543')
         ->assertDontSeeText('Profile')
         ->assertDontSeeText('Buildings')
         ->assertDontSeeText('Organizations');

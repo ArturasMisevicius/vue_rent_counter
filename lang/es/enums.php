@@ -33,6 +33,12 @@ return [
         'maintenance' => 'Maintenance',
         'unknown' => 'Unknown',
     ],
+    'kyc_verification_status' => [
+        'unverified' => 'No verificado',
+        'pending' => 'Pendiente',
+        'verified' => 'Verificado',
+        'rejected' => 'Rechazado',
+    ],
     'invoice_status' => [
         'draft' => 'Borrador',
         'finalized' => 'Finalizado',
@@ -118,6 +124,7 @@ return [
         'garage' => 'Garage',
         'parking' => 'Parking',
         'storage' => 'Storage',
+        'other' => 'Otro',
     ],
     'security_violation_severity' => [
         'low' => 'Low',
@@ -226,6 +233,7 @@ return [
         'unit' => 'Unidad',
     ],
     'user_role' => [
+        'viewer' => 'Observador',
         'superadmin' => 'Superadmin',
         'admin' => 'Admin',
         'manager' => 'Manager',
