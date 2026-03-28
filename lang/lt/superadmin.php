@@ -387,6 +387,7 @@ return [
             'transfer_ownership' => 'Perduoti savininką',
             'override_limits' => 'Pakeisti limitus',
             'toggle_feature' => 'Perjungti funkciją',
+            'write_off_invoices' => 'Nurašyti sąskaitas',
             'suspend_selected' => 'Sustabdyti pasirinktas',
             'reinstate_selected' => 'Atkurti pasirinktas',
             'send_notification' => 'Siųsti pranešimą',
@@ -507,6 +508,7 @@ return [
             'ownership_transferred' => 'Organizacijos savininkas perduotas',
             'limits_overridden' => 'Organizacijos limitai pakeisti',
             'feature_toggled' => 'Organizacijos funkcija atnaujinta',
+            'invoices_written_off' => 'Organizacijos sąskaitos nurašytos',
         ],
         'mail' => [
             'export_ready_subject' => ':name duomenų eksportas paruoštas',
@@ -529,6 +531,7 @@ return [
             'invalid_limit_dimension' => 'Pasirinkta limito sritis nepalaikoma.',
             'limit_override_expired_at' => 'Limito pakeitimo pabaiga turi būti ateityje.',
             'feature_required' => 'Funkcijos raktas yra privalomas.',
+            'write_off_reason_required' => 'Nurašymo priežastis yra privaloma.',
         ],
         'modals' => [
             'suspend' => 'Ar tikrai norite sustabdyti :name? Tai iš karto neleis visiems šios organizacijos naudotojams atlikti pakeitimų. Jų duomenys bus išsaugoti.',
@@ -538,6 +541,7 @@ return [
             'reinstate_selected' => 'Atkurti pasirinktas organizacijas ir grąžinti joms rašymo prieigą.',
             'impersonate' => 'Jūs persijungsite į pagrindinio organizacijos administratoriaus paskyrą, kol nutrauksite apsimetimą.',
             'export' => 'Tai įtrauks GDPR tipo organizacijos eksportą į eilę, išsiųs ZIP dabartiniam savininkui el. paštu ir užfiksuos pagalbos užklausos priežastį.',
+            'write_off_invoices' => 'Tai įrašys visų neapmokėtų organizacijos sąskaitų nurašymą ir pašalins jas iš neapmokėtų ištrynimo blokatorių.',
         ],
         'filters' => [
             'all_statuses' => 'Visos būsenos',

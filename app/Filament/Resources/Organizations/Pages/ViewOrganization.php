@@ -14,6 +14,7 @@ use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonation
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
 use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
+use App\Filament\Actions\Superadmin\Organizations\WriteOffOrganizationInvoicesAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Models\User;
@@ -345,6 +346,30 @@ class ViewOrganization extends ViewRecord
 
                     Notification::make()
                         ->title(__('superadmin.organizations.notifications.export_queued'))
+                        ->success()
+                        ->send();
+                }),
+            Action::make('writeOffInvoices')
+                ->label(__('superadmin.organizations.actions.write_off_invoices'))
+                ->slideOver()
+                ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->modalDescription(__('superadmin.organizations.modals.write_off_invoices'))
+                ->schema([
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.change_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, WriteOffOrganizationInvoicesAction $writeOffOrganizationInvoicesAction): void {
+                    $writeOffOrganizationInvoicesAction->handle(
+                        $this->record,
+                        $data['reason'],
+                    );
+
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.invoices_written_off'))
                         ->success()
                         ->send();
                 }),

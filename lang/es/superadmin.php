@@ -386,6 +386,7 @@ return [
             'transfer_ownership' => 'Transferir propiedad',
             'override_limits' => 'Anular límites',
             'toggle_feature' => 'Alternar función',
+            'write_off_invoices' => 'Cancelar facturas',
             'suspend_selected' => 'Suspender seleccionadas',
             'reinstate_selected' => 'Reactivar seleccionadas',
             'send_notification' => 'Enviar Notificación',
@@ -507,6 +508,7 @@ return [
             'ownership_transferred' => 'Propiedad de la organización transferida',
             'limits_overridden' => 'Límites de la organización anulados',
             'feature_toggled' => 'Función de la organización actualizada',
+            'invoices_written_off' => 'Facturas de la organización canceladas',
         ],
         'mail' => [
             'export_ready_subject' => 'La exportación de datos de :name está lista',
@@ -522,6 +524,7 @@ return [
             'reinstate_selected' => 'Reactivar las organizaciones seleccionadas y restaurar su acceso de escritura.',
             'impersonate' => 'Cambiará a la cuenta principal del administrador de la organización hasta que detenga la suplantación.',
             'export' => 'Esto pondrá en cola una exportación tipo GDPR de la organización, enviará el ZIP al propietario actual por correo electrónico y registrará el motivo de la solicitud de soporte.',
+            'write_off_invoices' => 'Esto registra cancelaciones para todas las facturas pendientes de la organización y las elimina de los bloqueadores de eliminación por impago.',
         ],
         'validation' => [
             'owner_belongs_to_another_organization' => 'El propietario seleccionado ya pertenece a otra organización.',
@@ -661,6 +664,7 @@ return [
             'plan_limit_exceeded' => 'No se puede aplicar el plan objetivo porque el uso actual supera los límites para: :dimensions.',
             'transfer_owner_must_belong_to_org' => 'El nuevo propietario ya debe pertenecer a esta organización.',
             'transfer_owner_must_be_verified' => 'El nuevo propietario debe tener un correo verificado.',
+            'write_off_reason_required' => 'Se requiere un motivo para la cancelación.',
         ],
         'filters' => [
             'all_statuses' => 'All Statuses',

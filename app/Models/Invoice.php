@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Invoice extends Model
 {
@@ -148,12 +149,16 @@ class Invoice extends Model
 
     public function scopeOutstanding(Builder $query): Builder
     {
-        return $query->whereIn('status', InvoiceStatus::outstandingValues());
+        return $query
+            ->withoutWriteOff()
+            ->whereIn('status', InvoiceStatus::outstandingValues());
     }
 
     public function scopePendingAttention(Builder $query): Builder
     {
-        return $query->whereIn('status', InvoiceStatus::pendingAttentionValues());
+        return $query
+            ->withoutWriteOff()
+            ->whereIn('status', InvoiceStatus::pendingAttentionValues());
     }
 
     public function scopeOverdue(Builder $query): Builder
@@ -172,6 +177,7 @@ class Invoice extends Model
             : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay()->toDateString();
 
         return $query
+            ->withoutWriteOff()
             ->whereIn('status', InvoiceStatus::outstandingValues())
             ->where(function (Builder $overdueQuery) use ($today): void {
                 $overdueQuery
@@ -194,26 +200,34 @@ class Invoice extends Model
             ? $asOf->copy()->startOfDay()->toDateString()
             : Carbon::parse((string) ($asOf ?: now()->toDateString()))->startOfDay()->toDateString();
 
-        return $query->where(function (Builder $notOverdueQuery) use ($today): void {
-            $notOverdueQuery
-                ->where(function (Builder $dueDateQuery) use ($today): void {
-                    $dueDateQuery
-                        ->whereNotNull('due_date')
-                        ->whereDate('due_date', '>=', $today);
-                })
-                ->orWhere(function (Builder $fallbackQuery) use ($today): void {
-                    $fallbackQuery
-                        ->whereNull('due_date')
-                        ->whereDate('billing_period_end', '>=', $today);
-                });
-        });
+        return $query
+            ->withoutWriteOff()
+            ->where(function (Builder $notOverdueQuery) use ($today): void {
+                $notOverdueQuery
+                    ->where(function (Builder $dueDateQuery) use ($today): void {
+                        $dueDateQuery
+                            ->whereNotNull('due_date')
+                            ->whereDate('due_date', '>=', $today);
+                    })
+                    ->orWhere(function (Builder $fallbackQuery) use ($today): void {
+                        $fallbackQuery
+                            ->whereNull('due_date')
+                            ->whereDate('billing_period_end', '>=', $today);
+                    });
+            });
     }
 
     public function scopeAwaitingPayment(Builder $query, CarbonInterface|string|null $asOf = null): Builder
     {
         return $query
+            ->withoutWriteOff()
             ->where('status', InvoiceStatus::FINALIZED)
             ->whereNotOverdueAsOf($asOf);
+    }
+
+    public function scopeWithoutWriteOff(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('writeOffRecord');
     }
 
     public function scopePaidBetween(
@@ -470,6 +484,11 @@ class Invoice extends Model
     public function billingRecords(): HasMany
     {
         return $this->hasMany(BillingRecord::class);
+    }
+
+    public function writeOffRecord(): HasOne
+    {
+        return $this->hasOne(OrganizationInvoiceWriteOff::class);
     }
 
     /**

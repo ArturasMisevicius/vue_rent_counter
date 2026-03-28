@@ -387,6 +387,7 @@ return [
             'transfer_ownership' => 'Transfer Ownership',
             'override_limits' => 'Override Limits',
             'toggle_feature' => 'Toggle Feature',
+            'write_off_invoices' => 'Write Off Invoices',
             'suspend_selected' => 'Suspend Selected',
             'reinstate_selected' => 'Reinstate Selected',
             'send_notification' => 'Send Notification',
@@ -507,6 +508,7 @@ return [
             'ownership_transferred' => 'Organization ownership transferred',
             'limits_overridden' => 'Organization limits overridden',
             'feature_toggled' => 'Organization feature updated',
+            'invoices_written_off' => 'Organization invoices written off',
         ],
         'mail' => [
             'export_ready_subject' => ':name data export is ready',
@@ -529,6 +531,7 @@ return [
             'invalid_limit_dimension' => 'The selected limit dimension is not supported.',
             'limit_override_expired_at' => 'The override expiry must be in the future.',
             'feature_required' => 'A feature key is required.',
+            'write_off_reason_required' => 'A write-off reason is required.',
         ],
         'modals' => [
             'suspend' => 'Are you sure you want to suspend :name? This will immediately prevent all users in this organization from making any changes. Their data will be preserved.',
@@ -538,6 +541,7 @@ return [
             'reinstate_selected' => 'Reinstate the selected organizations and restore their write access.',
             'impersonate' => 'You will switch into the organization primary admin account until you stop impersonating.',
             'export' => 'This queues a GDPR-style organization export, emails the ZIP to the current owner, and records the support request reason.',
+            'write_off_invoices' => 'This records write-offs for all outstanding invoices in the organization and clears them from unpaid deletion blockers.',
         ],
         'filters' => [
             'all_statuses' => 'All Statuses',
