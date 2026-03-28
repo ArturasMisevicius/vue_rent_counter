@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use App\Support\Changelog\GitChangelogUpdater;
+use App\Filament\Support\Changelog\GitChangelogUpdater;
 
 require __DIR__.'/../vendor/autoload.php';
 

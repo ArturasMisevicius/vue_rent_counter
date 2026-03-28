@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Support\Changelog;
+namespace App\Filament\Support\Changelog;
 
 final class GitChangelogUpdater
 {
@@ -90,9 +90,6 @@ final class GitChangelogUpdater
         return 'commit-'.preg_replace('/[^0-9]/', '', $timestamp);
     }
 
-    /**
-     * @param  array<int, string>  $changes
-     */
     private function buildEntryBlock(string $entryId, string $title, array $changes): string
     {
         return sprintf(

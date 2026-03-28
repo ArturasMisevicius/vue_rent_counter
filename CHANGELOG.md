@@ -2,6 +2,14 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:pending -->
+### Pending staged changes
+
+- renamed `app/Support/Changelog/GitChangelogUpdater.php` to `app/Filament/Support/Changelog/GitChangelogUpdater.php`
+- updated `scripts/update_changelog.php`
+- renamed `tests/Unit/Support/Changelog/GitChangelogUpdaterTest.php` to `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
+<!-- changelog:auto:end:pending -->
+
 <!-- changelog:auto:start:commit-20260328155531 -->
 ### feat: automate changelog updates before commit
 
@@ -12,10 +20,10 @@
 - added `.gemini/skills/update-changelog-before-commit/SKILL.md`
 - added `.githooks/commit-msg`
 - added `.githooks/pre-commit`
-- added `app/Support/Changelog/GitChangelogUpdater.php`
+- added `app/Filament/Support/Changelog/GitChangelogUpdater.php`
 - added `scripts/install-git-hooks.sh`
 - added `scripts/update_changelog.php`
-- added `tests/Unit/Support/Changelog/GitChangelogUpdaterTest.php`
+- added `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
 <!-- changelog:auto:end:commit-20260328155531 -->
 
 ### Hidden generated slugs in admin UI

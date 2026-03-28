@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Support\Changelog\GitChangelogUpdater;
+use App\Filament\Support\Changelog\GitChangelogUpdater;
 
 it('formats staged name-status lines into readable changelog bullets', function () {
     $updater = new GitChangelogUpdater;
@@ -28,12 +28,12 @@ it('creates todays changelog section with a pending entry block', function () {
         '2026-03-28',
         'pending',
         'Pending staged changes',
-        ['- updated `app/Support/Changelog/GitChangelogUpdater.php`'],
+        ['- updated `app/Filament/Support/Changelog/GitChangelogUpdater.php`'],
     );
 
     expect($updated)
         ->toContain("## 2026-03-28\n\n<!-- changelog:auto:start:pending -->")
-        ->toContain("### Pending staged changes\n\n- updated `app/Support/Changelog/GitChangelogUpdater.php`")
+        ->toContain("### Pending staged changes\n\n- updated `app/Filament/Support/Changelog/GitChangelogUpdater.php`")
         ->toContain('## 2026-03-27');
 });
 
@@ -48,7 +48,7 @@ it('replaces the existing pending block on repeated pre-commit runs', function (
 <!-- changelog:auto:start:pending -->
 ### Pending staged changes
 
-- updated `app/OldFile.php`
+- updated `app/NewFile.php`
 <!-- changelog:auto:end:pending -->
 
 ### Existing change
