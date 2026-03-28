@@ -1,0 +1,71 @@
+<?php
+
+use App\Enums\AuditLogAction;
+use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
+use App\Models\AuditLog;
+use App\Models\Organization;
+use App\Models\OrganizationFeatureOverride;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('resolves organization feature flags from the latest override', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+    ]);
+
+    OrganizationFeatureOverride::factory()->create([
+        'organization_id' => $organization->id,
+        'feature' => 'advanced_reporting',
+        'enabled' => true,
+        'reason' => 'Pilot cohort rollout',
+    ]);
+
+    expect($organization->fresh()->featureEnabled('advanced_reporting'))->toBeTrue()
+        ->and($organization->fresh()->featureEnabled('resident_app'))->toBeFalse();
+
+    OrganizationFeatureOverride::factory()->create([
+        'organization_id' => $organization->id,
+        'feature' => 'advanced_reporting',
+        'enabled' => false,
+        'reason' => 'Rollback',
+    ]);
+
+    expect($organization->fresh()->featureEnabled('advanced_reporting', true))->toBeFalse();
+});
+
+it('toggles organization feature flags through the superadmin action with audit metadata', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+    ]);
+
+    $this->actingAs($superadmin);
+
+    $override = app(ToggleOrganizationFeatureAction::class)->handle(
+        $organization->fresh(),
+        'advanced_reporting',
+        true,
+        'Pilot rollout',
+    );
+
+    expect($override->organization_id)->toBe($organization->id)
+        ->and($override->feature)->toBe('advanced_reporting')
+        ->and($override->enabled)->toBeTrue()
+        ->and($organization->fresh()->featureEnabled('advanced_reporting'))->toBeTrue();
+
+    $auditLog = AuditLog::query()
+        ->where('organization_id', $organization->id)
+        ->where('action', AuditLogAction::UPDATED)
+        ->latest('id')
+        ->first();
+
+    expect($auditLog)->not->toBeNull()
+        ->and($auditLog?->actor_user_id)->toBe($superadmin->id)
+        ->and($auditLog?->metadata)->toMatchArray([
+            'reason' => 'Pilot rollout',
+            'feature' => 'advanced_reporting',
+            'enabled' => true,
+        ]);
+});

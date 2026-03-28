@@ -173,22 +173,33 @@ class Subscription extends Model
 
     public function propertyLimit(): int
     {
-        return $this->property_limit_snapshot ?? $this->plan->limits()['properties'];
+        return $this->limitForDimension('properties');
     }
 
     public function tenantLimit(): int
     {
-        return $this->tenant_limit_snapshot ?? $this->plan->limits()['tenants'];
+        return $this->limitForDimension('tenants');
     }
 
     public function meterLimit(): int
     {
-        return $this->meter_limit_snapshot ?? $this->plan->limits()['meters'];
+        return $this->limitForDimension('meters');
     }
 
     public function invoiceLimit(): int
     {
-        return $this->invoice_limit_snapshot ?? $this->plan->limits()['invoices'];
+        return $this->limitForDimension('invoices');
+    }
+
+    public function limitForDimension(string $dimension): int
+    {
+        return match ($dimension) {
+            'properties' => $this->property_limit_snapshot ?? $this->plan->limits()['properties'],
+            'tenants' => $this->tenant_limit_snapshot ?? $this->plan->limits()['tenants'],
+            'meters' => $this->meter_limit_snapshot ?? $this->plan->limits()['meters'],
+            'invoices' => $this->invoice_limit_snapshot ?? $this->plan->limits()['invoices'],
+            default => 0,
+        };
     }
 
     public function propertiesUsedCount(): int

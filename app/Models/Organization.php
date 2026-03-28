@@ -172,6 +172,16 @@ class Organization extends Model
             ->latestFirst();
     }
 
+    public function limitOverrides(): HasMany
+    {
+        return $this->hasMany(OrganizationLimitOverride::class);
+    }
+
+    public function featureOverrides(): HasMany
+    {
+        return $this->hasMany(OrganizationFeatureOverride::class);
+    }
+
     public function subscriptionPayments(): HasMany
     {
         return $this->hasMany(SubscriptionPayment::class);
@@ -255,5 +265,74 @@ class Organization extends Model
     public function securityViolations(): HasMany
     {
         return $this->hasMany(SecurityViolation::class);
+    }
+
+    public function effectivePropertyLimit(): int
+    {
+        return $this->effectiveLimit('properties');
+    }
+
+    public function effectiveTenantLimit(): int
+    {
+        return $this->effectiveLimit('tenants');
+    }
+
+    public function effectiveMeterLimit(): int
+    {
+        return $this->effectiveLimit('meters');
+    }
+
+    public function effectiveInvoiceLimit(): int
+    {
+        return $this->effectiveLimit('invoices');
+    }
+
+    public function featureEnabled(string $feature, bool $default = false): bool
+    {
+        $override = $this->featureOverrides()
+            ->select(['id', 'organization_id', 'feature', 'enabled', 'reason', 'created_by', 'created_at', 'updated_at'])
+            ->forFeature($feature)
+            ->latestFirst()
+            ->first();
+
+        return $override?->enabled ?? $default;
+    }
+
+    private function effectiveLimit(string $dimension): int
+    {
+        $override = $this->limitOverrides()
+            ->select(['id', 'organization_id', 'dimension', 'value', 'reason', 'expires_at', 'created_by', 'created_at', 'updated_at'])
+            ->forDimension($dimension)
+            ->active()
+            ->latestFirst()
+            ->first();
+
+        if ($override instanceof OrganizationLimitOverride) {
+            return $override->value;
+        }
+
+        $subscription = $this->relationLoaded('currentSubscription')
+            ? $this->currentSubscription
+            : $this->currentSubscription()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'plan',
+                    'status',
+                    'starts_at',
+                    'expires_at',
+                    'is_trial',
+                    'property_limit_snapshot',
+                    'tenant_limit_snapshot',
+                    'meter_limit_snapshot',
+                    'invoice_limit_snapshot',
+                ])
+                ->first();
+
+        if (! $subscription instanceof Subscription) {
+            return 0;
+        }
+
+        return $subscription->limitForDimension($dimension);
     }
 }

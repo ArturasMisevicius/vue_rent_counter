@@ -8,11 +8,13 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationsSummaryAction;
 use App\Filament\Actions\Superadmin\Organizations\ForceOrganizationPlanChangeAction;
+use App\Filament\Actions\Superadmin\Organizations\OverrideOrganizationLimitsAction;
 use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
 use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
@@ -27,6 +29,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -324,6 +327,88 @@ class OrganizationsTable
 
                             Notification::make()
                                 ->title(__('superadmin.organizations.notifications.ownership_transferred'))
+                                ->success()
+                                ->send();
+                        }),
+                    Action::make('overrideLimits')
+                        ->label(__('superadmin.organizations.actions.override_limits'))
+                        ->icon(Heroicon::OutlinedAdjustmentsHorizontal)
+                        ->slideOver()
+                        ->visible(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                        ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                        ->schema([
+                            Select::make('dimension')
+                                ->label(__('superadmin.organizations.form.fields.limit_dimension'))
+                                ->options([
+                                    'properties' => __('superadmin.organizations.overview.usage_labels.properties'),
+                                    'tenants' => __('superadmin.organizations.overview.usage_labels.tenants'),
+                                    'meters' => __('superadmin.organizations.overview.usage_labels.meters'),
+                                    'invoices' => __('superadmin.organizations.overview.usage_labels.invoices'),
+                                ])
+                                ->required(),
+                            TextInput::make('value')
+                                ->label(__('superadmin.organizations.form.fields.limit_value'))
+                                ->numeric()
+                                ->minValue(1)
+                                ->required(),
+                            DateTimePicker::make('expires_at')
+                                ->label(__('superadmin.organizations.form.fields.expires_at'))
+                                ->seconds(false)
+                                ->required(),
+                            Textarea::make('reason')
+                                ->label(__('superadmin.organizations.form.fields.change_reason'))
+                                ->required()
+                                ->rows(4)
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Organization $record, array $data, OverrideOrganizationLimitsAction $overrideOrganizationLimitsAction): void {
+                            $overrideOrganizationLimitsAction->handle(
+                                $record,
+                                (string) $data['dimension'],
+                                (int) $data['value'],
+                                $data['reason'],
+                                $data['expires_at'],
+                            );
+
+                            Notification::make()
+                                ->title(__('superadmin.organizations.notifications.limits_overridden'))
+                                ->success()
+                                ->send();
+                        }),
+                    Action::make('toggleFeature')
+                        ->label(__('superadmin.organizations.actions.toggle_feature'))
+                        ->icon(Heroicon::OutlinedBolt)
+                        ->slideOver()
+                        ->visible(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                        ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                        ->schema([
+                            TextInput::make('feature')
+                                ->label(__('superadmin.organizations.form.fields.feature'))
+                                ->required()
+                                ->maxLength(100),
+                            Select::make('enabled')
+                                ->label(__('superadmin.organizations.form.fields.feature_state'))
+                                ->options([
+                                    '1' => __('superadmin.organizations.form.feature_state_options.enabled'),
+                                    '0' => __('superadmin.organizations.form.feature_state_options.disabled'),
+                                ])
+                                ->required(),
+                            Textarea::make('reason')
+                                ->label(__('superadmin.organizations.form.fields.change_reason'))
+                                ->required()
+                                ->rows(4)
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Organization $record, array $data, ToggleOrganizationFeatureAction $toggleOrganizationFeatureAction): void {
+                            $toggleOrganizationFeatureAction->handle(
+                                $record,
+                                (string) $data['feature'],
+                                (bool) ((int) $data['enabled']),
+                                $data['reason'],
+                            );
+
+                            Notification::make()
+                                ->title(__('superadmin.organizations.notifications.feature_toggled'))
                                 ->success()
                                 ->send();
                         }),

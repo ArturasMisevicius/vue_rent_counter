@@ -6,17 +6,20 @@ use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ForceOrganizationPlanChangeAction;
+use App\Filament\Actions\Superadmin\Organizations\OverrideOrganizationLimitsAction;
 use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
 use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -193,6 +196,81 @@ class ViewOrganization extends ViewRecord
                         ->success()
                         ->send();
                 }),
+            Action::make('overrideLimits')
+                ->label(__('superadmin.organizations.actions.override_limits'))
+                ->slideOver()
+                ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->schema([
+                    Select::make('dimension')
+                        ->label(__('superadmin.organizations.form.fields.limit_dimension'))
+                        ->options($this->limitDimensionOptions())
+                        ->required(),
+                    TextInput::make('value')
+                        ->label(__('superadmin.organizations.form.fields.limit_value'))
+                        ->numeric()
+                        ->minValue(1)
+                        ->required(),
+                    DateTimePicker::make('expires_at')
+                        ->label(__('superadmin.organizations.form.fields.expires_at'))
+                        ->seconds(false)
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.change_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, OverrideOrganizationLimitsAction $overrideOrganizationLimitsAction): void {
+                    $overrideOrganizationLimitsAction->handle(
+                        $this->record,
+                        (string) $data['dimension'],
+                        (int) $data['value'],
+                        $data['reason'],
+                        $data['expires_at'],
+                    );
+
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.limits_overridden'))
+                        ->success()
+                        ->send();
+                }),
+            Action::make('toggleFeature')
+                ->label(__('superadmin.organizations.actions.toggle_feature'))
+                ->slideOver()
+                ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->schema([
+                    TextInput::make('feature')
+                        ->label(__('superadmin.organizations.form.fields.feature'))
+                        ->required()
+                        ->maxLength(100),
+                    Select::make('enabled')
+                        ->label(__('superadmin.organizations.form.fields.feature_state'))
+                        ->options([
+                            '1' => __('superadmin.organizations.form.feature_state_options.enabled'),
+                            '0' => __('superadmin.organizations.form.feature_state_options.disabled'),
+                        ])
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.change_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, ToggleOrganizationFeatureAction $toggleOrganizationFeatureAction): void {
+                    $toggleOrganizationFeatureAction->handle(
+                        $this->record,
+                        (string) $data['feature'],
+                        (bool) ((int) $data['enabled']),
+                        $data['reason'],
+                    );
+
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.feature_toggled'))
+                        ->success()
+                        ->send();
+                }),
             Action::make('sendNotification')
                 ->label(__('superadmin.organizations.actions.send_notification'))
                 ->slideOver()
@@ -305,6 +383,19 @@ class ViewOrganization extends ViewRecord
             ->filter(fn (User $user): bool => $user->email_verified_at !== null)
             ->mapWithKeys(fn (User $user): array => [$user->id => "{$user->name} ({$user->email})"])
             ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function limitDimensionOptions(): array
+    {
+        return [
+            'properties' => __('superadmin.organizations.overview.usage_labels.properties'),
+            'tenants' => __('superadmin.organizations.overview.usage_labels.tenants'),
+            'meters' => __('superadmin.organizations.overview.usage_labels.meters'),
+            'invoices' => __('superadmin.organizations.overview.usage_labels.invoices'),
+        ];
     }
 
     private function authenticatedUser(): ?User

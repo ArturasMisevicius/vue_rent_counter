@@ -9,6 +9,7 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionAccessState;
 use App\Models\Organization;
+use App\Models\OrganizationLimitOverride;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -92,11 +93,11 @@ final class SubscriptionChecker
      */
     private function cachedSnapshotForUser(User $user): array
     {
-        if ($user->id === null) {
+        if ($user->organization_id === null) {
             return $this->defaultSnapshot();
         }
 
-        $cacheKey = $this->cacheKeyForUser($user);
+        $cacheKey = $this->cacheKeyForOrganizationId($user->organization_id);
 
         if (array_key_exists($cacheKey, $this->userSnapshots)) {
             return $this->userSnapshots[$cacheKey];
@@ -113,9 +114,23 @@ final class SubscriptionChecker
         return $snapshot;
     }
 
-    private function cacheKeyForUser(User $user): string
+    public function forgetOrganization(Organization|int|null $organization): void
     {
-        return "subscription-checker:user:{$user->id}";
+        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
+
+        if ($organizationId === null) {
+            return;
+        }
+
+        $cacheKey = $this->cacheKeyForOrganizationId($organizationId);
+
+        unset($this->userSnapshots[$cacheKey], $this->organizationSnapshots[$organizationId]);
+        Cache::forget($cacheKey);
+    }
+
+    private function cacheKeyForOrganizationId(int $organizationId): string
+    {
+        return "subscription-checker:organization:{$organizationId}";
     }
 
     /**
@@ -178,6 +193,34 @@ final class SubscriptionChecker
                     ->forOrganization($organizationId)
                     ->latestFirst()
                     ->limit(1),
+                'property_limit_override_value' => OrganizationLimitOverride::query()
+                    ->select('value')
+                    ->forOrganization($organizationId)
+                    ->forDimension('properties')
+                    ->active()
+                    ->latestFirst()
+                    ->limit(1),
+                'tenant_limit_override_value' => OrganizationLimitOverride::query()
+                    ->select('value')
+                    ->forOrganization($organizationId)
+                    ->forDimension('tenants')
+                    ->active()
+                    ->latestFirst()
+                    ->limit(1),
+                'meter_limit_override_value' => OrganizationLimitOverride::query()
+                    ->select('value')
+                    ->forOrganization($organizationId)
+                    ->forDimension('meters')
+                    ->active()
+                    ->latestFirst()
+                    ->limit(1),
+                'invoice_limit_override_value' => OrganizationLimitOverride::query()
+                    ->select('value')
+                    ->forOrganization($organizationId)
+                    ->forDimension('invoices')
+                    ->active()
+                    ->latestFirst()
+                    ->limit(1),
             ])
             ->first();
 
@@ -198,10 +241,14 @@ final class SubscriptionChecker
             'invoices' => (int) ($organization->getAttribute('invoices_count') ?? 0),
         ];
         $limits = [
-            'properties' => $this->integerOrNull($organization->getAttribute('property_limit_value')),
-            'tenants' => $this->integerOrNull($organization->getAttribute('tenant_limit_value')),
-            'meters' => $this->integerOrNull($organization->getAttribute('meter_limit_value')),
-            'invoices' => $this->integerOrNull($organization->getAttribute('invoice_limit_value')),
+            'properties' => $this->integerOrNull($organization->getAttribute('property_limit_override_value'))
+                ?? $this->integerOrNull($organization->getAttribute('property_limit_value')),
+            'tenants' => $this->integerOrNull($organization->getAttribute('tenant_limit_override_value'))
+                ?? $this->integerOrNull($organization->getAttribute('tenant_limit_value')),
+            'meters' => $this->integerOrNull($organization->getAttribute('meter_limit_override_value'))
+                ?? $this->integerOrNull($organization->getAttribute('meter_limit_value')),
+            'invoices' => $this->integerOrNull($organization->getAttribute('invoice_limit_override_value'))
+                ?? $this->integerOrNull($organization->getAttribute('invoice_limit_value')),
         ];
         $limitHits = collect($limits)
             ->filter(fn (?int $limit, string $resource): bool => $limit !== null && ($usage[$resource] ?? 0) >= $limit)
