@@ -25,6 +25,7 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Models\OrganizationUser;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -97,6 +98,9 @@ class OperationalDemoDatasetSeeder extends Seeder
                 'owner_user_id' => $admin->id,
                 'system_tenant_id' => $systemTenant->id,
             ])->save();
+
+            $this->syncMembership($organization, $admin, UserRole::ADMIN, $admin);
+            $this->syncMembership($organization, $manager, UserRole::MANAGER, $admin);
 
             // Showcase managers intentionally demonstrate different write profiles per organization.
             ManagerPermission::syncForManager(
@@ -191,14 +195,18 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            $tenants = collect(range(1, $volumes['tenants']))->map(function (int $tenantIndex) use ($blueprint, $locales, $organization, $sequence): User {
-                return $this->upsertOrganizationUser(
+            $tenants = collect(range(1, $volumes['tenants']))->map(function (int $tenantIndex) use ($admin, $blueprint, $locales, $organization, $sequence): User {
+                $tenant = $this->upsertOrganizationUser(
                     organization: $organization,
                     email: sprintf('org%02d-tenant%02d@tenanto-demo.test', $sequence, $tenantIndex),
                     name: sprintf('%s Resident %02d', $blueprint['tenant_prefix'], $tenantIndex),
                     role: UserRole::TENANT,
                     locale: $locales[($sequence + $tenantIndex) % count($locales)],
                 );
+
+                $this->syncMembership($organization, $tenant, UserRole::TENANT, $admin);
+
+                return $tenant;
             });
 
             $properties = collect(range(1, $volumes['properties']))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationProviderGraph, $organizationUtilityServices, $volumes): Property {
@@ -921,6 +929,24 @@ class OperationalDemoDatasetSeeder extends Seeder
                 'password' => $user->password,
                 'system_tenant_id' => $organization->system_tenant_id,
                 'is_super_admin' => false,
+            ],
+        );
+    }
+
+    private function syncMembership(Organization $organization, User $user, UserRole $role, User $inviter): void
+    {
+        OrganizationUser::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'role' => $role->value,
+                'permissions' => null,
+                'joined_at' => now()->subMonths(2),
+                'left_at' => null,
+                'is_active' => true,
+                'invited_by' => $inviter->id,
             ],
         );
     }
