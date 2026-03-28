@@ -2,13 +2,13 @@
 
 ## 2026-03-28
 
-<!-- changelog:auto:start:pending -->
-### Pending staged changes
+<!-- changelog:auto:start:commit-20260328160318 -->
+### Commit updates
 
 - renamed `app/Support/Changelog/GitChangelogUpdater.php` to `app/Filament/Support/Changelog/GitChangelogUpdater.php`
 - updated `scripts/update_changelog.php`
 - renamed `tests/Unit/Support/Changelog/GitChangelogUpdaterTest.php` to `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
-<!-- changelog:auto:end:pending -->
+<!-- changelog:auto:end:commit-20260328160318 -->
 
 <!-- changelog:auto:start:commit-20260328155531 -->
 ### feat: automate changelog updates before commit
