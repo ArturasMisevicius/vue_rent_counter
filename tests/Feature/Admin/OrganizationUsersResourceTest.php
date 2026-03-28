@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\UserRole;
 use App\Filament\Resources\OrganizationUsers\Pages\ListOrganizationUsers;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
@@ -156,6 +157,39 @@ it('lets admins view and edit manager memberships in their current organization'
         ->assertSuccessful()
         ->assertSeeText(__('admin.manager_permissions.section'))
         ->assertDontSee('data-superadmin-surface="true"', false);
+});
+
+it('shows a read-only manager permission summary on the organization user view page', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Matrix Summary Manager',
+    ]);
+
+    $organizationUser = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    app(ManagerPermissionService::class)->saveMatrix(
+        $manager,
+        $organization,
+        [
+            'buildings' => ['can_create' => true],
+            'properties' => ['can_edit' => true],
+        ],
+        $admin,
+    );
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.organization-users.view', ['record' => $organizationUser]))
+        ->assertSuccessful()
+        ->assertSeeText(__('admin.manager_permissions.section'))
+        ->assertSeeText('Buildings: Create')
+        ->assertSeeText('Properties: Edit');
 });
 
 it('forbids admins from creating or opening organization users outside the scoped manager surface', function (): void {

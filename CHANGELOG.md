@@ -2,6 +2,12 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328170935 -->
+### Commit updates
+
+- updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260328170935 -->
+
 <!-- changelog:auto:start:staged-20260328170244 -->
 ### Commit updates
 
