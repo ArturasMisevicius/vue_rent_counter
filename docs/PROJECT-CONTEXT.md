@@ -1,23 +1,25 @@
 # Tenanto Project Context
 
-This document is the verified repository snapshot for Tenanto as of 2026-03-17. When a pasted session brief or older plan document disagrees with the current workspace, prefer this file plus the live codebase.
+This document is the verified repository snapshot for Tenanto as of 2026-03-28. When a pasted session brief or older plan document disagrees with the current workspace, prefer this file plus the live codebase.
 
 ## Stack
 
 - Local CLI runtime: PHP `8.5.4`
-- Composer requirement: PHP `^8.2`
-- Laravel `12`
-- Filament `5.3`
+- Composer requirement: PHP `^8.3`
+- Laravel `13.2.0`
+- Filament `5`
 - Livewire `4`
 - Tailwind CSS `4`
+- Vite `7`
 - Pest `4`
 - PHPUnit `12`
 - Alpine.js `3`
 - Laravel Sanctum `4`
+- SQLite as the default local database path
 
 ## Product Summary
 
-Tenanto is a multi-tenant utility billing and property management SaaS. The current codebase is Filament-first for administration and uses Livewire page/components for auth, shell behavior, public-site endpoints, preferences, and tenant self-service flows.
+Tenanto is a multi-tenant utility billing and property management SaaS. The current codebase is Filament-first for the authenticated workspace and uses Livewire pages/components for auth, shell behavior, public-site endpoints, preferences, and tenant self-service flows.
 
 ## Role Model
 
@@ -32,15 +34,20 @@ The exact behavior for each role should be verified from policies, Filament reso
 
 ## Current Workspace Shape
 
-Verified from the live repository on 2026-03-17:
+Verified from the live repository on 2026-03-28:
 
 - 1 controller file remains under `app/Http/Controllers` and it is the base controller only
-- 17 Filament resource classes under `app/Filament/Resources`
-- 27 Livewire component classes under `app/Livewire`
-- 84 PHP test files under `tests`
-- 1 Filament panel provider at `app/Providers/Filament/AdminPanelProvider.php`
+- 33 Filament resource classes under `app/Filament/Resources`
+- 41 PHP files under `app/Livewire`
+- 164 `*Test.php` files under `tests` and 168 total PHP files in the `tests/` tree
+- 1 Filament panel provider at `app/Providers/Filament/AppPanelProvider.php`
 - No extra public PHP debug entrypoints; only `public/index.php` exists
 - No standalone service worker is shipped; do not add `public/sw.js` unless a maintained PWA feature is actually introduced
+- Repo-local assistant and command surfaces exist under:
+  - `.agent/`
+  - `.claude/`
+  - `.codex/`
+  - `.gemini/`
 
 These counts are useful for orientation, but they are a point-in-time snapshot and may change as the codebase evolves.
 
@@ -66,6 +73,7 @@ These counts are useful for orientation, but they are a point-in-time snapshot a
 - Core domain models: `app/Models`
 - Filament panel registration: `app/Providers/Filament`
 - Public and shell views: `resources/views`
+- Repo-local command/workflow tooling: `.agent`, `.claude`, `.codex`, `.gemini`
 
 ## Repo-Local MCP
 

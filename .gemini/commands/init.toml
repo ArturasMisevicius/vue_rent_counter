@@ -1,0 +1,29 @@
+description = "Reinitialize project planning by clearing `.planning/` if it exists, then run the new-project workflow again"
+prompt = """
+<objective>
+Reset stale planning state and rerun project initialization from a clean slate.
+</objective>
+
+<execution_context>
+@/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/workflows/new-project.md
+@/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/references/questioning.md
+@/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/references/ui-brand.md
+@/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/templates/project.md
+@/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/templates/requirements.md
+</execution_context>
+
+<process>
+Before any user interaction, run:
+
+```bash
+INIT=$(node "/Users/andrejprus/Herd/tenanto/.gemini/get-shit-done/bin/gsd-tools.cjs" init new-project --reset)
+if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
+```
+
+This command intentionally deletes existing `.planning/` artifacts before reinitializing.
+
+Treat all arguments after `/init` exactly like `/gsd:new-project`, including `--auto` and `@file` idea documents.
+
+After the reset step, execute the new-project workflow from the execution context end-to-end and preserve all normal gates, approvals, and routing.
+</process>
+"""

@@ -7,6 +7,33 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInternal, pathExistsInternal, generateSlugInternal, getMilestoneInfo, getMilestonePhaseFilter, stripShippedMilestones, extractCurrentMilestone, normalizePhaseName, toPosixPath, output, error } = require('./core.cjs');
 
+function removePlanningArtifacts(cwd) {
+  fs.rmSync(path.join(cwd, '.planning'), { recursive: true, force: true });
+
+  const gitignorePath = path.join(cwd, '.gitignore');
+
+  if (!fs.existsSync(gitignorePath)) {
+    return;
+  }
+
+  const original = fs.readFileSync(gitignorePath, 'utf-8');
+  const filtered = original
+    .split(/\r?\n/)
+    .filter(line => {
+      const trimmed = line.trim();
+
+      return trimmed !== '.planning' && trimmed !== '.planning/';
+    })
+    .join('\n')
+    .replace(/\n+$/g, '');
+
+  const normalizedOriginal = original.replace(/\r\n/g, '\n').replace(/\n+$/g, '');
+
+  if (filtered !== normalizedOriginal) {
+    fs.writeFileSync(gitignorePath, filtered.length > 0 ? filtered + '\n' : '');
+  }
+}
+
 function cmdInitExecutePhase(cwd, phase, raw) {
   if (!phase) {
     error('phase required for init execute-phase');
@@ -159,7 +186,11 @@ function cmdInitPlanPhase(cwd, phase, raw) {
   output(result, raw);
 }
 
-function cmdInitNewProject(cwd, raw) {
+function cmdInitNewProject(cwd, raw, options = {}) {
+  if (options.reset) {
+    removePlanningArtifacts(cwd);
+  }
+
   const config = loadConfig(cwd);
 
   // Detect Brave Search API key availability

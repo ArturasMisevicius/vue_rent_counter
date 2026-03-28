@@ -117,7 +117,7 @@
  * Compound Commands (workflow-specific initialization):
  *   init execute-phase <phase>         All context for execute-phase workflow
  *   init plan-phase <phase>            All context for plan-phase workflow
- *   init new-project                   All context for new-project workflow
+ *   init new-project [--reset]         All context for new-project workflow
  *   init new-milestone                 All context for new-milestone workflow
  *   init quick <description>           All context for quick workflow
  *   init resume                        All context for resume-project workflow
@@ -562,7 +562,9 @@ async function main() {
           init.cmdInitPlanPhase(cwd, args[2], raw);
           break;
         case 'new-project':
-          init.cmdInitNewProject(cwd, raw);
+          init.cmdInitNewProject(cwd, raw, {
+            reset: args.includes('--reset'),
+          });
           break;
         case 'new-milestone':
           init.cmdInitNewMilestone(cwd, raw);
@@ -592,7 +594,7 @@ async function main() {
           init.cmdInitProgress(cwd, raw);
           break;
         default:
-          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
+          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project [--reset], new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
       }
       break;
     }
