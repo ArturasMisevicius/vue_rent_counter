@@ -14,16 +14,22 @@ class OrganizationUserForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $canEditMembershipDetails = self::canEditMembershipDetails();
+
         return $schema
             ->components([
                 Select::make('organization_id')
                     ->relationship('organization', 'name')
-                    ->required(),
+                    ->required()
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
                 Select::make('role')
                     ->options([
                         'viewer' => __('enums.user_role.viewer'),
@@ -32,10 +38,13 @@ class OrganizationUserForm
                         'tenant' => __('enums.user_role.tenant'),
                     ])
                     ->required()
-                    ->default('viewer'),
+                    ->default('viewer')
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
                 KeyValue::make('permissions')
                     ->nullable()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->visible($canEditMembershipDetails),
                 ManagerPermissionMatrix::make()
                     ->data(fn ($record): array => [
                         'record' => $record,
@@ -44,14 +53,27 @@ class OrganizationUserForm
                     ])
                     ->visible(fn ($record): bool => filled($record) && $record->role === UserRole::MANAGER->value),
                 DateTimePicker::make('joined_at')
-                    ->required(),
-                DateTimePicker::make('left_at'),
+                    ->required()
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
+                DateTimePicker::make('left_at')
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
                 Toggle::make('is_active')
-                    ->required(),
+                    ->required()
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
                 Select::make('invited_by')
                     ->relationship('inviter', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->disabled(! $canEditMembershipDetails)
+                    ->dehydrated($canEditMembershipDetails),
             ]);
+    }
+
+    private static function canEditMembershipDetails(): bool
+    {
+        return auth()->user()?->isSuperadmin() ?? false;
     }
 }

@@ -69,6 +69,29 @@ it('hides the superadmin banner when the matrix is rendered outside a superadmin
         ->assertDontSee('Changes take effect immediately.');
 });
 
+it('renders the manager permission matrix on the admin organization user edit page without the superadmin banner', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organizationUser = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    test()->actingAs($admin);
+
+    $this->get(route('filament.admin.resources.organization-users.edit', ['record' => $organizationUser]))
+        ->assertSuccessful()
+        ->assertSeeText('Resource permissions')
+        ->assertSeeText('Buildings')
+        ->assertDontSeeText('Changes take effect immediately.');
+});
+
 it('does not render the manager permission matrix for non-manager organization memberships', function (): void {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create();

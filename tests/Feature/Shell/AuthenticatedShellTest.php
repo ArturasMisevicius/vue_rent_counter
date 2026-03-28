@@ -55,12 +55,14 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSeeText(__('shell.navigation.groups.account'))
         ->assertSeeText(__('shell.navigation.items.profile'))
         ->assertSeeText(__('shell.navigation.items.settings'))
+        ->assertSeeText(__('shell.navigation.items.organization_users'))
         ->assertSee(route('profile.edit'), false)
+        ->assertSee(route('filament.admin.resources.organization-users.index'), false)
         ->assertSeeText(__('dashboard.logout_button'))
         ->assertSee(route('filament.admin.resources.buildings.index'), false)
         ->assertSee(route('filament.admin.resources.properties.index'), false)
+        ->assertDontSee(route('filament.admin.resources.users.index'), false)
         ->assertDontSeeText(__('superadmin.organizations.plural'))
-        ->assertDontSeeText(__('shell.navigation.items.users'))
         ->assertDontSeeText(__('shell.navigation.items.subscriptions'))
         ->assertDontSeeText(__('shell.navigation.items.translations'))
         ->assertDontSeeText(__('shell.navigation.items.audit_logs'))
@@ -230,6 +232,7 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     assertSidebarGroupLabels($content, 'account', [
         __('shell.navigation.items.profile', [], 'lt'),
         __('shell.navigation.items.settings', [], 'lt'),
+        __('shell.navigation.items.organization_users', [], 'lt'),
     ]);
 });
 

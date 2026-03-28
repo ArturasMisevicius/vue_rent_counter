@@ -52,6 +52,10 @@ $adminAccountNavigation = [
         'route' => 'filament.admin.pages.settings',
         'label' => 'shell.navigation.items.settings',
     ],
+    [
+        'route' => 'filament.admin.resources.organization-users.index',
+        'label' => 'shell.navigation.items.organization_users',
+    ],
 ];
 
 $managerAccountNavigation = [];

@@ -92,7 +92,7 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         ],
         OrganizationUserResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Superadmin/RelationCrudResourcesTest.php',
+            'test' => 'tests/Feature/Admin/OrganizationUsersResourceTest.php',
         ],
         OrganizationResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

@@ -5,12 +5,17 @@
 <!-- changelog:auto:start:pending -->
 ### Pending staged changes
 
-- updated `.agent/skills/update-changelog-before-commit/SKILL.md`
-- updated `.ai/skills/update-changelog-before-commit/SKILL.md`
-- updated `.claude/skills/update-changelog-before-commit/SKILL.md`
-- updated `.cursor/skills/update-changelog-before-commit/SKILL.md`
-- updated `.gemini/skills/update-changelog-before-commit/SKILL.md`
-- updated `.githooks/commit-msg`
+- updated `app/Filament/Resources/OrganizationUsers/OrganizationUserResource.php`
+- updated `app/Filament/Resources/OrganizationUsers/Pages/EditOrganizationUser.php`
+- updated `app/Filament/Resources/OrganizationUsers/Schemas/OrganizationUserForm.php`
+- updated `app/Policies/OrganizationUserPolicy.php`
+- updated `config/tenanto.php`
+- added `docs/superpowers/plans/2026-03-28-organization-user-admin-access.md`
+- updated `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`
+- added `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+- updated `tests/Feature/Filament/ManagerPermissionMatrixTest.php`
+- updated `tests/Feature/Shell/AuthenticatedShellTest.php`
+- updated `tests/Feature/Superadmin/RelationCrudResourcesTest.php`
 <!-- changelog:auto:end:pending -->
 
 <!-- changelog:auto:start:commit-20260328160318 -->
