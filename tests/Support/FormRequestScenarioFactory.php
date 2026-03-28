@@ -13,6 +13,7 @@ use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use App\Enums\TariffType;
 use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
@@ -61,6 +62,8 @@ use App\Http\Requests\Superadmin\Organizations\StoreOrganizationRequest;
 use App\Http\Requests\Superadmin\Organizations\UpdateOrganizationRequest;
 use App\Http\Requests\Superadmin\Security\BlockIpAddressRequest;
 use App\Http\Requests\Superadmin\Subscriptions\ExtendSubscriptionExpiryRequest;
+use App\Http\Requests\Superadmin\Subscriptions\StoreOrganizationSubscriptionRequest;
+use App\Http\Requests\Superadmin\Subscriptions\UpdateOrganizationSubscriptionRequest;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
@@ -346,6 +349,28 @@ final class FormRequestScenarioFactory
                     'expires_at' => now()->addMonth()->toDateString(),
                 ],
                 'required' => ['expires_at'],
+                'authorize' => self::superadminOnly(),
+            ],
+            'StoreOrganizationSubscriptionRequest' => [
+                'request' => static fn (array $context): FormRequest => new StoreOrganizationSubscriptionRequest,
+                'valid' => static fn (array $context): array => [
+                    'plan' => SubscriptionPlan::PROFESSIONAL->value,
+                    'status' => SubscriptionStatus::ACTIVE->value,
+                    'starts_at' => now()->startOfDay()->toDateString(),
+                    'expires_at' => now()->addMonth()->startOfDay()->toDateString(),
+                ],
+                'required' => ['plan', 'status', 'starts_at', 'expires_at'],
+                'authorize' => self::superadminOnly(),
+            ],
+            'UpdateOrganizationSubscriptionRequest' => [
+                'request' => static fn (array $context): FormRequest => new UpdateOrganizationSubscriptionRequest,
+                'valid' => static fn (array $context): array => [
+                    'plan' => SubscriptionPlan::ENTERPRISE->value,
+                    'status' => SubscriptionStatus::ACTIVE->value,
+                    'starts_at' => now()->startOfDay()->toDateString(),
+                    'expires_at' => now()->addMonths(2)->startOfDay()->toDateString(),
+                ],
+                'required' => ['plan', 'status', 'starts_at', 'expires_at'],
                 'authorize' => self::superadminOnly(),
             ],
             'UpgradeSubscriptionPlanRequest' => [

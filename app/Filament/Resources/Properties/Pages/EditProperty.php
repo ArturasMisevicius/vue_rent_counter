@@ -12,6 +12,8 @@ class EditProperty extends EditRecord
 {
     protected static string $resource = PropertyResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:properties,edit';
+
     public function getTitle(): string
     {
         return __('admin.properties.titles.edit', [

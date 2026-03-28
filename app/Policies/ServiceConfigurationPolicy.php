@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\ServiceConfiguration;
 use App\Models\User;
+use App\Policies\Concerns\AuthorizesManagerPermissionWrites;
 
 class ServiceConfigurationPolicy
 {
+    use AuthorizesManagerPermissionWrites;
+
     public function viewAny(User $user): bool
     {
         return $user->isAdminLike();
@@ -24,16 +27,16 @@ class ServiceConfigurationPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdminLike();
+        return $this->canWriteManagedResource($user, 'service_configurations', 'create');
     }
 
     public function update(User $user, ServiceConfiguration $serviceConfiguration): bool
     {
-        return $this->view($user, $serviceConfiguration);
+        return $this->canWriteManagedResource($user, 'service_configurations', 'edit', $serviceConfiguration->organization_id);
     }
 
     public function delete(User $user, ServiceConfiguration $serviceConfiguration): bool
     {
-        return $this->view($user, $serviceConfiguration);
+        return $this->canWriteManagedResource($user, 'service_configurations', 'delete', $serviceConfiguration->organization_id);
     }
 }

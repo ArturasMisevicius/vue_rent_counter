@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\Provider;
 use App\Models\User;
+use App\Policies\Concerns\AuthorizesManagerPermissionWrites;
 
 class ProviderPolicy
 {
+    use AuthorizesManagerPermissionWrites;
+
     public function viewAny(User $user): bool
     {
         if ($user->isSuperadmin()) {
@@ -28,16 +31,16 @@ class ProviderPolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperadmin() || $user->isAdmin() || $user->isManager();
+        return $this->canWriteManagedResource($user, 'providers', 'create');
     }
 
     public function update(User $user, Provider $provider): bool
     {
-        return $this->view($user, $provider);
+        return $this->canWriteManagedResource($user, 'providers', 'edit', $provider->organization_id);
     }
 
     public function delete(User $user, Provider $provider): bool
     {
-        return $this->view($user, $provider);
+        return $this->canWriteManagedResource($user, 'providers', 'delete', $provider->organization_id);
     }
 }

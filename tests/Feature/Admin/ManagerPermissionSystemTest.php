@@ -23,7 +23,6 @@ use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\User;
-use App\Policies\InvoicePolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -38,7 +37,7 @@ beforeEach(function (): void {
 it('denies manager create access across the permission matrix by default', function (): void {
     ['organization' => $organization, 'manager' => $manager] = managerWorkspace();
 
-    actingAs($manager);
+    test()->actingAs($manager);
 
     expect(BuildingResource::canCreate())->toBeFalse()
         ->and(PropertyResource::canCreate())->toBeFalse()
@@ -67,7 +66,7 @@ it('allows a manager with building create permission to create a building', func
         $admin,
     );
 
-    actingAs($manager);
+    test()->actingAs($manager);
 
     expect(BuildingResource::canCreate())->toBeTrue()
         ->and(PropertyResource::canCreate())->toBeFalse();
@@ -87,7 +86,7 @@ it('does not allow building permission to leak into properties', function (): vo
         $admin,
     );
 
-    actingAs($manager);
+    test()->actingAs($manager);
 
     expect(BuildingResource::canCreate())->toBeTrue()
         ->and(PropertyResource::canCreate())->toBeFalse();
@@ -124,7 +123,7 @@ it('does not apply the manager matrix to org admins', function (): void {
         'can_delete' => false,
     ]);
 
-    actingAs($admin);
+    test()->actingAs($admin);
 
     expect(BuildingResource::canCreate())->toBeTrue();
 });
@@ -282,7 +281,7 @@ it('resets persisted manager permissions when the user role changes away from ma
         $admin,
     );
 
-    actingAs($admin);
+    test()->actingAs($admin);
 
     $manager->update([
         'role' => UserRole::ADMIN,

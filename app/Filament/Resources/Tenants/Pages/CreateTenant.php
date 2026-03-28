@@ -16,6 +16,8 @@ class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:tenants,create';
+
     protected static bool $canCreateAnother = false;
 
     public function getTitle(): string

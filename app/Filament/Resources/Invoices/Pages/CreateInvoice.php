@@ -22,6 +22,8 @@ class CreateInvoice extends CreateRecord
 {
     protected static string $resource = InvoiceResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:invoices,create';
+
     protected static bool $canCreateAnother = false;
 
     private string $submissionMode = 'draft';

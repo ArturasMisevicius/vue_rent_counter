@@ -16,6 +16,8 @@ class CreateBuilding extends CreateRecord
 {
     protected static string $resource = BuildingResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:buildings,create';
+
     protected static bool $canCreateAnother = false;
 
     public function getTitle(): string

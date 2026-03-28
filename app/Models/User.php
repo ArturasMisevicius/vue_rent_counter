@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use Closure;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -218,6 +219,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(OrganizationUser::class);
     }
 
+    public function managerPermissions(): HasMany
+    {
+        return $this->hasMany(ManagerPermission::class);
+    }
+
     public function organizationInvitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class, 'email', 'email');
@@ -405,6 +411,50 @@ class User extends Authenticatable implements FilamentUser
     public function canBeDeletedFromSuperadmin(): bool
     {
         return $this->superadminDeletionBlockedReason() === null;
+    }
+
+    public function currentOrganization(): ?Organization
+    {
+        $organizationId = app(WorkspaceResolver::class)->resolveFor($this)->organizationId;
+
+        if ($organizationId === null) {
+            return null;
+        }
+
+        if ($this->relationLoaded('organization') && $this->organization?->id === $organizationId) {
+            return $this->organization;
+        }
+
+        return Organization::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'status',
+                'owner_user_id',
+                'created_at',
+                'updated_at',
+            ])
+            ->find($organizationId);
+    }
+
+    public function hasOrganizationRole(Organization|int|null $organization, UserRole $role): bool
+    {
+        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
+
+        if ($organizationId === null) {
+            return false;
+        }
+
+        if ($this->organization_id === $organizationId && $this->role === $role) {
+            return true;
+        }
+
+        return $this->organizationMemberships()
+            ->active()
+            ->where('organization_id', $organizationId)
+            ->where('role', $role->value)
+            ->exists();
     }
 
     public function canChangeRoleFromOrganizationRoster(): bool

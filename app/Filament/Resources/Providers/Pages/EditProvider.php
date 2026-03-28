@@ -15,6 +15,8 @@ class EditProvider extends EditRecord
 {
     protected static string $resource = ProviderResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:providers,edit';
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(UpdateProviderAction::class)->handle($record, $data);

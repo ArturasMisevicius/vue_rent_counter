@@ -12,6 +12,8 @@ class EditBuilding extends EditRecord
 {
     protected static string $resource = BuildingResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:buildings,edit';
+
     public function getTitle(): string
     {
         return __('admin.buildings.titles.edit', [

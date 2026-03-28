@@ -15,6 +15,8 @@ class CreateUtilityService extends CreateRecord
 {
     protected static string $resource = UtilityServiceResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:utility_services,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $organization = app(OrganizationContext::class)->currentOrganization();

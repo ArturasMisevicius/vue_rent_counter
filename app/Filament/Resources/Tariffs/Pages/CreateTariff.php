@@ -16,6 +16,8 @@ class CreateTariff extends CreateRecord
 {
     protected static string $resource = TariffResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:tariffs,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $organization = app(OrganizationContext::class)->currentOrganization();

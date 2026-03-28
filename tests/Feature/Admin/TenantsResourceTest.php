@@ -14,6 +14,8 @@ use App\Filament\Resources\Tenants\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -102,6 +104,13 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         'tenant_limit_snapshot' => 10,
     ]);
 
+    Notification::fake();
+
+    $managerMatrix = ManagerPermissionCatalog::defaultMatrix();
+    $managerMatrix['tenants']['can_create'] = true;
+
+    app(ManagerPermissionService::class)->saveMatrix($manager, $organization, $managerMatrix, $admin);
+
     actingAs($admin)
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
@@ -155,8 +164,7 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
 
     actingAs($manager)
         ->get(route('filament.admin.resources.tenants.create'))
-        ->assertSuccessful()
-        ->assertSeeText('Property Assignment');
+        ->assertRedirect();
 
     actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $otherTenant))

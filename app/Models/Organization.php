@@ -213,6 +213,11 @@ class Organization extends Model
         return $this->hasMany(OrganizationUser::class);
     }
 
+    public function managerPermissions(): HasMany
+    {
+        return $this->hasMany(ManagerPermission::class);
+    }
+
     public function propertyAssignments(): HasMany
     {
         return $this->hasMany(PropertyAssignment::class);

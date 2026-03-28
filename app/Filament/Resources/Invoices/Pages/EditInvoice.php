@@ -12,6 +12,8 @@ class EditInvoice extends EditRecord
 {
     protected static string $resource = InvoiceResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:invoices,edit';
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(SaveInvoiceDraftAction::class)->handle($record, $data);

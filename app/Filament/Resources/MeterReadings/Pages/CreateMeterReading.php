@@ -13,6 +13,8 @@ class CreateMeterReading extends CreateRecord
 {
     protected static string $resource = MeterReadingResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:meter_readings,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $meter = Meter::query()

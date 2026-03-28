@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Shell\Navigation;
 
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,10 @@ use Illuminate\Support\Str;
 
 class NavigationBuilder
 {
+    public function __construct(
+        private readonly ManagerPermissionService $managerPermissionService,
+    ) {}
+
     /**
      * @return array<int, NavigationGroupData>
      */
@@ -91,6 +96,23 @@ class NavigationBuilder
 
         /** @var array<string, array<int, array{label: string, route: string}>> $groups */
         $groups = config("tenanto.shell.navigation.roles.{$role}", []);
+
+        if ($role === 'manager') {
+            $organization = $user->currentOrganization();
+
+            if ($organization !== null) {
+                $billingMatrix = $this->managerPermissionService->getMatrix($user, $organization)['billing'] ?? null;
+
+                $showsBillingNavigation = is_array($billingMatrix)
+                    && ((bool) ($billingMatrix['can_create'] ?? false)
+                        || (bool) ($billingMatrix['can_edit'] ?? false)
+                        || (bool) ($billingMatrix['can_delete'] ?? false));
+
+                if (! $showsBillingNavigation) {
+                    unset($groups['billing']);
+                }
+            }
+        }
 
         return $groups;
     }

@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Policies\Concerns\AuthorizesManagerPermissionWrites;
 
 class InvoicePolicy
 {
+    use AuthorizesManagerPermissionWrites;
+
     public function viewAny(User $user): bool
     {
         return $user->isAdminLike() || $user->isTenant();
@@ -33,18 +36,16 @@ class InvoicePolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdminLike();
+        return $this->canWriteManagedResource($user, 'invoices', 'create');
     }
 
     public function update(User $user, Invoice $invoice): bool
     {
-        return $user->isAdminLike()
-            && $user->organization_id === $invoice->organization_id;
+        return $this->canWriteManagedResource($user, 'invoices', 'edit', $invoice->organization_id);
     }
 
     public function delete(User $user, Invoice $invoice): bool
     {
-        return $user->isAdminLike()
-            && $user->organization_id === $invoice->organization_id;
+        return $this->canWriteManagedResource($user, 'invoices', 'delete', $invoice->organization_id);
     }
 }

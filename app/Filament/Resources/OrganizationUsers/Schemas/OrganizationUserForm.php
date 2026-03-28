@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\OrganizationUsers\Schemas;
 
+use App\Enums\UserRole;
+use App\Filament\Forms\Components\ManagerPermissionMatrix;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
@@ -34,6 +36,13 @@ class OrganizationUserForm
                 KeyValue::make('permissions')
                     ->nullable()
                     ->columnSpanFull(),
+                ManagerPermissionMatrix::make()
+                    ->data(fn ($record): array => [
+                        'record' => $record,
+                        'organizationId' => $record?->organization_id,
+                        'userId' => $record?->user_id,
+                    ])
+                    ->visible(fn ($record): bool => filled($record) && $record->role === UserRole::MANAGER->value),
                 DateTimePicker::make('joined_at')
                     ->required(),
                 DateTimePicker::make('left_at'),

@@ -15,6 +15,8 @@ class EditTariff extends EditRecord
 {
     protected static string $resource = TariffResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:tariffs,edit';
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(UpdateTariffAction::class)->handle($record, $data);

@@ -16,6 +16,8 @@ class CreateServiceConfiguration extends CreateRecord
 {
     protected static string $resource = ServiceConfigurationResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:service_configurations,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $organization = app(OrganizationContext::class)->currentOrganization();

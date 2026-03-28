@@ -43,7 +43,7 @@ it('lets managers access the organization workspace routes except admin-only set
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSee('data-shell-group="properties"', false)
-        ->assertSee('data-shell-group="billing"', false)
+        ->assertDontSee('data-shell-group="billing"', false)
         ->assertSee('data-shell-group="reports"', false)
         ->assertDontSee('data-shell-group="account"', false)
         ->assertSeeText($manager->name)
@@ -70,7 +70,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.buildings.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.buildings.view', $building))
@@ -78,7 +78,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.buildings.edit', $building))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.index'))
@@ -86,7 +86,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.view', $property))
@@ -94,7 +94,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.edit', $property))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.index'))
@@ -102,7 +102,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.view', $tenant))
@@ -110,7 +110,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.edit', $tenant))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meters.index'))
@@ -118,7 +118,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meters.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meters.view', $meter))
@@ -126,7 +126,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meters.edit', $meter))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meter-readings.index'))
@@ -134,7 +134,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meter-readings.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meter-readings.view', $reading))
@@ -142,7 +142,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meter-readings.edit', $reading))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.invoices.index'))
@@ -158,7 +158,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.providers.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.providers.view', $provider))
@@ -166,7 +166,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.providers.edit', $provider))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tariffs.index'))
@@ -174,7 +174,7 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tariffs.create'))
-        ->assertSuccessful();
+        ->assertRedirect();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tariffs.view', $tariff))
@@ -182,5 +182,5 @@ it('lets managers access the organization workspace routes except admin-only set
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tariffs.edit', $tariff))
-        ->assertSuccessful();
+        ->assertRedirect();
 });

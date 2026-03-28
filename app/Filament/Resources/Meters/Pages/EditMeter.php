@@ -15,6 +15,8 @@ class EditMeter extends EditRecord
 {
     protected static string $resource = MeterResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:meters,edit';
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(UpdateMeterAction::class)->handle($record, $data);

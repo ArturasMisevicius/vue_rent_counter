@@ -14,6 +14,7 @@ use App\Filament\Resources\Tenants\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\User;
 use BackedEnum;
@@ -133,6 +134,14 @@ class TenantResource extends Resource
             return false;
         }
 
+        if ($user->isManager()) {
+            $organization = $user->currentOrganization();
+
+            if ($organization === null || ! app(ManagerPermissionService::class)->can($user, $organization, 'tenants', 'create')) {
+                return false;
+            }
+        }
+
         return ! static::getSubscriptionAccessState()->blocksCreation('tenants');
     }
 
@@ -152,13 +161,34 @@ class TenantResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
+        $user = self::currentUser();
+
+        if ($user?->isManager()) {
+            $organization = $user->currentOrganization();
+
+            if ($organization === null || ! app(ManagerPermissionService::class)->can($user, $organization, 'tenants', 'edit')) {
+                return false;
+            }
+        }
+
         return static::canView($record)
             && static::canMutateSubscriptionScopedRecords();
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canEdit($record);
+        $user = self::currentUser();
+
+        if ($user?->isManager()) {
+            $organization = $user->currentOrganization();
+
+            if ($organization === null || ! app(ManagerPermissionService::class)->can($user, $organization, 'tenants', 'delete')) {
+                return false;
+            }
+        }
+
+        return static::canView($record)
+            && static::canMutateSubscriptionScopedRecords();
     }
 
     public static function getRelations(): array

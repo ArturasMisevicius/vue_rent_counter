@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\Meter;
 use App\Models\User;
+use App\Policies\Concerns\AuthorizesManagerPermissionWrites;
 
 class MeterPolicy
 {
+    use AuthorizesManagerPermissionWrites;
+
     public function viewAny(User $user): bool
     {
         return $user->isAdminLike();
@@ -31,18 +34,16 @@ class MeterPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $this->canWriteManagedResource($user, 'meters', 'create');
     }
 
     public function update(User $user, Meter $meter): bool
     {
-        return ($user->isAdmin() || $user->isManager())
-            && $user->organization_id === $meter->organization_id;
+        return $this->canWriteManagedResource($user, 'meters', 'edit', $meter->organization_id);
     }
 
     public function delete(User $user, Meter $meter): bool
     {
-        return ($user->isAdmin() || $user->isManager())
-            && $user->organization_id === $meter->organization_id;
+        return $this->canWriteManagedResource($user, 'meters', 'delete', $meter->organization_id);
     }
 }

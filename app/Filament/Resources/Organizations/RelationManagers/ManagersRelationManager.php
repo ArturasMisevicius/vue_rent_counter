@@ -7,8 +7,12 @@ namespace App\Filament\Resources\Organizations\RelationManagers;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Organization;
+use App\Models\OrganizationUser;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -108,6 +112,29 @@ class ManagersRelationManager extends RelationManager
                     ])),
             ])
             ->recordActions([
+                Action::make('permissions')
+                    ->label(__('admin.manager_permissions.section'))
+                    ->url(function (User $record): string {
+                        /** @var Organization $organization */
+                        $organization = $this->getOwnerRecord();
+
+                        $organizationUser = OrganizationUser::query()->firstOrCreate(
+                            [
+                                'organization_id' => $organization->id,
+                                'user_id' => $record->id,
+                            ],
+                            [
+                                'role' => UserRole::MANAGER->value,
+                                'permissions' => null,
+                                'joined_at' => now(),
+                                'left_at' => null,
+                                'is_active' => true,
+                                'invited_by' => auth()->id(),
+                            ],
+                        );
+
+                        return OrganizationUserResource::getUrl('edit', ['record' => $organizationUser]);
+                    }),
                 ViewAction::make()
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record])),
                 EditAction::make()

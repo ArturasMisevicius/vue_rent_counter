@@ -13,6 +13,8 @@ class EditTenant extends EditRecord
 {
     protected static string $resource = TenantResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:tenants,edit';
+
     public function getTitle(): string
     {
         return __('admin.tenants.titles.edit', [

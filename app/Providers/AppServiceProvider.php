@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Contracts\BillingServiceInterface;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Dashboard\DashboardCacheService;
@@ -20,11 +21,13 @@ use App\Filament\Support\Superadmin\Integration\Probes\QueueProbe;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Http\Middleware\SetGuestLocale;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
 use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Observers\OrganizationObserver;
+use App\Observers\OrganizationUserObserver;
 use App\Observers\PropertyAssignmentObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
@@ -55,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AuditLogger::class);
         $this->app->singleton(BillingServiceInterface::class, BillingService::class);
         $this->app->singleton(ImpersonationManager::class);
+        $this->app->singleton(ManagerPermissionService::class);
         $this->app->scoped(DashboardCacheService::class);
         $this->app->singleton(TranslationCacheService::class, function (): TranslationCacheService {
             return new TranslationCacheService(
@@ -98,6 +102,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        ManagerPermissionService::flushCache();
+
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }
@@ -112,6 +118,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDestructiveActionConfirmations();
 
         Organization::observe(OrganizationObserver::class);
+        OrganizationUser::observe(OrganizationUserObserver::class);
         Subscription::observe(SubscriptionObserver::class);
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);

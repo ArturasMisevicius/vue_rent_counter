@@ -1,5 +1,7 @@
 <?php
 
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Organization;
 use App\Models\Provider;
 use App\Models\Tariff;
@@ -7,6 +9,7 @@ use App\Models\User;
 use App\Policies\TariffPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -37,6 +40,13 @@ it('authorizes tariff actions only for admin-like users in the same organization
 
     $superadmin = User::factory()->superadmin()->create();
 
+    Notification::fake();
+
+    $managerMatrix = ManagerPermissionCatalog::defaultMatrix();
+    $managerMatrix['tariffs']['can_create'] = true;
+
+    app(ManagerPermissionService::class)->saveMatrix($manager, $organization, $managerMatrix, $admin);
+
     expect($admin->can('viewAny', Tariff::class))->toBeTrue()
         ->and($admin->can('create', Tariff::class))->toBeTrue()
         ->and($admin->can('view', $tariff))->toBeTrue()
@@ -45,7 +55,7 @@ it('authorizes tariff actions only for admin-like users in the same organization
         ->and($admin->can('view', $foreignTariff))->toBeFalse();
 
     expect($manager->can('viewAny', Tariff::class))->toBeTrue()
-        ->and($manager->can('create', Tariff::class))->toBeTrue()
+        ->and($manager->can('create', Tariff::class))->toBeFalse()
         ->and($manager->can('view', $tariff))->toBeTrue()
         ->and($manager->can('view', $foreignTariff))->toBeFalse();
 

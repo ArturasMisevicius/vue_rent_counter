@@ -11,14 +11,17 @@ use App\Enums\OrganizationStatus;
 use App\Enums\PropertyType;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lease;
+use App\Models\ManagerPermission;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\Subscription;
@@ -137,6 +140,17 @@ class LoginDemoUsersSeeder extends Seeder
         $organization->forceFill([
             'owner_user_id' => $admin->id,
         ])->save();
+
+        $this->syncMembership($organization, $admin, UserRole::ADMIN);
+        $this->syncMembership($organization, $manager, UserRole::MANAGER);
+        $this->syncMembership($organization, $tenantAlina, UserRole::TENANT);
+        $this->syncMembership($organization, $tenantMarius, UserRole::TENANT);
+
+        ManagerPermission::syncForManager(
+            $manager,
+            $organization,
+            ManagerPermissionCatalog::presets()['property_manager']['matrix'],
+        );
 
         $buildingPrototype = Building::factory()
             ->named('Vilnius Central Residences')
@@ -404,5 +418,23 @@ class LoginDemoUsersSeeder extends Seeder
                 );
             }
         });
+    }
+
+    private function syncMembership(Organization $organization, User $user, UserRole $role): void
+    {
+        OrganizationUser::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'role' => $role->value,
+                'permissions' => null,
+                'joined_at' => now(),
+                'left_at' => null,
+                'is_active' => true,
+                'invited_by' => $organization->owner_user_id,
+            ],
+        );
     }
 }

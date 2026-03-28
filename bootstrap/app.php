@@ -3,6 +3,7 @@
 use App\Console\Commands\SyncTranslationsCommand;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BlockBlockedIpAddresses;
+use App\Http\Middleware\CheckManagerPermission;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureUserIsTenant;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'set.auth.locale' => SetAuthenticatedUserLocale::class,
             'ensure.account.accessible' => EnsureAccountIsAccessible::class,
             'ensure.onboarding.complete' => EnsureOnboardingIsComplete::class,
+            'manager.permission' => CheckManagerPermission::class,
             'tenant.only' => EnsureUserIsTenant::class,
         ]);
     })

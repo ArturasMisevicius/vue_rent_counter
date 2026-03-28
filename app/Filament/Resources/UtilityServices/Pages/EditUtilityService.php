@@ -14,6 +14,8 @@ class EditUtilityService extends EditRecord
 {
     protected static string $resource = UtilityServiceResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:utility_services,edit';
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(UpdateUtilityServiceAction::class)->handle($record, $data);

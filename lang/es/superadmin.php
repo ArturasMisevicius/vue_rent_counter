@@ -247,6 +247,8 @@ return [
             'all_action_types' => 'Todos los tipos de acción',
             'affected_record_type' => 'Tipo de registro afectado',
             'all_record_types' => 'Todos los tipos de registro',
+            'organization' => 'Organización',
+            'all_organizations' => 'Todas las organizaciones',
             'date_range' => 'Rango de fechas',
             'date_range_help' => 'Establezca una fecha inicial y final opcional.',
             'from' => 'Desde',
@@ -745,6 +747,9 @@ return [
             'plan_limit_exceeded' => 'No se puede aplicar el plan objetivo porque el uso actual supera los límites para: :dimensions.',
             'transfer_owner_must_belong_to_org' => 'El nuevo propietario ya debe pertenecer a esta organización.',
             'transfer_owner_must_be_verified' => 'El nuevo propietario debe tener un correo verificado.',
+            'invalid_limit_dimension' => 'La dimensión del límite seleccionada no es compatible.',
+            'limit_override_expired_at' => 'La expiración de la anulación debe estar en el futuro.',
+            'feature_required' => 'Se requiere una clave de función.',
             'write_off_reason_required' => 'Se requiere un motivo para la cancelación.',
         ],
         'filters' => [

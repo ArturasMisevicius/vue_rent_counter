@@ -15,6 +15,8 @@ class CreateProvider extends CreateRecord
 {
     protected static string $resource = ProviderResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:providers,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $organization = app(OrganizationContext::class)->currentOrganization();

@@ -28,6 +28,15 @@ final class UpdateOrganizationUserRoleAction
             'role' => $role,
         ]);
 
+        if ($user->organization_id !== null) {
+            $user->organizationMemberships()
+                ->active()
+                ->where('organization_id', $user->organization_id)
+                ->update([
+                    'role' => $role->value,
+                ]);
+        }
+
         return $user->refresh();
     }
 }

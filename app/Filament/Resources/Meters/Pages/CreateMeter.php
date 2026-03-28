@@ -16,6 +16,8 @@ class CreateMeter extends CreateRecord
 {
     protected static string $resource = MeterResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:meters,create';
+
     protected function handleRecordCreation(array $data): Model
     {
         $organization = app(OrganizationContext::class)->currentOrganization();

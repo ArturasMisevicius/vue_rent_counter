@@ -20,6 +20,8 @@ class CreateProperty extends CreateRecord
 {
     protected static string $resource = PropertyResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:properties,create';
+
     protected static bool $canCreateAnother = false;
 
     public function getTitle(): string

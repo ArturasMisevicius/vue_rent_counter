@@ -11,6 +11,8 @@ class EditServiceConfiguration extends EditRecord
 {
     protected static string $resource = ServiceConfigurationResource::class;
 
+    protected static string|array $routeMiddleware = 'manager.permission:service_configurations,edit';
+
     protected function getHeaderActions(): array
     {
         return [

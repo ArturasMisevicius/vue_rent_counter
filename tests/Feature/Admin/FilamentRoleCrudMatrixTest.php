@@ -7,6 +7,8 @@ use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -24,6 +26,7 @@ use App\Models\User;
 use App\Models\UtilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\actingAs;
 
@@ -75,6 +78,15 @@ it('applies role-based view and mutation checks for core billing resources', fun
         'organization_id' => $organization->id,
     ]);
 
+    Notification::fake();
+
+    $managerMatrix = ManagerPermissionCatalog::defaultMatrix();
+    $managerMatrix['providers']['can_edit'] = true;
+    $managerMatrix['service_configurations']['can_delete'] = true;
+    $managerMatrix['meter_readings']['can_delete'] = true;
+
+    app(ManagerPermissionService::class)->saveMatrix($manager, $organization, $managerMatrix, $admin);
+
     actingAs($admin);
 
     expect(ProviderResource::canViewAny())->toBeTrue()
@@ -100,9 +112,9 @@ it('applies role-based view and mutation checks for core billing resources', fun
     actingAs($manager);
 
     expect(ProviderResource::canViewAny())->toBeTrue()
-        ->and(ProviderResource::canEdit($provider))->toBeTrue()
-        ->and(ServiceConfigurationResource::canDelete($serviceConfiguration))->toBeTrue()
-        ->and(MeterReadingResource::canDelete($meterReading))->toBeTrue();
+        ->and(ProviderResource::canEdit($provider))->toBeFalse()
+        ->and(ServiceConfigurationResource::canDelete($serviceConfiguration))->toBeFalse()
+        ->and(MeterReadingResource::canDelete($meterReading))->toBeFalse();
 
     actingAs($tenant);
 
