@@ -336,8 +336,11 @@ class OrganizationsTable
                     ->label(__('superadmin.organizations.actions.export_selected'))
                     ->icon(Heroicon::OutlinedArrowDownTray)
                     ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
-                    ->action(function (Collection $records, ExportOrganizationsSummaryAction $exportOrganizationsSummaryAction) {
-                        $path = $exportOrganizationsSummaryAction->handle($records);
+                    ->action(function (Collection $records, ExportOrganizationsSummaryAction $exportOrganizationsSummaryAction, Table $table) {
+                        $path = $exportOrganizationsSummaryAction->handle(
+                            $records,
+                            array_keys($table->getVisibleColumns()),
+                        );
 
                         return response()
                             ->download($path, 'organizations-export.csv')
