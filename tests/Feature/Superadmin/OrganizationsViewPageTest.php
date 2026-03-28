@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\AuditLogAction;
+use App\Enums\InvoiceStatus;
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
@@ -22,6 +24,7 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
@@ -100,6 +103,153 @@ it('shows organization health metrics and full subscription usage gauges', funct
         ->assertSeeText($activityLog->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
         ->assertSeeText('4 of 12')
         ->assertSeeText('5 of 8');
+});
+
+it('shows portfolio, financial, usage, and subscription widgets on the org detail page', function () {
+    [$organization, $owner, $subscription] = seedOrganizationViewFixture();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $tenantUsers = User::query()
+        ->where('organization_id', $organization->id)
+        ->tenants()
+        ->orderedByName()
+        ->get();
+
+    $properties = Property::query()
+        ->where('organization_id', $organization->id)
+        ->ordered()
+        ->get();
+
+    foreach ($tenantUsers->take(3)->values() as $index => $tenant) {
+        PropertyAssignment::factory()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $properties[$index]->id,
+            'tenant_user_id' => $tenant->id,
+            'assigned_at' => now()->subMonth(),
+            'unassigned_at' => null,
+        ]);
+    }
+
+    $subscription->payments()->delete();
+    $subscription->renewals()->delete();
+
+    SubscriptionPayment::factory()->for($subscription)->create([
+        'organization_id' => $organization->id,
+        'duration' => SubscriptionDuration::MONTHLY,
+        'amount' => 129.00,
+        'currency' => 'EUR',
+        'paid_at' => now()->subDays(3),
+    ]);
+
+    SubscriptionRenewal::factory()->for($subscription)->create([
+        'user_id' => null,
+        'method' => 'automatic',
+        'period' => 'monthly',
+        'old_expires_at' => $subscription->expires_at?->copy()->subMonth(),
+        'new_expires_at' => $subscription->expires_at,
+        'duration_days' => 30,
+        'notes' => null,
+    ]);
+
+    Invoice::query()->where('organization_id', $organization->id)->delete();
+
+    Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $properties[0]->id,
+        'tenant_user_id' => $tenantUsers[0]->id,
+        'status' => InvoiceStatus::FINALIZED,
+        'currency' => 'EUR',
+        'total_amount' => 300.00,
+        'amount_paid' => 0,
+        'paid_amount' => 0,
+        'finalized_at' => now()->subDays(20),
+        'due_date' => now()->subDays(10)->toDateString(),
+        'paid_at' => null,
+    ]);
+
+    Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $properties[1]->id,
+        'tenant_user_id' => $tenantUsers[1]->id,
+        'status' => InvoiceStatus::FINALIZED,
+        'currency' => 'EUR',
+        'total_amount' => 200.00,
+        'amount_paid' => 0,
+        'paid_amount' => 0,
+        'finalized_at' => now()->subDays(10),
+        'due_date' => now()->addDays(5)->toDateString(),
+        'paid_at' => null,
+    ]);
+
+    Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $properties[2]->id,
+        'tenant_user_id' => $tenantUsers[2]->id,
+        'status' => InvoiceStatus::PAID,
+        'currency' => 'EUR',
+        'total_amount' => 150.00,
+        'amount_paid' => 150.00,
+        'paid_amount' => 150.00,
+        'finalized_at' => now()->subDays(6),
+        'due_date' => now()->addDays(7)->toDateString(),
+        'paid_at' => now()->subDays(2),
+    ]);
+
+    Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $properties[0]->id,
+        'tenant_user_id' => $tenantUsers[0]->id,
+        'status' => InvoiceStatus::PAID,
+        'currency' => 'EUR',
+        'total_amount' => 90.00,
+        'amount_paid' => 90.00,
+        'paid_amount' => 90.00,
+        'finalized_at' => now()->subDays(12),
+        'due_date' => now()->subDays(2)->toDateString(),
+        'paid_at' => now()->subDays(6),
+    ]);
+
+    Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $properties[1]->id,
+        'tenant_user_id' => $tenantUsers[1]->id,
+        'status' => InvoiceStatus::VOID,
+        'currency' => 'EUR',
+        'total_amount' => 50.00,
+        'amount_paid' => 0,
+        'paid_amount' => 0,
+        'finalized_at' => now()->subDays(3),
+        'due_date' => now()->addDays(3)->toDateString(),
+        'paid_at' => null,
+    ]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organizations.view', $organization))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.overview.portfolio_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.financial_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.plan_usage_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.subscription_timeline_heading'))
+        ->assertSeeText('1')
+        ->assertSeeText('7')
+        ->assertSeeText('3')
+        ->assertSeeText('4')
+        ->assertSeeText('43%')
+        ->assertSeeText('EUR 129.00')
+        ->assertSeeText('EUR 500.00')
+        ->assertSeeText('EUR 300.00')
+        ->assertSeeText('EUR 240.00')
+        ->assertSeeText('5 days')
+        ->assertSeeText('7 of 10')
+        ->assertSeeText('3 of 25')
+        ->assertSeeText('4 of 12')
+        ->assertSeeText('5 of 8')
+        ->assertSeeText(SubscriptionPlan::BASIC->label())
+        ->assertSeeText(SubscriptionStatus::ACTIVE->label())
+        ->assertSeeText(SubscriptionDuration::MONTHLY->label())
+        ->assertSeeText($subscription->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
+        ->assertSeeText(__('superadmin.organizations.overview.payment_method_on_file'))
+        ->assertSeeText(__('superadmin.organizations.overview.renewal_history'));
 });
 
 it('shows the latest ten org audit events on the detail page with deep links into the audit timeline', function () {

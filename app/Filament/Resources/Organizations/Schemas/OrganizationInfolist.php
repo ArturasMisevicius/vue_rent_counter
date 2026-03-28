@@ -3,6 +3,11 @@
 namespace App\Filament\Resources\Organizations\Schemas;
 
 use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
+use App\Filament\Support\Superadmin\Organizations\OrganizationFinancialSnapshot;
+use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
+use App\Filament\Support\Superadmin\Organizations\OrganizationPortfolioSnapshot;
+use App\Filament\Support\Superadmin\Organizations\OrganizationSubscriptionSnapshot;
+use App\Filament\Support\Superadmin\Usage\OrganizationUsageReader;
 use App\Models\Organization;
 use App\Models\Subscription;
 use Filament\Schemas\Components\View;
@@ -32,7 +37,13 @@ class OrganizationInfolist
      *     details: list<array{label: string, value: string}>,
      *     subscription: list<array{label: string, value: string}>,
      *     health: list<array{label: string, value: string}>,
+     *     portfolio: list<array{label: string, value: string}>,
+     *     financial: list<array{label: string, value: string}>,
      *     usage: list<array{label: string, current: int, limit: int, tone: string, percentage: int}>
+     *     subscription_timeline: array{
+     *         summary: list<array{label: string, value: string}>,
+     *         renewals: list<string>
+     *     }
      * }
      */
     private static function overview(Organization $organization): array
@@ -49,6 +60,14 @@ class OrganizationInfolist
         if ($subscription instanceof Subscription) {
             $subscription->setRelation('organization', $organization);
         }
+
+        $portfolio = OrganizationPortfolioSnapshot::fromOrganization($organization);
+        $financial = OrganizationFinancialSnapshot::fromOrganization(
+            $organization,
+            app(OrganizationMrrResolver::class),
+        );
+        $usage = app(OrganizationUsageReader::class)->forOrganization($organization);
+        $subscriptionTimeline = OrganizationSubscriptionSnapshot::fromOrganization($organization);
 
         return [
             'details' => [
@@ -71,48 +90,40 @@ class OrganizationInfolist
                 ['label' => __('superadmin.organizations.overview.health_labels.security_violations'), 'value' => (string) ($organization->security_violations_count ?? 0)],
                 ['label' => __('superadmin.organizations.overview.health_labels.last_activity'), 'value' => $lastActivityAt],
             ],
-            'usage' => [
-                self::usageRow(
-                    __('superadmin.organizations.overview.usage_labels.properties'),
-                    $subscription?->propertiesUsedCount() ?? (int) $organization->properties_count,
-                    $subscription?->propertyLimit() ?? 0,
-                ),
-                self::usageRow(
-                    __('superadmin.organizations.overview.usage_labels.tenants'),
-                    $subscription?->tenantsUsedCount() ?? (int) ($organization->tenants_count ?? 0),
-                    $subscription?->tenantLimit() ?? 0,
-                ),
-                self::usageRow(
-                    __('superadmin.organizations.overview.usage_labels.meters'),
-                    $subscription?->metersUsedCount() ?? (int) ($organization->meters_count ?? 0),
-                    $subscription?->meterLimit() ?? 0,
-                ),
-                self::usageRow(
-                    __('superadmin.organizations.overview.usage_labels.invoices'),
-                    $subscription?->invoicesUsedCount() ?? (int) ($organization->invoices_count ?? 0),
-                    $subscription?->invoiceLimit() ?? 0,
-                ),
+            'portfolio' => [
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.buildings'), 'value' => (string) $portfolio->buildingsCount],
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.properties'), 'value' => (string) $portfolio->propertiesCount],
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.occupied_units'), 'value' => (string) $portfolio->occupiedUnitsCount],
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.vacant_units'), 'value' => (string) $portfolio->vacantUnitsCount],
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.occupancy_rate'), 'value' => "{$portfolio->occupancyRatePercentage}%"],
+                ['label' => __('superadmin.organizations.overview.portfolio_labels.active_tenants'), 'value' => (string) $portfolio->activeTenantsCount],
             ],
-        ];
-    }
-
-    /**
-     * @return array{label: string, current: int, limit: int, tone: string, percentage: int}
-     */
-    private static function usageRow(string $label, int $current, int $limit): array
-    {
-        $percentage = $limit > 0 ? (int) min(100, round(($current / $limit) * 100)) : 0;
-
-        return [
-            'label' => $label,
-            'current' => $current,
-            'limit' => $limit,
-            'tone' => match (true) {
-                $percentage >= 95 => 'danger',
-                $percentage >= 80 => 'warning',
-                default => 'default',
-            },
-            'percentage' => $percentage,
+            'financial' => [
+                ['label' => __('superadmin.organizations.overview.financial_labels.mrr'), 'value' => $financial->mrrDisplay],
+                ['label' => __('superadmin.organizations.overview.financial_labels.outstanding_total'), 'value' => $financial->outstandingDisplay],
+                ['label' => __('superadmin.organizations.overview.financial_labels.overdue_total'), 'value' => $financial->overdueDisplay],
+                ['label' => __('superadmin.organizations.overview.financial_labels.collected_this_month'), 'value' => $financial->collectedThisMonthDisplay],
+                ['label' => __('superadmin.organizations.overview.financial_labels.average_days_to_pay'), 'value' => $financial->avgDaysToPayLabel],
+            ],
+            'usage' => collect($usage->rows())
+                ->map(fn (array $row): array => [
+                    'label' => __("superadmin.organizations.overview.usage_labels.{$row['key']}"),
+                    'current' => $row['current'],
+                    'limit' => $row['limit'],
+                    'tone' => $row['tone'],
+                    'percentage' => $row['percentage'],
+                ])
+                ->all(),
+            'subscription_timeline' => [
+                'summary' => [
+                    ['label' => __('superadmin.organizations.overview.subscription_timeline_labels.current_plan'), 'value' => $subscriptionTimeline->currentPlanLabel],
+                    ['label' => __('superadmin.organizations.overview.subscription_timeline_labels.current_status'), 'value' => $subscriptionTimeline->statusLabel],
+                    ['label' => __('superadmin.organizations.overview.subscription_timeline_labels.billing_cycle'), 'value' => $subscriptionTimeline->billingCycleLabel],
+                    ['label' => __('superadmin.organizations.overview.subscription_timeline_labels.next_billing_date'), 'value' => $subscriptionTimeline->nextBillingDateLabel],
+                    ['label' => __('superadmin.organizations.overview.payment_method_on_file'), 'value' => $subscriptionTimeline->paymentMethodLabel],
+                ],
+                'renewals' => $subscriptionTimeline->renewalHistory,
+            ],
         ];
     }
 
