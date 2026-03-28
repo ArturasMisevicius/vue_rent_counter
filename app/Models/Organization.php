@@ -156,6 +156,11 @@ class Organization extends Model
         return $this->hasMany(User::class);
     }
 
+    public function ownershipCandidates(): HasMany
+    {
+        return $this->users()->whereKeyNot($this->owner_user_id);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);

@@ -107,6 +107,8 @@ it('renders the organizations index contract for superadmins', function () {
         ->assertTableActionExists('view', record: $organization)
         ->assertTableActionExists('edit', record: $organization)
         ->assertTableActionExists('suspendOrganization', record: $organization)
+        ->assertTableActionExists('forcePlanChange', record: $organization)
+        ->assertTableActionExists('transferOwnership', record: $organization)
         ->assertTableActionExists('sendNotification', record: $organization)
         ->assertTableActionExists('impersonateAdmin', record: $organization)
         ->assertTableActionExists('exportData', record: $organization)

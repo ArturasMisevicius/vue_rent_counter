@@ -43,6 +43,8 @@ it('renders the organization view page overview, actions, and tabs', function ()
         ->assertSeeText('northwind-towers')
         ->assertSeeText(__('superadmin.organizations.actions.edit'))
         ->assertSeeText(__('superadmin.organizations.actions.suspend'))
+        ->assertSeeText(__('superadmin.organizations.actions.force_plan_change'))
+        ->assertSeeText(__('superadmin.organizations.actions.transfer_ownership'))
         ->assertSeeText(__('superadmin.organizations.actions.send_notification'))
         ->assertSeeText(__('superadmin.organizations.actions.impersonate_admin'))
         ->assertSeeText(__('superadmin.organizations.actions.export_data'))
@@ -65,6 +67,8 @@ it('renders the organization view page overview, actions, and tabs', function ()
     $this->actingAs($superadmin);
 
     Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->assertActionExists('forcePlanChange')
+        ->assertActionExists('transferOwnership')
         ->assertActionExists('sendNotification')
         ->assertActionExists('exportData');
 });

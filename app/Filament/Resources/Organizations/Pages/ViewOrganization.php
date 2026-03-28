@@ -3,12 +3,15 @@
 namespace App\Filament\Resources\Organizations\Pages;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionPlan;
 use App\Enums\UserRole;
+use App\Filament\Actions\Superadmin\Organizations\ForceOrganizationPlanChangeAction;
 use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Models\User;
@@ -125,6 +128,71 @@ class ViewOrganization extends ViewRecord
                         ->success()
                         ->send();
                 }),
+            Action::make('forcePlanChange')
+                ->label(__('superadmin.organizations.actions.force_plan_change'))
+                ->slideOver()
+                ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->schema([
+                    Select::make('plan')
+                        ->label(__('superadmin.organizations.form.fields.plan'))
+                        ->options(SubscriptionPlan::options())
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.change_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, ForceOrganizationPlanChangeAction $forceOrganizationPlanChangeAction): void {
+                    $forceOrganizationPlanChangeAction->handle(
+                        $this->record,
+                        SubscriptionPlan::from((string) $data['plan']),
+                        $data['reason'],
+                    );
+
+                    $this->refreshRecord();
+
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.plan_changed'))
+                        ->success()
+                        ->send();
+                }),
+            Action::make('transferOwnership')
+                ->label(__('superadmin.organizations.actions.transfer_ownership'))
+                ->slideOver()
+                ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
+                ->schema([
+                    Select::make('new_owner_user_id')
+                        ->label(__('superadmin.organizations.form.fields.new_owner_user_id'))
+                        ->options(fn (): array => $this->ownershipCandidateOptions())
+                        ->searchable()
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.change_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, TransferOrganizationOwnershipAction $transferOrganizationOwnershipAction): void {
+                    $newOwner = User::query()
+                        ->select(['id', 'organization_id', 'name', 'email', 'role', 'status', 'locale', 'email_verified_at'])
+                        ->findOrFail((int) $data['new_owner_user_id']);
+
+                    $transferOrganizationOwnershipAction->handle(
+                        $this->record,
+                        $newOwner,
+                        $data['reason'],
+                    );
+
+                    $this->refreshRecord();
+
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.ownership_transferred'))
+                        ->success()
+                        ->send();
+                }),
             Action::make('sendNotification')
                 ->label(__('superadmin.organizations.actions.send_notification'))
                 ->slideOver()
@@ -223,6 +291,20 @@ class ViewOrganization extends ViewRecord
             ->where('role', UserRole::ADMIN)
             ->orderedByName()
             ->first();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function ownershipCandidateOptions(): array
+    {
+        return $this->record->ownershipCandidates()
+            ->select(['id', 'organization_id', 'name', 'email', 'email_verified_at'])
+            ->orderedByName()
+            ->get()
+            ->filter(fn (User $user): bool => $user->email_verified_at !== null)
+            ->mapWithKeys(fn (User $user): array => [$user->id => "{$user->name} ({$user->email})"])
+            ->all();
     }
 
     private function authenticatedUser(): ?User

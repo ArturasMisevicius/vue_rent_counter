@@ -383,6 +383,8 @@ return [
             'edit' => 'Edit',
             'suspend' => 'Suspend Organization',
             'reinstate' => 'Reinstate Organization',
+            'force_plan_change' => 'Force Plan Change',
+            'transfer_ownership' => 'Transfer Ownership',
             'suspend_selected' => 'Suspend Selected',
             'reinstate_selected' => 'Reinstate Selected',
             'send_notification' => 'Send Notification',
@@ -413,6 +415,8 @@ return [
                 'notification_title' => 'Notification Title',
                 'message_body' => 'Message Body',
                 'severity' => 'Severity',
+                'new_owner_user_id' => 'New owner',
+                'change_reason' => 'Change reason',
                 'export_reason' => 'Support request reason',
             ],
             'helper' => [
@@ -488,6 +492,8 @@ return [
             'sent' => 'Notification sent',
             'queued' => 'Notification queued',
             'export_queued' => 'Organization export queued',
+            'plan_changed' => 'Organization plan changed',
+            'ownership_transferred' => 'Organization ownership transferred',
         ],
         'mail' => [
             'export_ready_subject' => ':name data export is ready',
@@ -503,6 +509,10 @@ return [
         ],
         'validation' => [
             'owner_belongs_to_another_organization' => 'The selected owner already belongs to another organization.',
+            'plan_change_requires_subscription' => 'The organization must have an active subscription before you can force a plan change.',
+            'plan_limit_exceeded' => 'The target plan cannot be applied because current usage exceeds the limits for: :dimensions.',
+            'transfer_owner_must_belong_to_org' => 'The new owner must already belong to this organization.',
+            'transfer_owner_must_be_verified' => 'The new owner must have a verified email address.',
         ],
         'modals' => [
             'suspend' => 'Are you sure you want to suspend :name? This will immediately prevent all users in this organization from making any changes. Their data will be preserved.',

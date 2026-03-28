@@ -383,6 +383,8 @@ return [
             'edit' => 'Redaguoti',
             'suspend' => 'Sustabdyti organizaciją',
             'reinstate' => 'Atkurti organizaciją',
+            'force_plan_change' => 'Priverstinai pakeisti planą',
+            'transfer_ownership' => 'Perduoti savininką',
             'suspend_selected' => 'Sustabdyti pasirinktas',
             'reinstate_selected' => 'Atkurti pasirinktas',
             'send_notification' => 'Siųsti pranešimą',
@@ -413,6 +415,8 @@ return [
                 'notification_title' => 'Pranešimo pavadinimas',
                 'message_body' => 'Pranešimo tekstas',
                 'severity' => 'Svarba',
+                'new_owner_user_id' => 'Naujas savininkas',
+                'change_reason' => 'Pakeitimo priežastis',
                 'export_reason' => 'Pagalbos užklausos priežastis',
             ],
             'helper' => [
@@ -488,6 +492,8 @@ return [
             'sent' => 'Pranešimas išsiųstas',
             'queued' => 'Pranešimas įtrauktas į eilę',
             'export_queued' => 'Organizacijos eksportas įtrauktas į eilę',
+            'plan_changed' => 'Organizacijos planas pakeistas',
+            'ownership_transferred' => 'Organizacijos savininkas perduotas',
         ],
         'mail' => [
             'export_ready_subject' => ':name duomenų eksportas paruoštas',
@@ -503,6 +509,10 @@ return [
         ],
         'validation' => [
             'owner_belongs_to_another_organization' => 'Pasirinktas savininkas jau priklauso kitai organizacijai.',
+            'plan_change_requires_subscription' => 'Prieš priverstinį plano keitimą organizacija turi turėti aktyvią prenumeratą.',
+            'plan_limit_exceeded' => 'Tikslinis planas negali būti pritaikytas, nes dabartinis naudojimas viršija šiuos limitus: :dimensions.',
+            'transfer_owner_must_belong_to_org' => 'Naujasis savininkas jau turi priklausyti šiai organizacijai.',
+            'transfer_owner_must_be_verified' => 'Naujasis savininkas turi turėti patvirtintą el. pašto adresą.',
         ],
         'modals' => [
             'suspend' => 'Ar tikrai norite sustabdyti :name? Tai iš karto neleis visiems šios organizacijos naudotojams atlikti pakeitimų. Jų duomenys bus išsaugoti.',

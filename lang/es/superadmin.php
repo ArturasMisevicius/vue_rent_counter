@@ -382,6 +382,8 @@ return [
             'edit' => 'Editar',
             'suspend' => 'Suspender Organización',
             'reinstate' => 'Reactivar Organización',
+            'force_plan_change' => 'Forzar cambio de plan',
+            'transfer_ownership' => 'Transferir propiedad',
             'suspend_selected' => 'Suspender seleccionadas',
             'reinstate_selected' => 'Reactivar seleccionadas',
             'send_notification' => 'Enviar Notificación',
@@ -413,6 +415,8 @@ return [
                 'notification_title' => 'Título de la Notificación',
                 'message_body' => 'Mensaje',
                 'severity' => 'Severidad',
+                'new_owner_user_id' => 'Nuevo propietario',
+                'change_reason' => 'Motivo del cambio',
                 'export_reason' => 'Motivo de la solicitud de soporte',
             ],
             'helper' => [
@@ -488,6 +492,8 @@ return [
             'sent' => 'Notificación enviada',
             'queued' => 'Notificación en cola',
             'export_queued' => 'Exportación de la organización en cola',
+            'plan_changed' => 'Plan de la organización actualizado',
+            'ownership_transferred' => 'Propiedad de la organización transferida',
         ],
         'mail' => [
             'export_ready_subject' => 'La exportación de datos de :name está lista',
@@ -628,6 +634,10 @@ return [
         ],
         'validation' => [
             'owner_belongs_to_another_organization' => 'The selected owner already belongs to another organization.',
+            'plan_change_requires_subscription' => 'La organización debe tener una suscripción activa antes de forzar un cambio de plan.',
+            'plan_limit_exceeded' => 'No se puede aplicar el plan objetivo porque el uso actual supera los límites para: :dimensions.',
+            'transfer_owner_must_belong_to_org' => 'El nuevo propietario ya debe pertenecer a esta organización.',
+            'transfer_owner_must_be_verified' => 'El nuevo propietario debe tener un correo verificado.',
         ],
         'filters' => [
             'all_statuses' => 'All Statuses',

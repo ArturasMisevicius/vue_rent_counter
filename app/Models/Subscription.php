@@ -291,6 +291,30 @@ class Subscription extends Model
         return $this->usageTone($this->invoiceUsagePercent());
     }
 
+    /**
+     * @return list<string>
+     */
+    public function limitViolationsForPlan(SubscriptionPlan $plan): array
+    {
+        $limits = $plan->limits();
+
+        return collect([
+            'properties' => $this->propertiesUsedCount(),
+            'tenants' => $this->tenantsUsedCount(),
+            'meters' => $this->metersUsedCount(),
+            'invoices' => $this->invoicesUsedCount(),
+        ])
+            ->filter(fn (int $used, string $dimension): bool => $used > $limits[$dimension])
+            ->keys()
+            ->values()
+            ->all();
+    }
+
+    public function canApplyPlan(SubscriptionPlan $plan): bool
+    {
+        return $this->limitViolationsForPlan($plan) === [];
+    }
+
     private function usagePercent(int $used, int $limit): int
     {
         if ($limit <= 0) {
