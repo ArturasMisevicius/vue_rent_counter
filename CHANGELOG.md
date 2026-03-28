@@ -2,6 +2,12 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328163744 -->
+### Commit updates
+
+- updated `.githooks/post-commit`
+<!-- changelog:auto:end:staged-20260328163744 -->
+
 <!-- changelog:auto:start:staged-20260328163633 -->
 ### Commit updates
 
