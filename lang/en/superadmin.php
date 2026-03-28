@@ -700,14 +700,21 @@ return [
                 ],
                 'actions' => [
                     'view' => 'View',
+                    'change_role' => 'Change Role',
+                    'resend_invitation' => 'Resend Invitation',
                     'reinstate' => 'Reinstate',
                     'suspend' => 'Suspend',
                     'reset_password' => 'Reset Password',
                 ],
                 'notifications' => [
+                    'role_updated' => 'User role updated',
+                    'invitation_resent' => 'Invitation resent',
                     'suspended' => 'User suspended',
                     'reinstated' => 'User reinstated',
                     'password_reset' => 'Password reset email sent',
+                ],
+                'statuses' => [
+                    'invited' => 'Invited',
                 ],
                 'placeholders' => [
                     'never' => 'Never',

@@ -639,14 +639,21 @@ return [
                 ],
                 'actions' => [
                     'view' => 'Ver',
+                    'change_role' => 'Cambiar rol',
+                    'resend_invitation' => 'Reenviar invitación',
                     'reinstate' => 'Restablecer',
                     'suspend' => 'Suspender',
                     'reset_password' => 'Restablecer contraseña',
                 ],
                 'notifications' => [
+                    'role_updated' => 'Rol de usuario actualizado',
+                    'invitation_resent' => 'Invitación reenviada',
                     'suspended' => 'Usuario suspendido',
                     'reinstated' => 'Usuario restablecido',
                     'password_reset' => 'Correo de restablecimiento enviado',
+                ],
+                'statuses' => [
+                    'invited' => 'Invitado',
                 ],
                 'placeholders' => [
                     'never' => 'Nunca',

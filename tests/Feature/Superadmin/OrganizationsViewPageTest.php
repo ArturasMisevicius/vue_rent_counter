@@ -7,6 +7,7 @@ use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
@@ -23,6 +24,7 @@ use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
+use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\SecurityViolation;
@@ -30,8 +32,10 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionRenewal;
 use App\Models\User;
+use App\Notifications\Auth\OrganizationInvitationNotification;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
@@ -330,6 +334,23 @@ it('renders the users, subscriptions, buildings, managers, properties, and activ
         'name' => 'Maya Manager',
         'email' => 'maya.manager@northwind.test',
     ]);
+    $invitedManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'role' => UserRole::MANAGER,
+        'status' => UserStatus::INACTIVE,
+        'email_verified_at' => null,
+        'name' => 'Ian Invite',
+        'email' => 'ian.invite@northwind.test',
+    ]);
+    OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $owner->id,
+        'email' => $invitedManager->email,
+        'role' => UserRole::MANAGER,
+        'full_name' => $invitedManager->name,
+        'accepted_at' => null,
+        'expires_at' => now()->subDay(),
+    ]);
     $property = Property::query()->where('organization_id', $organization->id)->firstOrFail();
     $superadmin = User::factory()->superadmin()->create();
 
@@ -346,7 +367,11 @@ it('renders the users, subscriptions, buildings, managers, properties, and activ
         ->assertTableColumnExists('status', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.users.columns.status'))
         ->assertTableActionExists('view', record: $owner)
         ->assertTableActionExists('toggleUserStatus', record: $owner)
-        ->assertTableActionExists('resetPassword', record: $owner);
+        ->assertTableActionExists('resetPassword', record: $owner)
+        ->assertTableActionExists('changeRole', record: $manager)
+        ->assertTableActionHidden('changeRole', record: $owner)
+        ->assertTableActionExists('resendInvite', record: $invitedManager)
+        ->assertTableActionHidden('resendInvite', record: $manager);
 
     Livewire::test(SubscriptionsRelationManager::class, [
         'ownerRecord' => $organization,
@@ -406,6 +431,70 @@ it('renders the users, subscriptions, buildings, managers, properties, and activ
         ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.when'))
         ->assertTableActionExists('viewChanges', record: $activityLog)
         ->assertTableActionExists('openAuditTimeline', record: $activityLog);
+});
+
+it('supports resending invitations and changing roles from the organization user roster', function () {
+    Notification::fake();
+
+    [$organization, $owner] = seedOrganizationViewFixture();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $invitedManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::INACTIVE,
+        'email_verified_at' => null,
+        'name' => 'Ian Invite',
+        'email' => 'ian.invite@northwind.test',
+    ]);
+
+    $invitation = OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $owner->id,
+        'email' => $invitedManager->email,
+        'role' => UserRole::MANAGER,
+        'full_name' => $invitedManager->name,
+        'accepted_at' => null,
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $activeManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Maya Manager',
+        'email' => 'maya.manager@northwind.test',
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(UsersRelationManager::class, [
+        'ownerRecord' => $organization,
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->callTableAction('resendInvite', $invitedManager)
+        ->assertHasNoTableActionErrors()
+        ->callTableAction('changeRole', $activeManager, data: [
+            'role' => UserRole::ADMIN->value,
+        ])
+        ->assertHasNoTableActionErrors();
+
+    expect($activeManager->fresh()->role)->toBe(UserRole::ADMIN);
+
+    $resentInvitation = OrganizationInvitation::query()
+        ->where('organization_id', $organization->id)
+        ->where('email', $invitedManager->email)
+        ->whereNull('accepted_at')
+        ->whereKeyNot($invitation->getKey())
+        ->latest('id')
+        ->first();
+
+    expect($resentInvitation)->not->toBeNull()
+        ->and($resentInvitation?->role)->toBe(UserRole::MANAGER);
+
+    Notification::assertSentOnDemand(
+        OrganizationInvitationNotification::class,
+        fn (OrganizationInvitationNotification $notification, array $channels, object $notifiable): bool => in_array('mail', $channels, true)
+            && ($notifiable->routes['mail'] ?? null) === $invitedManager->email
+            && $notification->invitation->is($resentInvitation),
+    );
 });
 
 it('keeps organization relation tab badges deferred with counts across tab switches', function () {

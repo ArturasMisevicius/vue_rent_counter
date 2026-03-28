@@ -700,14 +700,21 @@ return [
                 ],
                 'actions' => [
                     'view' => 'Просмотр',
+                    'change_role' => 'Изменить роль',
+                    'resend_invitation' => 'Отправить приглашение повторно',
                     'reinstate' => 'Восстановить',
                     'suspend' => 'Приостановить',
                     'reset_password' => 'Сбросить пароль',
                 ],
                 'notifications' => [
+                    'role_updated' => 'Роль пользователя обновлена',
+                    'invitation_resent' => 'Приглашение отправлено повторно',
                     'suspended' => 'Пользователь приостановлен',
                     'reinstated' => 'Пользователь восстановлен',
                     'password_reset' => 'Письмо для сброса пароля отправлено',
+                ],
+                'statuses' => [
+                    'invited' => 'Приглашён',
                 ],
                 'placeholders' => [
                     'never' => 'Никогда',

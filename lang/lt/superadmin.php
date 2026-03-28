@@ -700,14 +700,21 @@ return [
                 ],
                 'actions' => [
                     'view' => 'Peržiūrėti',
+                    'change_role' => 'Keisti rolę',
+                    'resend_invitation' => 'Siųsti kvietimą dar kartą',
                     'reinstate' => 'Atkurti',
                     'suspend' => 'Sustabdyti',
                     'reset_password' => 'Atkurti slaptažodį',
                 ],
                 'notifications' => [
+                    'role_updated' => 'Naudotojo rolė atnaujinta',
+                    'invitation_resent' => 'Kvietimas išsiųstas dar kartą',
                     'suspended' => 'Naudotojas sustabdytas',
                     'reinstated' => 'Naudotojas atkurtas',
                     'password_reset' => 'Slaptažodžio atkūrimo laiškas išsiųstas',
+                ],
+                'statuses' => [
+                    'invited' => 'Pakviestas',
                 ],
                 'placeholders' => [
                     'never' => 'Niekada',

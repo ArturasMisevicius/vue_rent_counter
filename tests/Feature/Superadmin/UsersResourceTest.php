@@ -9,6 +9,7 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;
+use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\SecurityViolation;
@@ -269,4 +270,46 @@ it('blocks generic user impersonation when the users organization has an active 
 
     expect(fn () => app(StartUserImpersonationAction::class)->handle($superadmin, $managedUser))
         ->toThrow(AccessDeniedHttpException::class);
+});
+
+it('derives organization roster support affordances from ownership and invitation state', function () {
+    $organization = Organization::factory()->create();
+
+    $owner = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::ACTIVE,
+    ]);
+
+    $organization->forceFill([
+        'owner_user_id' => $owner->id,
+    ])->save();
+
+    $invitedManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::INACTIVE,
+        'email_verified_at' => null,
+        'email' => 'invited.manager@example.test',
+    ]);
+
+    OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $owner->id,
+        'email' => $invitedManager->email,
+        'role' => UserRole::MANAGER,
+        'accepted_at' => null,
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $activeManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::ACTIVE,
+    ]);
+
+    expect($owner->fresh()->canChangeRoleFromOrganizationRoster())->toBeFalse()
+        ->and($owner->fresh()->canResendOrganizationInvitationFromRoster())->toBeFalse()
+        ->and($invitedManager->fresh()->canChangeRoleFromOrganizationRoster())->toBeTrue()
+        ->and($invitedManager->fresh()->canResendOrganizationInvitationFromRoster())->toBeTrue()
+        ->and($invitedManager->fresh()->latestResendableOrganizationInvitation()?->email)->toBe($invitedManager->email)
+        ->and($activeManager->fresh()->canChangeRoleFromOrganizationRoster())->toBeTrue()
+        ->and($activeManager->fresh()->canResendOrganizationInvitationFromRoster())->toBeFalse();
 });

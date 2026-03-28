@@ -158,6 +158,17 @@ class User extends Authenticatable implements FilamentUser
         ]);
     }
 
+    public function scopeWithOrganizationRosterSupportSummary(Builder $query): Builder
+    {
+        return $query->withExists([
+            'ownedOrganization as roster_is_owner',
+            'organizationInvitations as roster_has_unaccepted_invitation' => fn (Builder $invitationQuery): Builder => $invitationQuery
+                ->whereColumn('organization_id', 'users.organization_id')
+                ->whereColumn('role', 'users.role')
+                ->whereNull('accepted_at'),
+        ]);
+    }
+
     public function scopeWithTenantWorkspaceSummary(Builder $query, int $organizationId): Builder
     {
         return $query
@@ -205,6 +216,11 @@ class User extends Authenticatable implements FilamentUser
     public function organizationMemberships(): HasMany
     {
         return $this->hasMany(OrganizationUser::class);
+    }
+
+    public function organizationInvitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class, 'email', 'email');
     }
 
     public function invitedOrganizationMemberships(): HasMany
@@ -389,6 +405,66 @@ class User extends Authenticatable implements FilamentUser
     public function canBeDeletedFromSuperadmin(): bool
     {
         return $this->superadminDeletionBlockedReason() === null;
+    }
+
+    public function canChangeRoleFromOrganizationRoster(): bool
+    {
+        if ($this->role === UserRole::SUPERADMIN) {
+            return false;
+        }
+
+        $isOwner = $this->getAttribute('roster_is_owner');
+
+        if ($isOwner !== null) {
+            return ! (bool) $isOwner;
+        }
+
+        return ! $this->ownedOrganization()
+            ->select(['id', 'owner_user_id'])
+            ->exists();
+    }
+
+    public function canResendOrganizationInvitationFromRoster(): bool
+    {
+        if ($this->status !== UserStatus::INACTIVE || $this->role === UserRole::SUPERADMIN) {
+            return false;
+        }
+
+        $hasInvitation = $this->getAttribute('roster_has_unaccepted_invitation');
+
+        if ($hasInvitation !== null) {
+            return (bool) $hasInvitation;
+        }
+
+        return $this->latestResendableOrganizationInvitation() instanceof OrganizationInvitation;
+    }
+
+    public function latestResendableOrganizationInvitation(): ?OrganizationInvitation
+    {
+        if (blank($this->organization_id)) {
+            return null;
+        }
+
+        return $this->organizationInvitations()
+            ->select([
+                'id',
+                'organization_id',
+                'inviter_user_id',
+                'email',
+                'role',
+                'full_name',
+                'token',
+                'expires_at',
+                'accepted_at',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('organization_id', $this->organization_id)
+            ->where('role', $this->role)
+            ->whereNull('accepted_at')
+            ->latest('expires_at')
+            ->latest('id')
+            ->first();
     }
 
     public function superadminDeletionBlockedReason(): ?string

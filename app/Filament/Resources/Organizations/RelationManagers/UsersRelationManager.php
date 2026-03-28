@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Organizations\RelationManagers;
 
+use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Superadmin\Users\ResendOrganizationUserInvitationAction;
+use App\Filament\Actions\Superadmin\Users\SendUserPasswordResetAction;
+use App\Filament\Actions\Superadmin\Users\UpdateOrganizationUserRoleAction;
+use App\Filament\Actions\Superadmin\Users\UpdateUserStatusAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Password;
 
 class UsersRelationManager extends RelationManager
 {
@@ -41,8 +47,14 @@ class UsersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        /** @var Organization $organization */
+        $organization = $this->getOwnerRecord();
+
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withOrganizationSummary()->orderedByName())
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->withOrganizationSummary()
+                ->withOrganizationRosterSupportSummary()
+                ->orderedByName())
             ->columns([
                 TextColumn::make('name')
                     ->label(__('superadmin.organizations.relations.users.columns.name'))
@@ -63,12 +75,51 @@ class UsersRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label(__('superadmin.organizations.relations.users.columns.status'))
                     ->badge()
-                    ->formatStateUsing(fn (UserStatus $state): string => $state->label()),
+                    ->formatStateUsing(fn (User $record): string => $record->canResendOrganizationInvitationFromRoster()
+                        ? __('superadmin.organizations.relations.users.statuses.invited')
+                        : $record->status->label()),
             ])
             ->recordActions([
                 ViewAction::make()
                     ->label(__('superadmin.organizations.relations.users.actions.view'))
                     ->url(fn (User $record): string => UserResource::getUrl('view', ['record' => $record])),
+                Action::make('changeRole')
+                    ->label(__('superadmin.organizations.relations.users.actions.change_role'))
+                    ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                    ->hidden(fn (User $record): bool => ! $record->canChangeRoleFromOrganizationRoster())
+                    ->fillForm(fn (User $record): array => [
+                        'role' => $record->role->value,
+                    ])
+                    ->form([
+                        Select::make('role')
+                            ->label(__('superadmin.organizations.relations.users.columns.role'))
+                            ->options(self::organizationRoleOptions())
+                            ->required(),
+                    ])
+                    ->action(function (User $record, array $data, UpdateOrganizationUserRoleAction $updateOrganizationUserRoleAction): void {
+                        $updateOrganizationUserRoleAction->handle(
+                            $record,
+                            UserRole::from((string) $data['role']),
+                        );
+
+                        Notification::make()
+                            ->title(__('superadmin.organizations.relations.users.notifications.role_updated'))
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('resendInvite')
+                    ->label(__('superadmin.organizations.relations.users.actions.resend_invitation'))
+                    ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                    ->hidden(fn (User $record): bool => ! $record->canResendOrganizationInvitationFromRoster())
+                    ->requiresConfirmation()
+                    ->action(function (User $record, ResendOrganizationUserInvitationAction $resendOrganizationUserInvitationAction) use ($organization): void {
+                        $resendOrganizationUserInvitationAction->handle($organization, $record);
+
+                        Notification::make()
+                            ->title(__('superadmin.organizations.relations.users.notifications.invitation_resent'))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('toggleUserStatus')
                     ->label(fn (User $record): string => $record->status === UserStatus::SUSPENDED
                         ? __('superadmin.organizations.relations.users.actions.reinstate')
@@ -76,13 +127,14 @@ class UsersRelationManager extends RelationManager
                     ->color(fn (User $record): string => $record->status === UserStatus::SUSPENDED ? 'success' : 'danger')
                     ->requiresConfirmation()
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
-                    ->action(function (User $record): void {
-                        $record->update([
-                            'status' => $record->status === UserStatus::SUSPENDED ? UserStatus::ACTIVE : UserStatus::SUSPENDED,
-                        ]);
+                    ->action(function (User $record, UpdateUserStatusAction $updateUserStatusAction): void {
+                        $updatedUser = $updateUserStatusAction->handle(
+                            $record,
+                            $record->status === UserStatus::SUSPENDED ? UserStatus::ACTIVE : UserStatus::SUSPENDED,
+                        );
 
                         Notification::make()
-                            ->title($record->status === UserStatus::SUSPENDED
+                            ->title($updatedUser->status === UserStatus::SUSPENDED
                                 ? __('superadmin.organizations.relations.users.notifications.suspended')
                                 : __('superadmin.organizations.relations.users.notifications.reinstated'))
                             ->success()
@@ -92,10 +144,8 @@ class UsersRelationManager extends RelationManager
                     ->label(__('superadmin.organizations.relations.users.actions.reset_password'))
                     ->authorize(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
                     ->requiresConfirmation()
-                    ->action(function (User $record): void {
-                        Password::sendResetLink([
-                            'email' => $record->email,
-                        ]);
+                    ->action(function (User $record, SendUserPasswordResetAction $sendUserPasswordResetAction): void {
+                        $sendUserPasswordResetAction->handle($record);
 
                         Notification::make()
                             ->title(__('superadmin.organizations.relations.users.notifications.password_reset'))
@@ -104,5 +154,16 @@ class UsersRelationManager extends RelationManager
                     }),
             ])
             ->defaultSort('name');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function organizationRoleOptions(): array
+    {
+        return collect(UserRole::cases())
+            ->reject(fn (UserRole $role): bool => $role === UserRole::SUPERADMIN)
+            ->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->label()])
+            ->all();
     }
 }
