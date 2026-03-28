@@ -6,6 +6,7 @@ use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Filament\Support\Superadmin\Organizations\OrganizationFinancialSnapshot;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Filament\Support\Superadmin\Organizations\OrganizationPortfolioSnapshot;
+use App\Filament\Support\Superadmin\Organizations\OrganizationSecuritySnapshot;
 use App\Filament\Support\Superadmin\Organizations\OrganizationSubscriptionSnapshot;
 use App\Filament\Support\Superadmin\Usage\OrganizationUsageReader;
 use App\Models\Organization;
@@ -39,7 +40,15 @@ class OrganizationInfolist
      *     health: list<array{label: string, value: string}>,
      *     portfolio: list<array{label: string, value: string}>,
      *     financial: list<array{label: string, value: string}>,
-     *     usage: list<array{label: string, current: int, limit: int, tone: string, percentage: int}>
+     *     usage: list<array{label: string, current: int, limit: int, tone: string, percentage: int}>,
+     *     security: array{
+     *         cards: list<array{key: string, label: string, count: int, tone: string}>,
+     *         unreviewed_label: string,
+     *         unreviewed_count: int,
+     *         users_heading: string,
+     *         user_last_logins: list<array{name: string, last_login_at: string}>,
+     *         security_violations_url: string
+     *     },
      *     subscription_timeline: array{
      *         summary: list<array{label: string, value: string}>,
      *         renewals: list<string>
@@ -67,6 +76,7 @@ class OrganizationInfolist
             app(OrganizationMrrResolver::class),
         );
         $usage = app(OrganizationUsageReader::class)->forOrganization($organization);
+        $security = OrganizationSecuritySnapshot::fromOrganization($organization);
         $subscriptionTimeline = OrganizationSubscriptionSnapshot::fromOrganization($organization);
 
         return [
@@ -114,6 +124,14 @@ class OrganizationInfolist
                     'percentage' => $row['percentage'],
                 ])
                 ->all(),
+            'security' => [
+                'cards' => $security->severityCards,
+                'unreviewed_label' => __('superadmin.organizations.overview.security_health_labels.unreviewed'),
+                'unreviewed_count' => $security->unreviewedCount,
+                'users_heading' => __('superadmin.organizations.overview.security_users_heading'),
+                'user_last_logins' => $security->userLastLogins,
+                'security_violations_url' => $security->securityViolationsUrl,
+            ],
             'subscription_timeline' => [
                 'summary' => [
                     ['label' => __('superadmin.organizations.overview.subscription_timeline_labels.current_plan'), 'value' => $subscriptionTimeline->currentPlanLabel],

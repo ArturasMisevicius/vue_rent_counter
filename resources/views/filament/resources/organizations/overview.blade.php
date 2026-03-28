@@ -140,6 +140,57 @@
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between gap-4">
             <div>
+                <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.security_health_heading') }}</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ __('superadmin.organizations.overview.security_health_description') }}</p>
+            </div>
+
+            <a
+                href="{{ $overview['security']['security_violations_url'] }}"
+                class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+            >
+                {{ __('superadmin.organizations.overview.view_security_violations') }}
+            </a>
+        </div>
+
+        <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                @foreach ($overview['security']['cards'] as $card)
+                    <article class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-5">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{{ $card['label'] }}</p>
+                        <p class="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{{ $card['count'] }}</p>
+                    </article>
+                @endforeach
+
+                <article class="rounded-2xl border border-red-200 bg-red-50/80 px-4 py-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-red-600">{{ $overview['security']['unreviewed_label'] }}</p>
+                    <p class="mt-3 text-2xl font-semibold tracking-tight text-red-700">{{ $overview['security']['unreviewed_count'] }}</p>
+                </article>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/60 px-5 py-5">
+                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {{ $overview['security']['users_heading'] }}
+                </h3>
+
+                <div class="mt-4 space-y-3">
+                    @forelse ($overview['security']['user_last_logins'] as $user)
+                        <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                            <span class="text-sm font-semibold text-slate-900">{{ $user['name'] }}</span>
+                            <span class="text-sm text-slate-500">{{ $user['last_login_at'] }}</span>
+                        </div>
+                    @empty
+                        <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
+                            {{ __('superadmin.organizations.overview.security_users_empty') }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+            <div>
                 <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.activity_feed_heading') }}</h2>
                 <p class="mt-1 text-sm text-slate-500">{{ __('superadmin.organizations.overview.activity_feed_description') }}</p>
             </div>

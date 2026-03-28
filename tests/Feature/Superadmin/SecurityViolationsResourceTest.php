@@ -4,6 +4,7 @@ use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Filament\Resources\SecurityViolations\Pages\ListSecurityViolations;
 use App\Models\BlockedIpAddress;
+use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -88,10 +89,13 @@ it('renders the security violations list with the required read-only contract', 
         ->assertTableColumnExists('url', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.url'))
         ->assertTableColumnExists('user_agent_summary', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.user_agent_summary'))
         ->assertTableColumnExists('occurred_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.security_violations.columns.timestamp'))
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.organization'))
+        ->assertTableFilterExists('review_status', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.review_status'))
         ->assertTableFilterExists('severity', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.severity'))
         ->assertTableFilterExists('type', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.type'))
         ->assertTableFilterExists('occurred_between', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.security_violations.filters.date_range'))
         ->assertTableActionHasLabel('blockIp', __('superadmin.security_violations.actions.block_ip_address'), record: $authenticatedViolation)
+        ->assertTableActionHasLabel('review', __('superadmin.security_violations.actions.review'), record: $authenticatedViolation)
         ->assertTableActionExists(
             'blockIp',
             checkActionUsing: fn (Action $action): bool => $action->isHidden() === false
@@ -121,29 +125,49 @@ it('renders the security violations list with the required read-only contract', 
 
 it('filters security violations by severity type and date range', function () {
     $superadmin = User::factory()->superadmin()->create();
+    $northwind = Organization::factory()->create(['name' => 'Northwind']);
+    $southwind = Organization::factory()->create(['name' => 'Southwind']);
 
     $matchingViolation = SecurityViolation::factory()->create([
+        'organization_id' => $northwind->id,
         'type' => SecurityViolationType::AUTHENTICATION,
         'severity' => SecurityViolationSeverity::HIGH,
         'occurred_at' => now()->subDays(2),
     ]);
 
     $typeMismatch = SecurityViolation::factory()->create([
+        'organization_id' => $northwind->id,
         'type' => SecurityViolationType::RATE_LIMIT,
         'severity' => SecurityViolationSeverity::HIGH,
         'occurred_at' => now()->subDays(2),
     ]);
 
     $severityMismatch = SecurityViolation::factory()->create([
+        'organization_id' => $northwind->id,
         'type' => SecurityViolationType::AUTHENTICATION,
         'severity' => SecurityViolationSeverity::LOW,
         'occurred_at' => now()->subDays(2),
     ]);
 
     $dateMismatch = SecurityViolation::factory()->create([
+        'organization_id' => $northwind->id,
         'type' => SecurityViolationType::AUTHENTICATION,
         'severity' => SecurityViolationSeverity::HIGH,
         'occurred_at' => now()->subMonths(2),
+    ]);
+
+    $reviewedViolation = SecurityViolation::factory()->create([
+        'organization_id' => $southwind->id,
+        'type' => SecurityViolationType::AUTHORIZATION,
+        'severity' => SecurityViolationSeverity::MEDIUM,
+        'occurred_at' => now()->subDay(),
+        'metadata' => [
+            'review' => [
+                'reviewed_at' => now()->subHours(4)->toIso8601String(),
+                'reviewed_by_user_id' => $superadmin->id,
+                'note' => 'Reviewed by support',
+            ],
+        ],
     ]);
 
     $this->actingAs($superadmin);
@@ -162,7 +186,43 @@ it('filters security violations by severity type and date range', function () {
             'occurred_to' => now()->toDateString(),
         ])
         ->assertCanSeeTableRecords([$matchingViolation, $typeMismatch, $severityMismatch])
-        ->assertCanNotSeeTableRecords([$dateMismatch]);
+        ->assertCanNotSeeTableRecords([$dateMismatch])
+        ->resetTableFilters()
+        ->filterTable('organization', $northwind->getKey())
+        ->assertCanSeeTableRecords([$matchingViolation, $typeMismatch, $severityMismatch, $dateMismatch])
+        ->assertCanNotSeeTableRecords([$reviewedViolation])
+        ->resetTableFilters()
+        ->filterTable('review_status', 'reviewed')
+        ->assertCanSeeTableRecords([$reviewedViolation])
+        ->assertCanNotSeeTableRecords([$matchingViolation, $typeMismatch, $severityMismatch, $dateMismatch])
+        ->resetTableFilters()
+        ->filterTable('review_status', 'unreviewed')
+        ->assertCanSeeTableRecords([$matchingViolation, $typeMismatch, $severityMismatch, $dateMismatch])
+        ->assertCanNotSeeTableRecords([$reviewedViolation]);
+});
+
+it('marks a security violation reviewed with a support note', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    $violation = SecurityViolation::factory()->create([
+        'metadata' => ['source' => 'test'],
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListSecurityViolations::class)
+        ->mountTableAction('review', $violation)
+        ->setTableActionData([
+            'note' => 'Investigated by support',
+        ])
+        ->callMountedTableAction()
+        ->assertHasNoTableActionErrors();
+
+    $violation->refresh();
+
+    expect(data_get($violation->metadata, 'review.note'))->toBe('Investigated by support')
+        ->and(data_get($violation->metadata, 'review.reviewed_by_user_id'))->toBe($superadmin->id)
+        ->and(data_get($violation->metadata, 'review.reviewed_at'))->not->toBeNull();
 });
 
 it('blocks an ip address from the list action with the expected confirmation copy', function () {

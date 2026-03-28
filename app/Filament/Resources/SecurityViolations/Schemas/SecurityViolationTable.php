@@ -6,10 +6,12 @@ use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Filament\Actions\Superadmin\Security\BlockIpAddressAction;
 use App\Filament\Support\Superadmin\SecurityViolations\SecurityViolationTablePresenter;
+use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -55,6 +57,25 @@ class SecurityViolationTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('organization')
+                    ->label(__('superadmin.security_violations.filters.organization'))
+                    ->placeholder(__('superadmin.security_violations.placeholders.all'))
+                    ->options(fn (): array => Organization::query()
+                        ->select(['id', 'name'])
+                        ->ordered()
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->searchable()
+                    ->preload()
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
+                SelectFilter::make('review_status')
+                    ->label(__('superadmin.security_violations.filters.review_status'))
+                    ->placeholder(__('superadmin.security_violations.placeholders.all'))
+                    ->options([
+                        'reviewed' => __('superadmin.security_violations.review_status_options.reviewed'),
+                        'unreviewed' => __('superadmin.security_violations.review_status_options.unreviewed'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query->forReviewStatus($data['value'] ?? null)),
                 SelectFilter::make('severity')
                     ->label(__('superadmin.security_violations.filters.severity'))
                     ->placeholder(__('superadmin.security_violations.placeholders.all'))
@@ -79,6 +100,35 @@ class SecurityViolationTable
                     )),
             ])
             ->recordActions([
+                Action::make('review')
+                    ->label(__('superadmin.security_violations.actions.review'))
+                    ->color('success')
+                    ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                    ->hidden(fn (SecurityViolation $record): bool => $record->isReviewed())
+                    ->modalHeading(__('superadmin.security_violations.modals.review_heading'))
+                    ->modalDescription(__('superadmin.security_violations.modals.review_description'))
+                    ->modalSubmitActionLabel(__('superadmin.security_violations.actions.review'))
+                    ->modalCancelActionLabel(__('superadmin.security_violations.actions.cancel'))
+                    ->form([
+                        Textarea::make('note')
+                            ->label(__('superadmin.security_violations.forms.note'))
+                            ->rows(4)
+                            ->required(),
+                    ])
+                    ->action(function (SecurityViolation $record, array $data): void {
+                        $reviewer = self::currentUser();
+
+                        if (! $reviewer instanceof User) {
+                            return;
+                        }
+
+                        $record->markAsReviewed($reviewer, $data['note'] ?? null);
+
+                        Notification::make()
+                            ->title(__('superadmin.security_violations.messages.reviewed'))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('blockIp')
                     ->label(__('superadmin.security_violations.actions.block_ip_address'))
                     ->color('danger')

@@ -39,12 +39,15 @@ class SecurityViolation extends Model
 
     private const SUPERADMIN_FEED_COLUMNS = [
         'id',
+        'organization_id',
         'user_id',
         'type',
         'severity',
         'ip_address',
+        'summary',
         'metadata',
         'occurred_at',
+        'resolved_at',
     ];
 
     private const INTEGRATION_HEALTH_FEED_COLUMNS = [
@@ -132,6 +135,16 @@ class SecurityViolation extends Model
         return $query->whereNull('resolved_at');
     }
 
+    public function scopeReviewed(Builder $query): Builder
+    {
+        return $query->whereNotNull('metadata->review->reviewed_at');
+    }
+
+    public function scopeUnreviewed(Builder $query): Builder
+    {
+        return $query->whereNull('metadata->review->reviewed_at');
+    }
+
     public function scopeRecent(Builder $query): Builder
     {
         return $query
@@ -189,6 +202,15 @@ class SecurityViolation extends Model
         return match ($status) {
             'resolved' => $query->resolved(),
             'unresolved' => $query->unresolved(),
+            default => $query,
+        };
+    }
+
+    public function scopeForReviewStatus(Builder $query, ?string $status): Builder
+    {
+        return match ($status) {
+            'reviewed' => $query->reviewed(),
+            'unreviewed' => $query->unreviewed(),
             default => $query,
         };
     }
@@ -259,6 +281,33 @@ class SecurityViolation extends Model
 
         return $this->activeBlockedIpAddresses()
             ->first()?->blocked_until;
+    }
+
+    public function isReviewed(): bool
+    {
+        return filled(data_get($this->metadata, 'review.reviewed_at'));
+    }
+
+    public function reviewNote(): ?string
+    {
+        $note = data_get($this->metadata, 'review.note');
+
+        return is_string($note) && $note !== '' ? $note : null;
+    }
+
+    public function markAsReviewed(User $reviewer, ?string $note = null): void
+    {
+        $metadata = $this->metadata ?? [];
+
+        data_set($metadata, 'review', [
+            'reviewed_at' => now()->toIso8601String(),
+            'reviewed_by_user_id' => $reviewer->getKey(),
+            'note' => blank($note) ? null : $note,
+        ]);
+
+        $this->forceFill([
+            'metadata' => $metadata,
+        ])->save();
     }
 
     public function prunable(): Builder
