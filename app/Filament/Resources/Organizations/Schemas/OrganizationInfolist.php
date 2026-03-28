@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Organizations\Schemas;
 
+use App\Filament\Support\Superadmin\Integration\IntegrationHealthPageData;
 use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Filament\Support\Superadmin\Organizations\OrganizationFinancialSnapshot;
+use App\Filament\Support\Superadmin\Organizations\OrganizationIntegrationSnapshot;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Filament\Support\Superadmin\Organizations\OrganizationPortfolioSnapshot;
 use App\Filament\Support\Superadmin\Organizations\OrganizationSecuritySnapshot;
@@ -49,6 +51,13 @@ class OrganizationInfolist
      *         user_last_logins: list<array{name: string, last_login_at: string}>,
      *         security_violations_url: string
      *     },
+     *     integration: array{
+     *         platform_heading: string,
+     *         organization_heading: string,
+     *         platform_checks: list<array{label: string, summary: string, checked_at_label: string, status_badge_class: string}>,
+     *         organization_integrations: list<array{label: string, summary: string, checked_at_label: string, status_badge_class: string}>,
+     *         integration_health_url: string
+     *     },
      *     subscription_timeline: array{
      *         summary: list<array{label: string, value: string}>,
      *         renewals: list<string>
@@ -77,6 +86,10 @@ class OrganizationInfolist
         );
         $usage = app(OrganizationUsageReader::class)->forOrganization($organization);
         $security = OrganizationSecuritySnapshot::fromOrganization($organization);
+        $integration = OrganizationIntegrationSnapshot::fromOrganization(
+            $organization,
+            app(IntegrationHealthPageData::class),
+        );
         $subscriptionTimeline = OrganizationSubscriptionSnapshot::fromOrganization($organization);
 
         return [
@@ -131,6 +144,13 @@ class OrganizationInfolist
                 'users_heading' => __('superadmin.organizations.overview.security_users_heading'),
                 'user_last_logins' => $security->userLastLogins,
                 'security_violations_url' => $security->securityViolationsUrl,
+            ],
+            'integration' => [
+                'platform_heading' => __('superadmin.organizations.overview.platform_integrations_heading'),
+                'organization_heading' => __('superadmin.organizations.overview.organization_integrations_heading'),
+                'platform_checks' => $integration->platformChecks,
+                'organization_integrations' => $integration->organizationIntegrations,
+                'integration_health_url' => $integration->integrationHealthUrl,
             ],
             'subscription_timeline' => [
                 'summary' => [

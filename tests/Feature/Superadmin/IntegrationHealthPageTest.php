@@ -43,6 +43,15 @@ it('renders the integration health operations page only to superadmins', functio
         'checked_at' => now()->subMinutes(2),
     ]);
 
+    IntegrationHealthCheck::factory()->create([
+        'key' => 'mail',
+        'label' => __('superadmin.integration_health.probes.mail.label'),
+        'status' => IntegrationHealthStatus::HEALTHY,
+        'summary' => __('superadmin.integration_health.probes.mail.summary_healthy', ['mailer' => 'smtp']),
+        'response_time_ms' => 18,
+        'checked_at' => now()->subMinutes(4),
+    ]);
+
     SecurityViolation::factory()->create([
         'organization_id' => $organization->id,
         'type' => SecurityViolationType::DATA_ACCESS,
@@ -78,6 +87,7 @@ it('renders the integration health operations page only to superadmins', functio
         ->assertSeeText(__('superadmin.integration_health.checks.columns.actions'))
         ->assertSeeText(__('superadmin.integration_health.probes.database.label'))
         ->assertSeeText(__('superadmin.integration_health.probes.queue.label'))
+        ->assertSeeText(__('superadmin.integration_health.probes.mail.label'))
         ->assertSeeText(__('superadmin.integration_health.probes.database.summary_healthy'))
         ->assertSeeText('Queue worker is paused.')
         ->assertSeeText(__('superadmin.integration_health.response_time', ['value' => 23]))

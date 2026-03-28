@@ -39,7 +39,7 @@ class IntegrationHealthPageData
     public function viewData(): array
     {
         return [
-            'checks' => $this->checks(),
+            'checks' => $this->platformChecks(),
             'recentViolations' => $this->recentViolations(),
         ];
     }
@@ -57,7 +57,7 @@ class IntegrationHealthPageData
      *     can_reset_circuit_breaker: bool
      * }>
      */
-    private function checks(): Collection
+    public function platformChecks(): Collection
     {
         return IntegrationHealthCheck::query()
             ->forOperationsPage()

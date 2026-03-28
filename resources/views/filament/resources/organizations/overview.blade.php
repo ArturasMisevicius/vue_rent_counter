@@ -191,6 +191,78 @@
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between gap-4">
             <div>
+                <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.integration_health_heading') }}</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ __('superadmin.organizations.overview.integration_health_description') }}</p>
+            </div>
+
+            <a
+                href="{{ $overview['integration']['integration_health_url'] }}"
+                class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+            >
+                {{ __('superadmin.organizations.overview.view_platform_integration_health') }}
+            </a>
+        </div>
+
+        <div class="mt-6 grid gap-6 xl:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/60 px-5 py-5">
+                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {{ $overview['integration']['platform_heading'] }}
+                </h3>
+
+                <div class="mt-4 space-y-3">
+                    @forelse ($overview['integration']['platform_checks'] as $check)
+                        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">{{ $check['label'] }}</p>
+                                    <p class="mt-1 text-sm text-slate-500">{{ $check['summary'] }}</p>
+                                </div>
+
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $check['status_badge_class'] }}">
+                                    {{ $check['checked_at_label'] }}
+                                </span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
+                            {{ __('superadmin.organizations.overview.organization_integrations_empty') }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/60 px-5 py-5">
+                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {{ $overview['integration']['organization_heading'] }}
+                </h3>
+
+                <div class="mt-4 space-y-3">
+                    @forelse ($overview['integration']['organization_integrations'] as $integration)
+                        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">{{ $integration['label'] }}</p>
+                                    <p class="mt-1 text-sm text-slate-500">{{ $integration['summary'] }}</p>
+                                </div>
+
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $integration['status_badge_class'] }}">
+                                    {{ $integration['checked_at_label'] }}
+                                </span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
+                            {{ __('superadmin.organizations.overview.organization_integrations_empty') }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+            <div>
                 <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.activity_feed_heading') }}</h2>
                 <p class="mt-1 text-sm text-slate-500">{{ __('superadmin.organizations.overview.activity_feed_description') }}</p>
             </div>
