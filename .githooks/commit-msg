@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -eu
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+cd "$repo_root"
+
+php scripts/update_changelog.php --mode=finalize --message-file "$1"
+git add CHANGELOG.md

@@ -2,6 +2,22 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:commit-20260328155531 -->
+### feat: automate changelog updates before commit
+
+- added `.agent/skills/update-changelog-before-commit/SKILL.md`
+- added `.ai/skills/update-changelog-before-commit/SKILL.md`
+- added `.claude/skills/update-changelog-before-commit/SKILL.md`
+- added `.cursor/skills/update-changelog-before-commit/SKILL.md`
+- added `.gemini/skills/update-changelog-before-commit/SKILL.md`
+- added `.githooks/commit-msg`
+- added `.githooks/pre-commit`
+- added `app/Support/Changelog/GitChangelogUpdater.php`
+- added `scripts/install-git-hooks.sh`
+- added `scripts/update_changelog.php`
+- added `tests/Unit/Support/Changelog/GitChangelogUpdaterTest.php`
+<!-- changelog:auto:end:commit-20260328155531 -->
+
 ### Hidden generated slugs in admin UI
 
 - removed organization slugs from the superadmin organizations list, organization detail overview, record subheading, and organization summary exports
