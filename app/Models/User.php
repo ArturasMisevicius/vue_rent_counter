@@ -52,6 +52,14 @@ class User extends Authenticatable implements FilamentUser
         'updated_at',
     ];
 
+    private const LOGIN_DEMO_COLUMNS = [
+        'id',
+        'name',
+        'email',
+        'role',
+        'is_super_admin',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -127,6 +135,19 @@ class User extends Authenticatable implements FilamentUser
         return $query
             ->orderBy('name')
             ->orderBy('id');
+    }
+
+    public function scopeForLoginDemoTable(Builder $query): Builder
+    {
+        return $query
+            ->select(self::LOGIN_DEMO_COLUMNS)
+            ->where(function (Builder $query): void {
+                $query
+                    ->where('email', 'like', '%@example.com')
+                    ->orWhere('email', 'like', '%@tenanto-demo.test');
+            })
+            ->orderByDesc('is_super_admin')
+            ->orderedByName();
     }
 
     public function scopeWithOrganizationSummary(Builder $query): Builder

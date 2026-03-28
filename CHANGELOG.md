@@ -2,6 +2,14 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328182459 -->
+### Commit updates
+
+- updated `app/Filament/Support/Auth/LoginDemoAccountPresenter.php`
+- updated `app/Models/User.php`
+- updated `tests/Feature/Auth/LoginDemoAccountsTest.php`
+<!-- changelog:auto:end:staged-20260328182459 -->
+
 <!-- changelog:auto:start:staged-20260328180833 -->
 ### Commit updates
 

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
-it('renders the login demo accounts table with curated accounts', function () {
+it('renders the login demo accounts table with every available demo login account', function () {
     $organization = Organization::factory()->create([
         'name' => 'Tenanto Demo Organization',
         'slug' => 'tenanto-demo-organization',
@@ -65,6 +65,17 @@ it('renders the login demo accounts table with curated accounts', function () {
         'organization_id' => $organization->id,
     ]);
 
+    User::factory()->superadmin()->create([
+        'name' => 'Platform Demo Operator',
+        'email' => 'platform.demo@tenanto-demo.test',
+    ]);
+
+    User::factory()->admin()->create([
+        'name' => 'Private Account',
+        'email' => 'private@company.test',
+        'organization_id' => $organization->id,
+    ]);
+
     $this->get(route('login'))
         ->assertSuccessful()
         ->assertSeeText('Username')
@@ -76,13 +87,27 @@ it('renders the login demo accounts table with curated accounts', function () {
         ->assertSeeText('billing.manager@example.com')
         ->assertSeeText('tenant.alina@example.com')
         ->assertSeeText('tenant.marius@example.com')
+        ->assertSeeText('outside@example.com')
+        ->assertSeeText('platform.demo@tenanto-demo.test')
         ->assertSeeText('password')
         ->assertSeeText('Superadmin')
         ->assertSeeText('Admin')
         ->assertSeeText('Manager')
         ->assertSeeText('Tenant')
-        ->assertDontSeeText('outside@example.com')
+        ->assertDontSeeText('private@company.test')
         ->assertSee('data-demo-account-trigger', false);
+});
+
+it('renders seeded operational demo accounts on the login page', function () {
+    $this->seed(DatabaseSeeder::class);
+
+    $this->get(route('login'))
+        ->assertSuccessful()
+        ->assertSeeText('platform.demo@tenanto-demo.test')
+        ->assertSeeText('org01-admin@tenanto-demo.test')
+        ->assertSeeText('org01-manager@tenanto-demo.test')
+        ->assertSeeText('org01-tenant01@tenanto-demo.test')
+        ->assertSeeText('password');
 });
 
 it('default database seeder creates demo accounts for every role', function () {
