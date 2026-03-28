@@ -18,6 +18,13 @@
 - added focused manager permission regression coverage across admin resources, the superadmin organization-user editor, and manager workspace parity
 - aligned legacy admin resource and tenant UI coverage with explicit manager permission fixtures so managers stay read-only by default unless their matrix grants write access
 - flushed the in-memory manager permission cache in Pest bootstrap so request-scoped permission checks stay isolated across feature tests
+- keyed the in-memory manager permission cache by organization and user identity so equivalent model instances reuse the same per-request permission matrix
+- scoped the “changes take effect immediately” banner to superadmin-only matrix contexts instead of showing it for every manager-permission editor
+
+### Demo manager presets
+
+- added a second seeded demo manager account with the billing-manager preset so both property and billing permission profiles are visible in demo data
+- updated the curated login demo account presenter and Pest coverage to include the new billing manager example
 
 ### Subscription request validation coverage
 

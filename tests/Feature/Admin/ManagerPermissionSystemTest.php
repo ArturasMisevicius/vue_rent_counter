@@ -324,6 +324,39 @@ it('caches a manager permission matrix in memory for repeated checks within one 
     expect($permissionQueries)->toHaveCount(1);
 });
 
+it('reuses the same cached manager permission matrix across equivalent user model instances', function (): void {
+    ['organization' => $organization, 'admin' => $admin, 'manager' => $manager] = managerWorkspace();
+
+    Notification::fake();
+
+    $service = app(ManagerPermissionService::class);
+
+    $service->saveMatrix(
+        $manager,
+        $organization,
+        fullPermissionMatrix([
+            'buildings' => ['can_create' => true],
+        ]),
+        $admin,
+    );
+
+    $firstManagerInstance = $manager->fresh();
+    $secondManagerInstance = User::query()->findOrFail($manager->id);
+
+    ManagerPermissionService::flushCache();
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    expect($service->can($firstManagerInstance, $organization, 'buildings', 'create'))->toBeTrue()
+        ->and($service->can($secondManagerInstance, $organization, 'buildings', 'create'))->toBeTrue();
+
+    $permissionQueries = collect(DB::getQueryLog())
+        ->filter(fn (array $query): bool => str_contains((string) $query['query'], 'manager_permissions'))
+        ->values();
+
+    expect($permissionQueries)->toHaveCount(1);
+});
+
 it('writes a full before and after matrix to the audit log when permissions are saved', function (): void {
     ['organization' => $organization, 'admin' => $admin, 'manager' => $manager] = managerWorkspace();
 

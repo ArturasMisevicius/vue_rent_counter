@@ -38,12 +38,14 @@
     @else
         <div class="space-y-6">
             <div class="space-y-3">
-                <div class="rounded-xl border border-info-200 bg-info-50 p-4 text-sm text-info-900 dark:border-info-500/30 dark:bg-info-500/10 dark:text-info-100">
-                    {{ __('admin.manager_permissions.superadmin_banner', [
-                        'manager' => $manager?->name ?? __('admin.manager_permissions.labels.unknown_manager'),
-                        'organization' => $organization?->name ?? __('admin.manager_permissions.labels.unknown_organization'),
-                    ]) }}
-                </div>
+                @if ($showsSuperadminBanner)
+                    <div class="rounded-xl border border-info-200 bg-info-50 p-4 text-sm text-info-900 dark:border-info-500/30 dark:bg-info-500/10 dark:text-info-100">
+                        {{ __('admin.manager_permissions.superadmin_banner', [
+                            'manager' => $manager?->name ?? __('admin.manager_permissions.labels.unknown_manager'),
+                            'organization' => $organization?->name ?? __('admin.manager_permissions.labels.unknown_organization'),
+                        ]) }}
+                    </div>
+                @endif
 
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div class="space-y-1">

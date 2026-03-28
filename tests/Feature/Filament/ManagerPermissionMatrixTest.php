@@ -37,8 +37,36 @@ it('renders the manager permission matrix on the superadmin organization user ed
         ->assertSee('Edit')
         ->assertSee('Delete')
         ->assertSee('View')
+        ->assertSee('Changes take effect immediately.')
         ->assertSee($manager->name)
         ->assertSee($organization->name);
+});
+
+it('hides the superadmin banner when the matrix is rendered outside a superadmin context', function (): void {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organizationUser = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    test()->actingAs($admin);
+
+    Livewire::test(ManagerPermissionMatrixPanel::class, [
+        'record' => $organizationUser,
+        'organizationId' => $organization->id,
+        'userId' => $manager->id,
+    ])
+        ->assertSee('Resource permissions')
+        ->assertDontSee('Changes take effect immediately.');
 });
 
 it('does not render the manager permission matrix for non-manager organization memberships', function (): void {

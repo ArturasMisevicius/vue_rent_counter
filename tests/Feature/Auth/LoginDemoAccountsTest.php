@@ -3,6 +3,7 @@
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lease;
@@ -40,6 +41,12 @@ it('renders the login demo accounts table with curated accounts', function () {
         'organization_id' => $organization->id,
     ]);
 
+    User::factory()->manager()->create([
+        'name' => 'Demo Billing Manager',
+        'email' => 'billing.manager@example.com',
+        'organization_id' => $organization->id,
+    ]);
+
     User::factory()->tenant()->create([
         'name' => 'Alina Petrauskienė',
         'email' => 'tenant.alina@example.com',
@@ -66,6 +73,7 @@ it('renders the login demo accounts table with curated accounts', function () {
         ->assertSeeText('superadmin@example.com')
         ->assertSeeText('admin@example.com')
         ->assertSeeText('manager@example.com')
+        ->assertSeeText('billing.manager@example.com')
         ->assertSeeText('tenant.alina@example.com')
         ->assertSeeText('tenant.marius@example.com')
         ->assertSeeText('password')
@@ -86,16 +94,18 @@ it('default database seeder creates demo accounts for every role', function () {
             'superadmin@example.com',
             'admin@example.com',
             'manager@example.com',
+            'billing.manager@example.com',
             'tenant.alina@example.com',
             'tenant.marius@example.com',
         ])
         ->get()
         ->keyBy('email');
 
-    expect($usersByEmail)->toHaveCount(5)
+    expect($usersByEmail)->toHaveCount(6)
         ->and($usersByEmail['superadmin@example.com']->role)->toBe(UserRole::SUPERADMIN)
         ->and($usersByEmail['admin@example.com']->role)->toBe(UserRole::ADMIN)
         ->and($usersByEmail['manager@example.com']->role)->toBe(UserRole::MANAGER)
+        ->and($usersByEmail['billing.manager@example.com']->role)->toBe(UserRole::MANAGER)
         ->and($usersByEmail['tenant.alina@example.com']->role)->toBe(UserRole::TENANT)
         ->and($usersByEmail['tenant.marius@example.com']->role)->toBe(UserRole::TENANT)
         ->and($usersByEmail['superadmin@example.com']->organization_id)->toBeNull()
@@ -134,4 +144,12 @@ it('default database seeder creates demo accounts for every role', function () {
         ->and($demoOrganization->currentSubscription?->property_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['properties'])
         ->and($demoOrganization->settings?->billing_contact_email)->toBe('billing@tenanto.test')
         ->and($demoOrganization->settings?->billing_contact_phone)->toBe('+37060000000');
+
+    $managerPermissionService = app(ManagerPermissionService::class);
+
+    expect($managerPermissionService->can($usersByEmail['manager@example.com'], $demoOrganization, 'buildings', 'create'))->toBeTrue()
+        ->and($managerPermissionService->can($usersByEmail['manager@example.com'], $demoOrganization, 'invoices', 'create'))->toBeFalse()
+        ->and($managerPermissionService->can($usersByEmail['billing.manager@example.com'], $demoOrganization, 'billing', 'create'))->toBeTrue()
+        ->and($managerPermissionService->can($usersByEmail['billing.manager@example.com'], $demoOrganization, 'providers', 'edit'))->toBeTrue()
+        ->and($managerPermissionService->can($usersByEmail['billing.manager@example.com'], $demoOrganization, 'buildings', 'create'))->toBeFalse();
 });

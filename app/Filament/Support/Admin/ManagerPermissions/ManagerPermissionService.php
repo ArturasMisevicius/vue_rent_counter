@@ -236,6 +236,6 @@ class ManagerPermissionService
 
     private function cacheKey(User $user, Organization $organization): string
     {
-        return "{$organization->getKey()}:".spl_object_id($user);
+        return "{$organization->getKey()}:{$user->getKey()}";
     }
 }

@@ -41,6 +41,8 @@ class ManagerPermissionMatrixPanel extends Component
 
     public bool $isManager = false;
 
+    public bool $showsSuperadminBanner = false;
+
     public string $copyModalId;
 
     public function mount(OrganizationUser $record, ?int $organizationId = null, ?int $userId = null): void
@@ -128,6 +130,7 @@ class ManagerPermissionMatrixPanel extends Component
         $this->isManager = $this->record->role === UserRole::MANAGER->value
             && $manager instanceof User
             && $organization instanceof Organization;
+        $this->showsSuperadminBanner = auth()->user()?->isSuperadmin() ?? false;
 
         $this->availability = $organization instanceof Organization
             ? ManagerPermissionCatalog::availabilityForOrganization($organization)

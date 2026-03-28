@@ -13,6 +13,7 @@ class LoginDemoAccountPresenter
         'superadmin@example.com',
         'admin@example.com',
         'manager@example.com',
+        'billing.manager@example.com',
         'tenant.alina@example.com',
         'tenant.marius@example.com',
     ];

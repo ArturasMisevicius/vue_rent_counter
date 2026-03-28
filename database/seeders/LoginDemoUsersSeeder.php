@@ -123,6 +123,13 @@ class LoginDemoUsersSeeder extends Seeder
             organizationId: $organization->id,
         );
 
+        $billingManager = $this->upsertUser(
+            name: 'Demo Billing Manager',
+            email: 'billing.manager@example.com',
+            role: UserRole::MANAGER,
+            organizationId: $organization->id,
+        );
+
         $tenantAlina = $this->upsertUser(
             name: 'Alina Petrauskienė',
             email: 'tenant.alina@example.com',
@@ -143,6 +150,7 @@ class LoginDemoUsersSeeder extends Seeder
 
         $this->syncMembership($organization, $admin, UserRole::ADMIN);
         $this->syncMembership($organization, $manager, UserRole::MANAGER);
+        $this->syncMembership($organization, $billingManager, UserRole::MANAGER);
         $this->syncMembership($organization, $tenantAlina, UserRole::TENANT);
         $this->syncMembership($organization, $tenantMarius, UserRole::TENANT);
 
@@ -150,6 +158,12 @@ class LoginDemoUsersSeeder extends Seeder
             $manager,
             $organization,
             ManagerPermissionCatalog::presets()['property_manager']['matrix'],
+        );
+
+        ManagerPermission::syncForManager(
+            $billingManager,
+            $organization,
+            ManagerPermissionCatalog::presets()['billing_manager']['matrix'],
         );
 
         $buildingPrototype = Building::factory()
@@ -233,6 +247,7 @@ class LoginDemoUsersSeeder extends Seeder
                 [$superadmin->role->label(), $superadmin->email, self::DEFAULT_PASSWORD],
                 [$admin->role->label(), $admin->email, self::DEFAULT_PASSWORD],
                 [$manager->role->label(), $manager->email, self::DEFAULT_PASSWORD],
+                [$billingManager->role->label(), $billingManager->email, self::DEFAULT_PASSWORD],
                 [$tenantAlina->role->label(), $tenantAlina->email, self::DEFAULT_PASSWORD],
                 [$tenantMarius->role->label(), $tenantMarius->email, self::DEFAULT_PASSWORD],
             ],
