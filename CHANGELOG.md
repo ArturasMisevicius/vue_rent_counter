@@ -2,6 +2,12 @@
 
 ## 2026-03-28
 
+### fix: seed showcase organization memberships
+
+- synced `organization_user` membership rows for showcase admins, managers, and tenants inside `OperationalDemoDatasetSeeder`
+- added seeder regression coverage to ensure every showcase user receives a scoped membership row with an inviter
+- preserved idempotent reseeding while aligning showcase data with the organization-user admin surfaces
+
 <!-- changelog:auto:start:staged-20260328165420 -->
 ### Commit updates
 
