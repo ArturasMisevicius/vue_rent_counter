@@ -933,6 +933,7 @@ return [
         ],
         'validation' => [
             'expires_at_must_extend' => 'Pabaigos data turi būti vėlesnė už dabartinę galiojimo pabaigos datą.',
+            'already_exists' => 'This organization already has a current subscription.',
         ],
     ],
     'languages_resource' => [

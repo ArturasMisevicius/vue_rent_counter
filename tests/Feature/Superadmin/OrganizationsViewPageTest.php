@@ -433,6 +433,68 @@ it('renders the users, subscriptions, buildings, managers, properties, and activ
         ->assertTableActionExists('openAuditTimeline', record: $activityLog);
 });
 
+it('creates an organization subscription from the relation when none exists', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Aurora Estates',
+        'status' => OrganizationStatus::ACTIVE,
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(SubscriptionsRelationManager::class, [
+        'ownerRecord' => $organization,
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->assertTableActionVisible('create')
+        ->callTableAction('create', data: [
+            'plan' => SubscriptionPlan::PROFESSIONAL->value,
+            'status' => SubscriptionStatus::ACTIVE->value,
+            'starts_at' => now()->subDay()->toDateTimeString(),
+            'expires_at' => now()->addMonth()->toDateTimeString(),
+        ])
+        ->assertHasNoTableActionErrors();
+
+    $subscription = $organization->subscriptions()->latest('id')->first();
+
+    expect($subscription)->not->toBeNull()
+        ->and($subscription?->organization_id)->toBe($organization->id)
+        ->and($subscription?->plan)->toBe(SubscriptionPlan::PROFESSIONAL)
+        ->and($subscription?->status)->toBe(SubscriptionStatus::ACTIVE)
+        ->and($subscription?->property_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['properties'])
+        ->and($subscription?->tenant_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['tenants'])
+        ->and($subscription?->meter_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['meters'])
+        ->and($subscription?->invoice_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['invoices']);
+});
+
+it('shows only the current subscription row in the organization relation and hides create once one exists', function () {
+    [$organization, $owner, $currentSubscription] = seedOrganizationViewFixture();
+    $historicalSubscription = Subscription::factory()->for($organization)->create([
+        'plan' => SubscriptionPlan::STARTER,
+        'status' => SubscriptionStatus::CANCELLED,
+        'starts_at' => now()->subMonths(4)->startOfDay(),
+        'expires_at' => now()->subMonths(2)->startOfDay(),
+        'property_limit_snapshot' => SubscriptionPlan::STARTER->limits()['properties'],
+        'tenant_limit_snapshot' => SubscriptionPlan::STARTER->limits()['tenants'],
+        'meter_limit_snapshot' => SubscriptionPlan::STARTER->limits()['meters'],
+        'invoice_limit_snapshot' => SubscriptionPlan::STARTER->limits()['invoices'],
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(SubscriptionsRelationManager::class, [
+        'ownerRecord' => $organization->fresh(),
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->assertTableActionHidden('create')
+        ->assertTableActionExists('edit', record: $currentSubscription)
+        ->assertTableActionExists('viewHistory', record: $currentSubscription)
+        ->assertCountTableRecords(1)
+        ->assertCanSeeTableRecords([$currentSubscription])
+        ->assertCanNotSeeTableRecords([$historicalSubscription]);
+});
+
 it('supports resending invitations and changing roles from the organization user roster', function () {
     Notification::fake();
 

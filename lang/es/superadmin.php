@@ -938,6 +938,7 @@ return [
         ],
         'validation' => [
             'expires_at_must_extend' => 'The expires at date must be later than the current expiry date.',
+            'already_exists' => 'This organization already has a current subscription.',
         ],
     ],
     'languages_resource' => [

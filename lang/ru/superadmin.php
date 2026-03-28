@@ -933,6 +933,7 @@ return [
         ],
         'validation' => [
             'expires_at_must_extend' => 'Дата окончания должна быть позже текущей даты окончания.',
+            'already_exists' => 'This organization already has a current subscription.',
         ],
     ],
     'languages_resource' => [
