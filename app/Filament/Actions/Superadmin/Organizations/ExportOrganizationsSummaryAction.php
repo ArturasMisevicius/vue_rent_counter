@@ -117,10 +117,6 @@ class ExportOrganizationsSummaryAction
                 'label' => __('superadmin.organizations.columns.name'),
                 'value' => fn (Organization $organization): string => $organization->name,
             ],
-            'slug' => [
-                'label' => __('superadmin.organizations.columns.slug'),
-                'value' => fn (Organization $organization): string => (string) $organization->slug,
-            ],
             'owner.email' => [
                 'label' => __('superadmin.organizations.columns.owner_email'),
                 'value' => fn (Organization $organization): string => (string) $organization->owner?->email,

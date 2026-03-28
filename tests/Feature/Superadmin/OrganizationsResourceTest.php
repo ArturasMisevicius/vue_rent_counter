@@ -31,7 +31,7 @@ it('only allows superadmins to reach organizations control-plane pages', functio
         ->assertSuccessful()
         ->assertSeeText(__('superadmin.organizations.overview.details_heading'))
         ->assertSeeText(__('superadmin.organizations.overview.subscription_heading'))
-        ->assertSeeText($organization->slug);
+        ->assertDontSeeText($organization->slug);
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.organizations.view', $organization).'?relation=1')

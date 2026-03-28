@@ -89,6 +89,36 @@ it('returns building matches from all organizations for superadmins', function (
         ->toContain('Skyline One', 'Skyline Two');
 });
 
+it('hides organization slugs from superadmin search results and does not search by slug', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+        'slug' => 'northwind-towers',
+    ]);
+
+    $superadmin = User::factory()->superadmin()->create();
+
+    $nameResults = Livewire::actingAs($superadmin)
+        ->test(GlobalSearch::class)
+        ->set('query', 'Northwind')
+        ->instance()
+        ->results();
+
+    $organizationResult = collect($nameResults['organizations'] ?? [])
+        ->firstWhere('title', $organization->name);
+
+    expect($organizationResult)
+        ->not->toBeNull()
+        ->and($organizationResult['subtitle'])->toBeNull();
+
+    $slugResults = Livewire::actingAs($superadmin)
+        ->test(GlobalSearch::class)
+        ->set('query', 'northwind-towers')
+        ->instance()
+        ->results();
+
+    expect($slugResults['organizations'] ?? [])->toBe([]);
+});
+
 it('returns only the authenticated admins organization properties when searching by name', function () {
     $organization = Organization::factory()->create();
     $otherOrganization = Organization::factory()->create();

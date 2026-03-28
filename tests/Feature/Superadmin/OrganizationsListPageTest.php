@@ -86,7 +86,7 @@ it('renders the organizations index contract for superadmins', function () {
 
     Livewire::test(ListOrganizations::class)
         ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.name'))
-        ->assertTableColumnExists('slug', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.slug'))
+        ->assertTableColumnDoesNotExist('slug')
         ->assertTableColumnExists('owner.email', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.owner_email'))
         ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.status'))
         ->assertTableColumnExists('users_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.users_count'))
@@ -119,7 +119,6 @@ it('renders the organizations index contract for superadmins', function () {
         ->assertTableBulkActionExists('reinstateSelected')
         ->assertTableBulkActionExists('deleteSelected')
         ->assertTableBulkActionExists('exportSelected')
-        ->assertTableColumnStateSet('slug', 'northwind-towers', $organization)
         ->assertTableColumnStateSet('status', OrganizationStatus::ACTIVE->label(), $organization)
         ->assertTableColumnStateSet('users_count', 3, $organization)
         ->assertTableColumnStateSet('properties_count', 1, $organization)

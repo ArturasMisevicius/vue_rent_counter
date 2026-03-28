@@ -80,3 +80,24 @@ it('uses the shared generated slug contract for utility services on create and r
 
     expect($utilityService->fresh()->slug)->toBe('cold-water-shared');
 });
+
+it('hides tag slugs from list and view pages while keeping automatic generation', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+    $tag = Tag::factory()->for($organization)->create([
+        'name' => 'Priority Ops',
+        'slug' => 'priority-ops',
+    ]);
+
+    actingAs($superadmin);
+
+    $this->get(route('filament.admin.resources.tags.index'))
+        ->assertSuccessful()
+        ->assertSeeText($tag->name)
+        ->assertDontSeeText($tag->slug);
+
+    $this->get(route('filament.admin.resources.tags.view', ['record' => $tag]))
+        ->assertSuccessful()
+        ->assertSeeText($tag->name)
+        ->assertDontSeeText($tag->slug);
+});

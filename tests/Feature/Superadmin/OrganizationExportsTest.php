@@ -230,6 +230,39 @@ it('exports the selected organizations with visible summary columns', function (
     @unlink($path);
 });
 
+it('ignores slug columns when exporting organization summaries', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+        'slug' => 'northwind-towers',
+    ]);
+
+    $owner = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'email' => 'owner@northwind.test',
+    ]);
+
+    $organization->forceFill([
+        'owner_user_id' => $owner->id,
+    ])->save();
+
+    $path = app(ExportOrganizationsSummaryAction::class)->handle(
+        collect([$organization]),
+        ['name', 'slug', 'owner.email'],
+    );
+
+    $rows = array_map('str_getcsv', file($path, FILE_IGNORE_NEW_LINES) ?: []);
+
+    expect($rows[0] ?? null)->toBe([
+        'Name',
+        'Owner email',
+    ])->and($rows[1] ?? null)->toBe([
+        'Northwind Towers',
+        'owner@northwind.test',
+    ])->and(collect($rows)->flatten())->not->toContain('northwind-towers');
+
+    @unlink($path);
+});
+
 function seedOwnedOrganizationForExport(): array
 {
     $organization = Organization::factory()->create([

@@ -59,10 +59,6 @@ class OrganizationsTable
                     ->url(fn (Organization $record): string => OrganizationResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('slug')
-                    ->label(__('superadmin.organizations.columns.slug'))
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('owner.email')
                     ->label(__('superadmin.organizations.columns.owner_email'))
                     ->placeholder(__('superadmin.organizations.empty.owner'))

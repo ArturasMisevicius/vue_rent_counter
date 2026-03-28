@@ -23,8 +23,6 @@ class TagsTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
                 TextColumn::make('color')
                     ->searchable(),
                 TextColumn::make('type')

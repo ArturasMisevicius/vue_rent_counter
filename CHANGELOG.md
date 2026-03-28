@@ -2,6 +2,13 @@
 
 ## 2026-03-28
 
+### Hidden generated slugs in admin UI
+
+- removed organization slugs from the superadmin organizations list, organization detail overview, record subheading, and organization summary exports
+- removed organization slugs from superadmin global search results and stopped matching organizations by slug in the visible search UI
+- removed tag slugs from the tag list and tag detail pages while keeping slug auto-generation at the model layer
+- removed slug display from the recently created organizations widget and added regression coverage for the hidden-slug contract
+
 ### Organization single-subscription relation
 
 - changed the organization `Subscriptions` relation tab to manage only the current subscription record

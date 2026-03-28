@@ -14,7 +14,6 @@ class TagInfolist
             ->components([
                 TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
                 TextEntry::make('name'),
-                TextEntry::make('slug'),
                 TextEntry::make('color')
                     ->placeholder('-'),
                 TextEntry::make('description')

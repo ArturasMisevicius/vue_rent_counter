@@ -83,7 +83,7 @@ class ViewOrganization extends ViewRecord
 
     public function getSubheading(): ?string
     {
-        return $this->record->slug;
+        return null;
     }
 
     public function getContentTabLabel(): ?string

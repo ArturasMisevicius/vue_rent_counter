@@ -9,7 +9,6 @@ use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\SearchQueryPattern;
 use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
 
 class OrganizationSearchProvider implements GlobalSearchProvider
@@ -33,12 +32,8 @@ class OrganizationSearchProvider implements GlobalSearchProvider
         $pattern = SearchQueryPattern::from($query)->likePattern();
 
         return Organization::query()
-            ->select(['id', 'name', 'slug'])
-            ->where(function (Builder $builder) use ($pattern): void {
-                $builder
-                    ->where('name', 'like', $pattern)
-                    ->orWhere('slug', 'like', $pattern);
-            })
+            ->select(['id', 'name'])
+            ->where('name', 'like', $pattern)
             ->orderBy('name')
             ->orderBy('id')
             ->limit((int) config('tenanto.search.limit', 5))
@@ -46,7 +41,7 @@ class OrganizationSearchProvider implements GlobalSearchProvider
             ->map(fn (Organization $organization): GlobalSearchResultData => new GlobalSearchResultData(
                 group: $this->group(),
                 title: $organization->name,
-                subtitle: $organization->slug,
+                subtitle: null,
                 url: route($routeName, $organization),
             ))
             ->all();

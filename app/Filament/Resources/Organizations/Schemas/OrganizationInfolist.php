@@ -95,7 +95,6 @@ class OrganizationInfolist
         return [
             'details' => [
                 ['label' => __('superadmin.organizations.overview.fields.organization_name'), 'value' => $organization->name],
-                ['label' => __('superadmin.organizations.overview.fields.url_slug'), 'value' => $organization->slug],
                 ['label' => __('superadmin.organizations.overview.fields.current_status'), 'value' => $organization->status->label()],
                 ['label' => __('superadmin.organizations.overview.fields.owner_name'), 'value' => $organization->owner?->name ?? __('superadmin.organizations.empty.owner')],
                 ['label' => __('superadmin.organizations.overview.fields.owner_email'), 'value' => $organization->owner?->email ?? __('superadmin.organizations.empty.owner')],
