@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Buildings\Pages;
 
 use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Models\Building;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -11,6 +12,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewBuilding extends ViewRecord
 {
+    use HasDeferredRelationManagerTabBadges;
+
     protected static string $resource = BuildingResource::class;
 
     public function hasCombinedRelationManagerTabsWithContent(): bool

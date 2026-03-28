@@ -41,6 +41,13 @@ class ManagersRelationManager extends RelationManager
         return __('superadmin.organizations.relations.managers.title');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return (string) $ownerRecord->users()
+            ->where('role', UserRole::MANAGER)
+            ->count();
+    }
+
     public function table(Table $table): Table
     {
         return $table

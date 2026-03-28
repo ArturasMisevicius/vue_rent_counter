@@ -32,7 +32,7 @@ class PropertiesRelationManager extends RelationManager
     {
         $count = $ownerRecord->getAttribute('properties_count');
 
-        return $count === null ? null : (string) $count;
+        return $count === null ? (string) $ownerRecord->properties()->count() : (string) $count;
     }
 
     public function table(Table $table): Table

@@ -30,6 +30,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
 use App\Services\SubscriptionChecker;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -518,4 +519,54 @@ it('rejects creating tenants with disposable email domains', function () {
         ->and(OrganizationInvitation::query()->where('email', 'tenant@10minutemail.com')->exists())->toBeFalse();
 
     Notification::assertNothingSent();
+});
+
+it('keeps tenant relation tab badges deferred with relation counts', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create();
+
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+    MeterReading::factory()->for($organization)->for($property)->for($meter)->create();
+    Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create();
+    OrganizationActivityLog::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $tenant->id,
+        'resource_type' => User::class,
+        'resource_id' => $tenant->id,
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    actingAs($admin);
+
+    $component = Livewire::test(ViewTenant::class, ['record' => $tenant->getRouteKey()]);
+    $page = $component->invade();
+    $record = $page->getRecord();
+    $tabs = collect($page->getDeferredRelationManagerTabs(
+        TenantResource::getRelations(),
+        $page->hasCombinedRelationManagerTabsWithContent(),
+        ['ownerRecord' => $record, 'pageClass' => ViewTenant::class],
+        $record,
+    ));
+
+    $tabs->except([''])->each(function (Tab $tab): void {
+        expect($tab->isBadgeDeferred())->toBeTrue();
+    });
+
+    expect(MetersRelationManager::getBadge($record, ViewTenant::class))->toBe('1')
+        ->and(ReadingsRelationManager::getBadge($record, ViewTenant::class))->toBe('1')
+        ->and(InvoicesRelationManager::getBadge($record, ViewTenant::class))->toBe('1')
+        ->and(AuditTrailRelationManager::getBadge($record, ViewTenant::class))->toBe((string) $record->resourceActivityLogs()->count());
 });

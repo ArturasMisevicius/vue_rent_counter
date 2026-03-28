@@ -7,6 +7,7 @@ use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
+use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
@@ -21,6 +22,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewTenant extends ViewRecord
 {
+    use HasDeferredRelationManagerTabBadges;
+
     protected static string $resource = TenantResource::class;
 
     private ?OrganizationInvitation $latestInvitation = null;

@@ -34,6 +34,13 @@ class InvoicesRelationManager extends RelationManager
         return __('admin.tenants.tabs.invoices');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('invoices_count');
+
+        return (string) ($count ?? $ownerRecord->invoices()->count());
+    }
+
     public function table(Table $table): Table
     {
         return $table

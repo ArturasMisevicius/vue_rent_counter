@@ -4,6 +4,7 @@ use App\Enums\PropertyType;
 use App\Filament\Actions\Admin\Buildings\CreateBuildingAction;
 use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Actions\Admin\Buildings\UpdateBuildingAction;
+use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Resources\Buildings\Pages\ListBuildings;
 use App\Filament\Resources\Buildings\Pages\ViewBuilding;
 use App\Filament\Resources\Buildings\RelationManagers\MetersRelationManager;
@@ -15,6 +16,7 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -250,4 +252,34 @@ it('creates updates and blocks deletion of buildings when properties exist', fun
     app(DeleteBuildingAction::class)->handle($emptyBuilding);
 
     expect(Building::query()->whereKey($emptyBuilding->id)->exists())->toBeFalse();
+});
+
+it('keeps building relation tab badges deferred with relation counts', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin);
+
+    $component = Livewire::test(ViewBuilding::class, ['record' => $building->getRouteKey()]);
+    $page = $component->invade();
+    $record = $page->getRecord();
+    $tabs = collect($page->getDeferredRelationManagerTabs(
+        BuildingResource::getRelations(),
+        $page->hasCombinedRelationManagerTabsWithContent(),
+        ['ownerRecord' => $record, 'pageClass' => ViewBuilding::class],
+        $record,
+    ));
+
+    $tabs->except([''])->each(function (Tab $tab): void {
+        expect($tab->isBadgeDeferred())->toBeTrue();
+    });
+
+    expect(PropertiesRelationManager::getBadge($record, ViewBuilding::class))->toBe('1')
+        ->and(MetersRelationManager::getBadge($record, ViewBuilding::class))->toBe('1');
 });

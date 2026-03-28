@@ -35,7 +35,7 @@ class ActivityLogsRelationManager extends RelationManager
     {
         $count = $ownerRecord->getAttribute('activity_logs_count');
 
-        return $count === null ? null : (string) $count;
+        return $count === null ? (string) $ownerRecord->activityLogs()->count() : (string) $count;
     }
 
     public function getRelationship(): Relation

@@ -7,8 +7,11 @@ use App\Filament\Actions\Admin\Meters\CreateMeterAction;
 use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
 use App\Filament\Actions\Admin\Meters\ToggleMeterStatusAction;
 use App\Filament\Actions\Admin\Meters\UpdateMeterAction;
+use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Meters\Pages\CreateMeter;
 use App\Filament\Resources\Meters\Pages\ListMeters;
+use App\Filament\Resources\Meters\Pages\ViewMeter;
+use App\Filament\Resources\Meters\RelationManagers\ReadingHistoryRelationManager;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -16,6 +19,7 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Forms\Components\Select as FormSelect;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -305,4 +309,35 @@ it('shows create-time organization and building filters for superadmins and narr
                 && ! array_key_exists($propertyASecondary->id, $options)
                 && ! array_key_exists($propertyB->id, $options);
         });
+});
+
+it('keeps meter relation tab badges deferred with reading history counts', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+
+    MeterReading::factory()->count(2)->for($organization)->for($property)->for($meter)->create();
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin);
+
+    $component = Livewire::test(ViewMeter::class, ['record' => $meter->getRouteKey()]);
+    $page = $component->invade();
+    $record = $page->getRecord();
+    $tabs = collect($page->getDeferredRelationManagerTabs(
+        MeterResource::getRelations(),
+        $page->hasCombinedRelationManagerTabsWithContent(),
+        ['ownerRecord' => $record, 'pageClass' => ViewMeter::class],
+        $record,
+    ));
+
+    $tabs->except([''])->each(function (Tab $tab): void {
+        expect($tab->isBadgeDeferred())->toBeTrue();
+    });
+
+    expect(ReadingHistoryRelationManager::getBadge($record, ViewMeter::class))->toBe('2');
 });

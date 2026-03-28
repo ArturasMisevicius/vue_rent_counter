@@ -27,6 +27,13 @@ class MetersRelationManager extends RelationManager
         return __('admin.buildings.tabs.meters');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('meters_count');
+
+        return (string) ($count ?? $ownerRecord->meters()->count());
+    }
+
     public function table(Table $table): Table
     {
         return $table

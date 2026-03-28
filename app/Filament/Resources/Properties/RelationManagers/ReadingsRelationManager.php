@@ -26,6 +26,13 @@ class ReadingsRelationManager extends RelationManager
         return __('admin.properties.tabs.readings');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('meter_readings_count');
+
+        return (string) ($count ?? $ownerRecord->meterReadings()->count());
+    }
+
     public function getRelationship(): Relation
     {
         $property = $this->getOwnerRecord();

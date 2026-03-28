@@ -660,6 +660,11 @@ it('keeps organization relation tab badges deferred with counts across tab switc
             expect($tab)->not->toBeNull()
                 ->and($tab->isBadgeDeferred())->toBeTrue();
         }
+
+        expect(UsersRelationManager::getBadge($record, ViewOrganization::class))->toBe((string) ($record->users_count ?? $record->users()->count()))
+            ->and(SubscriptionsRelationManager::getBadge($record, ViewOrganization::class))->toBe('1')
+            ->and(BuildingsRelationManager::getBadge($record, ViewOrganization::class))->toBe((string) ($record->buildings_count ?? $record->buildings()->count()))
+            ->and(ActivityLogsRelationManager::getBadge($record, ViewOrganization::class))->toBe((string) ($record->activity_logs_count ?? $record->activityLogs()->count()));
     };
 
     $assertRelationTabBadges($component->invade());

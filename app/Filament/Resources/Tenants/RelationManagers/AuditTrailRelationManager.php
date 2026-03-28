@@ -25,6 +25,13 @@ class AuditTrailRelationManager extends RelationManager
         return __('admin.tenants.tabs.audit_trail');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('resource_activity_logs_count');
+
+        return (string) ($count ?? $ownerRecord->resourceActivityLogs()->count());
+    }
+
     public function getRelationship(): Relation
     {
         $tenant = $this->getOwnerRecord();

@@ -31,7 +31,7 @@ class BuildingsRelationManager extends RelationManager
     {
         $count = $ownerRecord->getAttribute('buildings_count');
 
-        return $count === null ? null : (string) $count;
+        return $count === null ? (string) $ownerRecord->buildings()->count() : (string) $count;
     }
 
     public function table(Table $table): Table

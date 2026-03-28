@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Properties\Pages;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Property;
 use App\Models\User;
@@ -18,6 +19,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewProperty extends ViewRecord
 {
+    use HasDeferredRelationManagerTabBadges;
+
     protected static string $resource = PropertyResource::class;
 
     public function hasCombinedRelationManagerTabsWithContent(): bool

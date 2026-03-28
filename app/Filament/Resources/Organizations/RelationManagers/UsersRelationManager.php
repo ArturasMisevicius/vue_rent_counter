@@ -49,7 +49,7 @@ class UsersRelationManager extends RelationManager
     {
         $count = $ownerRecord->getAttribute('users_count');
 
-        return $count === null ? null : (string) $count;
+        return $count === null ? (string) $ownerRecord->users()->count() : (string) $count;
     }
 
     public function table(Table $table): Table

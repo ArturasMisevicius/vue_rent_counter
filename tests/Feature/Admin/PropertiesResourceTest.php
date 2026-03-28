@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Filament\Resources\Properties\Pages\ViewProperty;
+use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Properties\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\ReadingsRelationManager;
@@ -20,6 +21,7 @@ use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\User;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -401,4 +403,37 @@ it('keeps property meter readings queries unambiguous when joining meters', func
         ->count();
 
     expect($readingsCount)->toBe(1);
+});
+
+it('keeps property relation tab badges deferred with relation counts', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+    MeterReading::factory()->for($organization)->for($property)->for($meter)->create();
+    Invoice::factory()->for($organization)->for($property)->create();
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin);
+
+    $component = Livewire::test(ViewProperty::class, ['record' => $property->getRouteKey()]);
+    $page = $component->invade();
+    $record = $page->getRecord();
+    $tabs = collect($page->getDeferredRelationManagerTabs(
+        PropertyResource::getRelations(),
+        $page->hasCombinedRelationManagerTabsWithContent(),
+        ['ownerRecord' => $record, 'pageClass' => ViewProperty::class],
+        $record,
+    ));
+
+    $tabs->except([''])->each(function (Tab $tab): void {
+        expect($tab->isBadgeDeferred())->toBeTrue();
+    });
+
+    expect(MetersRelationManager::getBadge($record, ViewProperty::class))->toBe('1')
+        ->and(ReadingsRelationManager::getBadge($record, ViewProperty::class))->toBe('1')
+        ->and(InvoicesRelationManager::getBadge($record, ViewProperty::class))->toBe('1');
 });

@@ -9,6 +9,12 @@
 - removed tag slugs from the tag list and tag detail pages while keeping slug auto-generation at the model layer
 - removed slug display from the recently created organizations widget and added regression coverage for the hidden-slug contract
 
+### Deferred relation tab count badges
+
+- enabled deferred relation-tab badge counts across building, property, tenant, meter, and organization record views so relation tabs consistently show right-aligned object counts
+- added fallback badge counting for relation managers that are rendered without preloaded `*_count` attributes, keeping badges correct on direct record views and after tab switches
+- added focused Pest coverage for deferred relation-tab badges across the superadmin organizations view and the admin building, property, tenant, and meter resources
+
 ### Organization single-subscription relation
 
 - changed the organization `Subscriptions` relation tab to manage only the current subscription record
@@ -32,6 +38,11 @@
 
 - added a second seeded demo manager account with the billing-manager preset so both property and billing permission profiles are visible in demo data
 - updated the curated login demo account presenter and Pest coverage to include the new billing manager example
+
+### Showcase manager permission presets
+
+- seeded the five Baltic showcase organizations with deterministic manager permission profiles so the operational demo dataset now exercises read-only, property, billing, full-access, and custom utility-manager matrices
+- added Pest coverage to keep those showcase manager permission rows idempotent across repeated database seeding runs
 
 ### Subscription request validation coverage
 

@@ -22,6 +22,13 @@ class ReadingHistoryRelationManager extends RelationManager
         return __('admin.meters.sections.history');
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->getAttribute('readings_count');
+
+        return (string) ($count ?? $ownerRecord->readings()->count());
+    }
+
     public function getRelationship(): Relation
     {
         /** @var Meter $meter */
