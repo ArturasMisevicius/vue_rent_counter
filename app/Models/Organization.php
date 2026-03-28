@@ -74,6 +74,8 @@ class Organization extends Model
         return $query->withCount([
             'users',
             'properties',
+            'meters',
+            'invoices',
             'subscriptions',
         ]);
     }
@@ -81,7 +83,7 @@ class Organization extends Model
     public function scopeWithCurrentSubscriptionSummary(Builder $query): Builder
     {
         return $query->with([
-            'currentSubscription:id,organization_id,plan,status,expires_at,property_limit_snapshot,tenant_limit_snapshot',
+            'currentSubscription:id,organization_id,plan,status,expires_at,property_limit_snapshot,tenant_limit_snapshot,meter_limit_snapshot,invoice_limit_snapshot',
         ]);
     }
 
@@ -100,6 +102,16 @@ class Organization extends Model
     public function scopeWithActivityLogCount(Builder $query): Builder
     {
         return $query->withCount('activityLogs');
+    }
+
+    public function scopeWithSecurityViolationCount(Builder $query): Builder
+    {
+        return $query->withCount('securityViolations');
+    }
+
+    public function scopeWithLastActivityAt(Builder $query): Builder
+    {
+        return $query->withMax('activityLogs', 'created_at');
     }
 
     public function scopeForSuperadminControlPlane(Builder $query): Builder

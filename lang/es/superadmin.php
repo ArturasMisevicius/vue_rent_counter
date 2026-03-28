@@ -382,6 +382,8 @@ return [
             'edit' => 'Editar',
             'suspend' => 'Suspender Organización',
             'reinstate' => 'Reactivar Organización',
+            'suspend_selected' => 'Suspender seleccionadas',
+            'reinstate_selected' => 'Reactivar seleccionadas',
             'send_notification' => 'Enviar Notificación',
             'impersonate_admin' => 'Suplantar Administrador',
             'export_data' => 'Exportar Datos',
@@ -430,6 +432,7 @@ return [
         'overview' => [
             'details_heading' => 'Detalles de la Organización',
             'subscription_heading' => 'Resumen de Suscripción',
+            'health_heading' => 'Salud de la Organización',
             'fields' => [
                 'organization_name' => 'Nombre de la Organización',
                 'url_slug' => 'Slug URL',
@@ -442,9 +445,17 @@ return [
                 'subscription_status' => 'Estado de Suscripción',
                 'subscription_expiry_date' => 'Fecha de Expiración',
             ],
+            'health_labels' => [
+                'access' => 'Acceso',
+                'recent_activity' => 'Actividad reciente',
+                'security_violations' => 'Incidentes de seguridad',
+                'last_activity' => 'Última actividad',
+            ],
             'usage_labels' => [
                 'properties' => 'Propiedades',
                 'tenants' => 'Inquilinos',
+                'meters' => 'Medidores',
+                'invoices' => 'Facturas',
             ],
             'usage_summary' => ':current de :limit',
             'placeholders' => [
@@ -475,10 +486,12 @@ return [
         ],
         'modals' => [
             'suspend' => '¿Está seguro de que desea suspender :name? Esto impedirá inmediatamente que todos los usuarios de esta organización realicen cambios. Sus datos se conservarán.',
+            'suspend_now' => 'Suspend :name and immediately terminate active sessions.',
+            'suspend_selected' => 'Suspender las organizaciones seleccionadas y terminar inmediatamente sus sesiones activas.',
             'reinstate' => 'Reactivar :name y restaurar el acceso de escritura para la organización.',
+            'reinstate_selected' => 'Reactivar las organizaciones seleccionadas y restaurar su acceso de escritura.',
             'impersonate' => 'Cambiará a la cuenta principal del administrador de la organización hasta que detenga la suplantación.',
             'export' => 'Esta exportación incluye todas las facturas en una hoja, todos los inquilinos en otra y todas las lecturas de medidores en otra, empaquetadas en un archivo ZIP descargable.',
-            'suspend_now' => 'Suspend :name and immediately terminate active sessions.',
         ],
         'activity_log' => [
             'record' => 'Registro',

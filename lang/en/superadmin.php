@@ -383,6 +383,8 @@ return [
             'edit' => 'Edit',
             'suspend' => 'Suspend Organization',
             'reinstate' => 'Reinstate Organization',
+            'suspend_selected' => 'Suspend Selected',
+            'reinstate_selected' => 'Reinstate Selected',
             'send_notification' => 'Send Notification',
             'impersonate_admin' => 'Impersonate Admin',
             'export_data' => 'Export Data',
@@ -430,6 +432,7 @@ return [
         'overview' => [
             'details_heading' => 'Organization Details',
             'subscription_heading' => 'Subscription Summary',
+            'health_heading' => 'Organization Health',
             'fields' => [
                 'organization_name' => 'Organization Name',
                 'url_slug' => 'URL Slug',
@@ -442,9 +445,17 @@ return [
                 'subscription_status' => 'Subscription Status',
                 'subscription_expiry_date' => 'Subscription Expiry Date',
             ],
+            'health_labels' => [
+                'access' => 'Access',
+                'recent_activity' => 'Recent Activity',
+                'security_violations' => 'Security Violations',
+                'last_activity' => 'Last Activity',
+            ],
             'usage_labels' => [
                 'properties' => 'Properties',
                 'tenants' => 'Tenants',
+                'meters' => 'Meters',
+                'invoices' => 'Invoices',
             ],
             'usage_summary' => ':current of :limit',
             'placeholders' => [
@@ -485,7 +496,9 @@ return [
         'modals' => [
             'suspend' => 'Are you sure you want to suspend :name? This will immediately prevent all users in this organization from making any changes. Their data will be preserved.',
             'suspend_now' => 'Suspend :name and immediately terminate active sessions.',
+            'suspend_selected' => 'Suspend the selected organizations and immediately terminate their active sessions.',
             'reinstate' => 'Reinstate :name and restore write access for the organization.',
+            'reinstate_selected' => 'Reinstate the selected organizations and restore their write access.',
             'impersonate' => 'You will switch into the organization primary admin account until you stop impersonating.',
             'export' => 'This export includes all invoices as one spreadsheet, all tenants as another spreadsheet, and all meter readings as another spreadsheet, packaged into a downloadable ZIP file.',
         ],

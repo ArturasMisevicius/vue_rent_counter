@@ -159,6 +159,16 @@ class Subscription extends Model
         return $this->tenant_limit_snapshot ?? $this->plan->limits()['tenants'];
     }
 
+    public function meterLimit(): int
+    {
+        return $this->meter_limit_snapshot ?? $this->plan->limits()['meters'];
+    }
+
+    public function invoiceLimit(): int
+    {
+        return $this->invoice_limit_snapshot ?? $this->plan->limits()['invoices'];
+    }
+
     public function propertiesUsedCount(): int
     {
         return (int) ($this->organization?->properties_count ?? 0);
@@ -167,6 +177,16 @@ class Subscription extends Model
     public function tenantsUsedCount(): int
     {
         return (int) ($this->organization?->tenants_count ?? 0);
+    }
+
+    public function metersUsedCount(): int
+    {
+        return (int) ($this->organization?->meters_count ?? 0);
+    }
+
+    public function invoicesUsedCount(): int
+    {
+        return (int) ($this->organization?->invoices_count ?? 0);
     }
 
     public function propertiesUsedSummary(): string
@@ -179,6 +199,16 @@ class Subscription extends Model
         return sprintf('%d of %d', $this->tenantsUsedCount(), $this->tenantLimit());
     }
 
+    public function metersUsedSummary(): string
+    {
+        return sprintf('%d of %d', $this->metersUsedCount(), $this->meterLimit());
+    }
+
+    public function invoicesUsedSummary(): string
+    {
+        return sprintf('%d of %d', $this->invoicesUsedCount(), $this->invoiceLimit());
+    }
+
     public function hasReachedPropertyLimit(): bool
     {
         return $this->propertiesUsedCount() >= $this->propertyLimit();
@@ -187,6 +217,16 @@ class Subscription extends Model
     public function hasReachedTenantLimit(): bool
     {
         return $this->tenantsUsedCount() >= $this->tenantLimit();
+    }
+
+    public function hasReachedMeterLimit(): bool
+    {
+        return $this->metersUsedCount() >= $this->meterLimit();
+    }
+
+    public function hasReachedInvoiceLimit(): bool
+    {
+        return $this->invoicesUsedCount() >= $this->invoiceLimit();
     }
 
     public function propertyUsagePercent(): int
@@ -199,6 +239,16 @@ class Subscription extends Model
         return $this->usagePercent($this->tenantsUsedCount(), $this->tenantLimit());
     }
 
+    public function meterUsagePercent(): int
+    {
+        return $this->usagePercent($this->metersUsedCount(), $this->meterLimit());
+    }
+
+    public function invoiceUsagePercent(): int
+    {
+        return $this->usagePercent($this->invoicesUsedCount(), $this->invoiceLimit());
+    }
+
     public function propertyUsageTone(): string
     {
         return $this->usageTone($this->propertyUsagePercent());
@@ -207,6 +257,16 @@ class Subscription extends Model
     public function tenantUsageTone(): string
     {
         return $this->usageTone($this->tenantUsagePercent());
+    }
+
+    public function meterUsageTone(): string
+    {
+        return $this->usageTone($this->meterUsagePercent());
+    }
+
+    public function invoiceUsageTone(): string
+    {
+        return $this->usageTone($this->invoiceUsagePercent());
     }
 
     private function usagePercent(int $used, int $limit): int

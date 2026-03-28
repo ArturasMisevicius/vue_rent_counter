@@ -383,6 +383,8 @@ return [
             'edit' => 'Redaguoti',
             'suspend' => 'Sustabdyti organizaciją',
             'reinstate' => 'Atkurti organizaciją',
+            'suspend_selected' => 'Sustabdyti pasirinktas',
+            'reinstate_selected' => 'Atkurti pasirinktas',
             'send_notification' => 'Siųsti pranešimą',
             'impersonate_admin' => 'Apsimesti administratoriumi',
             'export_data' => 'Eksportuoti duomenis',
@@ -430,6 +432,7 @@ return [
         'overview' => [
             'details_heading' => 'Organizacijos duomenys',
             'subscription_heading' => 'Prenumeratos santrauka',
+            'health_heading' => 'Organizacijos būklė',
             'fields' => [
                 'organization_name' => 'Organizacijos pavadinimas',
                 'url_slug' => 'URL slug',
@@ -442,9 +445,17 @@ return [
                 'subscription_status' => 'Prenumeratos būsena',
                 'subscription_expiry_date' => 'Prenumeratos galiojimo pabaiga',
             ],
+            'health_labels' => [
+                'access' => 'Prieiga',
+                'recent_activity' => 'Naujausia veikla',
+                'security_violations' => 'Saugumo pažeidimai',
+                'last_activity' => 'Paskutinė veikla',
+            ],
             'usage_labels' => [
                 'properties' => 'Objektai',
                 'tenants' => 'Nuomininkai',
+                'meters' => 'Skaitikliai',
+                'invoices' => 'Sąskaitos',
             ],
             'usage_summary' => ':current iš :limit',
             'placeholders' => [
@@ -485,7 +496,9 @@ return [
         'modals' => [
             'suspend' => 'Ar tikrai norite sustabdyti :name? Tai iš karto neleis visiems šios organizacijos naudotojams atlikti pakeitimų. Jų duomenys bus išsaugoti.',
             'suspend_now' => 'Sustabdyti :name ir nedelsiant nutraukti aktyvias sesijas.',
+            'suspend_selected' => 'Sustabdyti pasirinktas organizacijas ir nedelsiant nutraukti jų aktyvias sesijas.',
             'reinstate' => 'Atkurkite :name ir grąžinkite organizacijai rašymo prieigą.',
+            'reinstate_selected' => 'Atkurti pasirinktas organizacijas ir grąžinti joms rašymo prieigą.',
             'impersonate' => 'Jūs persijungsite į pagrindinio organizacijos administratoriaus paskyrą, kol nutrauksite apsimetimą.',
             'export' => 'Šiame eksporte visi sąskaitų duomenys bus viename skaičiuoklės faile, nuomininkai kitame, o skaitiklių rodmenys dar kitame, viskas supakuota į atsisiunčiamą ZIP archyvą.',
         ],

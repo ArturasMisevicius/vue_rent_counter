@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Organizations\Tables;
 
+use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationsSummaryAction;
+use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
@@ -67,11 +69,24 @@ class OrganizationsTable
                         default => 'gray',
                     }),
                 TextColumn::make('buildings_count')
+                    ->label(__('superadmin.organizations.relations.buildings.title'))
+                    ->sortable()
+                    ->alignCenter()
+                    ->toggleable(),
+                TextColumn::make('properties_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.properties'))
                     ->sortable()
                     ->alignCenter(),
                 TextColumn::make('tenants_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.tenants'))
+                    ->sortable()
+                    ->alignCenter(),
+                TextColumn::make('meters_count')
+                    ->label(__('superadmin.organizations.overview.usage_labels.meters'))
+                    ->sortable()
+                    ->alignCenter(),
+                TextColumn::make('invoices_count')
+                    ->label(__('superadmin.organizations.overview.usage_labels.invoices'))
                     ->sortable()
                     ->alignCenter(),
                 TextColumn::make('created_at')
@@ -153,6 +168,22 @@ class OrganizationsTable
                                 ->success()
                                 ->send();
                         }),
+                    Action::make('reinstateOrganization')
+                        ->label(__('superadmin.organizations.actions.reinstate'))
+                        ->icon(Heroicon::OutlinedPlayCircle)
+                        ->color('success')
+                        ->visible(fn (Organization $record): bool => $record->status === OrganizationStatus::SUSPENDED)
+                        ->authorize(fn (Organization $record): bool => self::currentUser()?->can('reinstate', $record) ?? false)
+                        ->requiresConfirmation()
+                        ->modalDescription(fn (Organization $record): string => __('superadmin.organizations.modals.reinstate', ['name' => $record->name]))
+                        ->action(function (Organization $record, ReinstateOrganizationAction $reinstateOrganizationAction): void {
+                            $reinstateOrganizationAction->handle($record);
+
+                            Notification::make()
+                                ->title(__('superadmin.organizations.notifications.reinstated'))
+                                ->success()
+                                ->send();
+                        }),
                     Action::make('sendNotification')
                         ->label(__('superadmin.organizations.actions.send_notification'))
                         ->icon(Heroicon::OutlinedEnvelope)
@@ -224,6 +255,40 @@ class OrganizationsTable
                     ->icon(Heroicon::OutlinedEllipsisHorizontal),
             ])
             ->toolbarActions([
+                BulkAction::make('suspendSelected')
+                    ->label(__('superadmin.organizations.actions.suspend_selected'))
+                    ->icon(Heroicon::OutlinedPauseCircle)
+                    ->color('danger')
+                    ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                    ->requiresConfirmation()
+                    ->modalDescription(__('superadmin.organizations.modals.suspend_selected'))
+                    ->action(function (Collection $records, SuspendOrganizationAction $suspendOrganizationAction): void {
+                        $records
+                            ->filter(fn (Organization $record): bool => $record->status->permitsAccess())
+                            ->each(fn (Organization $record): Organization => $suspendOrganizationAction->handle($record));
+
+                        Notification::make()
+                            ->title(__('superadmin.organizations.notifications.suspended'))
+                            ->success()
+                            ->send();
+                    }),
+                BulkAction::make('reinstateSelected')
+                    ->label(__('superadmin.organizations.actions.reinstate_selected'))
+                    ->icon(Heroicon::OutlinedPlayCircle)
+                    ->color('success')
+                    ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
+                    ->requiresConfirmation()
+                    ->modalDescription(__('superadmin.organizations.modals.reinstate_selected'))
+                    ->action(function (Collection $records, ReinstateOrganizationAction $reinstateOrganizationAction): void {
+                        $records
+                            ->filter(fn (Organization $record): bool => $record->status === OrganizationStatus::SUSPENDED)
+                            ->each(fn (Organization $record): Organization => $reinstateOrganizationAction->handle($record));
+
+                        Notification::make()
+                            ->title(__('superadmin.organizations.notifications.reinstated'))
+                            ->success()
+                            ->send();
+                    }),
                 DeleteBulkAction::make('deleteSelected')
                     ->label(__('superadmin.organizations.actions.delete_selected')),
                 BulkAction::make('exportSelected')

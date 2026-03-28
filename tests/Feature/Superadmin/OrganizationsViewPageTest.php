@@ -13,9 +13,12 @@ use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationMana
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
 use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\Property;
+use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionRenewal;
@@ -49,17 +52,42 @@ it('renders the organization view page overview, actions, and tabs', function ()
         ->assertSeeText(__('superadmin.organizations.relations.activity_logs.title'))
         ->assertSeeText(__('superadmin.organizations.overview.details_heading'))
         ->assertSeeText(__('superadmin.organizations.overview.subscription_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.health_heading'))
         ->assertSeeText(__('superadmin.organizations.overview.fields.current_plan'))
         ->assertSeeText(__('superadmin.organizations.overview.fields.subscription_status'))
         ->assertSeeText(__('superadmin.organizations.overview.fields.subscription_expiry_date'))
         ->assertSeeText('7 of 10')
-        ->assertSeeText('3 of 25');
+        ->assertSeeText('3 of 25')
+        ->assertSeeText('4 of 12')
+        ->assertSeeText('5 of 8');
 
     $this->actingAs($superadmin);
 
     Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
         ->assertActionExists('sendNotification')
         ->assertActionExists('exportData');
+});
+
+it('shows organization health metrics and full subscription usage gauges', function () {
+    [$organization, $owner, $subscription, $building, $activityLog] = seedOrganizationViewFixture();
+
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organizations.view', $organization))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.overview.health_heading'))
+        ->assertSeeText(__('superadmin.organizations.overview.health_labels.access'))
+        ->assertSeeText(__('superadmin.organizations.overview.health_labels.recent_activity'))
+        ->assertSeeText(__('superadmin.organizations.overview.health_labels.security_violations'))
+        ->assertSeeText(__('superadmin.organizations.overview.health_labels.last_activity'))
+        ->assertSeeText(__('superadmin.organizations.overview.usage_labels.meters'))
+        ->assertSeeText(__('superadmin.organizations.overview.usage_labels.invoices'))
+        ->assertSeeText((string) $organization->activityLogs()->count())
+        ->assertSeeText((string) $organization->securityViolations()->count())
+        ->assertSeeText($activityLog->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
+        ->assertSeeText('4 of 12')
+        ->assertSeeText('5 of 8');
 });
 
 it('sends organization notifications from the view page action', function () {
@@ -245,6 +273,8 @@ function seedOrganizationViewFixture(): array
         'expires_at' => now()->addMonth()->startOfDay(),
         'property_limit_snapshot' => 10,
         'tenant_limit_snapshot' => 25,
+        'meter_limit_snapshot' => 12,
+        'invoice_limit_snapshot' => 8,
     ]);
 
     SubscriptionPayment::factory()->for($subscription)->create([
@@ -265,6 +295,18 @@ function seedOrganizationViewFixture(): array
         'building_id' => $building->id,
     ]);
 
+    $property = Property::query()->where('organization_id', $organization->id)->firstOrFail();
+
+    Meter::factory()->count(4)->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+    ]);
+
+    Invoice::factory()->count(5)->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+    ]);
+
     $activityLog = OrganizationActivityLog::factory()->create([
         'organization_id' => $organization->id,
         'user_id' => $owner->id,
@@ -280,6 +322,11 @@ function seedOrganizationViewFixture(): array
             ],
         ],
         'ip_address' => '203.0.113.10',
+    ]);
+
+    SecurityViolation::factory()->count(2)->create([
+        'organization_id' => $organization->id,
+        'user_id' => $owner->id,
     ]);
 
     return [$organization, $owner, $subscription, $building, $activityLog];

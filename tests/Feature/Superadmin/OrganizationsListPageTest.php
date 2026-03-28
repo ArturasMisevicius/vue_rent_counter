@@ -1,12 +1,17 @@
 <?php
 
+use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\Meter;
 use App\Models\Organization;
+use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
+use Filament\Actions\Testing\TestAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -36,10 +41,29 @@ it('renders the organizations index contract for superadmins', function () {
         'is_trial' => false,
         'starts_at' => now()->subMonth(),
         'expires_at' => now()->addMonths(2),
+        'property_limit_snapshot' => 10,
+        'tenant_limit_snapshot' => 10,
+        'meter_limit_snapshot' => 20,
+        'invoice_limit_snapshot' => 25,
     ]);
 
     Building::factory()->count(3)->create([
         'organization_id' => $organization->id,
+    ]);
+
+    $property = Property::factory()->create([
+        'organization_id' => $organization->id,
+        'building_id' => Building::query()->whereBelongsTo($organization)->value('id'),
+    ]);
+
+    Meter::factory()->count(4)->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+    ]);
+
+    Invoice::factory()->count(5)->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
     ]);
 
     User::factory()->count(2)->tenant()->create([
@@ -59,8 +83,10 @@ it('renders the organizations index contract for superadmins', function () {
         ->assertTableColumnExists('owner.email', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.owner_email'))
         ->assertTableColumnExists('currentSubscription.plan', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.fields.current_plan'))
         ->assertTableColumnExists('currentSubscription.status', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.fields.subscription_status'))
-        ->assertTableColumnExists('buildings_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.properties'))
+        ->assertTableColumnExists('properties_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.properties'))
         ->assertTableColumnExists('tenants_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.tenants'))
+        ->assertTableColumnExists('meters_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.meters'))
+        ->assertTableColumnExists('invoices_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.invoices'))
         ->assertTableColumnExists('created_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.created_at'))
         ->assertTableFilterExists('subscription_status', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.overview.fields.subscription_status'))
         ->assertTableFilterExists('plan', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.overview.fields.current_plan'))
@@ -72,10 +98,54 @@ it('renders the organizations index contract for superadmins', function () {
         ->assertTableActionExists('impersonateAdmin', record: $organization)
         ->assertTableActionExists('exportData', record: $organization)
         ->assertTableActionExists('deleteOrganization', record: $organization)
+        ->assertTableBulkActionExists('suspendSelected')
+        ->assertTableBulkActionExists('reinstateSelected')
         ->assertTableBulkActionExists('deleteSelected')
         ->assertTableBulkActionExists('exportSelected')
-        ->assertTableColumnStateSet('buildings_count', 3, $organization)
-        ->assertTableColumnStateSet('tenants_count', 2, $organization);
+        ->assertTableColumnStateSet('properties_count', 1, $organization)
+        ->assertTableColumnStateSet('tenants_count', 2, $organization)
+        ->assertTableColumnStateSet('meters_count', 4, $organization)
+        ->assertTableColumnStateSet('invoices_count', 5, $organization);
+});
+
+it('supports superadmin status controls from the organizations list page', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    $activeOrganization = Organization::factory()->create();
+    $suspendedOrganization = Organization::factory()->create([
+        'status' => OrganizationStatus::SUSPENDED,
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListOrganizations::class)
+        ->assertTableActionExists('suspendOrganization', record: $activeOrganization)
+        ->callAction(TestAction::make('suspendOrganization')->table($activeOrganization));
+
+    expect($activeOrganization->fresh()->status)->toBe(OrganizationStatus::SUSPENDED);
+
+    Livewire::test(ListOrganizations::class)
+        ->assertTableActionExists('reinstateOrganization', record: $suspendedOrganization)
+        ->callAction(TestAction::make('reinstateOrganization')->table($suspendedOrganization));
+
+    expect($suspendedOrganization->fresh()->status)->toBe(OrganizationStatus::ACTIVE);
+
+    $bulkActiveOrganization = Organization::factory()->create();
+    $bulkSuspendedOrganization = Organization::factory()->create([
+        'status' => OrganizationStatus::SUSPENDED,
+    ]);
+
+    Livewire::test(ListOrganizations::class)
+        ->selectTableRecords([$bulkActiveOrganization->getKey()])
+        ->callAction(TestAction::make('suspendSelected')->table()->bulk());
+
+    expect($bulkActiveOrganization->fresh()->status)->toBe(OrganizationStatus::SUSPENDED);
+
+    Livewire::test(ListOrganizations::class)
+        ->selectTableRecords([$bulkSuspendedOrganization->getKey()])
+        ->callAction(TestAction::make('reinstateSelected')->table()->bulk());
+
+    expect($bulkSuspendedOrganization->fresh()->status)->toBe(OrganizationStatus::ACTIVE);
 });
 
 it('searches and filters organizations by owner email, subscription, plan, and creation date', function () {
