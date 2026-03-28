@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\SecurityViolationSeverity;
 use App\Enums\UserRole;
 use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\OrganizationFactory;
@@ -265,6 +266,15 @@ class Organization extends Model
     public function securityViolations(): HasMany
     {
         return $this->hasMany(SecurityViolation::class);
+    }
+
+    public function hasActiveSecurityIncident(): bool
+    {
+        return $this->securityViolations()
+            ->select(['id', 'organization_id', 'severity', 'resolved_at'])
+            ->ofSeverity(SecurityViolationSeverity::CRITICAL)
+            ->unresolved()
+            ->exists();
     }
 
     public function effectivePropertyLimit(): int

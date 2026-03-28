@@ -1,19 +1,24 @@
 <?php
 
+use App\Enums\SecurityViolationSeverity;
+use App\Enums\SecurityViolationType;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Superadmin\Users\StartUserImpersonationAction;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\SecurityViolation;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 uses(RefreshDatabase::class);
 
@@ -245,4 +250,23 @@ it('blocks superadmin deletion when users still have invoices, buildings, or act
         ]))
         ->and($disposableUser->fresh()->canBeDeletedFromSuperadmin())->toBeTrue()
         ->and($disposableUser->fresh()->superadminDeletionBlockedReason())->toBeNull();
+});
+
+it('blocks generic user impersonation when the users organization has an active critical security incident', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+    $managedUser = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    SecurityViolation::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $managedUser->id,
+        'type' => SecurityViolationType::IMPERSONATION,
+        'severity' => SecurityViolationSeverity::CRITICAL,
+        'resolved_at' => null,
+    ]);
+
+    expect(fn () => app(StartUserImpersonationAction::class)->handle($superadmin, $managedUser))
+        ->toThrow(AccessDeniedHttpException::class);
 });

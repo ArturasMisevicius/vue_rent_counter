@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Organizations\Schemas;
 
+use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Models\Organization;
 use App\Models\Subscription;
 use Filament\Schemas\Components\View;
@@ -14,9 +15,15 @@ class OrganizationInfolist
     {
         return $schema->components([
             View::make('filament.resources.organizations.overview')
-                ->viewData(fn (Organization $record): array => [
-                    'overview' => self::overview($record),
-                ]),
+                ->viewData(function (Organization $record): array {
+                    $dashboardData = app(OrganizationDashboardData::class);
+
+                    return [
+                        'overview' => self::overview($record),
+                        'activityFeed' => $dashboardData->activityFeedFor($record),
+                        'auditTimelineUrl' => $dashboardData->organizationAuditTimelineUrl($record),
+                    ];
+                }),
         ]);
     }
 

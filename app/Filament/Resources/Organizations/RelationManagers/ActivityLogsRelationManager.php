@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Organizations\RelationManagers;
 
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Support\Admin\Tenants\OrganizationActivityLogPresenter;
+use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use Filament\Actions\Action;
@@ -50,6 +51,11 @@ class ActivityLogsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                Action::make('openAuditTimeline')
+                    ->label(__('superadmin.organizations.relations.activity_logs.actions.open_audit_timeline'))
+                    ->url(fn (): string => app(OrganizationDashboardData::class)->organizationAuditTimelineUrl($this->getOwnerRecord())),
+            ])
             ->columns([
                 TextColumn::make('user.name')
                     ->label(__('superadmin.organizations.relations.activity_logs.columns.actor'))
@@ -84,6 +90,12 @@ class ActivityLogsRelationManager extends RelationManager
                             'resourceLabel' => OrganizationActivityLogPresenter::resourceLabel($record),
                             'rows' => OrganizationActivityLogPresenter::diffRows($record),
                         ],
+                    )),
+                Action::make('openAuditTimeline')
+                    ->label(__('superadmin.organizations.relations.activity_logs.actions.open_audit_timeline'))
+                    ->url(fn (OrganizationActivityLog $record): string => app(OrganizationDashboardData::class)->auditTimelineUrlForActivityLog(
+                        $this->getOwnerRecord(),
+                        $record,
                     )),
             ])
             ->recordAction('viewChanges')

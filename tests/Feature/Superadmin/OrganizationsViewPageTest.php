@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AuditLogAction;
 use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
@@ -12,7 +13,9 @@ use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManage
 use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
+use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Jobs\Superadmin\Organizations\SendOrganizationAnnouncementJob;
+use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -97,6 +100,53 @@ it('shows organization health metrics and full subscription usage gauges', funct
         ->assertSeeText($activityLog->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
         ->assertSeeText('4 of 12')
         ->assertSeeText('5 of 8');
+});
+
+it('shows the latest ten org audit events on the detail page with deep links into the audit timeline', function () {
+    [$organization, $owner] = seedOrganizationViewFixture();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $planChangeLog = AuditLog::factory()->create([
+        'organization_id' => $organization->id,
+        'actor_user_id' => $owner->id,
+        'action' => AuditLogAction::UPDATED,
+        'subject_type' => Organization::class,
+        'subject_id' => $organization->id,
+        'description' => 'Organization plan changed',
+        'metadata' => [
+            'old_plan' => 'basic',
+            'new_plan' => 'professional',
+        ],
+        'occurred_at' => now()->subSeconds(30),
+    ]);
+
+    foreach (range(0, 10) as $index) {
+        AuditLog::factory()->create([
+            'organization_id' => $organization->id,
+            'actor_user_id' => $owner->id,
+            'action' => AuditLogAction::UPDATED,
+            'subject_type' => Organization::class,
+            'subject_id' => $organization->id,
+            'description' => sprintf('Feed event %02d', $index),
+            'occurred_at' => now()->subMinutes($index + 1),
+        ]);
+    }
+
+    $dashboardData = app(OrganizationDashboardData::class);
+    $timelineUrl = htmlspecialchars($dashboardData->organizationAuditTimelineUrl($organization), ENT_QUOTES, 'UTF-8', false);
+    $planChangeUrl = htmlspecialchars($dashboardData->auditTimelineUrlForAuditLog($organization, $planChangeLog), ENT_QUOTES, 'UTF-8', false);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.organizations.view', $organization))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.overview.activity_feed_heading'))
+        ->assertSeeText('Organization plan changed')
+        ->assertSeeText('Feed event 00')
+        ->assertSeeText('Feed event 08')
+        ->assertDontSeeText('Feed event 09')
+        ->assertDontSeeText('Feed event 10')
+        ->assertSee($timelineUrl, false)
+        ->assertSee($planChangeUrl, false);
 });
 
 it('sends organization notifications from the view page action', function () {
@@ -204,7 +254,8 @@ it('renders the users, subscriptions, buildings, managers, properties, and activ
         ->assertTableColumnExists('resource_label', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.record'))
         ->assertTableColumnExists('ip_address', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.ip_address'))
         ->assertTableColumnExists('created_at', fn ($column): bool => $column->getLabel() === __('superadmin.organizations.relations.activity_logs.columns.when'))
-        ->assertTableActionExists('viewChanges', record: $activityLog);
+        ->assertTableActionExists('viewChanges', record: $activityLog)
+        ->assertTableActionExists('openAuditTimeline', record: $activityLog);
 });
 
 it('keeps organization relation tab badges deferred with counts across tab switches', function () {

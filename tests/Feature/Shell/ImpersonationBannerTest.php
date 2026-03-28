@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\ImpersonationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -110,5 +111,8 @@ function impersonationSessionFor(User $impersonator): array
         'impersonator_id' => $impersonator->id,
         'impersonator_name' => $impersonator->name,
         'impersonator_email' => $impersonator->email,
+        'impersonation_session_id' => (string) Str::uuid(),
+        'impersonation_started_at' => now()->subMinutes(10)->toIso8601String(),
+        'impersonation_expires_at' => now()->addMinutes(50)->toIso8601String(),
     ];
 }

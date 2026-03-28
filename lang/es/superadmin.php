@@ -247,6 +247,7 @@ return [
         ],
         'placeholders' => [
             'system' => 'Sistema',
+            'impersonated' => 'Superadmin (suplantando a :name)',
             'unknown' => 'Desconocido',
             'empty' => '—',
             'yes' => 'Sí',
@@ -450,6 +451,10 @@ return [
             'details_heading' => 'Detalles de la Organización',
             'subscription_heading' => 'Resumen de Suscripción',
             'health_heading' => 'Salud de la Organización',
+            'activity_feed_heading' => 'Actividad reciente',
+            'activity_feed_description' => 'Los eventos de auditoría más recientes de la organización con enlaces directos a la línea de tiempo completa.',
+            'activity_feed_empty' => 'No se registraron eventos de auditoría recientes para esta organización.',
+            'view_full_audit_timeline' => 'Ver la línea de tiempo completa',
             'fields' => [
                 'organization_name' => 'Nombre de la Organización',
                 'url_slug' => 'Slug URL',
@@ -630,6 +635,7 @@ return [
                 ],
                 'actions' => [
                     'view_changes' => 'Ver cambios',
+                    'open_audit_timeline' => 'Abrir línea de tiempo de auditoría',
                     'close' => 'Cerrar',
                 ],
                 'modals' => [
@@ -655,6 +661,7 @@ return [
         'messages' => [
             'no_primary_admin' => 'No primary admin is available for this organization.',
             'cannot_impersonate_suspended' => 'Cannot impersonate an administrator from a suspended organization.',
+            'cannot_impersonate_during_security_incident' => 'Cannot impersonate an administrator while the organization has an active critical security incident.',
             'export_prepare_failed' => 'Unable to prepare the organizations export.',
             'export_write_failed' => 'Unable to write the organizations export.',
         ],

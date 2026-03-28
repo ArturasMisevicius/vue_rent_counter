@@ -67,8 +67,17 @@ class AuditLog extends Model
         return $this->morphTo();
     }
 
-    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    public function scopeForOrganization(Builder $query, int|string $organizationId): Builder
     {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForOrganizationValue(Builder $query, int|string|null $organizationId): Builder
+    {
+        if (blank($organizationId)) {
+            return $query;
+        }
+
         return $query->where('organization_id', $organizationId);
     }
 
@@ -117,6 +126,22 @@ class AuditLog extends Model
             ->withActorSummary()
             ->withOrganizationSummary()
             ->recent();
+    }
+
+    public function scopeForOrganizationDashboardFeed(Builder $query): Builder
+    {
+        return $query
+            ->forAuditFeed()
+            ->where(function (Builder $query): Builder {
+                return $query
+                    ->whereNotNull('actor_user_id')
+                    ->orWhereNotNull('metadata->context->mutation')
+                    ->orWhere(function (Builder $query): Builder {
+                        return $query
+                            ->whereNotNull('description')
+                            ->where('description', '!=', '');
+                    });
+            });
     }
 
     public function scopeWhereActorMatches(Builder $query, ?string $search): Builder
@@ -170,6 +195,15 @@ class AuditLog extends Model
         }
 
         return $query->where('subject_type', $subjectType);
+    }
+
+    public function scopeForSubjectIdValue(Builder $query, int|string|null $subjectId): Builder
+    {
+        if (blank($subjectId)) {
+            return $query;
+        }
+
+        return $query->where('subject_id', $subjectId);
     }
 
     public function scopeOccurredBetween(Builder $query, ?string $from, ?string $to): Builder

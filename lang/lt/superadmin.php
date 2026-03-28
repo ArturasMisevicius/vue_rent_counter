@@ -234,6 +234,8 @@ return [
             'all_action_types' => 'Visi veiksmų tipai',
             'affected_record_type' => 'Paveikto įrašo tipas',
             'all_record_types' => 'Visi įrašų tipai',
+            'organization' => 'Organizacija',
+            'all_organizations' => 'Visos organizacijos',
             'date_range' => 'Datų intervalas',
             'date_range_help' => 'Pasirinkite pasirenkamą pradžios ir pabaigos datą.',
             'from' => 'Nuo',
@@ -247,6 +249,7 @@ return [
         ],
         'placeholders' => [
             'system' => 'Sistema',
+            'impersonated' => 'Superadministratorius (apsimeta :name)',
             'unknown' => 'Nežinoma',
             'empty' => '—',
             'yes' => 'Taip',
@@ -450,6 +453,10 @@ return [
             'details_heading' => 'Organizacijos duomenys',
             'subscription_heading' => 'Prenumeratos santrauka',
             'health_heading' => 'Organizacijos būklė',
+            'activity_feed_heading' => 'Naujausia veikla',
+            'activity_feed_description' => 'Naujausi organizacijos audito įvykiai su tiesioginėmis nuorodomis į pilną audito juostą.',
+            'activity_feed_empty' => 'Šiai organizacijai naujų audito įvykių neužfiksuota.',
+            'view_full_audit_timeline' => 'Atverti visą audito juostą',
             'fields' => [
                 'organization_name' => 'Organizacijos pavadinimas',
                 'url_slug' => 'URL slug',
@@ -519,6 +526,7 @@ return [
         'messages' => [
             'no_primary_admin' => 'Šiai organizacijai nėra priskirto pagrindinio administratoriaus.',
             'cannot_impersonate_suspended' => 'Negalima apsimesti sustabdytos organizacijos administratoriumi.',
+            'cannot_impersonate_during_security_incident' => 'Negalima apsimesti administratoriumi, kol organizacijoje yra aktyvus kritinis saugumo incidentas.',
             'export_prepare_failed' => 'Nepavyko paruošti organizacijų eksporto.',
             'export_write_failed' => 'Nepavyko įrašyti organizacijų eksporto.',
         ],
@@ -694,6 +702,7 @@ return [
                 ],
                 'actions' => [
                     'view_changes' => 'Peržiūrėti pakeitimus',
+                    'open_audit_timeline' => 'Atverti audito juostą',
                     'close' => 'Uždaryti',
                 ],
                 'modals' => [

@@ -234,6 +234,8 @@ return [
             'all_action_types' => 'All Action Types',
             'affected_record_type' => 'Affected Record Type',
             'all_record_types' => 'All Record Types',
+            'organization' => 'Organization',
+            'all_organizations' => 'All Organizations',
             'date_range' => 'Date Range',
             'date_range_help' => 'Set an optional start and end date.',
             'from' => 'From',
@@ -247,6 +249,7 @@ return [
         ],
         'placeholders' => [
             'system' => 'System',
+            'impersonated' => 'Superadmin (impersonating :name)',
             'unknown' => 'Unknown',
             'empty' => '—',
             'yes' => 'Yes',
@@ -450,6 +453,10 @@ return [
             'details_heading' => 'Organization Details',
             'subscription_heading' => 'Subscription Summary',
             'health_heading' => 'Organization Health',
+            'activity_feed_heading' => 'Recent Activity Feed',
+            'activity_feed_description' => 'The latest organization audit events with direct links into the full audit timeline.',
+            'activity_feed_empty' => 'No recent audit events were recorded for this organization.',
+            'view_full_audit_timeline' => 'View Full Audit Timeline',
             'fields' => [
                 'organization_name' => 'Organization Name',
                 'url_slug' => 'URL Slug',
@@ -519,6 +526,7 @@ return [
         'messages' => [
             'no_primary_admin' => 'No primary admin is available for this organization.',
             'cannot_impersonate_suspended' => 'Cannot impersonate an administrator from a suspended organization.',
+            'cannot_impersonate_during_security_incident' => 'Cannot impersonate an administrator while the organization has an active critical security incident.',
             'export_prepare_failed' => 'Unable to prepare the organizations export.',
             'export_write_failed' => 'Unable to write the organizations export.',
         ],
@@ -694,6 +702,7 @@ return [
                 ],
                 'actions' => [
                     'view_changes' => 'View Changes',
+                    'open_audit_timeline' => 'Open Audit Timeline',
                     'close' => 'Close',
                 ],
                 'modals' => [

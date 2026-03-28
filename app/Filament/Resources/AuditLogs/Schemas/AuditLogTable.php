@@ -24,8 +24,8 @@ class AuditLogTable
             ->columns([
                 TextColumn::make('actor_summary')
                     ->label(__('superadmin.audit_logs.columns.user'))
-                    ->state(fn (AuditLog $record): string => $record->actor?->name ?? __('superadmin.audit_logs.placeholders.system'))
-                    ->description(fn (AuditLog $record): ?string => $record->actor?->email)
+                    ->state(fn (AuditLog $record): string => AuditLogTablePresenter::actorLabel($record))
+                    ->description(fn (AuditLog $record): ?string => AuditLogTablePresenter::actorDescription($record))
                     ->wrap()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('display_action')
@@ -78,6 +78,26 @@ class AuditLogTable
                     ->placeholder(__('superadmin.audit_logs.filters.all_record_types'))
                     ->options(fn (): array => AuditLog::subjectTypeOptions())
                     ->query(fn (Builder $query, array $data): Builder => $query->forSubjectTypeValue($data['value'] ?? null)),
+                SelectFilter::make('organization')
+                    ->label(__('superadmin.audit_logs.filters.organization'))
+                    ->placeholder(__('superadmin.audit_logs.filters.all_organizations'))
+                    ->relationship(
+                        'organization',
+                        'name',
+                        fn (Builder $query): Builder => $query
+                            ->select(['id', 'name'])
+                            ->orderBy('name')
+                            ->orderBy('id'),
+                    )
+                    ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
+                Filter::make('record_id')
+                    ->label(__('superadmin.audit_logs.columns.record_id'))
+                    ->schema([
+                        TextInput::make('subject_id')
+                            ->label(__('superadmin.audit_logs.columns.record_id'))
+                            ->numeric(),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query->forSubjectIdValue($data['subject_id'] ?? null)),
                 Filter::make('occurred_between')
                     ->label(__('superadmin.audit_logs.filters.date_range'))
                     ->schema([

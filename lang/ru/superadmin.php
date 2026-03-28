@@ -234,6 +234,8 @@ return [
             'all_action_types' => 'Все типы действий',
             'affected_record_type' => 'Тип затронутой записи',
             'all_record_types' => 'Все типы записей',
+            'organization' => 'Организация',
+            'all_organizations' => 'Все организации',
             'date_range' => 'Диапазон дат',
             'date_range_help' => 'Укажите необязательную начальную и конечную дату.',
             'from' => 'От',
@@ -247,6 +249,7 @@ return [
         ],
         'placeholders' => [
             'system' => 'Система',
+            'impersonated' => 'Суперадминистратор (имперсонация :name)',
             'unknown' => 'Неизвестно',
             'empty' => '—',
             'yes' => 'Да',
@@ -450,6 +453,10 @@ return [
             'details_heading' => 'Данные организации',
             'subscription_heading' => 'Сводка по подписке',
             'health_heading' => 'Состояние организации',
+            'activity_feed_heading' => 'Последняя активность',
+            'activity_feed_description' => 'Последние события аудита организации с прямыми ссылками в полный журнал аудита.',
+            'activity_feed_empty' => 'Для этой организации не найдено недавних событий аудита.',
+            'view_full_audit_timeline' => 'Открыть полный журнал аудита',
             'fields' => [
                 'organization_name' => 'Название организации',
                 'url_slug' => 'URL slug',
@@ -519,6 +526,7 @@ return [
         'messages' => [
             'no_primary_admin' => 'Для этой организации недоступен основной администратор.',
             'cannot_impersonate_suspended' => 'Нельзя выдать себя за администратора приостановленной организации.',
+            'cannot_impersonate_during_security_incident' => 'Нельзя выполнить имперсонацию администратора, пока у организации есть активный критический инцидент безопасности.',
             'export_prepare_failed' => 'Не удалось подготовить экспорт организаций.',
             'export_write_failed' => 'Не удалось записать экспорт организаций.',
         ],
@@ -694,6 +702,7 @@ return [
                 ],
                 'actions' => [
                     'view_changes' => 'Просмотреть изменения',
+                    'open_audit_timeline' => 'Открыть журнал аудита',
                     'close' => 'Закрыть',
                 ],
                 'modals' => [

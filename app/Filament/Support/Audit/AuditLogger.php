@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Schema;
 
 class AuditLogger
 {
+    public function __construct(
+        private readonly ImpersonationAuditContext $impersonationAuditContext,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $metadata
      */
@@ -67,7 +71,10 @@ class AuditLogger
             return;
         }
 
-        $sanitizedMetadata = $this->sanitize($metadata);
+        $sanitizedMetadata = $this->sanitize(array_replace_recursive(
+            $metadata,
+            $this->impersonationAuditContext->metadata(),
+        ));
 
         AuditLog::query()->create([
             'organization_id' => $this->organizationId($subject),

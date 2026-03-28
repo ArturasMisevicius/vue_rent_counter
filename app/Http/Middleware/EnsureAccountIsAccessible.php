@@ -6,6 +6,7 @@ use App\Enums\OrganizationStatus;
 use App\Enums\UserStatus;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Workspace\WorkspaceResolver;
+use App\Services\ImpersonationService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,10 +17,13 @@ class EnsureAccountIsAccessible
     public function __construct(
         private readonly AuthenticatedSessionHistory $authenticatedSessionHistory,
         private readonly WorkspaceResolver $workspaceResolver,
+        private readonly ImpersonationService $impersonationService,
     ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
+        $this->impersonationService->expireIfNecessary($request);
+
         $user = $request->user();
 
         if (! $user) {

@@ -90,6 +90,8 @@ it('renders the audit logs list page as a read-only superadmin surface', functio
         ->assertTableFilterExists('user', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.filters.user'))
         ->assertTableFilterExists('action_type', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.filters.action_type'))
         ->assertTableFilterExists('subject_type', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.filters.affected_record_type'))
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.filters.organization'))
+        ->assertTableFilterExists('record_id', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.columns.record_id'))
         ->assertTableFilterExists('occurred_between', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.audit_logs.filters.date_range'))
         ->assertTableActionDoesNotExist('view', record: $auditLog)
         ->assertTableActionDoesNotExist('edit', record: $auditLog)
@@ -204,4 +206,38 @@ it('filters audit logs by user action type record type and date range', function
         ])
         ->assertCanSeeTableRecords([$matchingLog, $userMismatchLog, $actionMismatchLog, $subjectMismatchLog])
         ->assertCanNotSeeTableRecords([$dateMismatchLog]);
+});
+
+it('filters audit logs by organization and record id for organization deep links', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+    $otherOrganization = Organization::factory()->create();
+
+    $matchingLog = AuditLog::factory()->create([
+        'organization_id' => $organization->id,
+        'subject_type' => Invoice::class,
+        'subject_id' => 321,
+    ]);
+
+    $sameOrganizationDifferentRecord = AuditLog::factory()->create([
+        'organization_id' => $organization->id,
+        'subject_type' => Invoice::class,
+        'subject_id' => 654,
+    ]);
+
+    $otherOrganizationLog = AuditLog::factory()->create([
+        'organization_id' => $otherOrganization->id,
+        'subject_type' => Invoice::class,
+        'subject_id' => 321,
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListAuditLogs::class)
+        ->filterTable('organization', $organization->id)
+        ->filterTable('record_id', [
+            'subject_id' => 321,
+        ])
+        ->assertCanSeeTableRecords([$matchingLog])
+        ->assertCanNotSeeTableRecords([$sameOrganizationDifferentRecord, $otherOrganizationLog]);
 });

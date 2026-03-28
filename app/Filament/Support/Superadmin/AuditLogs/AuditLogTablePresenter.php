@@ -64,6 +64,49 @@ class AuditLogTablePresenter
         };
     }
 
+    public static function actionFilterValue(AuditLog $record): string
+    {
+        return self::actionType($record);
+    }
+
+    public static function actorLabel(AuditLog $record): string
+    {
+        $impersonatedName = data_get($record->metadata, 'impersonation.impersonated_user.name');
+
+        if (filled($impersonatedName)) {
+            return __('superadmin.audit_logs.placeholders.impersonated', ['name' => $impersonatedName]);
+        }
+
+        return $record->actor?->name ?? __('superadmin.audit_logs.placeholders.system');
+    }
+
+    public static function actorDescription(AuditLog $record): ?string
+    {
+        $impersonatorEmail = data_get($record->metadata, 'impersonation.impersonator.email');
+
+        if (filled($impersonatorEmail)) {
+            return $impersonatorEmail;
+        }
+
+        return $record->actor?->email;
+    }
+
+    public static function feedLabel(AuditLog $record): string
+    {
+        $description = trim((string) $record->description);
+        $defaultDescription = trim(sprintf(
+            '%s %s',
+            class_basename((string) $record->subject_type),
+            $record->action?->value ?? (string) $record->getAttribute('action'),
+        ));
+
+        if ($description !== '' && $description !== $defaultDescription) {
+            return $description;
+        }
+
+        return self::actionLabel($record);
+    }
+
     public static function recordTypeLabel(?string $subjectType): string
     {
         if (blank($subjectType)) {

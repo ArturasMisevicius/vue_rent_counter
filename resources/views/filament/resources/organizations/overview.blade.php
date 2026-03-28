@@ -3,6 +3,8 @@
         'default' => 'bg-slate-900',
         'warning' => 'bg-amber-500',
         'danger' => 'bg-red-600',
+        'info' => 'bg-sky-500',
+        'success' => 'bg-emerald-500',
     ];
 @endphp
 
@@ -65,6 +67,51 @@
                     </div>
                 </article>
             @endforeach
+        </div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.organizations.overview.activity_feed_heading') }}</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ __('superadmin.organizations.overview.activity_feed_description') }}</p>
+            </div>
+
+            <a
+                href="{{ $auditTimelineUrl }}"
+                class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+            >
+                {{ __('superadmin.organizations.overview.view_full_audit_timeline') }}
+            </a>
+        </div>
+
+        <div class="mt-6 space-y-3">
+            @forelse ($activityFeed as $item)
+                <a
+                    href="{{ $item['deep_link'] }}"
+                    class="block rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
+                >
+                    <div class="flex items-start gap-3">
+                        <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full {{ $toneClasses[$item['tone']] ?? $toneClasses['default'] }}"></span>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <p class="text-sm font-semibold text-slate-950">{{ $item['what'] }}</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $item['record'] }}</p>
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
+                                <span>{{ $item['actor'] }}</span>
+                                <span aria-hidden="true">•</span>
+                                <span>{{ $item['occurred_at'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            @empty
+                <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500">
+                    {{ __('superadmin.organizations.overview.activity_feed_empty') }}
+                </div>
+            @endforelse
         </div>
     </section>
 </div>
