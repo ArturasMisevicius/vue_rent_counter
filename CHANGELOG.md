@@ -16,6 +16,7 @@
 - gated manager write access through new policies, resource middleware, and navigation filtering so manager mutations are explicitly permissioned per resource
 - synchronized manager membership state through observers and seeded the login demo workspace with organization memberships and a default property-manager preset
 - added focused manager permission regression coverage across admin resources, the superadmin organization-user editor, and manager workspace parity
+- flushed the in-memory manager permission cache in Pest bootstrap so request-scoped permission checks stay isolated across feature tests
 
 ### Subscription request validation coverage
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;
@@ -17,6 +18,7 @@ pest()->extend(TestCase::class)
 beforeEach(function (): void {
     auth()->logout();
     Carbon::setTestNow();
+    ManagerPermissionService::flushCache();
 
     config()->set('app.supported_locales', [
         'en' => 'EN',
