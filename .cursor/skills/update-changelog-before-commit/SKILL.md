@@ -22,5 +22,6 @@ The git hooks in `.githooks/` enforce the same flow automatically when `core.hoo
 ## Notes
 
 - The updater ignores `CHANGELOG.md` itself when building the file list.
-- The `commit-msg` hook finalizes the pending block using the commit title.
+- The `pre-commit` hook is the only hook that mutates `CHANGELOG.md`, because Git does not include index updates made in `commit-msg` in the current commit.
+- Hook-managed entries stay as staged-change summaries inside the commit that introduced the code changes.
 - Do not bypass this flow with manual changelog edits unless the generated entry is clearly wrong.

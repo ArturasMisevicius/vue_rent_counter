@@ -2,8 +2,19 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:pending -->
+### Pending staged changes
+
+- updated `.agent/skills/update-changelog-before-commit/SKILL.md`
+- updated `.ai/skills/update-changelog-before-commit/SKILL.md`
+- updated `.claude/skills/update-changelog-before-commit/SKILL.md`
+- updated `.cursor/skills/update-changelog-before-commit/SKILL.md`
+- updated `.gemini/skills/update-changelog-before-commit/SKILL.md`
+- updated `.githooks/commit-msg`
+<!-- changelog:auto:end:pending -->
+
 <!-- changelog:auto:start:commit-20260328160318 -->
-### Commit updates
+### fix: align changelog updater support namespace
 
 - renamed `app/Support/Changelog/GitChangelogUpdater.php` to `app/Filament/Support/Changelog/GitChangelogUpdater.php`
 - updated `scripts/update_changelog.php`
