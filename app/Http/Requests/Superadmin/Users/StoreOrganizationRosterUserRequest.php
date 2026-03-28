@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests\Superadmin\Users;
+
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
+use App\Http\Requests\Concerns\InteractsWithValidationPayload;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class StoreOrganizationRosterUserRequest extends FormRequest
+{
+    use InteractsWithValidationPayload;
+
+    public function authorize(): bool
+    {
+        return $this->user()?->isSuperadmin() ?? false;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
+            'role' => ['required', Rule::enum(UserRole::class), Rule::notIn([UserRole::SUPERADMIN->value])],
+            'status' => ['required', Rule::enum(UserStatus::class)],
+            'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
+            'password' => ['required', 'string', 'min:8'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->translatedMessages([
+            'name.required' => ['required', 'name'],
+            'name.max' => ['max.string', 'name', ['max' => 255]],
+            'email.required' => ['required', 'email'],
+            'email.email' => ['email', 'email'],
+            'email.max' => ['max.string', 'email', ['max' => 255]],
+            'email.unique' => ['unique', 'email'],
+            'email.disposable_email' => ['disposable_email', 'email'],
+            'role.required' => ['required', 'role'],
+            'role.enum' => ['enum', 'role'],
+            'role.not_in' => ['in', 'role'],
+            'status.required' => ['required', 'status'],
+            'status.enum' => ['enum', 'status'],
+            'locale.required' => ['required', 'locale'],
+            'locale.in' => ['in', 'locale'],
+            'password.required' => ['required', 'password'],
+            'password.min' => ['min.string', 'password', ['min' => 8]],
+        ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->translatedAttributes([
+            'name',
+            'email',
+            'role',
+            'status',
+            'locale',
+            'password',
+        ]);
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->trimStrings([
+            'name',
+            'email',
+            'role',
+            'status',
+            'locale',
+            'password',
+        ]);
+
+        $role = $this->input('role');
+        $status = $this->input('status');
+
+        if ($role instanceof UserRole) {
+            $this->merge([
+                'role' => $role->value,
+            ]);
+        }
+
+        if ($status instanceof UserStatus) {
+            $this->merge([
+                'status' => $status->value,
+            ]);
+        }
+    }
+}

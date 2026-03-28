@@ -66,6 +66,8 @@ use App\Http\Requests\Superadmin\Subscriptions\StoreOrganizationSubscriptionRequ
 use App\Http\Requests\Superadmin\Subscriptions\UpdateOrganizationSubscriptionRequest;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
+use App\Http\Requests\Superadmin\Users\StoreOrganizationRosterUserRequest;
+use App\Http\Requests\Superadmin\Users\UpdateOrganizationRosterUserRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Http\Requests\Tenant\PropertyHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
@@ -332,6 +334,33 @@ final class FormRequestScenarioFactory
                 'required' => ['user_id'],
                 'authorize' => self::superadminOnly(),
             ],
+            'StoreOrganizationRosterUserRequest' => [
+                'request' => static fn (array $context): FormRequest => new StoreOrganizationRosterUserRequest,
+                'valid' => static fn (array $context): array => [
+                    'name' => 'Roster User',
+                    'email' => 'roster-user@example.test',
+                    'role' => 'admin',
+                    'status' => 'active',
+                    'locale' => 'en',
+                    'password' => 'password123',
+                ],
+                'required' => ['name', 'email', 'role', 'status', 'locale', 'password'],
+                'authorize' => self::superadminOnly(),
+                'invalid' => [
+                    'email unique' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
+                    ],
+                    'role cannot be superadmin' => static fn (array $valid, array $context): array => [
+                        'field' => 'role',
+                        'input' => self::withField($valid, 'role', 'superadmin'),
+                    ],
+                    'password too short' => static fn (array $valid, array $context): array => [
+                        'field' => 'password',
+                        'input' => self::withField($valid, 'password', 'short'),
+                    ],
+                ],
+            ],
             'BlockIpAddressRequest' => [
                 'request' => static fn (array $context): FormRequest => new BlockIpAddressRequest,
                 'valid' => static fn (array $context): array => [
@@ -372,6 +401,33 @@ final class FormRequestScenarioFactory
                 ],
                 'required' => ['plan', 'status', 'starts_at', 'expires_at'],
                 'authorize' => self::superadminOnly(),
+            ],
+            'UpdateOrganizationRosterUserRequest' => [
+                'request' => static fn (array $context): FormRequest => (new UpdateOrganizationRosterUserRequest)->forRecord($context['admin']),
+                'valid' => static fn (array $context): array => [
+                    'name' => 'Updated Roster User',
+                    'email' => $context['admin']->email,
+                    'role' => 'manager',
+                    'status' => 'suspended',
+                    'locale' => 'lt',
+                    'password' => null,
+                ],
+                'required' => ['name', 'email', 'role', 'status', 'locale'],
+                'authorize' => self::superadminOnly(),
+                'invalid' => [
+                    'email unique' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
+                    ],
+                    'role cannot be superadmin' => static fn (array $valid, array $context): array => [
+                        'field' => 'role',
+                        'input' => self::withField($valid, 'role', 'superadmin'),
+                    ],
+                    'password too short' => static fn (array $valid, array $context): array => [
+                        'field' => 'password',
+                        'input' => self::withField($valid, 'password', 'short'),
+                    ],
+                ],
             ],
             'UpgradeSubscriptionPlanRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpgradeSubscriptionPlanRequest,

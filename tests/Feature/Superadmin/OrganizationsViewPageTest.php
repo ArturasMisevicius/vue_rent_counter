@@ -25,6 +25,7 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\OrganizationInvitation;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\SecurityViolation;
@@ -557,6 +558,80 @@ it('supports resending invitations and changing roles from the organization user
             && ($notifiable->routes['mail'] ?? null) === $invitedManager->email
             && $notification->invitation->is($resentInvitation),
     );
+});
+
+it('supports creating, editing, and deleting users from the organization user roster', function () {
+    [$organization] = seedOrganizationViewFixture();
+    $superadmin = User::factory()->superadmin()->create();
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(UsersRelationManager::class, [
+        'ownerRecord' => $organization->fresh(),
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->callTableAction('create', data: [
+            'name' => 'Riley Roster',
+            'email' => 'riley.roster@northwind.test',
+            'role' => UserRole::ADMIN->value,
+            'status' => UserStatus::ACTIVE->value,
+            'locale' => 'en',
+            'password' => 'password123',
+        ])
+        ->assertHasNoTableActionErrors();
+
+    $createdUser = User::query()
+        ->where('email', 'riley.roster@northwind.test')
+        ->first();
+
+    expect($createdUser)->not->toBeNull()
+        ->and($createdUser?->organization_id)->toBe($organization->id)
+        ->and($createdUser?->role)->toBe(UserRole::ADMIN)
+        ->and($createdUser?->status)->toBe(UserStatus::ACTIVE);
+
+    $membership = OrganizationUser::query()
+        ->where('organization_id', $organization->id)
+        ->where('user_id', $createdUser?->id)
+        ->first();
+
+    expect($membership)->not->toBeNull()
+        ->and($membership?->role)->toBe(UserRole::ADMIN->value)
+        ->and($membership?->is_active)->toBeTrue();
+
+    Livewire::test(UsersRelationManager::class, [
+        'ownerRecord' => $organization->fresh(),
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->callTableAction('edit', $createdUser->fresh(), data: [
+            'name' => 'Riley Updated',
+            'email' => 'riley.updated@northwind.test',
+            'role' => UserRole::MANAGER->value,
+            'status' => UserStatus::SUSPENDED->value,
+            'locale' => 'lt',
+            'password' => '',
+        ])
+        ->assertHasNoTableActionErrors();
+
+    expect($createdUser->fresh())
+        ->name->toBe('Riley Updated')
+        ->email->toBe('riley.updated@northwind.test')
+        ->role->toBe(UserRole::MANAGER)
+        ->status->toBe(UserStatus::SUSPENDED)
+        ->locale->toBe('lt');
+
+    expect($membership->fresh())
+        ->role->toBe(UserRole::MANAGER->value)
+        ->organization_id->toBe($organization->id);
+
+    Livewire::test(UsersRelationManager::class, [
+        'ownerRecord' => $organization->fresh(),
+        'pageClass' => ViewOrganization::class,
+    ])
+        ->callTableAction('delete', $createdUser->fresh())
+        ->assertHasNoTableActionErrors();
+
+    expect(User::query()->whereKey($createdUser->id)->exists())->toBeFalse()
+        ->and(OrganizationUser::query()->where('user_id', $createdUser->id)->exists())->toBeFalse();
 });
 
 it('keeps organization relation tab badges deferred with counts across tab switches', function () {
