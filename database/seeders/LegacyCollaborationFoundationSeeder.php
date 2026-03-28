@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Activity;
 use App\Models\Attachment;
 use App\Models\Building;
@@ -26,11 +27,26 @@ class LegacyCollaborationFoundationSeeder extends Seeder
     public function run(): void
     {
         $organization = Organization::query()->select(['id'])->orderBy('id')->first();
-        $admin = User::query()->select(['id', 'organization_id'])->where('role', 'admin')->orderBy('id')->first();
-        $tenant = User::query()->select(['id', 'organization_id'])->where('role', 'tenant')->orderBy('id')->first();
+        $admin = User::query()->select(['id', 'organization_id'])->where('role', UserRole::ADMIN->value)->orderBy('id')->first();
+        $tenant = User::query()->select(['id', 'organization_id'])->where('role', UserRole::TENANT->value)->orderBy('id')->first();
 
         if ($organization === null || $admin === null || $tenant === null) {
             return;
+        }
+
+        $manager = User::query()
+            ->select(['id', 'organization_id'])
+            ->where('organization_id', $organization->id)
+            ->where('role', UserRole::MANAGER->value)
+            ->orderBy('id')
+            ->first();
+
+        if ($manager === null) {
+            $manager = User::factory()->manager()->create([
+                'organization_id' => $organization->id,
+                'name' => 'Legacy Collaboration Manager',
+                'email' => sprintf('legacy-collaboration-manager+%d@tenanto.test', $organization->id),
+            ]);
         }
 
         $building = Building::query()
@@ -59,6 +75,7 @@ class LegacyCollaborationFoundationSeeder extends Seeder
                 'building_id' => $building->id,
                 'created_by_user_id' => $admin->id,
                 'assigned_to_user_id' => $tenant->id,
+                'manager_id' => $manager->id,
                 'description' => 'Imported collaboration foundation demo project.',
                 'type' => 'maintenance',
                 'status' => 'in_progress',
@@ -236,11 +253,11 @@ class LegacyCollaborationFoundationSeeder extends Seeder
         OrganizationUser::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
-                'user_id' => $tenant->id,
+                'user_id' => $manager->id,
             ],
             [
-                'role' => 'manager',
-                'permissions' => ['projects.view', 'tasks.update'],
+                'role' => UserRole::MANAGER->value,
+                'permissions' => null,
                 'joined_at' => now()->subMonths(2),
                 'left_at' => null,
                 'is_active' => true,

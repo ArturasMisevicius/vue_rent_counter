@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
@@ -19,8 +20,13 @@ class OrganizationUserFactory extends Factory
         return [
             'organization_id' => $organization,
             'user_id' => User::factory()->manager()->for($organization),
-            'role' => fake()->randomElement(['admin', 'manager', 'viewer', 'contributor']),
-            'permissions' => ['reports.view'],
+            'role' => fake()->randomElement([
+                UserRole::ADMIN->value,
+                UserRole::MANAGER->value,
+                UserRole::TENANT->value,
+                'viewer',
+            ]),
+            'permissions' => null,
             'joined_at' => now()->subDays(fake()->numberBetween(1, 45)),
             'left_at' => null,
             'is_active' => true,

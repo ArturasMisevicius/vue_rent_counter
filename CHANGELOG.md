@@ -2,6 +2,14 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328183013 -->
+### Commit updates
+
+- updated `database/factories/OrganizationUserFactory.php`
+- updated `database/seeders/LegacyCollaborationFoundationSeeder.php`
+- added `tests/Feature/Admin/LegacyCollaborationFoundationSeederTest.php`
+<!-- changelog:auto:end:staged-20260328183013 -->
+
 <!-- changelog:auto:start:staged-20260328182459 -->
 ### Commit updates
 
@@ -73,6 +81,12 @@
 - updated `tests/Feature/Superadmin/RelationCrudResourcesTest.php`
 - updated `tests/Feature/Superadmin/RelationResourceListContextTest.php`
 <!-- changelog:auto:end:staged-20260328180833 -->
+
+### fix: keep legacy collaboration seeds aligned with roster roles
+
+- stopped the legacy collaboration seeder from overwriting a demo tenant membership to `manager` just to attach collaboration data
+- tied the seeded legacy collaboration project to a real manager and added regression coverage for the preserved tenant roster role
+- normalized `OrganizationUserFactory` defaults to supported membership roles and removed the stale default legacy permissions payload
 
 ### feat: implement the projects module end to end
 
