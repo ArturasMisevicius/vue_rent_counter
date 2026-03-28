@@ -21,8 +21,10 @@ use App\Models\Organization;
 use App\Models\OrganizationSetting;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class LoginDemoUsersSeeder extends Seeder
 {
@@ -37,23 +39,70 @@ class LoginDemoUsersSeeder extends Seeder
             organizationId: null,
         );
 
+        $organizationPrototype = Organization::factory()->make([
+            'name' => 'Tenanto Demo Organization',
+            'slug' => 'tenanto-demo-organization',
+            'status' => OrganizationStatus::ACTIVE,
+            'owner_user_id' => null,
+        ]);
+
         $organization = Organization::query()->updateOrCreate(
-            ['slug' => 'tenanto-demo-organization'],
+            ['slug' => $organizationPrototype->slug],
             [
-                'name' => 'Tenanto Demo Organization',
-                'status' => OrganizationStatus::ACTIVE->value,
+                'name' => $organizationPrototype->name,
+                'status' => $organizationPrototype->status,
                 'owner_user_id' => null,
             ],
         );
 
+        $organizationSettingPrototype = OrganizationSetting::factory()
+            ->demoBilling(
+                shortName: 'Tenanto Demo',
+                email: 'billing@tenanto.test',
+                phone: '+37060000000',
+            )
+            ->make([
+                'organization_id' => $organization->id,
+                'payment_instructions' => 'Pay by bank transfer or at the office.',
+            ]);
+
         OrganizationSetting::query()->updateOrCreate(
             ['organization_id' => $organization->id],
             [
-                'billing_contact_name' => 'Tenanto Demo Team',
-                'billing_contact_email' => 'billing@tenanto.test',
-                'billing_contact_phone' => '+37060000000',
-                'payment_instructions' => 'Pay by bank transfer or at the office.',
-                'invoice_footer' => 'Thank you for paying on time.',
+                'billing_contact_name' => $organizationSettingPrototype->billing_contact_name,
+                'billing_contact_email' => $organizationSettingPrototype->billing_contact_email,
+                'billing_contact_phone' => $organizationSettingPrototype->billing_contact_phone,
+                'payment_instructions' => $organizationSettingPrototype->payment_instructions,
+                'invoice_footer' => $organizationSettingPrototype->invoice_footer,
+                'notification_preferences' => $organizationSettingPrototype->notification_preferences,
+            ],
+        );
+
+        $subscriptionStartsAt = Carbon::create(2026, 1, 1)->startOfDay();
+        $subscriptionPrototype = Subscription::factory()
+            ->professional()
+            ->active()
+            ->make([
+                'organization_id' => $organization->id,
+                'starts_at' => $subscriptionStartsAt,
+                'expires_at' => Carbon::create(2027, 1, 1)->startOfDay(),
+                'is_trial' => false,
+            ]);
+
+        Subscription::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'starts_at' => $subscriptionStartsAt,
+            ],
+            [
+                'plan' => $subscriptionPrototype->plan,
+                'status' => $subscriptionPrototype->status,
+                'expires_at' => $subscriptionPrototype->expires_at,
+                'is_trial' => $subscriptionPrototype->is_trial,
+                'property_limit_snapshot' => $subscriptionPrototype->property_limit_snapshot,
+                'tenant_limit_snapshot' => $subscriptionPrototype->tenant_limit_snapshot,
+                'meter_limit_snapshot' => $subscriptionPrototype->meter_limit_snapshot,
+                'invoice_limit_snapshot' => $subscriptionPrototype->invoice_limit_snapshot,
             ],
         );
 
@@ -89,43 +138,68 @@ class LoginDemoUsersSeeder extends Seeder
             'owner_user_id' => $admin->id,
         ])->save();
 
+        $buildingPrototype = Building::factory()
+            ->named('Vilnius Central Residences')
+            ->atBalticAddress(
+                city: ['name' => 'Vilnius', 'country_code' => 'LT', 'postal_code_pattern' => 'LT-#####'],
+                street: 'Gedimino pr. 25',
+                postalCode: '01103',
+            )
+            ->make([
+                'organization_id' => $organization->id,
+            ]);
+
         $building = Building::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
-                'name' => 'Vilnius Central Residences',
+                'name' => $buildingPrototype->name,
             ],
             [
-                'address_line_1' => 'Gedimino pr. 25',
-                'address_line_2' => null,
-                'city' => 'Vilnius',
-                'postal_code' => '01103',
-                'country_code' => 'LT',
+                'address_line_1' => $buildingPrototype->address_line_1,
+                'address_line_2' => $buildingPrototype->address_line_2,
+                'city' => $buildingPrototype->city,
+                'postal_code' => $buildingPrototype->postal_code,
+                'country_code' => $buildingPrototype->country_code,
             ],
         );
+
+        $propertyAlinaPrototype = Property::factory()
+            ->unit('Apartment 101', '101', PropertyType::APARTMENT, 58.40)
+            ->make([
+                'organization_id' => $organization->id,
+                'building_id' => $building->id,
+            ]);
 
         $propertyAlina = Property::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
                 'building_id' => $building->id,
-                'unit_number' => '101',
+                'unit_number' => $propertyAlinaPrototype->unit_number,
             ],
             [
-                'name' => 'Apartment 101',
-                'type' => PropertyType::APARTMENT->value,
-                'floor_area_sqm' => 58.40,
+                'name' => $propertyAlinaPrototype->name,
+                'type' => $propertyAlinaPrototype->type,
+                'floor_area_sqm' => $propertyAlinaPrototype->floor_area_sqm,
             ],
         );
+
+        $propertyMariusPrototype = Property::factory()
+            ->unit('Apartment 102', '102', PropertyType::APARTMENT, 63.10)
+            ->make([
+                'organization_id' => $organization->id,
+                'building_id' => $building->id,
+            ]);
 
         $propertyMarius = Property::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
                 'building_id' => $building->id,
-                'unit_number' => '102',
+                'unit_number' => $propertyMariusPrototype->unit_number,
             ],
             [
-                'name' => 'Apartment 102',
-                'type' => PropertyType::APARTMENT->value,
-                'floor_area_sqm' => 63.10,
+                'name' => $propertyMariusPrototype->name,
+                'type' => $propertyMariusPrototype->type,
+                'floor_area_sqm' => $propertyMariusPrototype->floor_area_sqm,
             ],
         );
 
@@ -153,16 +227,31 @@ class LoginDemoUsersSeeder extends Seeder
 
     private function upsertUser(string $name, string $email, UserRole $role, ?int $organizationId): User
     {
+        $userPrototype = match ($role) {
+            UserRole::SUPERADMIN => User::factory()->superadmin(),
+            UserRole::ADMIN => User::factory()->admin(),
+            UserRole::MANAGER => User::factory()->manager(),
+            UserRole::TENANT => User::factory()->tenant(),
+        };
+
+        $user = $userPrototype
+            ->withLocale('en')
+            ->make([
+                'name' => $name,
+                'email' => $email,
+                'organization_id' => $organizationId,
+            ]);
+
         return User::query()->updateOrCreate(
             ['email' => $email],
             [
-                'name' => $name,
-                'password' => self::DEFAULT_PASSWORD,
-                'role' => $role->value,
+                'name' => $user->name,
+                'password' => $user->password,
+                'role' => $user->role,
                 'status' => UserStatus::ACTIVE->value,
-                'locale' => 'en',
+                'locale' => $user->locale,
                 'organization_id' => $organizationId,
-                'email_verified_at' => now(),
+                'email_verified_at' => $user->email_verified_at,
             ],
         );
     }
@@ -207,19 +296,30 @@ class LoginDemoUsersSeeder extends Seeder
 
         $meters = collect(range(1, 2))->map(function (int $meterIndex) use ($organization, $property, $seedIndex): Meter {
             $meterType = $meterIndex === 1 ? MeterType::ELECTRICITY : MeterType::WATER;
+            $meterPrototype = Meter::factory()
+                ->identified(
+                    identifier: sprintf('LOGIN-%02d-%02d', $seedIndex, $meterIndex),
+                    type: $meterType,
+                    name: sprintf('Demo %s Meter', $meterType->label()),
+                    installedAt: now()->subYear()->toDateString(),
+                )
+                ->make([
+                    'organization_id' => $organization->id,
+                    'property_id' => $property->id,
+                ]);
 
             return Meter::query()->updateOrCreate(
                 [
-                    'identifier' => sprintf('LOGIN-%02d-%02d', $seedIndex, $meterIndex),
+                    'identifier' => $meterPrototype->identifier,
                 ],
                 [
-                    'organization_id' => $organization->id,
-                    'property_id' => $property->id,
-                    'name' => sprintf('Demo %s Meter', $meterType->label()),
-                    'type' => $meterType,
+                    'organization_id' => $meterPrototype->organization_id,
+                    'property_id' => $meterPrototype->property_id,
+                    'name' => $meterPrototype->name,
+                    'type' => $meterPrototype->type,
                     'status' => MeterStatus::ACTIVE,
-                    'unit' => $meterType->defaultUnit()->value,
-                    'installed_at' => now()->subYear()->toDateString(),
+                    'unit' => $meterPrototype->unit,
+                    'installed_at' => $meterPrototype->installed_at,
                 ],
             );
         });

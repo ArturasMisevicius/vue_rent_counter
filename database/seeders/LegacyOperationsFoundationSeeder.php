@@ -58,7 +58,7 @@ class LegacyOperationsFoundationSeeder extends Seeder
             return;
         }
 
-        $subscription = Subscription::query()->updateOrCreate(
+        $subscription = Subscription::query()->firstOrCreate(
             ['organization_id' => $organization->id],
             [
                 'plan' => SubscriptionPlan::BASIC->value,

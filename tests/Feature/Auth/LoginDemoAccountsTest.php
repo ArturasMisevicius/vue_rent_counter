@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -117,4 +119,19 @@ it('default database seeder creates demo accounts for every role', function () {
         ->and(MeterReading::query()->whereIn('property_id', $demoTenantPropertyIds)->count())->toBeGreaterThanOrEqual(24)
         ->and(Invoice::query()->whereIn('tenant_user_id', $demoTenantIds)->count())->toBeGreaterThanOrEqual(4)
         ->and(InvoiceItem::query()->whereHas('invoice', fn ($query) => $query->whereIn('tenant_user_id', $demoTenantIds))->count())->toBeGreaterThanOrEqual(12);
+
+    $demoOrganization = Organization::query()
+        ->with([
+            'currentSubscription:id,organization_id,plan,status,is_trial,property_limit_snapshot,tenant_limit_snapshot,meter_limit_snapshot,invoice_limit_snapshot',
+            'settings:id,organization_id,billing_contact_email,billing_contact_phone',
+        ])
+        ->where('slug', 'tenanto-demo-organization')
+        ->firstOrFail();
+
+    expect($demoOrganization->currentSubscription?->plan)->toBe(SubscriptionPlan::PROFESSIONAL)
+        ->and($demoOrganization->currentSubscription?->status)->toBe(SubscriptionStatus::ACTIVE)
+        ->and($demoOrganization->currentSubscription?->is_trial)->toBeFalse()
+        ->and($demoOrganization->currentSubscription?->property_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['properties'])
+        ->and($demoOrganization->settings?->billing_contact_email)->toBe('billing@tenanto.test')
+        ->and($demoOrganization->settings?->billing_contact_phone)->toBe('+37060000000');
 });

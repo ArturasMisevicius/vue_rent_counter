@@ -10,6 +10,7 @@ use App\Models\Lease;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
+use App\Models\OrganizationSetting;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -182,4 +183,45 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     expect(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('effective_until')->exists())->toBeTrue()
         ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('area_type')->exists())->toBeTrue()
         ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('custom_formula')->exists())->toBeTrue();
+});
+
+it('reruns the database seeder without duplicating showcase organizations or subscriptions', function () {
+    Artisan::call('db:seed', [
+        '--class' => DatabaseSeeder::class,
+        '--no-interaction' => true,
+    ]);
+
+    $firstShowcaseOrganizationIds = Organization::query()
+        ->where('slug', 'like', 'demo-baltic-%')
+        ->pluck('id')
+        ->all();
+
+    $firstSnapshot = [
+        'showcase_organizations' => count($firstShowcaseOrganizationIds),
+        'showcase_subscriptions' => Subscription::query()->whereIn('organization_id', $firstShowcaseOrganizationIds)->count(),
+        'showcase_settings' => OrganizationSetting::query()->whereIn('organization_id', $firstShowcaseOrganizationIds)->count(),
+        'login_organization_count' => Organization::query()->where('slug', 'tenanto-demo-organization')->count(),
+        'login_subscription_count' => Subscription::query()
+            ->where('organization_id', Organization::query()->where('slug', 'tenanto-demo-organization')->value('id'))
+            ->count(),
+    ];
+
+    Artisan::call('db:seed', [
+        '--class' => DatabaseSeeder::class,
+        '--no-interaction' => true,
+    ]);
+
+    $showcaseOrganizations = Organization::query()
+        ->where('slug', 'like', 'demo-baltic-%')
+        ->orderBy('slug')
+        ->get(['id', 'slug']);
+
+    expect($showcaseOrganizations)->toHaveCount($firstSnapshot['showcase_organizations'])
+        ->and($showcaseOrganizations->pluck('slug')->duplicates()->all())->toBeEmpty()
+        ->and(Subscription::query()->whereIn('organization_id', $showcaseOrganizations->modelKeys())->count())->toBe($firstSnapshot['showcase_subscriptions'])
+        ->and(OrganizationSetting::query()->whereIn('organization_id', $showcaseOrganizations->modelKeys())->count())->toBe($firstSnapshot['showcase_settings'])
+        ->and(Organization::query()->where('slug', 'tenanto-demo-organization')->count())->toBe($firstSnapshot['login_organization_count'])
+        ->and(Subscription::query()
+            ->where('organization_id', Organization::query()->where('slug', 'tenanto-demo-organization')->value('id'))
+            ->count())->toBe($firstSnapshot['login_subscription_count']);
 });
