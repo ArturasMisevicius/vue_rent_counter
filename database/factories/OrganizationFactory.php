@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionPlan;
 use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -27,5 +28,39 @@ class OrganizationFactory extends Factory
             'status' => OrganizationStatus::ACTIVE,
             'owner_user_id' => null,
         ];
+    }
+
+    public function starterShowcase(): static
+    {
+        return $this->showcaseForPlan(SubscriptionPlan::STARTER);
+    }
+
+    public function basicShowcase(): static
+    {
+        return $this->showcaseForPlan(SubscriptionPlan::BASIC);
+    }
+
+    public function professionalShowcase(): static
+    {
+        return $this->showcaseForPlan(SubscriptionPlan::PROFESSIONAL);
+    }
+
+    public function enterpriseShowcase(): static
+    {
+        return $this->showcaseForPlan(SubscriptionPlan::ENTERPRISE);
+    }
+
+    public function customShowcase(): static
+    {
+        return $this->showcaseForPlan(SubscriptionPlan::CUSTOM);
+    }
+
+    private function showcaseForPlan(SubscriptionPlan $plan): static
+    {
+        return $this->state([
+            'name' => Str::headline($plan->value).' Showcase Organization',
+            'slug' => 'showcase-'.$plan->value,
+            'status' => OrganizationStatus::ACTIVE,
+        ]);
     }
 }
