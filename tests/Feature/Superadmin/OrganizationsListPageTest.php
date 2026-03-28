@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvoiceStatus;
 use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
@@ -10,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
@@ -17,6 +19,7 @@ use Filament\Actions\Testing\TestAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -26,6 +29,7 @@ it('renders the organizations index contract for superadmins', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create([
         'name' => 'Northwind Towers',
+        'slug' => 'northwind-towers',
     ]);
 
     $owner = User::factory()->admin()->create([
@@ -82,17 +86,24 @@ it('renders the organizations index contract for superadmins', function () {
 
     Livewire::test(ListOrganizations::class)
         ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.name'))
+        ->assertTableColumnExists('slug', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.slug'))
         ->assertTableColumnExists('owner.email', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.owner_email'))
+        ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.status'))
+        ->assertTableColumnExists('users_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.users_count'))
+        ->assertTableColumnExists('mrr_display', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.mrr'))
         ->assertTableColumnExists('currentSubscription.plan', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.fields.current_plan'))
-        ->assertTableColumnExists('currentSubscription.status', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.fields.subscription_status'))
+        ->assertTableColumnExists('trial_or_grace_ends', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.trial_or_grace_ends'))
         ->assertTableColumnExists('properties_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.properties'))
         ->assertTableColumnExists('tenants_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.tenants'))
         ->assertTableColumnExists('meters_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.meters'))
         ->assertTableColumnExists('invoices_count', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.overview.usage_labels.invoices'))
         ->assertTableColumnExists('created_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.columns.created_at'))
-        ->assertTableFilterExists('subscription_status', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.overview.fields.subscription_status'))
-        ->assertTableFilterExists('plan', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.overview.fields.current_plan'))
+        ->assertTableFilterExists('status', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.columns.status') && $filter->isMultiple())
+        ->assertTableFilterExists('plan', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.overview.fields.current_plan') && $filter->isMultiple())
         ->assertTableFilterExists('created_between', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.organizations.columns.created_at'))
+        ->assertTableFilterExists('trial_expiry_range', fn (Filter $filter): bool => $filter->getLabel() === __('superadmin.organizations.filters.trial_expiry'))
+        ->assertTableFilterExists('has_overdue_invoices', fn (TernaryFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.filters.has_overdue_invoices'))
+        ->assertTableFilterExists('has_security_violations', fn (TernaryFilter $filter): bool => $filter->getLabel() === __('superadmin.organizations.filters.has_security_violations'))
         ->assertTableActionExists('view', record: $organization)
         ->assertTableActionExists('edit', record: $organization)
         ->assertTableActionExists('suspendOrganization', record: $organization)
@@ -104,6 +115,9 @@ it('renders the organizations index contract for superadmins', function () {
         ->assertTableBulkActionExists('reinstateSelected')
         ->assertTableBulkActionExists('deleteSelected')
         ->assertTableBulkActionExists('exportSelected')
+        ->assertTableColumnStateSet('slug', 'northwind-towers', $organization)
+        ->assertTableColumnStateSet('status', OrganizationStatus::ACTIVE->label(), $organization)
+        ->assertTableColumnStateSet('users_count', 3, $organization)
         ->assertTableColumnStateSet('properties_count', 1, $organization)
         ->assertTableColumnStateSet('tenants_count', 2, $organization)
         ->assertTableColumnStateSet('meters_count', 4, $organization)
@@ -178,6 +192,7 @@ it('searches and filters organizations by owner email, subscription, plan, and c
     $filteredOutOrganization = Organization::factory()->create([
         'name' => 'Beacon Holdings',
         'created_at' => now()->subMonths(2),
+        'status' => OrganizationStatus::SUSPENDED,
     ]);
 
     $filteredOutOwner = User::factory()->admin()->create([
@@ -204,11 +219,11 @@ it('searches and filters organizations by owner email, subscription, plan, and c
         ->assertCanSeeTableRecords([$matchingOrganization])
         ->assertCanNotSeeTableRecords([$filteredOutOrganization])
         ->searchTable()
-        ->filterTable('subscription_status', SubscriptionStatus::ACTIVE)
+        ->filterTable('status', [OrganizationStatus::ACTIVE->value])
         ->assertCanSeeTableRecords([$matchingOrganization])
         ->assertCanNotSeeTableRecords([$filteredOutOrganization])
         ->resetTableFilters()
-        ->filterTable('plan', SubscriptionPlan::BASIC)
+        ->filterTable('plan', [SubscriptionPlan::BASIC->value])
         ->assertCanSeeTableRecords([$matchingOrganization])
         ->assertCanNotSeeTableRecords([$filteredOutOrganization])
         ->resetTableFilters()
@@ -218,6 +233,118 @@ it('searches and filters organizations by owner email, subscription, plan, and c
         ])
         ->assertCanSeeTableRecords([$matchingOrganization])
         ->assertCanNotSeeTableRecords([$filteredOutOrganization]);
+});
+
+it('filters organizations by trial expiry overdue invoices and security violations', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    $trialOrganization = Organization::factory()->create([
+        'name' => 'Trial Horizon',
+    ]);
+
+    Subscription::factory()->for($trialOrganization)->create([
+        'plan' => SubscriptionPlan::BASIC,
+        'status' => SubscriptionStatus::TRIALING,
+        'is_trial' => true,
+        'expires_at' => now()->addDays(5),
+    ]);
+
+    $overdueOrganization = Organization::factory()->create([
+        'name' => 'Overdue Summit',
+    ]);
+
+    $overdueProperty = Property::factory()->create([
+        'organization_id' => $overdueOrganization->id,
+        'building_id' => Building::factory()->create([
+            'organization_id' => $overdueOrganization->id,
+        ])->id,
+    ]);
+
+    Invoice::factory()->create([
+        'organization_id' => $overdueOrganization->id,
+        'property_id' => $overdueProperty->id,
+        'status' => InvoiceStatus::FINALIZED,
+        'due_date' => now()->subDays(3)->toDateString(),
+    ]);
+
+    $secureOrganization = Organization::factory()->create([
+        'name' => 'Secure Ridge',
+    ]);
+
+    SecurityViolation::factory()->create([
+        'organization_id' => $secureOrganization->id,
+    ]);
+
+    $controlOrganization = Organization::factory()->create([
+        'name' => 'Clearwater Estates',
+    ]);
+
+    Subscription::factory()->for($controlOrganization)->active()->create([
+        'plan' => SubscriptionPlan::ENTERPRISE,
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListOrganizations::class)
+        ->filterTable('trial_expiry_range', [
+            'trial_expires_from' => now()->toDateString(),
+            'trial_expires_to' => now()->addWeek()->toDateString(),
+        ])
+        ->assertCanSeeTableRecords([$trialOrganization])
+        ->assertCanNotSeeTableRecords([$overdueOrganization, $secureOrganization, $controlOrganization])
+        ->resetTableFilters()
+        ->filterTable('has_overdue_invoices', true)
+        ->assertCanSeeTableRecords([$overdueOrganization])
+        ->assertCanNotSeeTableRecords([$trialOrganization, $secureOrganization, $controlOrganization])
+        ->resetTableFilters()
+        ->filterTable('has_security_violations', true)
+        ->assertCanSeeTableRecords([$secureOrganization])
+        ->assertCanNotSeeTableRecords([$trialOrganization, $overdueOrganization, $controlOrganization]);
+});
+
+it('defaults to newest organizations first and applies lifecycle row highlighting', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    $newestOrganization = Organization::factory()->create([
+        'name' => 'Newest Harbor',
+        'created_at' => now(),
+    ]);
+
+    $olderOrganization = Organization::factory()->create([
+        'name' => 'Older Harbor',
+        'created_at' => now()->subDay(),
+    ]);
+
+    $trialOrganization = Organization::factory()->create([
+        'name' => 'Trial Harbor',
+        'created_at' => now()->subHours(2),
+    ]);
+
+    Subscription::factory()->for($trialOrganization)->create([
+        'status' => SubscriptionStatus::TRIALING,
+        'is_trial' => true,
+        'expires_at' => now()->addDays(7),
+    ]);
+
+    $suspendedOrganization = Organization::factory()->create([
+        'name' => 'Suspended Harbor',
+        'status' => OrganizationStatus::SUSPENDED,
+        'created_at' => now()->subHours(3),
+    ]);
+
+    $this->actingAs($superadmin);
+
+    $component = Livewire::test(ListOrganizations::class);
+
+    expect($component->instance()->getTable()->getDefaultSortColumn())->toBe('created_at')
+        ->and($component->instance()->getTable()->getDefaultSortDirection())->toBe('desc')
+        ->and($component->instance()->getTable()->getRecordClasses($trialOrganization))->toContain('bg-info-50/80')
+        ->and($component->instance()->getTable()->getRecordClasses($suspendedOrganization))->toContain('bg-danger-50/80');
+
+    $records = $component->instance()->getTableRecords()->items();
+
+    expect($records[0]->is($newestOrganization))->toBeTrue()
+        ->and(collect($records)->pluck('id'))->toContain($olderOrganization->id);
 });
 
 it('paginates organizations at twenty rows per page', function () {

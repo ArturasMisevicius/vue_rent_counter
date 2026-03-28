@@ -89,6 +89,7 @@ class Organization extends Model
                     'organization_id',
                     'plan',
                     'status',
+                    'is_trial',
                     'expires_at',
                     'property_limit_snapshot',
                     'tenant_limit_snapshot',

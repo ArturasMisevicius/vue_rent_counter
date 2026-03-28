@@ -13,6 +13,7 @@ use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAc
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Models\Organization;
 use App\Models\User;
@@ -33,6 +34,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -42,6 +44,7 @@ class OrganizationsTable
 {
     public static function configure(Table $table): Table
     {
+        $organizationListQuery = app(OrganizationListQuery::class);
         $organizationMrrResolver = app(OrganizationMrrResolver::class);
 
         return $table
@@ -51,10 +54,20 @@ class OrganizationsTable
                     ->url(fn (Organization $record): string => OrganizationResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('slug')
+                    ->label(__('superadmin.organizations.columns.slug'))
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('owner.email')
                     ->label(__('superadmin.organizations.columns.owner_email'))
                     ->placeholder(__('superadmin.organizations.empty.owner'))
                     ->searchable(),
+                TextColumn::make('status')
+                    ->label(__('superadmin.organizations.columns.status'))
+                    ->badge()
+                    ->state(fn (Organization $record): string => $record->status?->label() ?? '—')
+                    ->color(fn (Organization $record): string => $record->status?->badgeColor() ?? 'gray')
+                    ->sortable(),
                 TextColumn::make('users_count')
                     ->label(__('superadmin.organizations.columns.users_count'))
                     ->sortable()
@@ -78,12 +91,17 @@ class OrganizationsTable
                         SubscriptionStatus::SUSPENDED => 'warning',
                         SubscriptionStatus::CANCELLED => 'gray',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('trial_or_grace_ends')
+                    ->label(__('superadmin.organizations.columns.trial_or_grace_ends'))
+                    ->state(fn (Organization $record): string => self::trialOrGraceEnds($record))
+                    ->alignCenter(),
                 TextColumn::make('buildings_count')
                     ->label(__('superadmin.organizations.relations.buildings.title'))
                     ->sortable()
                     ->alignCenter()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('properties_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.properties'))
                     ->sortable()
@@ -91,15 +109,18 @@ class OrganizationsTable
                 TextColumn::make('tenants_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.tenants'))
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('meters_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.meters'))
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('invoices_count')
                     ->label(__('superadmin.organizations.overview.usage_labels.invoices'))
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.organizations.columns.created_at'))
                     ->state(fn (Organization $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
@@ -107,36 +128,24 @@ class OrganizationsTable
                     ->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('subscription_status')
-                    ->label(__('superadmin.organizations.overview.fields.subscription_status'))
+                SelectFilter::make('status')
+                    ->label(__('superadmin.organizations.columns.status'))
                     ->placeholder(__('superadmin.organizations.filters.all_statuses'))
-                    ->options(SubscriptionStatus::options())
-                    ->query(function (Builder $query, array $data): Builder {
-                        $status = $data['value'] ?? null;
-
-                        return $query->when(
-                            filled($status),
-                            fn (Builder $query): Builder => $query->whereHas(
-                                'currentSubscription',
-                                fn (Builder $subscriptionQuery): Builder => $subscriptionQuery->where('status', $status),
-                            ),
-                        );
-                    }),
+                    ->multiple()
+                    ->options(OrganizationStatus::options())
+                    ->query(fn (Builder $query, array $data): Builder => $organizationListQuery->filterByStatuses(
+                        $query,
+                        $data['values'] ?? [],
+                    )),
                 SelectFilter::make('plan')
                     ->label(__('superadmin.organizations.overview.fields.current_plan'))
                     ->placeholder(__('superadmin.organizations.filters.all_plans'))
+                    ->multiple()
                     ->options(SubscriptionPlan::options())
-                    ->query(function (Builder $query, array $data): Builder {
-                        $plan = $data['value'] ?? null;
-
-                        return $query->when(
-                            filled($plan),
-                            fn (Builder $query): Builder => $query->whereHas(
-                                'currentSubscription',
-                                fn (Builder $subscriptionQuery): Builder => $subscriptionQuery->where('plan', $plan),
-                            ),
-                        );
-                    }),
+                    ->query(fn (Builder $query, array $data): Builder => $organizationListQuery->filterByPlans(
+                        $query,
+                        $data['values'] ?? [],
+                    )),
                 Filter::make('created_between')
                     ->label(__('superadmin.organizations.columns.created_at'))
                     ->schema([
@@ -145,17 +154,38 @@ class OrganizationsTable
                         DatePicker::make('created_to')
                             ->label(__('superadmin.organizations.filters.created_to')),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                filled($data['created_from'] ?? null),
-                                fn (Builder $query): Builder => $query->whereDate('created_at', '>=', $data['created_from']),
-                            )
-                            ->when(
-                                filled($data['created_to'] ?? null),
-                                fn (Builder $query): Builder => $query->whereDate('created_at', '<=', $data['created_to']),
-                            );
-                    }),
+                    ->query(fn (Builder $query, array $data): Builder => $organizationListQuery->filterByCreatedBetween(
+                        $query,
+                        $data['created_from'] ?? null,
+                        $data['created_to'] ?? null,
+                    )),
+                Filter::make('trial_expiry_range')
+                    ->label(__('superadmin.organizations.filters.trial_expiry'))
+                    ->schema([
+                        DatePicker::make('trial_expires_from')
+                            ->label(__('superadmin.organizations.filters.trial_expires_from')),
+                        DatePicker::make('trial_expires_to')
+                            ->label(__('superadmin.organizations.filters.trial_expires_to')),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $organizationListQuery->filterByTrialExpiryRange(
+                        $query,
+                        $data['trial_expires_from'] ?? null,
+                        $data['trial_expires_to'] ?? null,
+                    )),
+                TernaryFilter::make('has_overdue_invoices')
+                    ->label(__('superadmin.organizations.filters.has_overdue_invoices'))
+                    ->queries(
+                        true: fn (Builder $query): Builder => $organizationListQuery->filterByOverdueInvoicePresence($query, true),
+                        false: fn (Builder $query): Builder => $organizationListQuery->filterByOverdueInvoicePresence($query, false),
+                        blank: fn (Builder $query): Builder => $organizationListQuery->filterByOverdueInvoicePresence($query, null),
+                    ),
+                TernaryFilter::make('has_security_violations')
+                    ->label(__('superadmin.organizations.filters.has_security_violations'))
+                    ->queries(
+                        true: fn (Builder $query): Builder => $organizationListQuery->filterBySecurityViolationPresence($query, true),
+                        false: fn (Builder $query): Builder => $organizationListQuery->filterBySecurityViolationPresence($query, false),
+                        blank: fn (Builder $query): Builder => $organizationListQuery->filterBySecurityViolationPresence($query, null),
+                    ),
             ])
             ->recordActions([
                 ViewAction::make()
@@ -317,9 +347,47 @@ class OrganizationsTable
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->searchPlaceholder(__('superadmin.organizations.search_placeholder'))
+            ->recordClasses(fn (Organization $record): array => self::recordClassesFor($record))
             ->defaultPaginationPageOption(20)
             ->paginationPageOptions([20])
             ->defaultSort('created_at', 'desc');
+    }
+
+    private static function trialOrGraceEnds(Organization $organization): string
+    {
+        $subscription = $organization->currentSubscription;
+
+        if (! $subscription?->expires_at) {
+            return '—';
+        }
+
+        if (! $subscription->is_trial && $subscription->status !== SubscriptionStatus::TRIALING) {
+            return '—';
+        }
+
+        return $subscription->expires_at->locale(app()->getLocale())->isoFormat('ll');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function recordClassesFor(Organization $organization): array
+    {
+        if (in_array($organization->status, [OrganizationStatus::SUSPENDED, OrganizationStatus::CANCELLED], true)) {
+            return ['bg-danger-50/80'];
+        }
+
+        $subscription = $organization->currentSubscription;
+
+        if ($subscription?->is_trial || $subscription?->status === SubscriptionStatus::TRIALING) {
+            return ['bg-info-50/80'];
+        }
+
+        if ($organization->status === OrganizationStatus::PENDING) {
+            return ['bg-warning-50/80'];
+        }
+
+        return [];
     }
 
     private static function resolvePrimaryAdmin(Organization $organization): ?User
