@@ -8,6 +8,7 @@ use App\Livewire\Filament\ManagerPermissionMatrixPanel;
 use App\Models\ManagerPermission;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -159,4 +160,34 @@ it('saves the manager permission matrix through the panel component', function (
         ->can_create->toBeFalse()
         ->can_edit->toBeTrue()
         ->can_delete->toBeFalse();
+});
+
+it('marks billing resources unavailable for restricted trial plans', function (): void {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    Subscription::factory()
+        ->for($organization)
+        ->starter()
+        ->create();
+
+    $organizationUser = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    test()->actingAs($superadmin);
+
+    Livewire::test(ManagerPermissionMatrixPanel::class, [
+        'record' => $organizationUser,
+        'organizationId' => $organization->id,
+        'userId' => $manager->id,
+    ])
+        ->assertSee('Billing')
+        ->assertSee('Not available on your current plan');
 });

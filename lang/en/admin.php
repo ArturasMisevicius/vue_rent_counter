@@ -930,6 +930,7 @@ return [
             'meter_compliance_threshold' => 'Confirm which meters remain compliant using a :days-day reading threshold.',
         ],
         'filters' => [
+            'organization' => 'Organization',
             'start_date' => 'Start Date',
             'end_date' => 'End Date',
             'building' => 'Building',

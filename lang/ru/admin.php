@@ -950,6 +950,7 @@ return [
             'meter_compliance_threshold' => 'Проверьте соответствие счетчиков с порогом :days дней с последнего показания.',
         ],
         'filters' => [
+            'organization' => 'Организация',
             'start_date' => 'Дата начала',
             'end_date' => 'Дата окончания',
             'building' => 'Здание',

@@ -3,6 +3,8 @@
         'report' => $this->report,
         'rows' => $this->rows,
         'statusOptions' => $this->statusOptions(),
-        'hasOrganizationContext' => $this->organizationId !== null,
+        'organizationOptions' => $this->organizationOptions,
+        'canSelectOrganization' => $this->canSelectOrganization(),
+        'hasOrganizationContext' => $this->hasOrganizationContext(),
     ])
 </x-filament-panels::page>

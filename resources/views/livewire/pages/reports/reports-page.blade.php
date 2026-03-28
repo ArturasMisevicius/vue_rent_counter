@@ -23,6 +23,21 @@
         </div>
 
         <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            @if ($canSelectOrganization)
+                <label class="space-y-2 text-sm font-medium text-slate-700">
+                    <span>{{ __('admin.reports.filters.organization') }}</span>
+                    <select
+                        wire:model.live="reportOrganizationId"
+                        class="w-full rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                    >
+                        <option value="">{{ __('admin.reports.filters.all') }}</option>
+                        @foreach ($organizationOptions as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @endif
+
             <label class="space-y-2 text-sm font-medium text-slate-700">
                 <span>{{ __('admin.reports.filters.start_date') }}</span>
                 <input

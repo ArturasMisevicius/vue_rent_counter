@@ -37,7 +37,8 @@ it('renders the unified reports page for admin-like users and blocks tenants', f
     $this->actingAs($superadmin)
         ->get(route('filament.admin.pages.reports'))
         ->assertSuccessful()
-        ->assertSeeText(__('admin.reports.messages.organization_context_required'));
+        ->assertSeeText('Reports')
+        ->assertSeeText(__('admin.reports.filters.organization'));
 
     $tenantResponse = $this->actingAs($tenant)
         ->get(route('filament.admin.pages.reports'));

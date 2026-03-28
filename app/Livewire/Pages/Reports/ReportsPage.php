@@ -22,6 +22,7 @@ use App\Http\Requests\Admin\Reports\RevenueReportRequest;
 use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use App\Services\ScheduledExportService;
@@ -70,6 +71,9 @@ class ReportsPage extends Page
     #[Url(as: 'status', history: true)]
     public ?string $statusFilter = null;
 
+    #[Url(as: 'org', history: true)]
+    public ?string $reportOrganizationId = null;
+
     #[Locked]
     public ?int $organizationId = null;
 
@@ -80,6 +84,7 @@ class ReportsPage extends Page
         abort_unless(static::canAccess(), 403);
 
         $this->organizationId = $organizationContext->currentOrganizationId();
+        $this->reportOrganizationId = $this->defaultReportOrganizationId();
         $this->dateFrom = $this->dateFrom !== '' ? $this->dateFrom : now()->startOfMonth()->toDateString();
         $this->dateTo = $this->dateTo !== '' ? $this->dateTo : now()->endOfMonth()->toDateString();
         $this->activeTab = $this->normalizedTab($this->activeTab);
@@ -95,18 +100,20 @@ class ReportsPage extends Page
 
     protected function getHeaderWidgets(): array
     {
-        if ($this->organizationId === null) {
+        $organizationId = $this->resolvedOrganizationId();
+
+        if ($organizationId === null) {
             return [];
         }
 
         return [
             RevenueMonthlyTotalsChart::make([
-                'organizationId' => $this->organizationId,
+                'organizationId' => $organizationId,
                 'dateFrom' => $this->dateFrom,
                 'dateTo' => $this->dateTo,
             ]),
             MeterComplianceStatusChart::make([
-                'organizationId' => $this->organizationId,
+                'organizationId' => $organizationId,
                 'dateFrom' => $this->dateFrom,
                 'dateTo' => $this->dateTo,
                 'buildingId' => $this->buildingId,
@@ -132,10 +139,19 @@ class ReportsPage extends Page
             $this->statusFilter = $this->normalizedStatusFilter($this->statusFilter);
         }
 
+        if ($name === 'reportOrganizationId') {
+            $this->reportOrganizationId = $this->normalizedReportOrganizationId($this->reportOrganizationId);
+            $this->buildingId = null;
+            $this->propertyId = null;
+            $this->tenantId = null;
+            $this->meterType = null;
+        }
+
         if (in_array($name, [
             'activeTab',
             'dateFrom',
             'dateTo',
+            'reportOrganizationId',
             'buildingId',
             'propertyId',
             'tenantId',
@@ -245,6 +261,7 @@ class ReportsPage extends Page
             $this->tabs,
             $this->report,
             $this->rows,
+            $this->organizationOptions,
             $this->buildingOptions,
             $this->propertyOptions,
             $this->tenantOptions,
@@ -271,7 +288,9 @@ class ReportsPage extends Page
     #[Computed]
     public function report(): array
     {
-        if ($this->organizationId === null) {
+        $organizationId = $this->resolvedOrganizationId();
+
+        if ($organizationId === null) {
             return [
                 'title' => __('admin.reports.title'),
                 'description' => __('admin.reports.messages.organization_context_required'),
@@ -287,10 +306,10 @@ class ReportsPage extends Page
         $endDate = Carbon::parse((string) $filters['end_date']);
 
         return match ($this->activeTab) {
-            'revenue' => app(RevenueReportBuilder::class)->build($this->organizationId, $startDate, $endDate, $filters),
-            'outstanding_balances' => app(OutstandingBalancesReportBuilder::class)->build($this->organizationId, $startDate, $endDate, $filters),
-            'meter_compliance' => app(MeterComplianceReportBuilder::class)->build($this->organizationId, $startDate, $endDate, $filters),
-            default => app(ConsumptionReportBuilder::class)->build($this->organizationId, $startDate, $endDate, $filters),
+            'revenue' => app(RevenueReportBuilder::class)->build($organizationId, $startDate, $endDate, $filters),
+            'outstanding_balances' => app(OutstandingBalancesReportBuilder::class)->build($organizationId, $startDate, $endDate, $filters),
+            'meter_compliance' => app(MeterComplianceReportBuilder::class)->build($organizationId, $startDate, $endDate, $filters),
+            default => app(ConsumptionReportBuilder::class)->build($organizationId, $startDate, $endDate, $filters),
         };
     }
 
@@ -319,13 +338,15 @@ class ReportsPage extends Page
     #[Computed]
     public function buildingOptions(): array
     {
-        if ($this->organizationId === null) {
+        $organizationId = $this->resolvedOrganizationId();
+
+        if ($organizationId === null) {
             return [];
         }
 
         return Building::query()
             ->select(['id', 'organization_id', 'name'])
-            ->forOrganization($this->organizationId)
+            ->forOrganization($organizationId)
             ->ordered()
             ->pluck('name', 'id')
             ->mapWithKeys(fn (string $label, int|string $id): array => [(string) $id => $label])
@@ -338,13 +359,15 @@ class ReportsPage extends Page
     #[Computed]
     public function propertyOptions(): array
     {
-        if ($this->organizationId === null) {
+        $organizationId = $this->resolvedOrganizationId();
+
+        if ($organizationId === null) {
             return [];
         }
 
         return Property::query()
             ->select(['id', 'organization_id', 'building_id', 'name', 'unit_number'])
-            ->forOrganization($this->organizationId)
+            ->forOrganization($organizationId)
             ->when(
                 filled($this->buildingId),
                 fn ($query) => $query->where('building_id', (int) $this->buildingId),
@@ -366,13 +389,15 @@ class ReportsPage extends Page
     #[Computed]
     public function tenantOptions(): array
     {
-        if ($this->organizationId === null) {
+        $organizationId = $this->resolvedOrganizationId();
+
+        if ($organizationId === null) {
             return [];
         }
 
         return User::query()
             ->select(['id', 'organization_id', 'name', 'role'])
-            ->forOrganization($this->organizationId)
+            ->forOrganization($organizationId)
             ->tenants()
             ->when(
                 filled($this->propertyId),
@@ -390,6 +415,34 @@ class ReportsPage extends Page
     public function meterTypeOptions(): array
     {
         return MeterType::options();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function organizationOptions(): array
+    {
+        if (! $this->canSelectOrganization()) {
+            return [];
+        }
+
+        return Organization::query()
+            ->select(['id', 'name'])
+            ->ordered()
+            ->pluck('name', 'id')
+            ->mapWithKeys(fn (string $label, int|string $id): array => [(string) $id => $label])
+            ->all();
+    }
+
+    public function canSelectOrganization(): bool
+    {
+        return $this->organizationId === null && $this->user()->isSuperadmin();
+    }
+
+    public function hasOrganizationContext(): bool
+    {
+        return $this->resolvedOrganizationId() !== null;
     }
 
     /**
@@ -419,7 +472,7 @@ class ReportsPage extends Page
      */
     private function exportReport(string $format): array
     {
-        abort_if($this->organizationId === null, 403);
+        abort_if($this->resolvedOrganizationId() === null, 403);
 
         $request = new ReportExportRequest;
         $request->validatePayload([
@@ -491,6 +544,68 @@ class ReportsPage extends Page
         return array_key_exists($resolved, $this->statusOptions())
             ? $resolved
             : 'all';
+    }
+
+    private function resolvedOrganizationId(): ?int
+    {
+        if ($this->organizationId !== null) {
+            return $this->organizationId;
+        }
+
+        if (! $this->canSelectOrganization()) {
+            return null;
+        }
+
+        return filled($this->reportOrganizationId)
+            ? (int) $this->reportOrganizationId
+            : null;
+    }
+
+    private function defaultReportOrganizationId(): ?string
+    {
+        if (! $this->canSelectOrganization()) {
+            return null;
+        }
+
+        $selectedOrganizationId = $this->normalizedReportOrganizationId($this->reportOrganizationId);
+
+        if ($selectedOrganizationId !== null) {
+            return $selectedOrganizationId;
+        }
+
+        $loginDemoOrganizationId = Organization::query()
+            ->select(['id'])
+            ->where('slug', 'tenanto-demo-organization')
+            ->value('id');
+
+        if ($loginDemoOrganizationId !== null) {
+            return (string) $loginDemoOrganizationId;
+        }
+
+        $firstOrganizationId = Organization::query()
+            ->select(['id'])
+            ->ordered()
+            ->value('id');
+
+        return $firstOrganizationId !== null ? (string) $firstOrganizationId : null;
+    }
+
+    private function normalizedReportOrganizationId(?string $organizationId): ?string
+    {
+        if (! $this->canSelectOrganization()) {
+            return null;
+        }
+
+        if (! filled($organizationId)) {
+            return null;
+        }
+
+        $exists = Organization::query()
+            ->select(['id'])
+            ->whereKey((int) $organizationId)
+            ->exists();
+
+        return $exists ? (string) ((int) $organizationId) : null;
     }
 
     private function user(): User

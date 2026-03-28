@@ -307,23 +307,28 @@ class OperationalDemoDatasetSeeder extends Seeder
 
                     $propertyMeters->push($meter);
 
-                    collect(range(0, 11))->each(function (int $readingIndex) use ($manager, $meter, $organization, $property, $propertyIndex, $sequence, $meterIndex, $tenant): void {
-                        $readingDate = now()
-                            ->startOfMonth()
-                            ->subMonths(11 - $readingIndex)
-                            ->addDays($propertyIndex);
+                    $readingDates = $this->reportReadingDates(
+                        includeCurrentMonth: ! $this->shouldSkipCurrentMonthReading($propertyIndex, $meterIndex),
+                        count: 12,
+                    );
+
+                    $readingDates->each(function (Carbon $readingDate, int $readingIndex) use ($manager, $meter, $organization, $property, $propertyIndex, $sequence, $meterIndex, $tenant): void {
+                        $isCurrentMonth = $readingDate->isSameMonth(now());
+                        $validationStatus = $isCurrentMonth
+                            ? $this->currentMonthReadingStatus($propertyIndex, $meterIndex)
+                            : MeterReadingValidationStatus::VALID;
 
                         MeterReading::query()->updateOrCreate(
                             [
                                 'meter_id' => $meter->id,
-                                'reading_date' => $readingDate->toDateString(),
+                                'reading_date' => $readingDate->copy()->addDays($propertyIndex)->toDateString(),
                             ],
                             [
                                 'organization_id' => $organization->id,
                                 'property_id' => $property->id,
                                 'submitted_by_user_id' => $readingIndex < 4 ? $manager->id : $tenant->id,
                                 'reading_value' => (($sequence * 100) + ($propertyIndex * 10) + ($meterIndex * 3) + (($readingIndex + 1) * 5)) + 0.125,
-                                'validation_status' => MeterReadingValidationStatus::VALID,
+                                'validation_status' => $validationStatus,
                                 'submission_method' => $readingIndex < 4
                                     ? MeterReadingSubmissionMethod::ADMIN_MANUAL
                                     : MeterReadingSubmissionMethod::TENANT_PORTAL,
@@ -333,18 +338,14 @@ class OperationalDemoDatasetSeeder extends Seeder
                     });
                 });
 
-                collect(range(0, $volumes['invoices_per_property'] - 1))->each(function (int $invoiceIndex) use ($organization, $property, $tenant, $propertyIndex, $sequence, $organizationUtilityServices, $propertyMeters): void {
-                    $periodStart = now()->startOfMonth()->subMonths(2 - $invoiceIndex);
-                    $periodEnd = $periodStart->copy()->endOfMonth();
+                collect($this->reportInvoiceBlueprints(
+                    count: $volumes['invoices_per_property'],
+                    propertyIndex: $propertyIndex,
+                ))->each(function (array $invoiceBlueprint, int $invoiceIndex) use ($organization, $property, $tenant, $propertyIndex, $sequence, $organizationUtilityServices, $propertyMeters): void {
                     $totalAmount = 95 + ($propertyIndex * 7.5) + ($invoiceIndex * 6.25);
-
-                    $status = match ($invoiceIndex) {
-                        0 => InvoiceStatus::PAID,
-                        1 => InvoiceStatus::FINALIZED,
-                        default => InvoiceStatus::OVERDUE,
-                    };
-
-                    $amountPaid = $status === InvoiceStatus::PAID ? $totalAmount : 0;
+                    $amountPaid = $invoiceBlueprint['amount_paid'] !== null
+                        ? min($invoiceBlueprint['amount_paid'], $totalAmount)
+                        : 0;
 
                     $invoice = Invoice::query()->updateOrCreate(
                         [
@@ -354,15 +355,17 @@ class OperationalDemoDatasetSeeder extends Seeder
                             'organization_id' => $organization->id,
                             'property_id' => $property->id,
                             'tenant_user_id' => $tenant->id,
-                            'billing_period_start' => $periodStart->toDateString(),
-                            'billing_period_end' => $periodEnd->toDateString(),
-                            'status' => $status,
+                            'billing_period_start' => $invoiceBlueprint['billing_period_start']->toDateString(),
+                            'billing_period_end' => $invoiceBlueprint['billing_period_end']->toDateString(),
+                            'status' => $invoiceBlueprint['status'],
                             'currency' => 'EUR',
                             'total_amount' => $totalAmount,
                             'amount_paid' => $amountPaid,
-                            'due_date' => $periodEnd->copy()->addDays(14)->toDateString(),
-                            'finalized_at' => $periodEnd->copy()->addDay(),
-                            'paid_at' => $status === InvoiceStatus::PAID ? $periodEnd->copy()->addDays(5) : null,
+                            'paid_amount' => $amountPaid,
+                            'due_date' => $invoiceBlueprint['due_date']?->toDateString(),
+                            'finalized_at' => $invoiceBlueprint['finalized_at']?->toDateTimeString(),
+                            'paid_at' => $invoiceBlueprint['paid_at']?->toDateTimeString(),
+                            'last_reminder_sent_at' => $invoiceBlueprint['last_reminder_sent_at']?->toDateTimeString(),
                             'document_path' => null,
                             'notes' => sprintf('Demo invoice %d for %s', $invoiceIndex + 1, $property->name),
                         ],
@@ -779,6 +782,114 @@ class OperationalDemoDatasetSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    private function shouldSkipCurrentMonthReading(int $propertyIndex, int $meterIndex): bool
+    {
+        return $meterIndex === 2 && $propertyIndex % 2 === 0;
+    }
+
+    private function currentMonthReadingStatus(int $propertyIndex, int $meterIndex): MeterReadingValidationStatus
+    {
+        if ($meterIndex === 2 && $propertyIndex % 2 === 1) {
+            return MeterReadingValidationStatus::PENDING;
+        }
+
+        if ($meterIndex >= 3 && $propertyIndex % 3 === 0) {
+            return MeterReadingValidationStatus::REJECTED;
+        }
+
+        return MeterReadingValidationStatus::VALID;
+    }
+
+    /**
+     * @return Collection<int, Carbon>
+     */
+    private function reportReadingDates(bool $includeCurrentMonth, int $count): Collection
+    {
+        return collect(range(0, $count - 1))
+            ->map(function (int $index) use ($includeCurrentMonth, $count): Carbon {
+                $monthsBack = $includeCurrentMonth
+                    ? ($count - 1) - $index
+                    : $count - $index;
+
+                return now()
+                    ->startOfMonth()
+                    ->subMonths($monthsBack);
+            });
+    }
+
+    /**
+     * @return array<int, array{
+     *     billing_period_start: Carbon,
+     *     billing_period_end: Carbon,
+     *     status: InvoiceStatus,
+     *     amount_paid: float|null,
+     *     due_date: Carbon|null,
+     *     finalized_at: Carbon|null,
+     *     paid_at: Carbon|null,
+     *     last_reminder_sent_at: Carbon|null
+     * }>
+     */
+    private function reportInvoiceBlueprints(int $count, int $propertyIndex): array
+    {
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+
+        $blueprints = [
+            [
+                'billing_period_start' => now()->subMonths(2)->startOfMonth(),
+                'billing_period_end' => now()->subMonths(2)->endOfMonth(),
+                'status' => InvoiceStatus::PAID,
+                'amount_paid' => 99999.0,
+                'due_date' => now()->subMonths(2)->endOfMonth(),
+                'finalized_at' => now()->subMonths(2)->endOfMonth()->addDay(),
+                'paid_at' => now()->subMonths(2)->endOfMonth()->addDays(4),
+                'last_reminder_sent_at' => null,
+            ],
+            [
+                'billing_period_start' => $currentMonthStart->copy(),
+                'billing_period_end' => $currentMonthStart->copy()->addDays(6 + $propertyIndex)->min($currentMonthEnd->copy()),
+                'status' => InvoiceStatus::OVERDUE,
+                'amount_paid' => 0.0,
+                'due_date' => now()->subDays(5)->startOfDay(),
+                'finalized_at' => now()->subDays(8),
+                'paid_at' => null,
+                'last_reminder_sent_at' => now()->subDay(),
+            ],
+            [
+                'billing_period_start' => $currentMonthStart->copy()->addDays(7 + $propertyIndex),
+                'billing_period_end' => $currentMonthStart->copy()->addDays(14 + $propertyIndex)->min($currentMonthEnd->copy()),
+                'status' => InvoiceStatus::FINALIZED,
+                'amount_paid' => null,
+                'due_date' => now()->addDays(2)->startOfDay()->min($currentMonthEnd->copy()),
+                'finalized_at' => now()->subDay(),
+                'paid_at' => null,
+                'last_reminder_sent_at' => null,
+            ],
+            [
+                'billing_period_start' => now()->subMonth()->startOfMonth(),
+                'billing_period_end' => now()->subMonth()->endOfMonth(),
+                'status' => InvoiceStatus::PAID,
+                'amount_paid' => 99999.0,
+                'due_date' => now()->subMonth()->endOfMonth(),
+                'finalized_at' => now()->subMonth()->endOfMonth()->addDay(),
+                'paid_at' => now()->subMonth()->endOfMonth()->addDays(3),
+                'last_reminder_sent_at' => null,
+            ],
+            [
+                'billing_period_start' => $currentMonthStart->copy()->addDays(15 + $propertyIndex),
+                'billing_period_end' => $currentMonthStart->copy()->addDays(21 + $propertyIndex)->min($currentMonthEnd->copy()),
+                'status' => InvoiceStatus::PARTIALLY_PAID,
+                'amount_paid' => 38.0,
+                'due_date' => now()->subDays(2)->startOfDay(),
+                'finalized_at' => now()->subDays(4),
+                'paid_at' => now()->subDays(1),
+                'last_reminder_sent_at' => now()->subHours(12),
+            ],
+        ];
+
+        return array_slice($blueprints, 0, max($count, 0));
     }
 
     private function serviceRateSchedule(string $serviceType): array

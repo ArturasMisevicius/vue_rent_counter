@@ -3,7 +3,10 @@
 namespace App\Filament\Support\Admin\ManagerPermissions;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use App\Models\Organization;
+use App\Models\Subscription;
 
 class ManagerPermissionCatalog
 {
@@ -231,7 +234,7 @@ class ManagerPermissionCatalog
             ])
             ->all();
 
-        if ($organization->status === OrganizationStatus::PENDING) {
+        if ($organization->status === OrganizationStatus::PENDING || self::hasRestrictedTrialPlan($organization)) {
             foreach (['billing', 'invoices', 'tariffs', 'providers', 'service_configurations', 'utility_services'] as $resource) {
                 $availability[$resource] = [
                     'available' => false,
@@ -243,6 +246,44 @@ class ManagerPermissionCatalog
         }
 
         return $availability;
+    }
+
+    private static function hasRestrictedTrialPlan(Organization $organization): bool
+    {
+        $subscription = $organization->relationLoaded('currentSubscription')
+            ? $organization->currentSubscription
+            : $organization->currentSubscription()
+                ->select([
+                    'id',
+                    'organization_id',
+                    'plan',
+                    'status',
+                    'is_trial',
+                    'starts_at',
+                    'expires_at',
+                    'property_limit_snapshot',
+                    'tenant_limit_snapshot',
+                    'meter_limit_snapshot',
+                    'invoice_limit_snapshot',
+                    'created_at',
+                    'updated_at',
+                ])
+                ->first();
+
+        if (! $subscription instanceof Subscription) {
+            return false;
+        }
+
+        $isTrial = $subscription->is_trial || $subscription->status === SubscriptionStatus::TRIALING;
+
+        if (! $isTrial) {
+            return false;
+        }
+
+        return in_array($subscription->plan, [
+            SubscriptionPlan::STARTER,
+            SubscriptionPlan::BASIC,
+        ], true);
     }
 
     /**

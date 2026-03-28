@@ -98,6 +98,19 @@
 - tied the seeded legacy collaboration project to a real manager and added regression coverage for the preserved tenant roster role
 - normalized `OrganizationUserFactory` defaults to supported membership roles and removed the stale default legacy permissions payload
 
+### fix: restrict manager billing permissions on starter and basic trials
+
+- extended the manager permission matrix availability rules so billing-side resources are marked unavailable for starter and basic trial subscriptions, not only pending organizations
+- kept the restricted billing resource set aligned across billing, invoices, tariffs, providers, service configurations, and utility services
+- added Livewire regression coverage to ensure restricted trial plans surface the “not available on your current plan” state in the manager permission matrix
+
+### feat: make seeded reports usable for superadmins and current-period demos
+
+- added a superadmin organization selector on the unified reports page so cross-organization reporting works without requiring a tenant-scoped organization context
+- defaulted superadmin reports to the seeded demo organization and wired report widgets, filters, exports, and option lists through the selected organization
+- refreshed the login-demo and operational dataset seeders so current-period invoices and meter readings populate revenue, outstanding balances, and meter compliance reports with realistic paid, overdue, partial, pending, rejected, and missing states
+- added focused admin report page and seed-coverage Pest coverage for the new superadmin selector and seeded current-period report output
+
 ### feat: implement the projects module end to end
 
 - added the full projects domain contract with project status, priority, type, and cost-record enums plus project-specific exceptions, observer logic, service workflows, notifications, and scheduled alert commands

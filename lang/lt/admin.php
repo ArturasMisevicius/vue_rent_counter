@@ -930,6 +930,7 @@ return [
             'meter_compliance_threshold' => 'Patikrinkite skaitiklių atitiktį naudodami :days dienų rodmenų slenkstį.',
         ],
         'filters' => [
+            'organization' => 'Organizacija',
             'start_date' => 'Pradžios data',
             'end_date' => 'Pabaigos data',
             'building' => 'Pastatas',

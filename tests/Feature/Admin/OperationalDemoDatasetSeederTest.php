@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingValidationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\UserRole;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
@@ -216,6 +218,54 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     expect(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('effective_until')->exists())->toBeTrue()
         ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('area_type')->exists())->toBeTrue()
         ->and(ServiceConfiguration::query()->whereIn('organization_id', $demoOrganizationIds)->whereNotNull('custom_formula')->exists())->toBeTrue();
+
+    $currentMonthStart = now()->startOfMonth()->toDateString();
+    $currentMonthEnd = now()->endOfMonth()->toDateString();
+    $showcaseMeterIds = Meter::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->pluck('id');
+    $metersWithCurrentMonthComparableReadings = MeterReading::query()
+        ->whereIn('meter_id', $showcaseMeterIds)
+        ->whereBetween('reading_date', [$currentMonthStart, $currentMonthEnd])
+        ->whereIn('validation_status', MeterReadingValidationStatus::comparableValues())
+        ->distinct('meter_id')
+        ->count('meter_id');
+    $metersWithCurrentMonthAttentionReadings = MeterReading::query()
+        ->whereIn('meter_id', $showcaseMeterIds)
+        ->whereBetween('reading_date', [$currentMonthStart, $currentMonthEnd])
+        ->whereIn('validation_status', [
+            MeterReadingValidationStatus::PENDING,
+            MeterReadingValidationStatus::REJECTED,
+        ])
+        ->distinct('meter_id')
+        ->count('meter_id');
+    $metersWithAnyCurrentMonthReading = MeterReading::query()
+        ->whereIn('meter_id', $showcaseMeterIds)
+        ->whereBetween('reading_date', [$currentMonthStart, $currentMonthEnd])
+        ->distinct('meter_id')
+        ->count('meter_id');
+    $currentMonthOutstandingInvoiceCount = Invoice::query()
+        ->whereIn('organization_id', $demoOrganizationIds)
+        ->whereIn('status', InvoiceStatus::outstandingValues())
+        ->where(function ($query) use ($currentMonthStart, $currentMonthEnd): void {
+            $query
+                ->where(function ($dueDateQuery) use ($currentMonthStart, $currentMonthEnd): void {
+                    $dueDateQuery
+                        ->whereNotNull('due_date')
+                        ->whereBetween('due_date', [$currentMonthStart, $currentMonthEnd]);
+                })
+                ->orWhere(function ($periodEndQuery) use ($currentMonthStart, $currentMonthEnd): void {
+                    $periodEndQuery
+                        ->whereNull('due_date')
+                        ->whereBetween('billing_period_end', [$currentMonthStart, $currentMonthEnd]);
+                });
+        })
+        ->count();
+
+    expect($metersWithCurrentMonthComparableReadings)->toBeGreaterThan(0)
+        ->and($metersWithCurrentMonthAttentionReadings)->toBeGreaterThan(0)
+        ->and($showcaseMeterIds->count() - $metersWithAnyCurrentMonthReading)->toBeGreaterThan(0)
+        ->and($currentMonthOutstandingInvoiceCount)->toBeGreaterThan(0);
 });
 
 it('reruns the database seeder without duplicating showcase organizations or subscriptions', function () {
