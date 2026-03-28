@@ -83,7 +83,19 @@ class Organization extends Model
     public function scopeWithCurrentSubscriptionSummary(Builder $query): Builder
     {
         return $query->with([
-            'currentSubscription:id,organization_id,plan,status,expires_at,property_limit_snapshot,tenant_limit_snapshot,meter_limit_snapshot,invoice_limit_snapshot',
+            'currentSubscription' => fn ($subscriptionQuery) => $subscriptionQuery
+                ->select([
+                    'id',
+                    'organization_id',
+                    'plan',
+                    'status',
+                    'expires_at',
+                    'property_limit_snapshot',
+                    'tenant_limit_snapshot',
+                    'meter_limit_snapshot',
+                    'invoice_limit_snapshot',
+                ])
+                ->withLatestPaymentSummary(),
         ]);
     }
 

@@ -471,6 +471,7 @@ return [
             'owner' => 'Owner',
             'owner_email' => 'Owner email',
             'users_count' => 'Users',
+            'mrr' => 'MRR',
             'properties_count' => 'Properties',
             'subscriptions_count' => 'Subscriptions',
             'created_at' => 'Created',

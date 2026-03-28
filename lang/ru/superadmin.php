@@ -471,6 +471,7 @@ return [
             'owner' => 'Владелец',
             'owner_email' => 'Email владельца',
             'users_count' => 'Пользователи',
+            'mrr' => 'MRR',
             'properties_count' => 'Объекты',
             'subscriptions_count' => 'Подписки',
             'created_at' => 'Создано',

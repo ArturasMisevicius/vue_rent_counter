@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Subscription extends Model
 {
@@ -105,6 +106,21 @@ class Subscription extends Model
         ]);
     }
 
+    public function scopeWithLatestPaymentSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'latestPayment' => fn ($paymentQuery) => $paymentQuery->select([
+                'subscription_payments.id',
+                'subscription_payments.organization_id',
+                'subscription_payments.subscription_id',
+                'subscription_payments.duration',
+                'subscription_payments.amount',
+                'subscription_payments.currency',
+                'subscription_payments.paid_at',
+            ]),
+        ]);
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -118,6 +134,12 @@ class Subscription extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    public function latestPayment(): HasOne
+    {
+        return $this->hasOne(SubscriptionPayment::class)
+            ->latestOfMany('paid_at');
     }
 
     public function scopeForSuperadminControlPlane(Builder $query): Builder

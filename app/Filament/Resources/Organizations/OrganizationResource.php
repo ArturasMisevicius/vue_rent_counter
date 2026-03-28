@@ -14,6 +14,7 @@ use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Organizations\Schemas\OrganizationForm;
 use App\Filament\Resources\Organizations\Schemas\OrganizationInfolist;
 use App\Filament\Resources\Organizations\Tables\OrganizationsTable;
+use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
 use App\Models\Organization;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
@@ -65,7 +66,7 @@ class OrganizationResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->forSuperadminControlPlane();
+        return app(OrganizationListQuery::class)->build(parent::getEloquentQuery());
     }
 
     public static function getRelations(): array

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
@@ -10,6 +11,7 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Tables\Columns\TextColumn;
@@ -229,4 +231,50 @@ it('paginates organizations at twenty rows per page', function () {
 
     expect($component->instance()->getTableRecordsPerPage())->toBe(20)
         ->and($component->instance()->getTable()->getPaginationPageOptions())->toBe([20]);
+});
+
+it('shows users count and monthly normalized mrr in the organizations list', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    $organization = Organization::factory()->create([
+        'name' => 'Helios Property Group',
+    ]);
+
+    $owner = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'email' => 'owner@helios.test',
+    ]);
+
+    $organization->forceFill([
+        'owner_user_id' => $owner->id,
+    ])->save();
+
+    $subscription = Subscription::factory()->for($organization)->create([
+        'plan' => SubscriptionPlan::PROFESSIONAL,
+        'status' => SubscriptionStatus::ACTIVE,
+        'is_trial' => false,
+        'starts_at' => now()->subMonth(),
+        'expires_at' => now()->addMonths(2),
+    ]);
+
+    SubscriptionPayment::factory()->create([
+        'organization_id' => $organization->id,
+        'subscription_id' => $subscription->id,
+        'duration' => SubscriptionDuration::QUARTERLY,
+        'amount' => 150.00,
+        'currency' => 'EUR',
+        'paid_at' => now()->subDay(),
+    ]);
+
+    User::factory()->count(2)->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ListOrganizations::class)
+        ->assertTableColumnExists('users_count')
+        ->assertTableColumnExists('mrr_display')
+        ->assertTableColumnStateSet('users_count', 3, $organization)
+        ->assertTableColumnStateSet('mrr_display', 'EUR 50.00', $organization);
 });

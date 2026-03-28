@@ -471,6 +471,7 @@ return [
             'owner' => 'Savininkas',
             'owner_email' => 'Savininko el. paštas',
             'users_count' => 'Naudotojai',
+            'mrr' => 'MRR',
             'properties_count' => 'Objektai',
             'subscriptions_count' => 'Prenumeratos',
             'created_at' => 'Sukurta',

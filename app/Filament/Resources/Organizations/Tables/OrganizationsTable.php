@@ -13,6 +13,7 @@ use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAc
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -41,6 +42,8 @@ class OrganizationsTable
 {
     public static function configure(Table $table): Table
     {
+        $organizationMrrResolver = app(OrganizationMrrResolver::class);
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -52,6 +55,14 @@ class OrganizationsTable
                     ->label(__('superadmin.organizations.columns.owner_email'))
                     ->placeholder(__('superadmin.organizations.empty.owner'))
                     ->searchable(),
+                TextColumn::make('users_count')
+                    ->label(__('superadmin.organizations.columns.users_count'))
+                    ->sortable()
+                    ->alignCenter(),
+                TextColumn::make('mrr_display')
+                    ->label(__('superadmin.organizations.columns.mrr'))
+                    ->state(fn (Organization $record): string => $organizationMrrResolver->displayFor($record))
+                    ->alignCenter(),
                 TextColumn::make('currentSubscription.plan')
                     ->label(__('superadmin.organizations.overview.fields.current_plan'))
                     ->badge()
