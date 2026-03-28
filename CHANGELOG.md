@@ -2,11 +2,36 @@
 
 ## 2026-03-28
 
-<!-- changelog:auto:start:pending -->
-### Pending staged changes
+<!-- changelog:auto:start:staged-20260328163633 -->
+### Commit updates
 
-- updated `tests/Feature/Filament/UnifiedPanelTest.php`
-<!-- changelog:auto:end:pending -->
+- updated `.agent/skills/update-changelog-before-commit/SKILL.md`
+- updated `.ai/skills/update-changelog-before-commit/SKILL.md`
+- updated `.claude/skills/update-changelog-before-commit/SKILL.md`
+- updated `.cursor/skills/update-changelog-before-commit/SKILL.md`
+- updated `.gemini/skills/update-changelog-before-commit/SKILL.md`
+- added `.githooks/post-commit`
+- updated `.githooks/pre-commit`
+- updated `scripts/update_changelog.php`
+- added `tests/Feature/Console/UpdateChangelogScriptTest.php`
+<!-- changelog:auto:end:staged-20260328163633 -->
+
+### test: avoid admin nav label substring collisions
+
+- tightened the admin unified-panel regression to assert the superadmin users route is absent instead of matching the raw "Users" label text
+- preserved the admin Organization Users navigation entry without letting substring collisions create false failures
+
+### feat: let admins manage org manager memberships
+
+- opened the Organization Users resource to org admins and owners only for manager memberships inside their current organization
+- scoped the resource query and policy checks so non-manager memberships and outside-organization records stay inaccessible
+- locked admin-side membership fields while keeping the manager permission matrix available on the edit surface
+- added focused admin, shell, matrix, and coverage-inventory Pest regression tests for the new access path
+
+### fix: keep changelog updates inside the current commit
+
+- documented the hook lifecycle change that moved changelog mutation away from `commit-msg`
+- aligned the shared changelog-update skill copies with the repository hook behavior
 
 <!-- changelog:auto:start:commit-20260328160318 -->
 ### fix: align changelog updater support namespace

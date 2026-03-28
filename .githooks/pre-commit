@@ -6,5 +6,5 @@ repo_root="$(git rev-parse --show-toplevel)"
 
 cd "$repo_root"
 
-php scripts/update_changelog.php --mode=pending
+php scripts/update_changelog.php --mode=staged --state-file=.git/tenanto-changelog-entry-id
 git add CHANGELOG.md

@@ -22,6 +22,6 @@ The git hooks in `.githooks/` enforce the same flow automatically when `core.hoo
 ## Notes
 
 - The updater ignores `CHANGELOG.md` itself when building the file list.
-- The `pre-commit` hook is the only hook that mutates `CHANGELOG.md`, because Git does not include index updates made in `commit-msg` in the current commit.
-- Hook-managed entries stay as staged-change summaries inside the commit that introduced the code changes.
+- The `pre-commit` hook writes an append-only `Commit updates` entry for the staged diff and keeps a temporary entry id in `.git/tenanto-changelog-entry-id` so retries update the same block instead of duplicating it.
+- The `post-commit` hook clears that temporary entry id after a successful commit.
 - Do not bypass this flow with manual changelog edits unless the generated entry is clearly wrong.
