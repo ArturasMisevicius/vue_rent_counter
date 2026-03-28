@@ -65,6 +65,9 @@ return [
             'subscription_renewed' => 'Prenumeratos pratęsimo duomenys atnaujinti.',
         ],
     ],
+    'organization_users' => [
+        'invited_by' => 'Pakvietė',
+    ],
     'buildings' => [
         'singular' => 'Pastatas',
         'plural' => 'Pastatai',
@@ -1079,6 +1082,9 @@ return [
         'labels' => [
             'unknown_manager' => 'šiam vadybininkui',
             'unknown_organization' => 'šiai organizacijai',
+        ],
+        'summary' => [
+            'read_only' => 'Tik skaityti visiems ištekliams',
         ],
         'notifications' => [
             'subject' => 'Atnaujinti vadybininko leidimai organizacijai :organization',

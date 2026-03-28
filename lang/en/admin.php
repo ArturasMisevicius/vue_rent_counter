@@ -65,6 +65,9 @@ return [
             'subscription_renewed' => 'Subscription renewal details were updated.',
         ],
     ],
+    'organization_users' => [
+        'invited_by' => 'Invited by',
+    ],
     'buildings' => [
         'singular' => 'Building',
         'plural' => 'Buildings',
@@ -1079,6 +1082,9 @@ return [
         'labels' => [
             'unknown_manager' => 'this manager',
             'unknown_organization' => 'this organization',
+        ],
+        'summary' => [
+            'read_only' => 'Read only across all resources',
         ],
         'notifications' => [
             'subject' => 'Manager permissions updated for :organization',

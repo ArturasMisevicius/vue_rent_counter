@@ -128,6 +128,49 @@ class ManagerPermissionCatalog
     }
 
     /**
+     * @return array<string, string>
+     */
+    public static function actionLabels(): array
+    {
+        return [
+            'create' => __('admin.manager_permissions.headers.create'),
+            'edit' => __('admin.manager_permissions.headers.edit'),
+            'delete' => __('admin.manager_permissions.headers.delete'),
+        ];
+    }
+
+    /**
+     * @param  array<string, array{can_create?: bool, can_edit?: bool, can_delete?: bool}>  $matrix
+     * @return list<string>
+     */
+    public static function summaryLines(array $matrix): array
+    {
+        $normalized = self::normalizeMatrix($matrix);
+        $actionLabels = self::actionLabels();
+        $lines = [];
+
+        foreach (self::resources() as $resource) {
+            $enabledActions = collect(self::actions())
+                ->filter(fn (string $action): bool => (bool) ($normalized[$resource][self::flagForAction($action)] ?? false))
+                ->map(fn (string $action): string => $actionLabels[$action])
+                ->values()
+                ->all();
+
+            if ($enabledActions === []) {
+                continue;
+            }
+
+            $lines[] = sprintf('%s: %s', self::label($resource), implode(', ', $enabledActions));
+        }
+
+        if ($lines !== []) {
+            return $lines;
+        }
+
+        return [__('admin.manager_permissions.summary.read_only')];
+    }
+
+    /**
      * @return array<string, array{name: string, matrix: array<string, array{can_create: bool, can_edit: bool, can_delete: bool}>}>
      */
     public static function presets(): array

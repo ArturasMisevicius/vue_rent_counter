@@ -2,6 +2,18 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328171834 -->
+### Commit updates
+
+- updated `app/Filament/Resources/OrganizationUsers/Schemas/OrganizationUserInfolist.php`
+- updated `app/Filament/Support/Admin/ManagerPermissions/ManagerPermissionCatalog.php`
+- updated `lang/en/admin.php`
+- updated `lang/es/admin.php`
+- updated `lang/lt/admin.php`
+- updated `lang/ru/admin.php`
+- updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260328171834 -->
+
 <!-- changelog:auto:start:staged-20260328170935 -->
 ### Commit updates
 
@@ -15,6 +27,12 @@
 - updated `app/Filament/Resources/OrganizationUsers/Tables/OrganizationUsersTable.php`
 - updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
 <!-- changelog:auto:end:staged-20260328170244 -->
+
+### feat: surface manager permission summaries on organization user views
+
+- replaced the legacy raw membership `permissions` display for manager memberships with a read-only summary sourced from the live manager permission matrix
+- added a read-only fallback summary for managers who still have zero granted write permissions across all resources
+- localized the inviter label on the organization-user infolist and added focused Pest coverage for both granted and default-read-only summaries
 
 ### fix: tighten organization user list affordances
 

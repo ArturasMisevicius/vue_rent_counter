@@ -14,6 +14,9 @@ return [
         'clear_filters' => 'Clear Filters',
         'clear_all_filters' => 'Clear All Filters',
     ],
+    'organization_users' => [
+        'invited_by' => 'Invitado por',
+    ],
     'buildings' => [
         'singular' => 'Edificio',
         'plural' => 'Edificios',
@@ -1099,6 +1102,9 @@ return [
         'labels' => [
             'unknown_manager' => 'este gerente',
             'unknown_organization' => 'esta organización',
+        ],
+        'summary' => [
+            'read_only' => 'Solo lectura en todos los recursos',
         ],
         'notifications' => [
             'subject' => 'Permisos del gerente actualizados para :organization',

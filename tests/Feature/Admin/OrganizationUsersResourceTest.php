@@ -192,6 +192,28 @@ it('shows a read-only manager permission summary on the organization user view p
         ->assertSeeText('Properties: Edit');
 });
 
+it('shows a read-only fallback when a manager has no granted write permissions on the organization user view page', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Read Only Manager',
+    ]);
+
+    $organizationUser = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.organization-users.view', ['record' => $organizationUser]))
+        ->assertSuccessful()
+        ->assertSeeText(__('admin.manager_permissions.section'))
+        ->assertSeeText(__('admin.manager_permissions.summary.read_only'));
+});
+
 it('forbids admins from creating or opening organization users outside the scoped manager surface', function (): void {
     ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
 

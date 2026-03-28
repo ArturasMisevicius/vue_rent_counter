@@ -65,6 +65,9 @@ return [
             'subscription_renewed' => 'Данные продления подписки обновлены.',
         ],
     ],
+    'organization_users' => [
+        'invited_by' => 'Пригласил',
+    ],
     'buildings' => [
         'singular' => 'Здание',
         'plural' => 'Здания',
@@ -1099,6 +1102,9 @@ return [
         'labels' => [
             'unknown_manager' => 'этому менеджеру',
             'unknown_organization' => 'этой организации',
+        ],
+        'summary' => [
+            'read_only' => 'Только чтение для всех ресурсов',
         ],
         'notifications' => [
             'subject' => 'Разрешения менеджера обновлены для :organization',
