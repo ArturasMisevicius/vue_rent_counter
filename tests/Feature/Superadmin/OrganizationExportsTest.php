@@ -1,18 +1,123 @@
 <?php
 
+use App\Enums\AuditLogAction;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationsSummaryAction;
+use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
+use App\Filament\Resources\Organizations\Pages\ViewOrganization;
+use App\Filament\Support\Audit\AuditLogger;
+use App\Jobs\Superadmin\Organizations\GenerateOrganizationDataExportJob;
+use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
+use App\Notifications\Superadmin\OrganizationDataExportReadyNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+it('queues a gdpr export for the org owner', function () {
+    Queue::fake();
+
+    $superadmin = User::factory()->superadmin()->create();
+    [$organization] = seedOwnedOrganizationForExport();
+
+    $this->actingAs($superadmin);
+
+    app(QueueOrganizationDataExportAction::class)->handle($organization, 'Support request');
+
+    Queue::assertPushed(GenerateOrganizationDataExportJob::class, function (GenerateOrganizationDataExportJob $job) use ($organization, $superadmin): bool {
+        return $job->organizationId === $organization->id
+            && $job->reason === 'Support request'
+            && $job->requestedByUserId === $superadmin->id;
+    });
+});
+
+it('queues support exports from the organization view page action', function () {
+    Queue::fake();
+
+    $superadmin = User::factory()->superadmin()->create();
+    [$organization] = seedOwnedOrganizationForExport();
+
+    $this->actingAs($superadmin);
+
+    Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
+        ->callAction('exportData', data: [
+            'reason' => 'Owner requested a GDPR export.',
+        ]);
+
+    Queue::assertPushed(GenerateOrganizationDataExportJob::class, function (GenerateOrganizationDataExportJob $job) use ($organization, $superadmin): bool {
+        return $job->organizationId === $organization->id
+            && $job->reason === 'Owner requested a GDPR export.'
+            && $job->requestedByUserId === $superadmin->id;
+    });
+});
+
+it('emails the built gdpr export to the org owner and records audit history', function () {
+    Notification::fake();
+
+    $superadmin = User::factory()->superadmin()->create();
+    [$organization, $owner] = seedOwnedOrganizationForExport();
+
+    $job = new GenerateOrganizationDataExportJob(
+        $organization->id,
+        'Support request',
+        $superadmin->id,
+    );
+
+    $exportPath = null;
+
+    $job->handle(
+        app(ExportOrganizationDataAction::class),
+        app(AuditLogger::class),
+    );
+
+    Notification::assertSentTo($owner, OrganizationDataExportReadyNotification::class, function (OrganizationDataExportReadyNotification $notification, array $channels) use ($organization, &$exportPath): bool {
+        $exportPath = $notification->exportPath;
+
+        return $channels === ['mail']
+            && $notification->organization->is($organization)
+            && $notification->reason === 'Support request'
+            && file_exists($notification->exportPath);
+    });
+
+    $auditLog = AuditLog::query()
+        ->where('organization_id', $organization->id)
+        ->where('action', AuditLogAction::EXPORTED)
+        ->latest('id')
+        ->first();
+
+    $activityLog = OrganizationActivityLog::query()
+        ->forOrganization($organization->id)
+        ->where('action', AuditLogAction::EXPORTED->value)
+        ->latest('id')
+        ->first();
+
+    expect($auditLog)->not->toBeNull()
+        ->and($auditLog?->actor_user_id)->toBe($superadmin->id)
+        ->and($auditLog?->metadata)->toMatchArray([
+            'reason' => 'Support request',
+            'delivery' => 'owner_email',
+            'owner_user_id' => $owner->id,
+            'owner_email' => $owner->email,
+        ])
+        ->and($activityLog)->not->toBeNull()
+        ->and($activityLog?->user_id)->toBe($superadmin->id);
+
+    if (is_string($exportPath) && file_exists($exportPath)) {
+        @unlink($exportPath);
+    }
+});
 
 it('exports the selected organizations with visible summary columns', function () {
     $selectedOrganization = Organization::factory()->create([
@@ -124,3 +229,23 @@ it('exports the selected organizations with visible summary columns', function (
 
     @unlink($path);
 });
+
+function seedOwnedOrganizationForExport(): array
+{
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+        'slug' => 'northwind-towers',
+    ]);
+
+    $owner = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Olivia Owner',
+        'email' => 'owner@northwind.test',
+    ]);
+
+    $organization->forceFill([
+        'owner_user_id' => $owner->id,
+    ])->save();
+
+    return [$organization->fresh(), $owner->fresh()];
+}

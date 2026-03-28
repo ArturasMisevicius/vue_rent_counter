@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Actions\Superadmin\Organizations;
 
 use App\Filament\Support\Superadmin\Exports\OrganizationDataExportBuilder;
 use App\Models\Organization;
 
-class ExportOrganizationDataAction
+final class ExportOrganizationDataAction
 {
     public function __construct(
         private readonly OrganizationDataExportBuilder $organizationDataExportBuilder,

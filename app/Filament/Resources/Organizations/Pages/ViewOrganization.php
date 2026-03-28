@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Organizations\Pages;
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserRole;
-use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
+use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
@@ -181,15 +181,26 @@ class ViewOrganization extends ViewRecord
                 }),
             Action::make('exportData')
                 ->label(__('superadmin.organizations.actions.export_data'))
+                ->slideOver()
                 ->authorize(fn (): bool => $this->authenticatedUser()?->can('view', $this->record) ?? false)
-                ->requiresConfirmation()
                 ->modalDescription(__('superadmin.organizations.modals.export'))
-                ->action(function (ExportOrganizationDataAction $exportOrganizationDataAction) {
-                    $path = $exportOrganizationDataAction->handle($this->record);
+                ->schema([
+                    Textarea::make('reason')
+                        ->label(__('superadmin.organizations.form.fields.export_reason'))
+                        ->required()
+                        ->rows(4)
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data, QueueOrganizationDataExportAction $queueOrganizationDataExportAction): void {
+                    $queueOrganizationDataExportAction->handle(
+                        $this->record,
+                        $data['reason'],
+                    );
 
-                    return response()
-                        ->download($path, "{$this->record->slug}-organization-export.zip")
-                        ->deleteFileAfterSend(true);
+                    Notification::make()
+                        ->title(__('superadmin.organizations.notifications.export_queued'))
+                        ->success()
+                        ->send();
                 }),
         ];
     }

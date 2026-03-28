@@ -413,6 +413,7 @@ return [
                 'notification_title' => 'Pranešimo pavadinimas',
                 'message_body' => 'Pranešimo tekstas',
                 'severity' => 'Svarba',
+                'export_reason' => 'Pagalbos užklausos priežastis',
             ],
             'helper' => [
                 'slug' => 'Slug naudojamas interneto adresuose ir negali būti keičiamas sukūrus organizaciją.',
@@ -486,6 +487,13 @@ return [
             'reinstated' => 'Organizacija atkurta',
             'sent' => 'Pranešimas išsiųstas',
             'queued' => 'Pranešimas įtrauktas į eilę',
+            'export_queued' => 'Organizacijos eksportas įtrauktas į eilę',
+        ],
+        'mail' => [
+            'export_ready_subject' => ':name duomenų eksportas paruoštas',
+            'export_ready_greeting' => 'Sveiki,',
+            'export_ready_intro' => 'Prašytas organizacijos :name duomenų eksportas pridėtas prie šio laiško.',
+            'export_ready_reason' => 'Pagalbos užklausos priežastis: :reason',
         ],
         'messages' => [
             'no_primary_admin' => 'Šiai organizacijai nėra priskirto pagrindinio administratoriaus.',
@@ -503,7 +511,7 @@ return [
             'reinstate' => 'Atkurkite :name ir grąžinkite organizacijai rašymo prieigą.',
             'reinstate_selected' => 'Atkurti pasirinktas organizacijas ir grąžinti joms rašymo prieigą.',
             'impersonate' => 'Jūs persijungsite į pagrindinio organizacijos administratoriaus paskyrą, kol nutrauksite apsimetimą.',
-            'export' => 'Šiame eksporte visi sąskaitų duomenys bus viename skaičiuoklės faile, nuomininkai kitame, o skaitiklių rodmenys dar kitame, viskas supakuota į atsisiunčiamą ZIP archyvą.',
+            'export' => 'Tai įtrauks GDPR tipo organizacijos eksportą į eilę, išsiųs ZIP dabartiniam savininkui el. paštu ir užfiksuos pagalbos užklausos priežastį.',
         ],
         'filters' => [
             'all_statuses' => 'Visos būsenos',

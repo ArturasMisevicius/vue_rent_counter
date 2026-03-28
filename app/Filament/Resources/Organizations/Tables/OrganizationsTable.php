@@ -6,8 +6,8 @@ use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
-use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationsSummaryAction;
+use App\Filament\Actions\Superadmin\Organizations\QueueOrganizationDataExportAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
@@ -281,13 +281,26 @@ class OrganizationsTable
                     Action::make('exportData')
                         ->label(__('superadmin.organizations.actions.export_data'))
                         ->icon(Heroicon::OutlinedArrowDownTray)
+                        ->slideOver()
                         ->authorize(fn (Organization $record): bool => self::currentUser()?->can('view', $record) ?? false)
-                        ->action(function (Organization $record, ExportOrganizationDataAction $exportOrganizationDataAction) {
-                            $path = $exportOrganizationDataAction->handle($record);
+                        ->modalDescription(__('superadmin.organizations.modals.export'))
+                        ->schema([
+                            Textarea::make('reason')
+                                ->label(__('superadmin.organizations.form.fields.export_reason'))
+                                ->required()
+                                ->rows(4)
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Organization $record, array $data, QueueOrganizationDataExportAction $queueOrganizationDataExportAction): void {
+                            $queueOrganizationDataExportAction->handle(
+                                $record,
+                                $data['reason'],
+                            );
 
-                            return response()
-                                ->download($path, "{$record->slug}-organization-export.zip")
-                                ->deleteFileAfterSend(true);
+                            Notification::make()
+                                ->title(__('superadmin.organizations.notifications.export_queued'))
+                                ->success()
+                                ->send();
                         }),
                     DeleteAction::make('deleteOrganization')
                         ->label(__('superadmin.organizations.actions.delete')),

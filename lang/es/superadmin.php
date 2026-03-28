@@ -413,6 +413,7 @@ return [
                 'notification_title' => 'Título de la Notificación',
                 'message_body' => 'Mensaje',
                 'severity' => 'Severidad',
+                'export_reason' => 'Motivo de la solicitud de soporte',
             ],
             'helper' => [
                 'slug' => 'El slug se usa en direcciones web y no puede cambiarse después de crear la organización.',
@@ -486,6 +487,13 @@ return [
             'reinstated' => 'Organización reactivada',
             'sent' => 'Notificación enviada',
             'queued' => 'Notificación en cola',
+            'export_queued' => 'Exportación de la organización en cola',
+        ],
+        'mail' => [
+            'export_ready_subject' => 'La exportación de datos de :name está lista',
+            'export_ready_greeting' => 'Hola,',
+            'export_ready_intro' => 'La exportación de datos solicitada para la organización :name está adjunta a este correo.',
+            'export_ready_reason' => 'Motivo de la solicitud de soporte: :reason',
         ],
         'modals' => [
             'suspend' => '¿Está seguro de que desea suspender :name? Esto impedirá inmediatamente que todos los usuarios de esta organización realicen cambios. Sus datos se conservarán.',
@@ -494,7 +502,7 @@ return [
             'reinstate' => 'Reactivar :name y restaurar el acceso de escritura para la organización.',
             'reinstate_selected' => 'Reactivar las organizaciones seleccionadas y restaurar su acceso de escritura.',
             'impersonate' => 'Cambiará a la cuenta principal del administrador de la organización hasta que detenga la suplantación.',
-            'export' => 'Esta exportación incluye todas las facturas en una hoja, todos los inquilinos en otra y todas las lecturas de medidores en otra, empaquetadas en un archivo ZIP descargable.',
+            'export' => 'Esto pondrá en cola una exportación tipo GDPR de la organización, enviará el ZIP al propietario actual por correo electrónico y registrará el motivo de la solicitud de soporte.',
         ],
         'activity_log' => [
             'record' => 'Registro',

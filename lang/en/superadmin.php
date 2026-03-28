@@ -413,6 +413,7 @@ return [
                 'notification_title' => 'Notification Title',
                 'message_body' => 'Message Body',
                 'severity' => 'Severity',
+                'export_reason' => 'Support request reason',
             ],
             'helper' => [
                 'slug' => 'The slug is used in web addresses and cannot be changed after the organization is created.',
@@ -486,6 +487,13 @@ return [
             'reinstated' => 'Organization reinstated',
             'sent' => 'Notification sent',
             'queued' => 'Notification queued',
+            'export_queued' => 'Organization export queued',
+        ],
+        'mail' => [
+            'export_ready_subject' => ':name data export is ready',
+            'export_ready_greeting' => 'Hello,',
+            'export_ready_intro' => 'The requested organization data export for :name is attached to this email.',
+            'export_ready_reason' => 'Support request reason: :reason',
         ],
         'messages' => [
             'no_primary_admin' => 'No primary admin is available for this organization.',
@@ -503,7 +511,7 @@ return [
             'reinstate' => 'Reinstate :name and restore write access for the organization.',
             'reinstate_selected' => 'Reinstate the selected organizations and restore their write access.',
             'impersonate' => 'You will switch into the organization primary admin account until you stop impersonating.',
-            'export' => 'This export includes all invoices as one spreadsheet, all tenants as another spreadsheet, and all meter readings as another spreadsheet, packaged into a downloadable ZIP file.',
+            'export' => 'This queues a GDPR-style organization export, emails the ZIP to the current owner, and records the support request reason.',
         ],
         'filters' => [
             'all_statuses' => 'All Statuses',
