@@ -485,6 +485,7 @@ return [
             'suspended' => 'Organization suspended',
             'reinstated' => 'Organization reinstated',
             'sent' => 'Notification sent',
+            'queued' => 'Notification queued',
         ],
         'messages' => [
             'no_primary_admin' => 'No primary admin is available for this organization.',

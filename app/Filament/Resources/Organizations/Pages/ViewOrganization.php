@@ -157,7 +157,7 @@ class ViewOrganization extends ViewRecord
                     );
 
                     Notification::make()
-                        ->title(__('superadmin.organizations.notifications.sent'))
+                        ->title(__('superadmin.organizations.notifications.queued'))
                         ->success()
                         ->send();
                 }),

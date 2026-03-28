@@ -485,6 +485,7 @@ return [
             'suspended' => 'Organización suspendida',
             'reinstated' => 'Organización reactivada',
             'sent' => 'Notificación enviada',
+            'queued' => 'Notificación en cola',
         ],
         'modals' => [
             'suspend' => '¿Está seguro de que desea suspender :name? Esto impedirá inmediatamente que todos los usuarios de esta organización realicen cambios. Sus datos se conservarán.',

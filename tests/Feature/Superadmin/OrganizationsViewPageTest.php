@@ -12,6 +12,7 @@ use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManage
 use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
+use App\Jobs\Superadmin\Organizations\SendOrganizationAnnouncementJob;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -25,7 +26,7 @@ use App\Models\SubscriptionRenewal;
 use App\Models\User;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -94,6 +95,8 @@ it('sends organization notifications from the view page action', function () {
     [$organization] = seedOrganizationViewFixture();
     $superadmin = User::factory()->superadmin()->create();
 
+    Queue::fake();
+
     $this->actingAs($superadmin);
 
     Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
@@ -103,11 +106,12 @@ it('sends organization notifications from the view page action', function () {
             'severity' => 'warning',
         ]);
 
-    expect(DatabaseNotification::query()->count())->toBe(6)
-        ->and(DatabaseNotification::query()->latest()->first()?->data)->toMatchArray([
-            'title' => 'Water Shutdown',
-            'severity' => 'warning',
-        ]);
+    Queue::assertPushed(SendOrganizationAnnouncementJob::class, function (SendOrganizationAnnouncementJob $job) use ($organization): bool {
+        return $job->organizationId === $organization->id
+            && $job->title === 'Water Shutdown'
+            && $job->body === 'Water service will be offline tomorrow from 08:00 to 10:00.'
+            && $job->severity === 'warning';
+    });
 });
 
 it('renders the users, subscriptions, buildings, managers, properties, and activity log relation manager contracts', function () {

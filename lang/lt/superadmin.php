@@ -485,6 +485,7 @@ return [
             'suspended' => 'Organizacija sustabdyta',
             'reinstated' => 'Organizacija atkurta',
             'sent' => 'Pranešimas išsiųstas',
+            'queued' => 'Pranešimas įtrauktas į eilę',
         ],
         'messages' => [
             'no_primary_admin' => 'Šiai organizacijai nėra priskirto pagrindinio administratoriaus.',
