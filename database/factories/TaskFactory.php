@@ -22,6 +22,8 @@ class TaskFactory extends Factory
             'project_id' => Project::factory()->for($organization),
             'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
+            'hold_reason' => null,
+            'cancellation_note' => null,
             'status' => fake()->randomElement(['pending', 'in_progress', 'review', 'completed', 'cancelled']),
             'priority' => fake()->randomElement(['low', 'medium', 'high', 'urgent']),
             'created_by_user_id' => User::factory()->admin()->for($organization),

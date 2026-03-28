@@ -17,7 +17,7 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('shows organization context on the projects list for superadmins', function () {
+it('shows organization context on the projects list for superadmins and scopes admins to their organization', function () {
     $organizationA = Organization::factory()->create(['name' => 'Aurora Heights']);
     $organizationB = Organization::factory()->create(['name' => 'Boreal Court']);
 
@@ -44,7 +44,11 @@ it('shows organization context on the projects list for superadmins', function (
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.projects.index'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertSeeText($organizationA->name)
+        ->assertSeeText($projectA->name)
+        ->assertDontSeeText($organizationB->name)
+        ->assertDontSeeText($projectB->name);
 
     $this->actingAs($superadmin);
 

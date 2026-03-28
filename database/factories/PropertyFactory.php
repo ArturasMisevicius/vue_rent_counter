@@ -13,13 +13,34 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PropertyFactory extends Factory
 {
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Property $property): void {
+            if ($property->organization_id === null) {
+                $property->organization_id = Organization::factory()->create()->id;
+            }
+
+            if ($property->building_id === null) {
+                $property->building_id = Building::factory()->create([
+                    'organization_id' => $property->organization_id,
+                ])->id;
+            }
+
+            $building = Building::query()
+                ->select(['id', 'organization_id'])
+                ->find($property->building_id);
+
+            if ($building !== null) {
+                $property->organization_id = $building->organization_id;
+            }
+        });
+    }
+
     public function definition(): array
     {
-        $organization = Organization::factory();
-
         return [
-            'organization_id' => $organization,
-            'building_id' => Building::factory()->for($organization),
+            'organization_id' => Organization::factory(),
+            'building_id' => null,
             'name' => 'Property '.fake()->unique()->numberBetween(1, 999),
             'unit_number' => (string) fake()->unique()->numberBetween(1, 200),
             'type' => fake()->randomElement(PropertyType::cases()),

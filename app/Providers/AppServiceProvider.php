@@ -22,12 +22,14 @@ use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Http\Middleware\SetGuestLocale;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
+use App\Models\Project;
 use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Observers\OrganizationObserver;
 use App\Observers\OrganizationUserObserver;
+use App\Observers\ProjectObserver;
 use App\Observers\PropertyAssignmentObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
@@ -119,6 +121,7 @@ class AppServiceProvider extends ServiceProvider
 
         Organization::observe(OrganizationObserver::class);
         OrganizationUser::observe(OrganizationUserObserver::class);
+        Project::observe(ProjectObserver::class);
         Subscription::observe(SubscriptionObserver::class);
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);

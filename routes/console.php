@@ -1,11 +1,19 @@
 <?php
 
+use App\Enums\ProjectStatus;
+use App\Models\Project;
 use App\Models\SecurityViolation;
+use App\Models\User;
+use App\Notifications\Projects\ProjectOverdueAlertNotification;
+use App\Notifications\Projects\ProjectStalledAlertNotification;
+use App\Notifications\Projects\ProjectUnapprovedEscalationNotification;
+use App\Notifications\Projects\ProjectUnapprovedReminderNotification;
 use App\Services\Operations\BackupRestoreReadinessService;
 use App\Services\Operations\PhaseOneGuardrailsBranchProtectionService;
 use App\Services\Operations\ReleaseReadinessEvidenceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -76,9 +84,150 @@ Artisan::command('ops:phase1-guardrails-branch-protection', function (PhaseOneGu
     return self::SUCCESS;
 })->purpose('Print the exact GitHub API payload and commands for Phase 1 guardrails branch protection');
 
+Artisan::command('projects:alert-stalled', function (): int {
+    Project::query()
+        ->select([
+            'id',
+            'organization_id',
+            'manager_id',
+            'name',
+            'reference_number',
+            'status',
+            'updated_at',
+        ])
+        ->with([
+            'organization:id,name,owner_user_id',
+            'manager:id,organization_id,name,email,role',
+        ])
+        ->where('status', ProjectStatus::ON_HOLD)
+        ->where('updated_at', '<=', now()->subDays(30))
+        ->chunkById(100, function ($projects): void {
+            foreach ($projects as $project) {
+                $recipients = collect([$project->manager])
+                    ->filter()
+                    ->merge(
+                        User::query()
+                            ->select(['id', 'organization_id', 'name', 'email', 'role'])
+                            ->where('organization_id', $project->organization_id)
+                            ->whereIn('role', ['admin'])
+                            ->get(),
+                    )
+                    ->unique('id')
+                    ->values();
+
+                Notification::send($recipients, new ProjectStalledAlertNotification($project));
+            }
+        });
+
+    return self::SUCCESS;
+})->purpose('Send alerts for projects stalled on hold for more than 30 days');
+
+Artisan::command('projects:alert-overdue', function (): int {
+    Project::query()
+        ->select([
+            'id',
+            'organization_id',
+            'manager_id',
+            'name',
+            'reference_number',
+            'status',
+            'estimated_end_date',
+            'metadata',
+        ])
+        ->with([
+            'organization:id,name,owner_user_id',
+            'manager:id,organization_id,name,email,role',
+        ])
+        ->whereIn('status', [ProjectStatus::PLANNED, ProjectStatus::IN_PROGRESS])
+        ->whereDate('estimated_end_date', '<', today())
+        ->chunkById(100, function ($projects): void {
+            foreach ($projects as $project) {
+                $metadata = $project->metadata ?? [];
+
+                if (($metadata['overdue'] ?? false) !== true) {
+                    $metadata['overdue'] = true;
+                    $project->forceFill(['metadata' => $metadata])->saveQuietly();
+                }
+
+                $recipients = collect([$project->manager])
+                    ->filter()
+                    ->merge(
+                        User::query()
+                            ->select(['id', 'organization_id', 'name', 'email', 'role'])
+                            ->where('organization_id', $project->organization_id)
+                            ->whereIn('role', ['admin'])
+                            ->get(),
+                    )
+                    ->unique('id')
+                    ->values();
+
+                Notification::send($recipients, new ProjectOverdueAlertNotification($project));
+            }
+        });
+
+    return self::SUCCESS;
+})->purpose('Send overdue alerts for projects that are past their estimated end date');
+
+Artisan::command('projects:alert-unapproved', function (): int {
+    Project::query()
+        ->select([
+            'id',
+            'organization_id',
+            'manager_id',
+            'name',
+            'reference_number',
+            'status',
+            'requires_approval',
+            'approved_at',
+            'created_at',
+        ])
+        ->with([
+            'organization:id,name,owner_user_id',
+            'manager:id,organization_id,name,email,role',
+        ])
+        ->where('status', ProjectStatus::PLANNED)
+        ->where('requires_approval', true)
+        ->whereNull('approved_at')
+        ->where('created_at', '<=', now()->subDays(14))
+        ->chunkById(100, function ($projects): void {
+            $superadmins = User::query()
+                ->select(['id', 'organization_id', 'name', 'email', 'role'])
+                ->where('role', 'superadmin')
+                ->get();
+
+            foreach ($projects as $project) {
+                $approvers = User::query()
+                    ->select(['id', 'organization_id', 'name', 'email', 'role'])
+                    ->where('organization_id', $project->organization_id)
+                    ->whereIn('role', ['admin'])
+                    ->get();
+
+                Notification::send($approvers, new ProjectUnapprovedReminderNotification($project));
+
+                if ($project->created_at <= now()->subDays(30)) {
+                    Notification::send($superadmins, new ProjectUnapprovedEscalationNotification($project));
+                }
+            }
+        });
+
+    return self::SUCCESS;
+})->purpose('Send project approval reminders and superadmin escalations');
+
 Schedule::command('model:prune', ['--model' => [SecurityViolation::class]])
     ->daily();
 
 Schedule::command('erag:sync-disposable-email-list')
     ->dailyAt('03:30')
+    ->withoutOverlapping();
+
+Schedule::command('projects:alert-stalled')
+    ->daily()
+    ->withoutOverlapping();
+
+Schedule::command('projects:alert-overdue')
+    ->daily()
+    ->withoutOverlapping();
+
+Schedule::command('projects:alert-unapproved')
+    ->daily()
     ->withoutOverlapping();

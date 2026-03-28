@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\TaskFactory;
@@ -8,11 +10,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     private const SUMMARY_COLUMNS = [
         'id',
@@ -20,6 +25,8 @@ class Task extends Model
         'project_id',
         'title',
         'description',
+        'hold_reason',
+        'cancellation_note',
         'status',
         'priority',
         'created_by_user_id',
@@ -81,6 +88,15 @@ class Task extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    public function closeAsCancelled(string $reason): void
+    {
+        $this->forceFill([
+            'status' => 'cancelled',
+            'cancellation_note' => $reason,
+            'completed_at' => $this->completed_at ?? now(),
+        ])->save();
     }
 
     public function scopeForOrganization(Builder $query, int $organizationId): Builder

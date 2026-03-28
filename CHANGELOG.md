@@ -2,6 +2,78 @@
 
 ## 2026-03-28
 
+<!-- changelog:auto:start:staged-20260328180833 -->
+### Commit updates
+
+- added `app/Enums/ProjectCostRecordType.php`
+- added `app/Enums/ProjectPriority.php`
+- added `app/Enums/ProjectStatus.php`
+- added `app/Enums/ProjectTeamRole.php`
+- added `app/Enums/ProjectType.php`
+- added `app/Exceptions/InvalidProjectTransitionException.php`
+- added `app/Exceptions/ProjectApprovalRequiredException.php`
+- added `app/Exceptions/ProjectCostPassthroughException.php`
+- added `app/Exceptions/ProjectDeletionBlockedException.php`
+- updated `app/Filament/Resources/Projects/Pages/CreateProject.php`
+- updated `app/Filament/Resources/Projects/Pages/ViewProject.php`
+- updated `app/Filament/Resources/Projects/ProjectResource.php`
+- updated `app/Filament/Resources/Projects/Schemas/ProjectForm.php`
+- updated `app/Filament/Resources/Projects/Schemas/ProjectInfolist.php`
+- updated `app/Filament/Resources/Projects/Tables/ProjectsTable.php`
+- added `app/Jobs/Projects/RescopeProjectChildrenJob.php`
+- added `app/Models/CostRecord.php`
+- updated `app/Models/InvoiceItem.php`
+- updated `app/Models/OrganizationSetting.php`
+- updated `app/Models/Project.php`
+- added `app/Models/ProjectUser.php`
+- updated `app/Models/Task.php`
+- updated `app/Models/TimeEntry.php`
+- added `app/Notifications/Projects/ProjectApprovalRequestedNotification.php`
+- added `app/Notifications/Projects/ProjectApprovedNotification.php`
+- added `app/Notifications/Projects/ProjectEmergencyCreatedNotification.php`
+- added `app/Notifications/Projects/ProjectOverBudgetNotification.php`
+- added `app/Notifications/Projects/ProjectOverdueAlertNotification.php`
+- added `app/Notifications/Projects/ProjectStalledAlertNotification.php`
+- added `app/Notifications/Projects/ProjectUnapprovedEscalationNotification.php`
+- added `app/Notifications/Projects/ProjectUnapprovedReminderNotification.php`
+- added `app/Observers/ProjectObserver.php`
+- updated `app/Policies/ProjectPolicy.php`
+- updated `app/Providers/AppServiceProvider.php`
+- added `app/Services/ProjectService.php`
+- added `database/factories/CostRecordFactory.php`
+- updated `database/factories/OrganizationSettingFactory.php`
+- updated `database/factories/ProjectFactory.php`
+- added `database/factories/ProjectUserFactory.php`
+- updated `database/factories/PropertyFactory.php`
+- updated `database/factories/TaskFactory.php`
+- updated `database/factories/TimeEntryFactory.php`
+- added `database/migrations/2026_03_28_180000_expand_projects_module_tables.php`
+- added `database/migrations/2026_03_28_180100_create_cost_records_table.php`
+- added `database/migrations/2026_03_28_180200_create_project_users_table.php`
+- updated `database/seeders/LegacyCollaborationFoundationSeeder.php`
+- updated `database/seeders/OperationalDemoDatasetSeeder.php`
+- added `docs/superpowers/plans/2026-03-28-projects-module-implementation.md`
+- added `docs/superpowers/specs/2026-03-28-projects-module-design.md`
+- updated `lang/en/enums.php`
+- updated `lang/es/enums.php`
+- updated `lang/lt/enums.php`
+- updated `lang/ru/enums.php`
+- updated `routes/console.php`
+- added `tests/Feature/Projects/ProjectCostsAndAlertsTest.php`
+- added `tests/Feature/Projects/ProjectLifecycleTest.php`
+- added `tests/Feature/Projects/ProjectResourceTest.php`
+- updated `tests/Feature/Superadmin/RelationCrudResourcesTest.php`
+- updated `tests/Feature/Superadmin/RelationResourceListContextTest.php`
+<!-- changelog:auto:end:staged-20260328180833 -->
+
+### feat: implement the projects module end to end
+
+- added the full projects domain contract with project status, priority, type, and cost-record enums plus project-specific exceptions, observer logic, service workflows, notifications, and scheduled alert commands
+- expanded project persistence with cost records and project team memberships, added automatic project reference sequencing through organization settings, and wired project cost, approval, completion, and child-rescoping behavior into the live models
+- rebuilt the Filament projects resource for cross-organization superadmin visibility and organization-scoped admin visibility with richer forms, list filters, infolists, header actions, and bulk actions
+- added focused Pest coverage for project lifecycle, costs and alerts, resource behavior, and updated affected superadmin/admin regression contracts
+- aligned legacy and demo seeders plus locale enum dictionaries with the new project enum contract so full reseeding and translation parity continue to pass
+
 <!-- changelog:auto:start:staged-20260328171834 -->
 ### Commit updates
 

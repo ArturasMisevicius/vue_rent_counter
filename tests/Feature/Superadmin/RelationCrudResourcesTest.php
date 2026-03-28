@@ -25,7 +25,7 @@ use function Pest\Laravel\get;
 
 uses(RefreshDatabase::class);
 
-it('exposes the new relation CRUD resources to superadmins only', function () {
+it('keeps platform relation resources superadmin-only except for scoped projects access', function () {
     $organization = Organization::factory()->create();
 
     $superadmin = User::factory()->superadmin()->create();
@@ -96,8 +96,13 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
 
         actingAs($admin);
 
-        get(route($routeName))
-            ->assertForbidden();
+        $response = get(route($routeName));
+
+        if ($routeName === 'filament.admin.resources.projects.index') {
+            $response->assertSuccessful();
+        } else {
+            $response->assertForbidden();
+        }
     }
 
     foreach ($createRoutes as $routeName) {
@@ -108,8 +113,13 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
 
         actingAs($admin);
 
-        get(route($routeName))
-            ->assertForbidden();
+        $response = get(route($routeName));
+
+        if ($routeName === 'filament.admin.resources.projects.create') {
+            $response->assertSuccessful();
+        } else {
+            $response->assertForbidden();
+        }
     }
 
     $viewRoutes = [
@@ -138,8 +148,13 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
 
         actingAs($admin);
 
-        get(route($viewRoute['name'], ['record' => $viewRoute['record']]))
-            ->assertForbidden();
+        $response = get(route($viewRoute['name'], ['record' => $viewRoute['record']]));
+
+        if ($viewRoute['name'] === 'filament.admin.resources.projects.view') {
+            $response->assertSuccessful();
+        } else {
+            $response->assertForbidden();
+        }
     }
 
     $editRoutes = [
@@ -168,8 +183,13 @@ it('exposes the new relation CRUD resources to superadmins only', function () {
 
         actingAs($admin);
 
-        get(route($editRoute['name'], ['record' => $editRoute['record']]))
-            ->assertForbidden();
+        $response = get(route($editRoute['name'], ['record' => $editRoute['record']]));
+
+        if ($editRoute['name'] === 'filament.admin.resources.projects.edit') {
+            $response->assertSuccessful();
+        } else {
+            $response->assertForbidden();
+        }
     }
 });
 

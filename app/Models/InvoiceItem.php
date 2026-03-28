@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\InvoiceItemFactory;
@@ -14,12 +16,16 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
+        'project_id',
         'description',
         'quantity',
         'unit',
         'unit_price',
         'total',
         'meter_reading_snapshot',
+        'metadata',
+        'voided_at',
+        'void_reason',
     ];
 
     protected function casts(): array
@@ -29,11 +35,18 @@ class InvoiceItem extends Model
             'unit_price' => 'decimal:4',
             'total' => 'decimal:2',
             'meter_reading_snapshot' => 'array',
+            'metadata' => 'array',
+            'voided_at' => 'datetime',
         ];
     }
 
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

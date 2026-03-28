@@ -61,7 +61,7 @@ class LegacyCollaborationFoundationSeeder extends Seeder
                 'assigned_to_user_id' => $tenant->id,
                 'description' => 'Imported collaboration foundation demo project.',
                 'type' => 'maintenance',
-                'status' => 'active',
+                'status' => 'in_progress',
                 'priority' => 'high',
                 'start_date' => now()->subWeek()->toDateString(),
                 'due_date' => now()->addWeek()->toDateString(),
