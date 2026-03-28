@@ -1,41 +1,58 @@
 # Tenanto
 
-Tenanto is a multi-tenant utility billing and property management application built on Laravel 12, Filament 5, and Livewire 4. The current repository is Filament-first for administration and uses Livewire for auth, shell interactions, public-site endpoints, preferences, and tenant self-service screens.
+Tenanto is a multi-tenant utility billing and property management application built on Laravel, Filament, and Livewire. The repository is Filament-first for the authenticated workspace and uses Livewire pages/components for public entrypoints, authentication, shared shell behavior, preferences, and tenant self-service flows.
+
+## What The App Covers
+
+- Platform-wide control plane for `SUPERADMIN`
+- Organization workspace for `ADMIN`
+- Limited organization workspace parity for `MANAGER`
+- Tenant self-service portal for `TENANT`
+- Utility billing, invoice generation, reminders, payments, meter readings, KYC, and localized tenant/admin experiences
 
 ## Verified Stack
 
-Verified from the checked-in manifests and the local CLI environment on 2026-03-17:
+Verified from the checked-in manifests and local CLI on 2026-03-28:
 
-- PHP `8.5.4` locally, with Composer requiring PHP `^8.2`
-- Laravel `12`
-- Filament `5.3`
+- PHP `8.5.4` locally, with Composer requiring PHP `^8.3`
+- Laravel `13.2.0`
+- Filament `5`
 - Livewire `4`
 - Tailwind CSS `4`
+- Vite `7`
 - Pest `4`
 - PHPUnit `12`
 - Alpine.js `3`
 - Laravel Sanctum `4`
+- SQLite as the default local database path
 
-## Product Shape
+## Product Surfaces
 
-- Multi-tenant SaaS for utility billing and property management
-- Role enum values: `SUPERADMIN`, `ADMIN`, `MANAGER`, `TENANT`
-- Approved foundation directories for requests, actions, and support services:
-  - `app/Http/Requests`
-  - `app/Filament/Actions`
-  - `app/Filament/Support`
-- Current workspace snapshot:
-  - 17 Filament resources
-  - 27 Livewire components
-  - 84 test files
-  - 1 remaining base controller
-  - 1 Filament panel provider
+### Superadmin
 
-For a fuller current-state snapshot, see [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md).
+- Global platform dashboard
+- Organizations, subscriptions, languages, audit logs, security violations, system configuration, translation management
+
+### Admin
+
+- Buildings, properties, tenants, meters, meter readings, providers, tariffs, invoices, KYC, reports, settings
+
+### Manager
+
+- Organization-scoped read/write access across most workspace resources
+- Intentionally restricted from admin-only settings and platform control-plane surfaces
+
+### Tenant
+
+- Dashboard/home summary
+- Invoice history and invoice downloads
+- Property details
+- Meter reading submission
+- Shared profile and KYC maintenance
 
 ## Local Setup
 
-The application is configured for SQLite by default.
+The app is configured for SQLite by default.
 
 1. `composer install`
 2. `cp .env.example .env`
@@ -44,39 +61,89 @@ The application is configured for SQLite by default.
 5. `php artisan migrate`
 6. `npm install`
 7. `npm run build`
-8. `php artisan test --compact`
 
-Or use:
+Or use the repository script:
 
 ```bash
 composer run setup
 ```
 
-For local development:
+Note: if you are using the default SQLite setup on a fresh checkout, create `database/database.sqlite` before running migrations manually.
+
+## Daily Development
+
+For the standard local loop:
 
 ```bash
-npm run dev
-php artisan serve
+composer run dev
 ```
 
-## Working Conventions
+That starts:
+
+- `php artisan serve`
+- `php artisan queue:listen --tries=1 --timeout=0`
+- `php artisan pail --timeout=0`
+- `npm run dev`
+
+If you want to run services separately:
+
+```bash
+php artisan serve
+php artisan queue:listen --tries=1 --timeout=0
+npm run dev
+```
+
+## Testing And Quality
+
+Common commands:
+
+```bash
+php artisan test --stop-on-failure
+php artisan test --compact
+vendor/bin/pint --dirty
+composer test
+```
+
+Use focused Pest runs for changed behavior and `vendor/bin/pint --dirty` before committing. The repo-wide suite was green locally on 2026-03-28 at:
+
+```bash
+php artisan test --stop-on-failure
+```
+
+with `1005 passed`.
+
+## Architecture Guardrails
 
 - Prefer Eloquent models, relationships, and scopes over raw SQL
-- Keep validation in `app/Http/Requests`
-- Keep actions and support logic in the Filament foundation tree
-- Do not create new classes in `app/Actions` or `app/Support`
-- Do not create or reintroduce a `FrameworkStudio` Filament page or `/app/framework-studio` route in any environment
-- Keep `public/` minimal: no debug PHP probes, no raw debug routes, and no stray `sw.js` without a real PWA feature
-- Run focused Pest tests plus `vendor/bin/pint --dirty` for changed behavior
-- Treat `docs/superpowers/` as historical execution/design context, not the canonical source for current repository counts
+- Keep request validation in `app/Http/Requests`
+- Keep reusable mutation logic in `app/Filament/Actions`
+- Keep shared read-model and support logic in `app/Filament/Support`
+- Do not create new shared foundation classes in `app/Actions` or `app/Support`
+- Keep `app/Http/Controllers` minimal; the codebase is deliberately moving route handling toward Livewire-backed endpoints and pages
+- Do not reintroduce `FrameworkStudio` or `/app/framework-studio`
+- Keep `public/` minimal: no debug PHP entrypoints and no stray service worker without a maintained PWA feature
+- Treat `docs/superpowers/` as execution history, not the source of truth for current repo state
+
+## Important Paths
+
+- Filament resources/pages/widgets: `app/Filament`
+- Livewire pages/components: `app/Livewire`
+- Core models: `app/Models`
+- Policies: `app/Policies`
+- Shared views/components: `resources/views`
+- Route surface: `routes/web.php`
+- Assistant/project instructions: `AGENTS.md`
 
 ## MCP
 
-The repository-local [`.mcp.json`](.mcp.json) currently configures only the `herd` MCP server. If `laravel-mcp` or `laravel-boost` are available in your editor session, they are coming from user-global configuration rather than this repository file.
+The repo-local [`.mcp.json`](.mcp.json) configures only the `herd` MCP server:
 
-## Documentation
+- `herd`
 
-- Project context: [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md)
+If Laravel-specific MCP servers are available in your editor or Codex session, they are coming from user-global configuration rather than this repository file.
+
+## Additional Docs
+
 - Session bootstrap: [docs/SESSION-BOOTSTRAP.md](docs/SESSION-BOOTSTRAP.md)
-- Delivery plans/specs map: [docs/superpowers/README.md](docs/superpowers/README.md)
-- AI assistant/project instructions: [AGENTS.md](AGENTS.md)
+- Delivery plans/specs index: [docs/superpowers/README.md](docs/superpowers/README.md)
+- AI assistant and repo instructions: [AGENTS.md](AGENTS.md)
