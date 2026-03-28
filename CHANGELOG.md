@@ -16,8 +16,15 @@
 - gated manager write access through new policies, resource middleware, and navigation filtering so manager mutations are explicitly permissioned per resource
 - synchronized manager membership state through observers and seeded the login demo workspace with organization memberships and a default property-manager preset
 - added focused manager permission regression coverage across admin resources, the superadmin organization-user editor, and manager workspace parity
+- aligned legacy admin resource and tenant UI coverage with explicit manager permission fixtures so managers stay read-only by default unless their matrix grants write access
 - flushed the in-memory manager permission cache in Pest bootstrap so request-scoped permission checks stay isolated across feature tests
 
 ### Subscription request validation coverage
 
 - added request-structure and validation scenario coverage for superadmin organization subscription create and update requests
+
+### Superadmin organization roster management
+
+- added create, edit, and delete roster actions to the superadmin organization users relation manager with shared roster form components
+- added organization roster store and update requests plus validation scenario coverage for the new superadmin user-management flow
+- added translated action and notification strings for the superadmin organization user roster in English, Lithuanian, Russian, and Spanish

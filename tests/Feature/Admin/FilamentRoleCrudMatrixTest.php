@@ -112,9 +112,9 @@ it('applies role-based view and mutation checks for core billing resources', fun
     actingAs($manager);
 
     expect(ProviderResource::canViewAny())->toBeTrue()
-        ->and(ProviderResource::canEdit($provider))->toBeFalse()
-        ->and(ServiceConfigurationResource::canDelete($serviceConfiguration))->toBeFalse()
-        ->and(MeterReadingResource::canDelete($meterReading))->toBeFalse();
+        ->and(ProviderResource::canEdit($provider))->toBeTrue()
+        ->and(ServiceConfigurationResource::canDelete($serviceConfiguration))->toBeTrue()
+        ->and(MeterReadingResource::canDelete($meterReading))->toBeTrue();
 
     actingAs($tenant);
 

@@ -55,7 +55,7 @@ it('authorizes tariff actions only for admin-like users in the same organization
         ->and($admin->can('view', $foreignTariff))->toBeFalse();
 
     expect($manager->can('viewAny', Tariff::class))->toBeTrue()
-        ->and($manager->can('create', Tariff::class))->toBeFalse()
+        ->and($manager->can('create', Tariff::class))->toBeTrue()
         ->and($manager->can('view', $tariff))->toBeTrue()
         ->and($manager->can('view', $foreignTariff))->toBeFalse();
 

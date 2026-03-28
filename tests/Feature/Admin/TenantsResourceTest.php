@@ -164,7 +164,8 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
 
     actingAs($manager)
         ->get(route('filament.admin.resources.tenants.create'))
-        ->assertRedirect();
+        ->assertSuccessful()
+        ->assertSeeText('Property Assignment');
 
     actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $otherTenant))
