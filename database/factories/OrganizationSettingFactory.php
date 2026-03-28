@@ -28,4 +28,20 @@ class OrganizationSettingFactory extends Factory
             ],
         ];
     }
+
+    public function demoBilling(string $shortName, string $email, string $phone): static
+    {
+        return $this->state([
+            'billing_contact_name' => sprintf('%s Billing Team', $shortName),
+            'billing_contact_email' => $email,
+            'billing_contact_phone' => $phone,
+            'payment_instructions' => 'Pay by bank transfer and include your invoice reference.',
+            'invoice_footer' => 'Thank you for paying on time.',
+            'notification_preferences' => [
+                'invoice_reminders' => true,
+                'payment_receipts' => true,
+                'reading_deadline_alerts' => true,
+            ],
+        ]);
+    }
 }

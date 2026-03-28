@@ -65,4 +65,13 @@ class ProviderFactory extends Factory
             'service_type' => ServiceType::HEATING,
         ]);
     }
+
+    public function withSupportContact(string $name, ServiceType $serviceType, array $contactInfo): static
+    {
+        return $this->state(fn () => [
+            'name' => $name,
+            'service_type' => $serviceType,
+            'contact_info' => $contactInfo,
+        ]);
+    }
 }

@@ -88,4 +88,11 @@ class UserFactory extends Factory
             'status' => UserStatus::SUSPENDED,
         ]);
     }
+
+    public function withLocale(string $locale): static
+    {
+        return $this->state(fn () => [
+            'locale' => $locale,
+        ]);
+    }
 }

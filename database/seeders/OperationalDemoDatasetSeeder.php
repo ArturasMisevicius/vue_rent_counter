@@ -128,19 +128,25 @@ class OperationalDemoDatasetSeeder extends Seeder
                 ],
             );
 
+            $organizationSettingPrototype = OrganizationSetting::factory()
+                ->demoBilling(
+                    shortName: $blueprint['short_name'],
+                    email: sprintf('billing-org%02d@tenanto-demo.test', $sequence),
+                    phone: sprintf('+370600%04d', 1000 + $sequence),
+                )
+                ->make([
+                    'organization_id' => $organization->id,
+                ]);
+
             OrganizationSetting::query()->updateOrCreate(
                 ['organization_id' => $organization->id],
                 [
-                    'billing_contact_name' => sprintf('%s Billing Team', $blueprint['short_name']),
-                    'billing_contact_email' => sprintf('billing-org%02d@tenanto-demo.test', $sequence),
-                    'billing_contact_phone' => sprintf('+370600%04d', 1000 + $sequence),
-                    'payment_instructions' => 'Pay by bank transfer and include your invoice reference.',
-                    'invoice_footer' => 'Thank you for paying on time.',
-                    'notification_preferences' => [
-                        'invoice_reminders' => true,
-                        'payment_receipts' => true,
-                        'reading_deadline_alerts' => true,
-                    ],
+                    'billing_contact_name' => $organizationSettingPrototype->billing_contact_name,
+                    'billing_contact_email' => $organizationSettingPrototype->billing_contact_email,
+                    'billing_contact_phone' => $organizationSettingPrototype->billing_contact_phone,
+                    'payment_instructions' => $organizationSettingPrototype->payment_instructions,
+                    'invoice_footer' => $organizationSettingPrototype->invoice_footer,
+                    'notification_preferences' => $organizationSettingPrototype->notification_preferences,
                 ],
             );
 
@@ -149,18 +155,29 @@ class OperationalDemoDatasetSeeder extends Seeder
 
             $buildings = collect(range(1, $volumes['buildings']))->map(function (int $buildingIndex) use ($blueprint, $cities, $organization, $organizationIndex, $sequence): Building {
                 $city = $cities[(($organizationIndex * 3) + ($buildingIndex - 1)) % count($cities)];
+                $buildingPrototype = Building::factory()
+                    ->named(sprintf('Demo Building %02d-%02d', $sequence, $buildingIndex))
+                    ->atBalticAddress(
+                        city: $city,
+                        street: sprintf('%s %d', $blueprint['street'], 10 + $buildingIndex),
+                        addressLine2: $buildingIndex === 3 ? 'Block C' : null,
+                        postalCode: $this->postalCodeFor($city['postal_code_pattern'], ($sequence * 10) + $buildingIndex),
+                    )
+                    ->make([
+                        'organization_id' => $organization->id,
+                    ]);
 
                 return Building::query()->updateOrCreate(
                     [
                         'organization_id' => $organization->id,
-                        'name' => sprintf('Demo Building %02d-%02d', $sequence, $buildingIndex),
+                        'name' => $buildingPrototype->name,
                     ],
                     [
-                        'address_line_1' => sprintf('%s %d', $blueprint['street'], 10 + $buildingIndex),
-                        'address_line_2' => $buildingIndex === 3 ? 'Block C' : null,
-                        'city' => $city['name'],
-                        'postal_code' => $this->postalCodeFor($city['postal_code_pattern'], ($sequence * 10) + $buildingIndex),
-                        'country_code' => $city['country_code'],
+                        'address_line_1' => $buildingPrototype->address_line_1,
+                        'address_line_2' => $buildingPrototype->address_line_2,
+                        'city' => $buildingPrototype->city,
+                        'postal_code' => $buildingPrototype->postal_code,
+                        'country_code' => $buildingPrototype->country_code,
                     ],
                 );
             });
@@ -180,17 +197,28 @@ class OperationalDemoDatasetSeeder extends Seeder
                 $tenant = $tenants[($propertyIndex - 1) % $tenants->count()];
                 $propertyType = PropertyType::cases()[($propertyIndex - 1) % count(PropertyType::cases())];
                 $floorArea = 42 + ($propertyIndex * 3.5);
+                $propertyPrototype = Property::factory()
+                    ->unit(
+                        name: sprintf('Demo Unit %02d-%02d', $sequence, $propertyIndex),
+                        unitNumber: sprintf('%02d', 100 + $propertyIndex),
+                        type: $propertyType,
+                        floorArea: $floorArea,
+                    )
+                    ->make([
+                        'organization_id' => $organization->id,
+                        'building_id' => $building->id,
+                    ]);
 
                 $property = Property::query()->updateOrCreate(
                     [
                         'organization_id' => $organization->id,
-                        'name' => sprintf('Demo Unit %02d-%02d', $sequence, $propertyIndex),
+                        'name' => $propertyPrototype->name,
                     ],
                     [
-                        'building_id' => $building->id,
-                        'unit_number' => sprintf('%02d', 100 + $propertyIndex),
-                        'type' => $propertyType,
-                        'floor_area_sqm' => $floorArea,
+                        'building_id' => $propertyPrototype->building_id,
+                        'unit_number' => $propertyPrototype->unit_number,
+                        'type' => $propertyPrototype->type,
+                        'floor_area_sqm' => $propertyPrototype->floor_area_sqm,
                     ],
                 );
 
@@ -233,18 +261,30 @@ class OperationalDemoDatasetSeeder extends Seeder
 
                 collect(range(1, $volumes['meters_per_property']))->each(function (int $meterIndex) use ($manager, $organization, $property, $propertyIndex, $sequence, $tenant, $propertyMeters): void {
                     $meterType = MeterType::cases()[($propertyIndex + $meterIndex - 2) % count(MeterType::cases())];
-                    $meter = Meter::query()->updateOrCreate(
-                        [
-                            'identifier' => sprintf('DMO-%02d-%02d-%02d', $sequence, $propertyIndex, $meterIndex),
-                        ],
-                        [
+                    $meterPrototype = Meter::factory()
+                        ->identified(
+                            identifier: sprintf('DMO-%02d-%02d-%02d', $sequence, $propertyIndex, $meterIndex),
+                            type: $meterType,
+                            name: sprintf('%s Meter %02d', Str::headline($meterType->value), $meterIndex),
+                            installedAt: Carbon::create(2025, 6, 1)->addDays($propertyIndex + $meterIndex)->toDateString(),
+                        )
+                        ->make([
                             'organization_id' => $organization->id,
                             'property_id' => $property->id,
-                            'name' => sprintf('%s Meter %02d', Str::headline($meterType->value), $meterIndex),
-                            'type' => $meterType,
+                        ]);
+
+                    $meter = Meter::query()->updateOrCreate(
+                        [
+                            'identifier' => $meterPrototype->identifier,
+                        ],
+                        [
+                            'organization_id' => $meterPrototype->organization_id,
+                            'property_id' => $meterPrototype->property_id,
+                            'name' => $meterPrototype->name,
+                            'type' => $meterPrototype->type,
                             'status' => MeterStatus::ACTIVE,
-                            'unit' => $meterType->defaultUnit()->value,
-                            'installed_at' => Carbon::create(2025, 6, 1)->addDays($propertyIndex + $meterIndex)->toDateString(),
+                            'unit' => $meterPrototype->unit,
+                            'installed_at' => $meterPrototype->installed_at,
                         ],
                     );
 
@@ -509,14 +549,23 @@ class OperationalDemoDatasetSeeder extends Seeder
         ];
 
         return collect($definitions)->mapWithKeys(function (array $definition, string $serviceType) use ($organization): array {
+            $providerPrototype = Provider::factory()
+                ->forOrganization($organization)
+                ->withSupportContact(
+                    name: $definition['provider_name'],
+                    serviceType: ServiceType::from($serviceType),
+                    contactInfo: $definition['contact_info'],
+                )
+                ->make();
+
             $provider = Provider::query()->updateOrCreate(
                 [
                     'organization_id' => $organization->id,
-                    'name' => $definition['provider_name'],
+                    'name' => $providerPrototype->name,
                 ],
                 [
-                    'service_type' => $serviceType,
-                    'contact_info' => $definition['contact_info'],
+                    'service_type' => $providerPrototype->service_type,
+                    'contact_info' => $providerPrototype->contact_info,
                 ],
             );
 
@@ -788,15 +837,30 @@ class OperationalDemoDatasetSeeder extends Seeder
         UserRole $role,
         string $locale,
     ): User {
+        $userPrototype = match ($role) {
+            UserRole::ADMIN => User::factory()->admin(),
+            UserRole::MANAGER => User::factory()->manager(),
+            UserRole::TENANT => User::factory()->tenant(),
+            default => User::factory()->state(['role' => $role]),
+        };
+
+        $user = $userPrototype
+            ->withLocale($locale)
+            ->make([
+                'organization_id' => $organization->id,
+                'email' => $email,
+                'name' => $name,
+            ]);
+
         return User::query()->updateOrCreate(
             ['email' => $email],
             [
                 'organization_id' => $organization->id,
-                'name' => $name,
-                'role' => $role,
+                'name' => $user->name,
+                'role' => $user->role,
                 'status' => UserStatus::ACTIVE,
-                'locale' => $locale,
-                'password' => bcrypt('password'),
+                'locale' => $user->locale,
+                'password' => $user->password,
                 'system_tenant_id' => $organization->system_tenant_id,
                 'is_super_admin' => false,
             ],

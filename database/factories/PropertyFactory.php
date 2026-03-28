@@ -26,4 +26,14 @@ class PropertyFactory extends Factory
             'floor_area_sqm' => fake()->randomFloat(2, 25, 180),
         ];
     }
+
+    public function unit(string $name, string $unitNumber, PropertyType $type, float $floorArea): static
+    {
+        return $this->state([
+            'name' => $name,
+            'unit_number' => $unitNumber,
+            'type' => $type,
+            'floor_area_sqm' => $floorArea,
+        ]);
+    }
 }

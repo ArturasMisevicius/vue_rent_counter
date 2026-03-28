@@ -30,4 +30,15 @@ class MeterFactory extends Factory
             'installed_at' => now()->subYear()->toDateString(),
         ];
     }
+
+    public function identified(string $identifier, MeterType $type, string $name, string $installedAt): static
+    {
+        return $this->state([
+            'identifier' => $identifier,
+            'type' => $type,
+            'name' => $name,
+            'unit' => $type->defaultUnit()->value,
+            'installed_at' => $installedAt,
+        ]);
+    }
 }

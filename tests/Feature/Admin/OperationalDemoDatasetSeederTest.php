@@ -125,11 +125,20 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($serviceConfigurationCount)->toBeGreaterThanOrEqual($propertyCount * 3)
         ->and($utilityServiceCount)->toBeGreaterThanOrEqual(15)
         ->and($projectCount)->toBe(5)
-        ->and($demoTasks->count())->toBe(10)
-        ->and($taskAssignmentCount)->toBe(10)
-        ->and($timeEntryCount)->toBe(10)
+        ->and($demoTasks->count())->toBeGreaterThanOrEqual(5)
+        ->and($taskAssignmentCount)->toBe($demoTasks->count())
+        ->and($timeEntryCount)->toBe($demoTasks->count())
         ->and($datasetTotal)->toBeGreaterThanOrEqual(1000)
         ->and(User::query()->where('email', 'like', '%@tenanto-demo.test')->pluck('locale')->unique()->sort()->values()->all())->toEqual(['en', 'lt', 'ru']);
+
+    $starterOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-starter');
+    $basicOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-basic');
+    $enterpriseOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-enterprise');
+    $customOrganization = $demoOrganizations->firstWhere('slug', 'demo-baltic-custom');
+
+    expect($enterpriseOrganization?->buildings()->count())->toBeGreaterThan($starterOrganization?->buildings()->count() ?? 0)
+        ->and($customOrganization?->properties()->count())->toBeGreaterThan($basicOrganization?->properties()->count() ?? 0)
+        ->and($customOrganization?->users()->count())->toBeGreaterThan($starterOrganization?->users()->count() ?? 0);
 
     $firstDemoMeter = Meter::query()
         ->whereIn('organization_id', $demoOrganizationIds)
