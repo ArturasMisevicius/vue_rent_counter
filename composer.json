@@ -13,6 +13,7 @@
         "laravel/tinker": "^3.0"
     },
     "require-dev": {
+        "eg-mohamed/laravelmissingtranslations": "^2.0",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\LaravelMissingTranslationsPhpFilesCommand;
 use App\Contracts\BillingServiceInterface;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Audit\AuditLogger;
@@ -35,6 +36,7 @@ use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
 use App\Observers\UserObserver;
 use App\Services\Billing\BillingService;
+use App\Services\Localization\PhpFileMissingTranslationsScanner;
 use App\Services\TranslationCacheService;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -47,6 +49,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use MohamedSaid\LaravelMissingTranslations\Commands\LaravelMissingTranslationsCommand;
+use MohamedSaid\LaravelMissingTranslations\LaravelMissingTranslations;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +63,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(AuditLogger::class);
         $this->app->singleton(BillingServiceInterface::class, BillingService::class);
+        $this->app->singleton(LaravelMissingTranslations::class, PhpFileMissingTranslationsScanner::class);
+        $this->app->singleton(LaravelMissingTranslationsCommand::class, LaravelMissingTranslationsPhpFilesCommand::class);
         $this->app->singleton(ImpersonationManager::class);
         $this->app->singleton(ManagerPermissionService::class);
         $this->app->scoped(DashboardCacheService::class);

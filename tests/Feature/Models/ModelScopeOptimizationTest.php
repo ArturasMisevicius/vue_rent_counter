@@ -54,15 +54,15 @@ it('loads organization billing records with related summaries and latest billing
     $invoice = Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create();
     $meter = Meter::factory()->for($organization)->for($property)->create();
     $startReading = MeterReading::factory()->for($organization)->for($property)->for($meter)->for($tenant, 'submittedBy')->create([
-        'reading_date' => now()->subMonth()->startOfMonth()->toDateString(),
+        'reading_date' => now()->startOfMonth()->subMonth()->toDateString(),
     ]);
     $endReading = MeterReading::factory()->for($organization)->for($property)->for($meter)->for($tenant, 'submittedBy')->create([
         'reading_date' => now()->startOfMonth()->toDateString(),
     ]);
 
     BillingRecord::factory()->for($organization)->for($property)->for($utilityService)->for($invoice)->for($tenant, 'tenant')->create([
-        'billing_period_start' => now()->subMonth()->startOfMonth()->toDateString(),
-        'billing_period_end' => now()->subMonth()->endOfMonth()->toDateString(),
+        'billing_period_start' => now()->startOfMonth()->subMonth()->toDateString(),
+        'billing_period_end' => now()->startOfMonth()->subDay()->toDateString(),
     ]);
 
     $latestRecord = BillingRecord::factory()->for($organization)->for($property)->for($utilityService)->for($invoice)->for($tenant, 'tenant')->create([

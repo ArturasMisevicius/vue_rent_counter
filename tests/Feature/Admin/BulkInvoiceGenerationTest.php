@@ -22,6 +22,8 @@ use App\Models\UtilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+
 uses(RefreshDatabase::class);
 
 it('bulk generates invoices while skipping tenants already billed for the selected period', function () {
@@ -80,7 +82,7 @@ it('bulk generates invoices while skipping tenants already billed for the select
 
         MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
             'reading_value' => 50,
-            'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+            'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
             'validation_status' => MeterReadingValidationStatus::VALID,
         ]);
 
@@ -122,7 +124,7 @@ it('renders the bulk invoice generation page contract with live preview warnings
         'missingReadingsTenant' => $missingReadingsTenant,
     ] = buildBulkInvoicePageScenario();
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get(route('filament.admin.pages.generate-bulk-invoices'))
         ->assertSuccessful()
         ->assertSeeText('Generate Bulk Invoices')
@@ -189,7 +191,7 @@ it('generates selected bulk invoices and exposes a filtered view of the created 
             'created_invoice_ids' => (string) $createdInvoice->id,
         ]));
 
-    $this->actingAs($admin)
+    actingAs($admin)
         ->get($summary['view_url'])
         ->assertSuccessful()
         ->assertSeeText((string) $createdInvoice->invoice_number)
@@ -275,7 +277,7 @@ function buildBulkInvoicePageScenario(): array
 
     MeterReading::factory()->for($organization)->for($alreadyBilledProperty)->for($alreadyBilledMeter)->create([
         'reading_value' => 50,
-        'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+        'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
         'validation_status' => MeterReadingValidationStatus::VALID,
     ]);
     MeterReading::factory()->for($organization)->for($alreadyBilledProperty)->for($alreadyBilledMeter)->create([
@@ -286,7 +288,7 @@ function buildBulkInvoicePageScenario(): array
 
     MeterReading::factory()->for($organization)->for($validProperty)->for($validMeter)->create([
         'reading_value' => 50,
-        'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+        'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
         'validation_status' => MeterReadingValidationStatus::VALID,
     ]);
     MeterReading::factory()->for($organization)->for($validProperty)->for($validMeter)->create([

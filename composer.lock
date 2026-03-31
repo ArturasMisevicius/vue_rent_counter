@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4aec462c249fd169beb600b5c51c57a",
+    "content-hash": "88af4091feee2f411c01f62752bd154a",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -8154,6 +8154,79 @@
                 "source": "https://github.com/doctrine/deprecations/tree/1.1.6"
             },
             "time": "2026-02-07T07:09:04+00:00"
+        },
+        {
+            "name": "eg-mohamed/laravelmissingtranslations",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/EG-Mohamed/laravel-missing-translations.git",
+                "reference": "39b5954d74bf77a0f20274836d1a787d66ee4cea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/EG-Mohamed/laravel-missing-translations/zipball/39b5954d74bf77a0f20274836d1a787d66ee4cea",
+                "reference": "39b5954d74bf77a0f20274836d1a787d66ee4cea",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^11.0||^12.0||^13.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.14",
+                "nunomaduro/collision": "^8.8",
+                "orchestra/testbench": "^9.0.0||^10.0.0||^11.0.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "LaravelMissingTranslations": "MohamedSaid\\LaravelMissingTranslations\\Facades\\LaravelMissingTranslations"
+                    },
+                    "providers": [
+                        "MohamedSaid\\LaravelMissingTranslations\\LaravelMissingTranslationsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MohamedSaid\\LaravelMissingTranslations\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mohamed Said",
+                    "email": "me@msaied.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Scan Laravel project files and append missing translation keys to JSON locale files",
+            "homepage": "https://github.com/eg-mohamed/laravelmissingtranslations",
+            "keywords": [
+                "Mohamed Said",
+                "laravel",
+                "laravelmissingtranslations"
+            ],
+            "support": {
+                "issues": "https://github.com/EG-Mohamed/laravel-missing-translations/issues",
+                "source": "https://github.com/EG-Mohamed/laravel-missing-translations/tree/2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Mohamed Said",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-31T15:18:40+00:00"
         },
         {
             "name": "fakerphp/faker",

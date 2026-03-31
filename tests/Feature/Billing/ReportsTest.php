@@ -53,7 +53,7 @@ it('matches monthly paid totals in the revenue report', function () {
     $component = Livewire::actingAs($admin)
         ->test(Reports::class)
         ->set('activeTab', 'revenue')
-        ->set('dateFrom', now()->subMonth()->startOfMonth()->toDateString())
+        ->set('dateFrom', now()->startOfMonth()->subMonth()->toDateString())
         ->set('dateTo', now()->endOfMonth()->toDateString())
         ->set('statusFilter', InvoiceStatus::PAID->value);
 
@@ -103,7 +103,7 @@ it('identifies overdue invoices in the outstanding balances report', function ()
     $component = Livewire::actingAs($admin)
         ->test(Reports::class)
         ->set('activeTab', 'outstanding_balances')
-        ->set('dateFrom', now()->subMonth()->startOfMonth()->toDateString())
+        ->set('dateFrom', now()->startOfMonth()->subMonth()->toDateString())
         ->set('dateTo', now()->endOfMonth()->toDateString())
         ->set('statusFilter', 'overdue');
 
@@ -225,10 +225,10 @@ function seedBillingReportsFeatureWorkspace(): array
             'total_amount' => 200,
             'amount_paid' => 200,
             'paid_amount' => 200,
-            'billing_period_start' => now()->subMonth()->startOfMonth()->toDateString(),
-            'billing_period_end' => now()->subMonth()->endOfMonth()->toDateString(),
-            'due_date' => now()->subMonth()->endOfMonth()->toDateString(),
-            'paid_at' => now()->subMonth()->endOfMonth()->addDay()->toDateTimeString(),
+            'billing_period_start' => now()->startOfMonth()->subMonth()->toDateString(),
+            'billing_period_end' => now()->startOfMonth()->subDay()->toDateString(),
+            'due_date' => now()->startOfMonth()->subDay()->toDateString(),
+            'paid_at' => now()->startOfMonth()->toDateTimeString(),
         ]);
 
     $overdueInvoice = Invoice::factory()

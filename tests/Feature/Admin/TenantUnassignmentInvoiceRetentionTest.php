@@ -73,7 +73,7 @@ it('skips invoice generation for billing periods that start after the tenant was
         ->for($tenant, 'tenant')
         ->create([
             'assigned_at' => now()->subMonths(3),
-            'unassigned_at' => now()->subMonth(),
+            'unassigned_at' => now()->startOfMonth()->subDay(),
         ]);
 
     $generatedInvoices = app(GenerateBulkInvoicesAction::class)

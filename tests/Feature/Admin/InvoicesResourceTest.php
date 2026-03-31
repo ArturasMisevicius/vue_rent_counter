@@ -315,8 +315,8 @@ it('exposes the invoices list contract with quick tabs, filters, and status-scop
     $draftInvoice = Invoice::factory()->for($organizationA)->for($draftProperty)->for($draftTenant, 'tenant')->create([
         'invoice_number' => 'INV-DRAFT-001',
         'status' => InvoiceStatus::DRAFT,
-        'billing_period_start' => now()->subMonth()->startOfMonth(),
-        'billing_period_end' => now()->subMonth()->endOfMonth(),
+        'billing_period_start' => now()->startOfMonth()->subMonth(),
+        'billing_period_end' => now()->startOfMonth()->subDay(),
         'finalized_at' => null,
         'due_date' => now()->addDays(10)->toDateString(),
         'paid_at' => null,
@@ -462,7 +462,7 @@ it('exposes the invoices list contract with quick tabs, filters, and status-scop
         ->assertCanNotSeeTableRecords([$draftInvoice, $overdueInvoice, $paidInvoice, $otherInvoice])
         ->resetTableFilters()
         ->filterTable('billing_period', [
-            'billing_period_from' => now()->subMonth()->startOfMonth()->toDateString(),
+            'billing_period_from' => now()->startOfMonth()->subMonth()->toDateString(),
             'billing_period_to' => now()->endOfMonth()->toDateString(),
         ])
         ->assertCanSeeTableRecords([$draftInvoice, $awaitingInvoice, $otherInvoice])
@@ -724,8 +724,8 @@ it('renders the invoice view page contract with alerts histories and status-spec
         ->create([
             'invoice_number' => 'INV-OVERDUE-VIEW-001',
             'status' => InvoiceStatus::FINALIZED,
-            'billing_period_start' => now()->subMonth()->startOfMonth(),
-            'billing_period_end' => now()->subMonth()->endOfMonth(),
+            'billing_period_start' => now()->startOfMonth()->subMonth(),
+            'billing_period_end' => now()->startOfMonth()->subDay(),
             'finalized_at' => now()->subMonth()->endOfDay(),
             'due_date' => now()->subDays(6)->toDateString(),
             'total_amount' => '120.00',
@@ -734,7 +734,7 @@ it('renders the invoice view page contract with alerts histories and status-spec
             'payment_reference' => 'INV-REF-7781',
             'items' => [[
                 'description' => 'Heating usage',
-                'period' => now()->subMonth()->startOfMonth()->format('F Y').' - '.now()->subMonth()->endOfMonth()->format('F Y'),
+                'period' => now()->startOfMonth()->subMonth()->format('F Y').' - '.now()->startOfMonth()->subDay()->format('F Y'),
                 'quantity' => '30.000',
                 'unit' => 'kWh',
                 'unit_price' => '4.0000',
@@ -742,7 +742,7 @@ it('renders the invoice view page contract with alerts histories and status-spec
             ]],
             'snapshot_data' => [[
                 'description' => 'Heating usage',
-                'period' => now()->subMonth()->startOfMonth()->format('F Y').' - '.now()->subMonth()->endOfMonth()->format('F Y'),
+                'period' => now()->startOfMonth()->subMonth()->format('F Y').' - '.now()->startOfMonth()->subDay()->format('F Y'),
                 'quantity' => '30.000',
                 'unit' => 'kWh',
                 'unit_price' => '4.0000',

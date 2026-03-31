@@ -23,7 +23,7 @@ it('uses due_date before billing_period_end when filtering overdue invoices', fu
 
     $report = app(OutstandingBalancesReportBuilder::class)->build(
         $organization->id,
-        Carbon::now()->subMonth()->startOfMonth(),
+        Carbon::now()->startOfMonth()->subMonth(),
         Carbon::now()->addWeek()->endOfDay(),
         [
             'building_id' => null,

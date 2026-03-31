@@ -148,8 +148,8 @@ function seedAdminDashboardComponentData(string $role = 'admin'): User
             'amount_paid' => 0,
             'paid_at' => null,
             'finalized_at' => now()->subDay(),
-            'billing_period_start' => now()->subMonth()->startOfMonth(),
-            'billing_period_end' => now()->subMonth()->endOfMonth(),
+            'billing_period_start' => now()->startOfMonth()->subMonth(),
+            'billing_period_end' => now()->startOfMonth()->subDay(),
         ]);
 
     $dueMeter = Meter::factory()

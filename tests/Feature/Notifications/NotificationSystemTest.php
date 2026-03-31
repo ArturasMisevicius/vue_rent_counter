@@ -50,8 +50,8 @@ it('queues overdue invoice reminders and the queued job sends the correct email 
             'total_amount' => 99.50,
             'amount_paid' => 22.00,
             'paid_amount' => 22.00,
-            'billing_period_start' => now()->subMonth()->startOfMonth()->toDateString(),
-            'billing_period_end' => now()->subMonth()->endOfMonth()->toDateString(),
+            'billing_period_start' => now()->startOfMonth()->subMonth()->toDateString(),
+            'billing_period_end' => now()->startOfMonth()->subDay()->toDateString(),
             'due_date' => now()->subDays(9)->toDateString(),
         ]);
 

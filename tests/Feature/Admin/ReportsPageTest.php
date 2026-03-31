@@ -54,7 +54,7 @@ it('restores the active report tab and filters from the query string', function 
         'tenant' => $tenant,
     ] = seedAdminReportsPageWorkspace();
 
-    $from = now()->subMonth()->startOfMonth()->toDateString();
+    $from = now()->startOfMonth()->subMonth()->toDateString();
     $to = now()->endOfMonth()->toDateString();
 
     $this->actingAs($admin);

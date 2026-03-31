@@ -168,7 +168,7 @@ it('calculates invoice totals from valid meter readings and tariff rates', funct
 
     MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
         'reading_value' => 50,
-        'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+        'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
         'validation_status' => MeterReadingValidationStatus::VALID,
     ]);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => [
         'save_profile' => 'Save Profile',
@@ -13,9 +15,6 @@ return [
         'save_changes' => 'Save Changes',
         'clear_filters' => 'Clear Filters',
         'clear_all_filters' => 'Clear All Filters',
-    ],
-    'organization_users' => [
-        'invited_by' => 'Invitado por',
     ],
     'buildings' => [
         'singular' => 'Edificio',
@@ -84,6 +83,12 @@ return [
         ],
         'search_placeholder' => 'Search by name or address',
     ],
+    'filters' => [
+        'date_range' => 'Date Range',
+        'from' => 'From',
+        'to' => 'To',
+        'total' => 'admin.filters.total',
+    ],
     'invoices' => [
         'singular' => 'Factura',
         'plural' => 'Facturas',
@@ -138,6 +143,7 @@ return [
             'final_total' => 'Final Total',
             'line_items' => 'Line Items',
             'invoice_notes' => 'Invoice Notes',
+            'unit' => 'admin.invoices.fields.unit',
         ],
         'columns' => [
             'invoice_number' => 'Factura Number',
@@ -289,6 +295,56 @@ return [
         ],
         'search_placeholder' => 'Search by tenant name',
     ],
+    'manager_permissions' => [
+        'section' => 'Permisos de recursos',
+        'description' => 'Configura exactamente qué puede crear, editar y eliminar este gerente. El acceso de vista siempre está habilitado.',
+        'headers' => [
+            'resource' => 'Recurso',
+            'create' => 'Crear',
+            'edit' => 'Editar',
+            'delete' => 'Eliminar',
+            'view' => 'Ver',
+        ],
+        'resources' => [
+            'billing' => 'Facturación',
+        ],
+        'presets' => [
+            'read_only' => 'Solo lectura',
+            'full_access' => 'Acceso total',
+            'billing_manager' => 'Gerente de facturación',
+            'property_manager' => 'Gerente de propiedades',
+            'custom' => 'Personalizado',
+        ],
+        'copy_from_manager' => 'Copiar desde otro gerente',
+        'copy_modal' => [
+            'heading' => 'Copiar desde otro gerente',
+            'description' => 'Selecciona otro gerente de esta organización para rellenar esta matriz.',
+            'select_label' => 'Gerente',
+            'placeholder' => 'Selecciona un gerente',
+            'confirm' => 'Copiar permisos',
+        ],
+        'save' => 'Guardar permisos',
+        'forbidden' => 'No tienes permiso para realizar esta acción.',
+        'view_locked_tooltip' => 'El acceso de vista siempre se concede a los gerentes y no puede cambiarse aquí.',
+        'non_manager_placeholder' => 'Los permisos de recursos solo están disponibles para usuarios con el rol de Gerente. Cambia el rol de este usuario a Gerente para configurar su acceso.',
+        'superadmin_banner' => 'Estás editando permisos para :manager en :organization. Los cambios se aplican inmediatamente.',
+        'plan_restricted' => 'No disponible en tu plan actual: actualiza para configurar el acceso a :resource.',
+        'labels' => [
+            'unknown_manager' => 'este gerente',
+            'unknown_organization' => 'esta organización',
+        ],
+        'summary' => [
+            'read_only' => 'Solo lectura en todos los recursos',
+        ],
+        'notifications' => [
+            'subject' => 'Permisos del gerente actualizados para :organization',
+            'greeting' => 'Hola,',
+            'updated' => 'Tus permisos de acceso han sido actualizados por :actor.',
+            'reset' => 'Tus permisos de acceso han sido restablecidos por :actor.',
+            'copied' => 'Tus permisos de acceso han sido actualizados por :actor.',
+            'saved_title' => 'Permisos del gerente guardados.',
+        ],
+    ],
     'meter_readings' => [
         'singular' => 'Lectura de medidor',
         'plural' => 'Lectura de medidors',
@@ -359,6 +415,7 @@ return [
             'details' => 'Contador Details',
             'history' => 'Reading History',
             'chart' => 'Usage Chart',
+            'consumption' => 'admin.meters.sections.consumption',
         ],
         'fields' => [
             'property' => 'Propiedad',
@@ -372,6 +429,7 @@ return [
             'installed_at' => 'Installed At',
             'reading_history' => 'Reading History',
             'usage_chart' => 'Usage Chart',
+            'reading_value' => 'admin.meters.fields.reading_value',
         ],
         'columns' => [
             'name' => 'Name',
@@ -414,6 +472,9 @@ return [
         'messages' => [
             'delete_blocked' => 'Contadors with readings cannot be deleted.',
         ],
+    ],
+    'organization_users' => [
+        'invited_by' => 'Invitado por',
     ],
     'profile' => [
         'title' => 'My Profile',
@@ -471,6 +532,7 @@ return [
             'area_square_meters' => 'Area in Square Meters',
             'date_assigned' => 'Date Assigned',
             'meter_count' => 'Meter Count',
+            'tenant' => 'admin.properties.fields.tenant',
         ],
         'columns' => [
             'name' => 'Name',
@@ -1059,61 +1121,6 @@ return [
         ],
         'placeholders' => [
             'global_template' => 'Global Template',
-        ],
-    ],
-    'filters' => [
-        'date_range' => 'Date Range',
-        'from' => 'From',
-        'to' => 'To',
-    ],
-    'manager_permissions' => [
-        'section' => 'Permisos de recursos',
-        'description' => 'Configura exactamente qué puede crear, editar y eliminar este gerente. El acceso de vista siempre está habilitado.',
-        'headers' => [
-            'resource' => 'Recurso',
-            'create' => 'Crear',
-            'edit' => 'Editar',
-            'delete' => 'Eliminar',
-            'view' => 'Ver',
-        ],
-        'resources' => [
-            'billing' => 'Facturación',
-        ],
-        'presets' => [
-            'read_only' => 'Solo lectura',
-            'full_access' => 'Acceso total',
-            'billing_manager' => 'Gerente de facturación',
-            'property_manager' => 'Gerente de propiedades',
-            'custom' => 'Personalizado',
-        ],
-        'copy_from_manager' => 'Copiar desde otro gerente',
-        'copy_modal' => [
-            'heading' => 'Copiar desde otro gerente',
-            'description' => 'Selecciona otro gerente de esta organización para rellenar esta matriz.',
-            'select_label' => 'Gerente',
-            'placeholder' => 'Selecciona un gerente',
-            'confirm' => 'Copiar permisos',
-        ],
-        'save' => 'Guardar permisos',
-        'forbidden' => 'No tienes permiso para realizar esta acción.',
-        'view_locked_tooltip' => 'El acceso de vista siempre se concede a los gerentes y no puede cambiarse aquí.',
-        'non_manager_placeholder' => 'Los permisos de recursos solo están disponibles para usuarios con el rol de Gerente. Cambia el rol de este usuario a Gerente para configurar su acceso.',
-        'superadmin_banner' => 'Estás editando permisos para :manager en :organization. Los cambios se aplican inmediatamente.',
-        'plan_restricted' => 'No disponible en tu plan actual: actualiza para configurar el acceso a :resource.',
-        'labels' => [
-            'unknown_manager' => 'este gerente',
-            'unknown_organization' => 'esta organización',
-        ],
-        'summary' => [
-            'read_only' => 'Solo lectura en todos los recursos',
-        ],
-        'notifications' => [
-            'subject' => 'Permisos del gerente actualizados para :organization',
-            'greeting' => 'Hola,',
-            'updated' => 'Tus permisos de acceso han sido actualizados por :actor.',
-            'reset' => 'Tus permisos de acceso han sido restablecidos por :actor.',
-            'copied' => 'Tus permisos de acceso han sido actualizados por :actor.',
-            'saved_title' => 'Permisos del gerente guardados.',
         ],
     ],
 ];

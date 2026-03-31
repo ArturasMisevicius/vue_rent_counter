@@ -74,8 +74,8 @@ it('shows the admin dashboard contract with live usage, recent invoices, and rea
         ->create([
             'invoice_number' => 'INV-100002',
             'status' => InvoiceStatus::FINALIZED,
-            'billing_period_start' => now()->subMonth()->startOfMonth(),
-            'billing_period_end' => now()->subMonth()->endOfMonth(),
+            'billing_period_start' => now()->startOfMonth()->subMonth(),
+            'billing_period_end' => now()->startOfMonth()->subDay(),
             'total_amount' => 210.15,
             'amount_paid' => 0,
             'paid_at' => null,

@@ -197,7 +197,7 @@ class TenantPortalFactory
                     MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
                         'submitted_by_user_id' => $user->id,
                         'reading_value' => 100.250,
-                        'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+                        'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
                         'validation_status' => MeterReadingValidationStatus::VALID,
                         'submission_method' => MeterReadingSubmissionMethod::TENANT_PORTAL,
                     ]),

@@ -2,6 +2,53 @@
 
 ## 2026-03-31
 
+<!-- changelog:auto:start:staged-20260331194242 -->
+### Commit updates
+
+- removed `.sisyphus/ralph-loop.local.md`
+- added `app/Console/Commands/LaravelMissingTranslationsPhpFilesCommand.php`
+- updated `app/Providers/AppServiceProvider.php`
+- added `app/Services/Localization/PhpFileMissingTranslationsScanner.php`
+- updated `composer.json`
+- updated `composer.lock`
+- added `config/laravelmissingtranslations.php`
+- updated `lang/en/admin.php`
+- updated `lang/en/superadmin.php`
+- updated `lang/es/admin.php`
+- updated `lang/es/superadmin.php`
+- updated `lang/lt/admin.php`
+- updated `lang/lt/superadmin.php`
+- updated `lang/ru/admin.php`
+- updated `lang/ru/superadmin.php`
+- added `lang/vendor/filament-actions/en/edit.php`
+- added `lang/vendor/filament-actions/en/view.php`
+- added `lang/vendor/filament-actions/es/edit.php`
+- added `lang/vendor/filament-actions/es/view.php`
+- added `lang/vendor/filament-actions/lt/edit.php`
+- added `lang/vendor/filament-actions/lt/view.php`
+- added `lang/vendor/filament-actions/ru/edit.php`
+- added `lang/vendor/filament-actions/ru/view.php`
+- added `lang/vendor/filament-panels/en/layout.php`
+- added `lang/vendor/filament-panels/es/layout.php`
+- added `lang/vendor/filament-panels/lt/layout.php`
+- added `lang/vendor/filament-panels/ru/layout.php`
+- updated `tests/Feature/Admin/AdminDashboardTest.php`
+- updated `tests/Feature/Admin/BulkInvoiceGenerationTest.php`
+- updated `tests/Feature/Admin/FinancialAuditTrailTest.php`
+- updated `tests/Feature/Admin/InvoicesResourceTest.php`
+- updated `tests/Feature/Admin/ReportsPageTest.php`
+- updated `tests/Feature/Admin/TenantUnassignmentInvoiceRetentionTest.php`
+- updated `tests/Feature/Billing/BillingEligibilityConsistencyTest.php`
+- updated `tests/Feature/Billing/BillingModuleTest.php`
+- updated `tests/Feature/Billing/InvoiceOverduePolicyTest.php`
+- updated `tests/Feature/Billing/ReportsTest.php`
+- updated `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`
+- added `tests/Feature/Localization/MissingTranslationsPhpFilesTest.php`
+- updated `tests/Feature/Models/ModelScopeOptimizationTest.php`
+- updated `tests/Feature/Notifications/NotificationSystemTest.php`
+- updated `tests/Support/TenantPortalFactory.php`
+<!-- changelog:auto:end:staged-20260331194242 -->
+
 <!-- changelog:auto:start:staged-20260331184152 -->
 ### Commit updates
 

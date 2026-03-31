@@ -203,7 +203,7 @@ it('records bulk invoice generation audits with actor and workspace context', fu
 
     MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
         'reading_value' => 50,
-        'reading_date' => now()->subMonth()->endOfMonth()->toDateString(),
+        'reading_date' => now()->startOfMonth()->subDay()->toDateString(),
         'validation_status' => MeterReadingValidationStatus::VALID,
     ]);
 

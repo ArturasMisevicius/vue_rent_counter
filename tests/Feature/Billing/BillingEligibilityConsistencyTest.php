@@ -56,7 +56,7 @@ it('applies the same assignment eligibility window to preview and generation', f
         $tariff,
         $utilityService,
         'A-1',
-        now()->subMonth(),
+        now()->startOfMonth()->subMonth(),
         null,
     );
 
@@ -79,7 +79,7 @@ it('applies the same assignment eligibility window to preview and generation', f
         $utilityService,
         'A-3',
         now()->subMonths(3),
-        now()->subMonth()->subDay(),
+        now()->startOfMonth()->subDay(),
     );
 
     $attributes = [
