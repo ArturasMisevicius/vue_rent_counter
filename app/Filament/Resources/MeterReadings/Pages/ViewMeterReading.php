@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\MeterReadings\Pages;
 
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
-use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\Pages\ViewRecord;
 
 class ViewMeterReading extends ViewRecord
 {

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Providers\Pages;
 
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Providers\ProviderResource;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewProvider extends ViewRecord
 {

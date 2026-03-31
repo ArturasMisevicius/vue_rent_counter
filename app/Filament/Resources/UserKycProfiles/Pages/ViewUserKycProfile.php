@@ -7,13 +7,13 @@ namespace App\Filament\Resources\UserKycProfiles\Pages;
 use App\Enums\KycVerificationStatus;
 use App\Filament\Actions\Admin\Kyc\RejectKycProfileAction;
 use App\Filament\Actions\Admin\Kyc\VerifyKycProfileAction;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\UserKycProfiles\UserKycProfileResource;
 use App\Models\UserKycProfile;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewUserKycProfile extends ViewRecord
 {

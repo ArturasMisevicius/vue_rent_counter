@@ -92,42 +92,50 @@
                     <p class="text-sm text-slate-600">{{ __('auth.demo_accounts.description') }}</p>
                 </div>
 
-                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                    <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600">
-                            <tr>
-                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.username') }}</th>
-                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.password') }}</th>
-                                <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.role') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 text-slate-700">
-                            @forelse ($demoAccounts as $account)
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        <button
-                                            type="button"
-                                            data-demo-account
-                                            data-demo-email="{{ $account['email'] }}"
-                                            data-demo-password="{{ $account['password'] }}"
-                                            data-demo-account-trigger
-                                            data-demo-account-email="{{ $account['email'] }}"
-                                            data-demo-account-password="{{ $account['password'] }}"
-                                            class="rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-slate-900 transition hover:bg-brand-warm/15 hover:text-slate-950"
-                                        >
-                                            {{ $account['email'] }}
-                                        </button>
-                                    </td>
-                                    <td class="px-4 py-3 font-mono text-xs">{{ $account['password'] }}</td>
-                                    <td class="px-4 py-3">{{ $account['role'] }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-4 py-4 text-sm text-slate-500">{{ __('auth.demo_accounts.empty') }}</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="space-y-4">
+                    @forelse ($demoAccounts as $group)
+                        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                            <div class="border-b border-slate-200 bg-slate-50 px-4 py-3">
+                                <h3 class="font-display text-lg tracking-tight text-slate-950">{{ $group['label'] }}</h3>
+                            </div>
+
+                            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                                <thead class="bg-slate-50 text-slate-600">
+                                    <tr>
+                                        <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.username') }}</th>
+                                        <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.password') }}</th>
+                                        <th class="px-4 py-3 font-semibold">{{ __('auth.demo_accounts.columns.role') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 text-slate-700">
+                                    @foreach ($group['accounts'] as $account)
+                                        <tr>
+                                            <td class="px-4 py-3">
+                                                <button
+                                                    type="button"
+                                                    data-demo-account
+                                                    data-demo-email="{{ $account['email'] }}"
+                                                    data-demo-password="{{ $account['password'] }}"
+                                                    data-demo-account-trigger
+                                                    data-demo-account-email="{{ $account['email'] }}"
+                                                    data-demo-account-password="{{ $account['password'] }}"
+                                                    class="rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-slate-900 transition hover:bg-brand-warm/15 hover:text-slate-950"
+                                                >
+                                                    {{ $account['email'] }}
+                                                </button>
+                                            </td>
+                                            <td class="px-4 py-3 font-mono text-xs">{{ $account['password'] }}</td>
+                                            <td class="px-4 py-3">{{ $account['role'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @empty
+                        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-500">
+                            {{ __('auth.demo_accounts.empty') }}
+                        </div>
+                    @endforelse
                 </div>
             </section>
         @endif

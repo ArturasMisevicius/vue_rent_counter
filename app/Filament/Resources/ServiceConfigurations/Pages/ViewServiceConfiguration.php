@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\ServiceConfigurations\Pages;
 
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewServiceConfiguration extends ViewRecord
 {

@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Comments\Pages;
 
 use App\Filament\Resources\Comments\CommentResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewComment extends ViewRecord
 {

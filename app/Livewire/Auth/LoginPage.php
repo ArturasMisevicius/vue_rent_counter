@@ -99,12 +99,27 @@ class LoginPage extends Component
     }
 
     /**
-     * @return array<int, array{name: string, email: string, password: string, role: string}>
+     * @return array<int, array{
+     *     key: string,
+     *     label: string,
+     *     accounts: array<int, array{name: string, email: string, password: string, role: string, role_key: string}>
+     * }>
      */
     #[Computed]
     public function demoAccounts(): array
     {
-        return app(LoginDemoAccountPresenter::class)->accounts() ?: config('tenanto.demo_accounts', []);
+        $presenter = app(LoginDemoAccountPresenter::class);
+        $accounts = $presenter->accounts();
+
+        if ($accounts !== []) {
+            return $accounts;
+        }
+
+        $fallbackAccounts = config('tenanto.demo_accounts', []);
+
+        return is_array($fallbackAccounts)
+            ? $presenter->groupAccounts($fallbackAccounts)
+            : [];
     }
 
     private function resolveIntendedUrl(Request $request): ?string

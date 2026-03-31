@@ -6,6 +6,7 @@ use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Property;
 use App\Models\User;
@@ -15,7 +16,6 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewProperty extends ViewRecord
 {

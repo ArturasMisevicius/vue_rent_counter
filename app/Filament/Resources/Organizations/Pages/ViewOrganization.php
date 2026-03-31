@@ -17,6 +17,7 @@ use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipA
 use App\Filament\Actions\Superadmin\Organizations\WriteOffOrganizationInvoicesAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -25,7 +26,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrganization extends ViewRecord
 {

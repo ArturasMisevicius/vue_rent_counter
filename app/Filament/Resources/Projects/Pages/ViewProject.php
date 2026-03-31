@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Projects\Pages;
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\User;
 use App\Services\ProjectService;
@@ -14,7 +15,6 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewProject extends ViewRecord
 {

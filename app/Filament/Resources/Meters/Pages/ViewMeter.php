@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Meters\Pages;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Meters\Widgets\MeterConsumptionChart;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
-use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\Pages\ViewRecord;
 
 class ViewMeter extends ViewRecord
 {

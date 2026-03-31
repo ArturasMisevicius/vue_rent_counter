@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\SubscriptionPayments\Pages;
 
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\SubscriptionPayments\SubscriptionPaymentResource;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewSubscriptionPayment extends ViewRecord
 {

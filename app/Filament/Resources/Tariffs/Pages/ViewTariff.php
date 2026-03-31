@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Tariffs\Pages;
 
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Tariffs\TariffResource;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewTariff extends ViewRecord
 {

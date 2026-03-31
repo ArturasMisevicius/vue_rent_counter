@@ -1,5 +1,54 @@
 # Changelog
 
+## 2026-03-31
+
+<!-- changelog:auto:start:staged-20260331184152 -->
+### Commit updates
+
+- updated `.sisyphus/ralph-loop.local.md`
+- updated `app/Filament/Resources/Attachments/Pages/ViewAttachment.php`
+- updated `app/Filament/Resources/Buildings/Pages/ViewBuilding.php`
+- updated `app/Filament/Resources/CommentReactions/Pages/ViewCommentReaction.php`
+- updated `app/Filament/Resources/Comments/Pages/ViewComment.php`
+- updated `app/Filament/Resources/InvoiceEmailLogs/Pages/ViewInvoiceEmailLog.php`
+- updated `app/Filament/Resources/InvoiceItems/Pages/ViewInvoiceItem.php`
+- updated `app/Filament/Resources/InvoicePayments/Pages/ViewInvoicePayment.php`
+- updated `app/Filament/Resources/InvoiceReminderLogs/Pages/ViewInvoiceReminderLog.php`
+- updated `app/Filament/Resources/Invoices/Pages/ViewInvoice.php`
+- updated `app/Filament/Resources/MeterReadings/Pages/ViewMeterReading.php`
+- updated `app/Filament/Resources/Meters/Pages/ViewMeter.php`
+- updated `app/Filament/Resources/OrganizationUsers/Pages/ViewOrganizationUser.php`
+- updated `app/Filament/Resources/Organizations/Pages/ViewOrganization.php`
+- added `app/Filament/Resources/Pages/ViewRecord.php`
+- updated `app/Filament/Resources/Projects/Pages/ViewProject.php`
+- updated `app/Filament/Resources/Properties/Pages/ViewProperty.php`
+- updated `app/Filament/Resources/PropertyAssignments/Pages/ViewPropertyAssignment.php`
+- updated `app/Filament/Resources/Providers/Pages/ViewProvider.php`
+- updated `app/Filament/Resources/ServiceConfigurations/Pages/ViewServiceConfiguration.php`
+- updated `app/Filament/Resources/SubscriptionPayments/Pages/ViewSubscriptionPayment.php`
+- updated `app/Filament/Resources/SubscriptionRenewals/Pages/ViewSubscriptionRenewal.php`
+- updated `app/Filament/Resources/Subscriptions/Pages/ViewSubscription.php`
+- updated `app/Filament/Resources/Tags/Pages/ViewTag.php`
+- updated `app/Filament/Resources/Tariffs/Pages/ViewTariff.php`
+- updated `app/Filament/Resources/TaskAssignments/Pages/ViewTaskAssignment.php`
+- updated `app/Filament/Resources/Tasks/Pages/ViewTask.php`
+- updated `app/Filament/Resources/Tenants/Pages/ViewTenant.php`
+- updated `app/Filament/Resources/TimeEntries/Pages/ViewTimeEntry.php`
+- updated `app/Filament/Resources/UserKycProfiles/Pages/ViewUserKycProfile.php`
+- updated `app/Filament/Resources/Users/Pages/ViewUser.php`
+- updated `app/Filament/Resources/Users/Schemas/UserInfolist.php`
+- updated `app/Filament/Resources/UtilityServices/Pages/ViewUtilityService.php`
+- updated `app/Filament/Support/Auth/LoginDemoAccountPresenter.php`
+- added `app/Filament/Support/Superadmin/Users/UserDossierData.php`
+- updated `app/Livewire/Auth/LoginPage.php`
+- updated `resources/views/auth/login.blade.php`
+- added `resources/views/filament/resources/users/dossier.blade.php`
+- added `resources/views/filament/resources/users/partials/dossier-tree.blade.php`
+- updated `tests/Feature/Auth/LoginDemoAccountsTest.php`
+- added `tests/Feature/Filament/ViewRecordWidthContractTest.php`
+- updated `tests/Feature/Superadmin/UsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260331184152 -->
+
 ## 2026-03-28
 
 <!-- changelog:auto:start:staged-20260328183354 -->

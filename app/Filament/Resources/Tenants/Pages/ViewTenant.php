@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
@@ -18,7 +19,6 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewTenant extends ViewRecord
 {

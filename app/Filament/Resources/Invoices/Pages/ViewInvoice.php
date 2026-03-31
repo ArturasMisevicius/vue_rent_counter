@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Support\Admin\Invoices\InvoiceViewPresenter;
 use App\Services\Billing\InvoicePdfService;
 use Filament\Actions\Action;
@@ -18,7 +19,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewInvoice extends ViewRecord
 {

@@ -4,8 +4,8 @@ namespace App\Filament\Resources\InvoiceEmailLogs\Pages;
 
 use App\Filament\Resources\InvoiceEmailLogs\InvoiceEmailLogResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewInvoiceEmailLog extends ViewRecord
 {

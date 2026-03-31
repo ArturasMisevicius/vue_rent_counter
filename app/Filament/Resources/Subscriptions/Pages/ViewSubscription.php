@@ -6,6 +6,7 @@ use App\Enums\SubscriptionPlan;
 use App\Filament\Actions\Superadmin\Subscriptions\SuspendSubscriptionAction;
 use App\Filament\Actions\Superadmin\Subscriptions\UpdateSubscriptionExpiryAction;
 use App\Filament\Actions\Superadmin\Subscriptions\UpgradeSubscriptionPlanAction;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Models\User;
@@ -14,7 +15,6 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
 
 class ViewSubscription extends ViewRecord

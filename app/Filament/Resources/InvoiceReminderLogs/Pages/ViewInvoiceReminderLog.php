@@ -4,8 +4,8 @@ namespace App\Filament\Resources\InvoiceReminderLogs\Pages;
 
 use App\Filament\Resources\InvoiceReminderLogs\InvoiceReminderLogResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewInvoiceReminderLog extends ViewRecord
 {

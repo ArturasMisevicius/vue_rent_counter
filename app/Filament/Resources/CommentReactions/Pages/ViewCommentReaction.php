@@ -4,8 +4,8 @@ namespace App\Filament\Resources\CommentReactions\Pages;
 
 use App\Filament\Resources\CommentReactions\CommentReactionResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewCommentReaction extends ViewRecord
 {

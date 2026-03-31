@@ -6,15 +6,22 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Superadmin\Users\StartUserImpersonationAction;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\Building;
+use App\Models\DashboardCustomization;
 use App\Models\Invoice;
+use App\Models\ManagerPermission;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\SecurityViolation;
+use App\Models\SystemTenant;
 use App\Models\User;
+use App\Models\UserKycProfile;
 use Filament\Actions\DeleteAction;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -138,6 +145,14 @@ it('renders the superadmin users list page contract', function () {
         ->assertSeeText($managedUser->name)
         ->assertSeeText($managedUser->email);
 
+    $this->actingAs($superadmin);
+
+    expect(
+        Livewire::test(ViewUser::class, ['record' => $managedUser->getRouteKey()])
+            ->instance()
+            ->getMaxContentWidth()
+    )->toBe(Width::Full);
+
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.users.edit', $managedUser))
         ->assertSuccessful()
@@ -197,6 +212,119 @@ it('searches and filters users by name or email, role, status, organization, and
         ->filterTable('last_login', 'never')
         ->assertCanSeeTableRecords([$matchingUser])
         ->assertCanNotSeeTableRecords([$filteredOutUser]);
+});
+
+it('renders the full superadmin user dossier with related records', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create([
+        'name' => 'Dossier Estates',
+    ]);
+    $building = Building::factory()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Atlas House',
+    ]);
+    $property = Property::factory()->create([
+        'organization_id' => $organization->id,
+        'building_id' => $building->id,
+        'name' => 'Unit 4B',
+    ]);
+
+    $managedUser = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Casey Complete',
+        'email' => 'casey.complete@example.com',
+        'phone' => '+37060000001',
+    ]);
+
+    $systemTenant = SystemTenant::factory()->create([
+        'name' => 'Operations Control Plane',
+        'created_by_admin_id' => $superadmin->id,
+    ]);
+
+    $managedUser->forceFill([
+        'system_tenant_id' => $systemTenant->id,
+    ])->save();
+
+    DashboardCustomization::factory()->create([
+        'user_id' => $managedUser->id,
+        'widget_configuration' => [
+            ['widget' => 'cash-flow', 'enabled' => true],
+        ],
+    ]);
+
+    UserKycProfile::factory()->create([
+        'user_id' => $managedUser->id,
+        'organization_id' => $organization->id,
+        'full_legal_name' => 'Casey Complete',
+    ]);
+
+    OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $managedUser->id,
+        'role' => UserRole::MANAGER->value,
+        'invited_by' => $superadmin->id,
+    ]);
+
+    ManagerPermission::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $managedUser->id,
+        'resource' => 'billing',
+        'can_create' => true,
+        'can_edit' => true,
+        'can_delete' => false,
+    ]);
+
+    OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $superadmin->id,
+        'email' => $managedUser->email,
+        'full_name' => $managedUser->name,
+    ]);
+
+    OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $managedUser->id,
+        'email' => 'future.member@example.com',
+        'full_name' => 'Future Member',
+    ]);
+
+    PropertyAssignment::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+        'tenant_user_id' => $managedUser->id,
+    ]);
+
+    $invoice = Invoice::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+        'tenant_user_id' => $managedUser->id,
+        'invoice_number' => 'INV-DOSSIER-001',
+    ]);
+
+    $securityViolation = SecurityViolation::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $managedUser->id,
+        'summary' => 'Repeated invalid authentication attempts',
+    ]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.resources.users.view', $managedUser))
+        ->assertSuccessful()
+        ->assertSeeText('User Dossier')
+        ->assertSeeText('Account')
+        ->assertSeeText('Primary Organization')
+        ->assertSeeText('System Tenant')
+        ->assertSeeText('Organization Memberships')
+        ->assertSeeText('Manager Permissions')
+        ->assertSeeText('Property Assignments')
+        ->assertSeeText('Invoices')
+        ->assertSeeText('Security Violations')
+        ->assertSeeText($managedUser->name)
+        ->assertSeeText($systemTenant->name)
+        ->assertSeeText($organization->name)
+        ->assertSeeText($property->name)
+        ->assertSeeText($invoice->invoice_number)
+        ->assertSeeText($securityViolation->summary);
 });
 
 it('blocks superadmin deletion when users still have invoices, buildings, or active linked records', function () {

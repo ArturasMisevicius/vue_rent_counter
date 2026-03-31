@@ -4,9 +4,9 @@ namespace App\Filament\Resources\OrganizationUsers\Pages;
 
 use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use App\Models\User;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrganizationUser extends ViewRecord
 {

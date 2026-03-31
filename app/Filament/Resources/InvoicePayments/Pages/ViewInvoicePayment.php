@@ -4,8 +4,8 @@ namespace App\Filament\Resources\InvoicePayments\Pages;
 
 use App\Filament\Resources\InvoicePayments\InvoicePaymentResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 
 class ViewInvoicePayment extends ViewRecord
 {

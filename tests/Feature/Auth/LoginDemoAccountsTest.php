@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
-it('renders the login demo accounts table with every available demo login account', function () {
+it('renders the login demo accounts grouped by role with every available demo login account', function () {
     $organization = Organization::factory()->create([
         'name' => 'Tenanto Demo Organization',
         'slug' => 'tenanto-demo-organization',
@@ -81,6 +81,10 @@ it('renders the login demo accounts table with every available demo login accoun
         ->assertSeeText('Username')
         ->assertSeeText('Password')
         ->assertSeeText('Role')
+        ->assertSeeText('Superadmin')
+        ->assertSeeText('Admin')
+        ->assertSeeText('Manager')
+        ->assertSeeText('Tenant')
         ->assertSeeText('superadmin@example.com')
         ->assertSeeText('admin@example.com')
         ->assertSeeText('manager@example.com')
@@ -90,10 +94,6 @@ it('renders the login demo accounts table with every available demo login accoun
         ->assertSeeText('outside@example.com')
         ->assertSeeText('platform.demo@tenanto-demo.test')
         ->assertSeeText('password')
-        ->assertSeeText('Superadmin')
-        ->assertSeeText('Admin')
-        ->assertSeeText('Manager')
-        ->assertSeeText('Tenant')
         ->assertDontSeeText('private@company.test')
         ->assertSee('data-demo-account-trigger', false);
 });
