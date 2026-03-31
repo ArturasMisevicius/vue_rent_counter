@@ -1,242 +1,237 @@
-# Codebase Structure
+# Structure Map
 
-**Analysis Date:** 2026-03-19
+## Top-level layout
 
-## Directory Layout
+These directories carry most of the planning value:
 
-```text
-tenanto/
-├── app/                    # Application code: Filament, Livewire, HTTP, models, policies, services
-│   ├── Filament/           # Unified panel resources, pages, widgets, actions, support, concerns
-│   ├── Livewire/           # Auth, public, shell, dashboard, and tenant interactive components
-│   ├── Http/               # Controllers, middleware, and form requests
-│   ├── Models/             # Eloquent entities and query scopes
-│   ├── Policies/           # Authorization rules
-│   ├── Providers/          # App, auth, and Filament panel providers
-│   ├── Services/           # Billing, security, subscription, impersonation services
-│   └── View/Components/    # Blade component classes
-├── bootstrap/              # Laravel bootstrap and provider list
-├── config/                 # Laravel and product configuration
-├── database/               # Migrations, factories, seeders, local SQLite database
-├── docs/                   # Project context and verified session bootstrap docs
-├── lang/                   # Translation files by locale and domain
-├── openspec/               # Spec/change workflow documents
-├── resources/              # Blade views plus frontend assets
-│   └── views/              # Layouts, Blade components, Livewire views, Filament page stubs
-├── routes/                 # Web, broadcast, console, and test routes
-├── tests/                  # Feature, unit, performance, and support test code
-├── .planning/              # Generated planning artifacts, including codebase maps
-├── .mcp.json               # Repo-local MCP server declarations
-├── artisan                 # Laravel CLI entry point
-├── composer.json           # PHP dependencies and scripts
-├── package.json            # Frontend tooling dependencies and scripts
-└── phpunit.xml             # PHPUnit/Pest configuration
-```
+- `app/` — application code, including Filament, Livewire, models, services, policies, jobs, and middleware
+- `bootstrap/` — Laravel application bootstrapping; `bootstrap/app.php` is the active configuration entry
+- `config/` — framework and app configuration, especially `config/tenanto.php`
+- `database/` — migrations, factories, seeders, and default SQLite file
+- `lang/` — first-party localization packs in `en`, `es`, `lt`, and `ru`
+- `public/` — web root and Vite build artifacts
+- `resources/` — Blade views, CSS, JS, icons
+- `routes/` — web, console, and broadcast route entrypoints
+- `tests/` — Pest feature/unit/performance suites and helpers
+- `.planning/` — planning artifacts; codebase maps belong in `.planning/codebase/`
+- `docs/` — project notes and operations/security/performance references
 
-## Directory Purposes
+## `app/` directory map
 
-**`app/Filament/`:**
-- Purpose: Home of the unified panel surface and the shared foundations the panel uses.
-- Contains: resource bundles, custom pages, widgets, action classes, support services, and panel-level concerns.
-- Key files: `app/Providers/Filament/AppPanelProvider.php`, `app/Filament/Pages/Dashboard.php`, `app/Filament/Resources/Organizations/OrganizationResource.php`, `app/Filament/Support/Admin/OrganizationContext.php`
-- Subdirectories: `Resources/` for CRUD surfaces, `Pages/` for custom pages, `Widgets/` for dashboard widgets, `Actions/` for role-scoped mutations, `Support/` for panel-side services, and `Concerns/` for reusable authorization/subscription helpers.
+### `app/Filament/`
 
-**`app/Livewire/`:**
-- Purpose: Interactive page and shell layer for public, auth, dashboard, and tenant workflows.
-- Contains: standalone page components, shell components, endpoint-like action components, and tenant self-service flows.
-- Key files: `app/Livewire/Auth/LoginPage.php`, `app/Livewire/PublicSite/HomepagePage.php`, `app/Livewire/Shell/GlobalSearch.php`, `app/Livewire/Tenant/SubmitReadingPage.php`
-- Subdirectories: `Auth/`, `Onboarding/`, `Pages/Dashboard/`, `Pages/Reports/`, `Preferences/`, `Profile/`, `PublicSite/`, `Shell/`, and `Tenant/`.
+This is the main authenticated product surface.
 
-**`app/Http/`:**
-- Purpose: HTTP boundary code that remains outside the Livewire/Filament surface.
-- Contains: thin controllers, middleware, and all request validation classes.
-- Key files: `app/Http/Controllers/TenantPortalRouteController.php`, `app/Http/Middleware/CheckSubscriptionStatus.php`, `app/Http/Requests/Concerns/InteractsWithValidationPayload.php`
-- Subdirectories: `Controllers/`, `Middleware/`, and `Requests/` with nested role/feature folders such as `Requests/Admin/*`, `Requests/Superadmin/*`, and `Requests/Tenant/*`.
+- `app/Filament/Resources/` — CRUD-style resources grouped by domain
+- `app/Filament/Pages/` — non-resource panel pages such as dashboards, settings, reports, tenant pages
+- `app/Filament/Widgets/` — dashboard/report widgets
+- `app/Filament/Actions/` — reusable mutation classes invoked from pages/resources
+- `app/Filament/Support/` — the biggest support namespace; holds presenters, builders, guards, queries, registries, workspace helpers
+- `app/Filament/Forms/`, `app/Filament/Exports/`, `app/Filament/Concerns/` — narrower reusable UI/support pieces
 
-**`app/Models/`:**
-- Purpose: Eloquent domain model layer.
-- Contains: tenancy/control-plane entities, workspace/billing entities, security/reference entities, and collaboration/operations entities.
-- Key files: `app/Models/Organization.php`, `app/Models/User.php`, `app/Models/Property.php`, `app/Models/Meter.php`, `app/Models/Invoice.php`, `app/Models/Subscription.php`
-- Subdirectories: Flat model namespace; organization comes from naming and relationships rather than subfolders.
+Representative paths:
 
-**`app/Policies/`:**
-- Purpose: Central authorization rules for model-bound access.
-- Contains: policy classes and shared policy concerns.
-- Key files: `app/Policies/OrganizationPolicy.php`, `app/Policies/PropertyPolicy.php`, `app/Policies/InvoicePolicy.php`, `app/Policies/Concerns/AuthorizesSuperadminOnly.php`
-- Subdirectories: Mostly flat, with `Concerns/` for shared policy behavior.
+- invoice resource: `app/Filament/Resources/Invoices/InvoiceResource.php`
+- reports page: `app/Filament/Pages/Reports.php`
+- tenant page base: `app/Filament/Pages/TenantPortalPage.php`
+- navigation builder: `app/Filament/Support/Shell/Navigation/NavigationBuilder.php`
+- superadmin organization query object: `app/Filament/Support/Superadmin/Organizations/OrganizationListQuery.php`
 
-**`app/Providers/`:**
-- Purpose: Service registration and runtime composition.
-- Contains: application bindings, policy registration, and Filament panel registration.
-- Key files: `app/Providers/AppServiceProvider.php`, `app/Providers/AuthServiceProvider.php`, `app/Providers/Filament/AppPanelProvider.php`
-- Subdirectories: `Filament/` currently holds the panel provider.
+#### Resource layout convention
 
-**`app/Services/`:**
-- Purpose: Non-UI services that sit outside the Filament support tree.
-- Contains: billing, security, subscription, impersonation, meter-reading, and notification preference services.
-- Key files: `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoicePdfService.php`, `app/Services/SubscriptionChecker.php`, `app/Services/Security/SecurityHeaderService.php`
-- Subdirectories: `Billing/` and `Security/` are feature-grouped; other services are currently flat.
+Resource folders are strongly normalized. Typical shape:
 
-**`resources/views/`:**
-- Purpose: Blade rendering layer for layouts, components, Livewire views, error pages, and Filament page shells.
-- Contains: auth pages, shared and shell components, Livewire view templates, Filament page wrappers, and the public landing page.
-- Key files: `resources/views/layouts/app.blade.php`, `resources/views/layouts/public.blade.php`, `resources/views/components/shell/app-frame.blade.php`, `resources/views/filament/pages/dashboard.blade.php`, `resources/views/livewire/tenant/invoice-history.blade.php`, `resources/views/welcome.blade.php`
-- Subdirectories: `auth/`, `components/`, `errors/`, `filament/`, `layouts/`, `livewire/`, `onboarding/`, and `profile/`.
+- `app/Filament/Resources/Invoices/InvoiceResource.php`
+- `app/Filament/Resources/Invoices/Pages/`
+- `app/Filament/Resources/Invoices/Schemas/`
+- `app/Filament/Resources/Invoices/Tables/`
 
-**`database/`:**
-- Purpose: Persistence definition, seed data, and model test-data support.
-- Contains: timestamped migrations, factories for nearly every model, seeders for languages/system/platform/legacy/demo data, and `database/database.sqlite`.
-- Key files: `database/migrations/2026_03_17_000100_create_organizations_table.php`, `database/migrations/2026_03_17_110300_create_property_assignments_table.php`, `database/migrations/2026_03_19_090100_create_organization_user_table.php`, `database/seeders/DatabaseSeeder.php`
-- Subdirectories: `migrations/`, `factories/`, and `seeders/`.
+The same layout appears in `app/Filament/Resources/Organizations/`, `app/Filament/Resources/Projects/`, `app/Filament/Resources/Tasks/`, and many others.
 
-**`routes/`:**
-- Purpose: Route definitions split by runtime surface.
-- Contains: root web routes, nested guest/authenticated/logout web splits, console routes, broadcast channels, and test-only routes.
-- Key files: `routes/web.php`, `routes/web/guest.php`, `routes/web/authenticated.php`, `routes/web/logout.php`, `routes/channels.php`, `routes/testing.php`
-- Subdirectories: `web/` contains the split web route files.
+### `app/Livewire/`
 
-**`tests/`:**
-- Purpose: Executable architecture, behavior, and performance verification.
-- Contains: feature tests grouped by role/surface, unit tests, performance tests, and support helpers/factories.
-- Key files: `tests/Pest.php`, `tests/TestCase.php`, `tests/Feature/Architecture/FilamentFoundationPlacementTest.php`, `tests/Feature/Livewire/ControllerRouteMigrationTest.php`, `tests/Performance/DashboardPerformanceTest.php`
-- Subdirectories: `Feature/`, `Unit/`, `Performance/`, `Support/`, and `tmp/`.
+This directory holds public pages, auth pages, endpoints, shell pieces, and richer page implementations.
 
-**`docs/`:**
-- Purpose: Canonical repo context and verified operator guidance.
-- Contains: snapshot and bootstrap documents that explain how to reason about the repository and current MCP state.
-- Key files: `docs/PROJECT-CONTEXT.md`, `docs/SESSION-BOOTSTRAP.md`
-- Subdirectories: Flat docs plus longer-lived planning/history files elsewhere in the repo.
+Top-level groupings are feature- or role-based rather than technical:
 
-## Key File Locations
+- `app/Livewire/Auth/` — login, registration, password reset, invitation acceptance
+- `app/Livewire/PublicSite/` — public homepage and favicon endpoint
+- `app/Livewire/Shell/` — dashboard redirect, logout, impersonation stop, shell chrome components
+- `app/Livewire/Tenant/` — tenant shortcut endpoints and tenant-specific components
+- `app/Livewire/Profile/`, `app/Livewire/Onboarding/`, `app/Livewire/Preferences/`, `app/Livewire/Kyc/`
+- `app/Livewire/Pages/` — deeper page implementations used inside Filament
 
-**Entry Points:**
-- `bootstrap/app.php`: Laravel bootstrap, route registration, middleware aliases, and web middleware stack.
-- `app/Providers/Filament/AppPanelProvider.php`: Unified Filament panel definition for `/app`.
-- `routes/web.php`: Root public web routing plus inclusion of split route files.
-- `routes/web/guest.php`: Guest auth flows such as login, register, reset password, and invitation acceptance.
-- `routes/web/authenticated.php`: Authenticated profile, onboarding, impersonation, notification tracking, and tenant portal redirects.
-- `routes/web/logout.php`: Logout endpoint.
-- `routes/channels.php`: Broadcast channel authorization.
-- `routes/console.php`: Console route registration.
+Representative paths:
 
-**Configuration:**
-- `config/tenanto.php`: Product-specific auth, locales, subscription, shell navigation, and global search configuration.
-- `config/filament.php`: Filament cache/assets/system route configuration.
-- `.env.example`: Expected environment keys for local setup.
-- `.mcp.json`: Repo-local MCP server declarations.
-- `vite.config.js`: Frontend asset build configuration.
-- `phpunit.xml`: Test runner configuration.
+- `app/Livewire/Auth/LoginPage.php`
+- `app/Livewire/PublicSite/HomepagePage.php`
+- `app/Livewire/Tenant/TenantPortalRouteEndpoint.php`
+- `app/Livewire/Pages/Reports/ReportsPage.php`
 
-**Core Logic:**
-- `app/Filament/Resources/`: Filament CRUD surfaces and relation managers.
-- `app/Filament/Actions/`: Role-scoped action classes that perform mutations.
-- `app/Filament/Support/`: Panel-side support services, presenters, registries, and report builders.
-- `app/Livewire/`: Interactive page and shell behavior.
-- `app/Models/`: Domain entities and reusable query scopes.
-- `app/Services/`: Billing, security, impersonation, and subscription services outside the panel support tree.
+### `app/Models/`
 
-**Testing:**
-- `tests/Feature/`: End-to-end HTTP, Livewire, Filament, role, security, and tenant behavior tests.
-- `tests/Unit/`: Focused unit tests for enums, requests, services, and support classes.
-- `tests/Performance/`: Query-budget and performance assertions.
-- `tests/Support/`: Shared factories/helpers such as `tests/Support/TenantPortalFactory.php`.
-- `tests/Pest.php`: Test bootstrap helpers and shared setup.
+Eloquent models are flat at the top level and broad in scope. They cover:
 
-**Documentation:**
-- `AGENTS.md`: Repo-specific working rules and stack instructions.
-- `docs/PROJECT-CONTEXT.md`: Canonical project snapshot.
-- `docs/SESSION-BOOTSTRAP.md`: Verified session-start commands and MCP assumptions.
-- `openspec/AGENTS.md`: Spec workflow instructions for proposal/change work.
-- `.planning/codebase/`: Generated codebase map documents for orchestration workflows.
+- platform/control plane: `Organization.php`, `Subscription.php`, `SystemConfiguration.php`, `SecurityViolation.php`
+- property/utility domain: `Building.php`, `Property.php`, `Meter.php`, `MeterReading.php`, `Provider.php`, `Tariff.php`, `UtilityService.php`, `ServiceConfiguration.php`
+- billing domain: `Invoice.php`, `InvoiceItem.php`, `InvoicePayment.php`, `InvoiceReminderLog.php`, `InvoiceEmailLog.php`
+- tenant/access domain: `User.php`, `PropertyAssignment.php`, `OrganizationUser.php`, `UserKycProfile.php`
+- projects/collaboration: `Project.php`, `Task.php`, `TaskAssignment.php`, `Comment.php`, `Attachment.php`, `Tag.php`, `TimeEntry.php`, `CostRecord.php`
 
-## Naming Conventions
+Models frequently include:
 
-**Files:**
-- `PascalCase.php` for PHP classes across `app/`, such as `app/Livewire/Tenant/SubmitReadingPage.php` and `app/Filament/Actions/Superadmin/Organizations/CreateOrganizationAction.php`.
-- Singular Filament resource root files inside plural directories, such as `app/Filament/Resources/Properties/PropertyResource.php`.
-- `kebab-case.blade.php` for views, such as `resources/views/filament/pages/tenant-invoice-history.blade.php` and `resources/views/livewire/shell/global-search.blade.php`.
-- `*Test.php` for test files, such as `tests/Feature/Tenant/TenantInvoiceHistoryTest.php`.
-- Timestamped snake_case migration files in `database/migrations/`.
+- scoped read models such as `forWorkspaceIndex`, `forTenantWorkspace`, `forSuperadminControlPlane`
+- carefully selected column lists for summary/index queries
+- relationship-heavy projections used directly by support classes
 
-**Directories:**
-- Role/surface grouping for requests, actions, and tests, such as `app/Http/Requests/Admin/*`, `app/Filament/Actions/Tenant/*`, and `tests/Feature/Superadmin/*`.
-- Filament resource bundle structure with child directories such as `Pages/`, `Schemas/`, `Tables/`, `RelationManagers/`, and `Widgets/`.
-- Livewire directories organized by workflow area: `Auth/`, `PublicSite/`, `Shell/`, `Tenant/`, and `Pages/*`.
-- Locale-first translation layout under `lang/{locale}/{domain}.php`.
+### `app/Services/`
 
-**Special Patterns:**
-- Filament page views in `resources/views/filament/pages/*` often exist only to mount a Livewire component, for example `resources/views/filament/pages/tenant-invoice-history.blade.php`.
-- Route definitions are split by context under `routes/web/*.php` instead of piling all web routes into one file.
-- Architecture guardrails are enforced by `tests/Feature/Architecture/FilamentFoundationPlacementTest.php`, which expects request classes in `app/Http/Requests` and action/support classes in `app/Filament/Actions` and `app/Filament/Support`.
+Service code is grouped by business concern.
 
-## Where to Add New Code
+- `app/Services/Billing/` — invoice generation, calculations, tariff resolution, PDF building
+- `app/Services/Localization/` — translation scanning helpers
+- `app/Services/Operations/` — operational readiness and release checks
+- `app/Services/Security/` — security-specific helpers such as CSP construction
 
-**New Admin CRUD Feature:**
-- Primary code: `app/Filament/Resources/{PluralFeature}/`
-- Validation: `app/Http/Requests/Admin/{PluralFeature}/`
-- Mutations: `app/Filament/Actions/Admin/{PluralFeature}/`
-- Model/query scopes: `app/Models/{Model}.php`
-- Tests: `tests/Feature/Admin/{Feature}Test.php`
+Representative paths:
 
-**New Superadmin Control-Plane Feature:**
-- Primary code: `app/Filament/Resources/{PluralFeature}/` or `app/Filament/Pages/{Feature}.php`
-- Validation: `app/Http/Requests/Superadmin/{Feature}/`
-- Mutations: `app/Filament/Actions/Superadmin/{Feature}/`
-- Support logic: `app/Filament/Support/Superadmin/{Feature}/`
-- Tests: `tests/Feature/Superadmin/{Feature}Test.php`
+- `app/Services/Billing/BillingService.php`
+- `app/Services/Billing/InvoicePdfService.php`
+- `app/Services/ScheduledExportService.php`
+- `app/Services/SubscriptionChecker.php`
 
-**New Tenant Self-Service Page or Interaction:**
-- Panel page shell: `app/Filament/Pages/{TenantPage}.php`
-- Livewire implementation: `app/Livewire/Tenant/{Component}.php`
-- Filament page view wrapper: `resources/views/filament/pages/{kebab-page}.blade.php`
-- Livewire view: `resources/views/livewire/tenant/{kebab-component}.blade.php`
-- Validation/actions: `app/Http/Requests/Tenant/*` and `app/Filament/Actions/Tenant/*`
-- Tests: `tests/Feature/Tenant/{Feature}Test.php`
+### `app/Http/`
 
-**New Public or Auth Flow:**
-- Route definition: `routes/web.php` for public root-level routes or `routes/web/guest.php` for guest auth routes
-- Livewire page/action: `app/Livewire/PublicSite/*` or `app/Livewire/Auth/*`
-- View: `resources/views/welcome.blade.php`, `resources/views/auth/*`, or a new matching Blade file
-- Tests: `tests/Feature/Public/*` or `tests/Feature/Auth/*`
+This is a slim HTTP layer.
 
-**New Shared Panel/UI Support Module:**
-- Shared panel logic: `app/Filament/Support/{Area}/`
-- Blade component class: `app/View/Components/{Area}/`
-- Blade component view: `resources/views/components/{area}/`
-- Shell/navigation/search helpers: keep them under `app/Filament/Support/Shell/*`
+- `app/Http/Middleware/` — main request gates and security behavior
+- `app/Http/Requests/` — most validation logic lives here, organized by area
+- `app/Http/Controllers/` — intentionally minimal compared with Livewire/Filament
 
-**New Cross-App Service or Framework Integration:**
-- Implementation: `app/Services/{Area}/` or `app/Services/{Service}.php`
-- Contract if needed: `app/Contracts/{Contract}.php`
-- Tests: `tests/Unit/Services/{Service}Test.php` or a matching feature test
+Representative paths:
 
-**New Route or Endpoint Wrapper:**
-- Web route file: `routes/web.php`, `routes/web/guest.php`, `routes/web/authenticated.php`, or `routes/web/logout.php`, matching the auth boundary
-- Thin controller: `app/Http/Controllers/{Controller}.php` only if the endpoint is a redirect/download/webhook-style boundary
-- Prefer Livewire action components over growing the controller layer for page-like flows
+- `app/Http/Middleware/CheckSubscriptionStatus.php`
+- `app/Http/Middleware/EnsureUserIsTenant.php`
+- `app/Http/Requests/Admin/Invoices/CreateInvoiceDraftRequest.php`
 
-**Utilities and Guardrails:**
-- Shared validation belongs in `app/Http/Requests/*` and `app/Rules/*`
-- Do not create `app/Actions` or `app/Support`; the current codebase keeps these foundations in `app/Filament/Actions` and `app/Filament/Support`
-- Keep model-centric scopes and relationship summaries in `app/Models/{Model}.php` when the logic directly shapes data access
+### Other important `app/` namespaces
 
-## Special Directories
+- `app/Providers/` — service bindings, observers, rate limiters, policy registration, Filament panel provider
+- `app/Policies/` — authorization policies mapped in `app/Providers/AuthServiceProvider.php`
+- `app/Jobs/` — queued side effects and async work
+- `app/Notifications/` — mail/database notifications grouped by concern
+- `app/Observers/` — model lifecycle hooks
+- `app/Enums/` — typed domain constants such as `UserRole`, `InvoiceStatus`, `ProjectStatus`
+- `app/Contracts/` — very small interface layer, currently including `app/Contracts/BillingServiceInterface.php`
+- `app/Exceptions/` — custom exception types, notably around projects and manager permissions
 
-**`bootstrap/cache/`:**
-- Purpose: Laravel and Filament cached metadata such as services, packages, events, and Blade icon/component caches.
-- Source: Generated by framework/package cache commands.
-- Committed: Partially; the directory is tracked and generated cache files are currently present.
+## `resources/` directory map
 
-**`.planning/codebase/`:**
-- Purpose: Generated codebase map documents consumed by planning/execution workflows.
-- Source: Written by codebase mapping commands and agents.
-- Committed: Yes.
+### Views
 
-**`openspec/`:**
-- Purpose: Change proposal/spec workflow files used when planning or documenting major changes.
-- Source: Maintained project documentation rather than runtime code.
-- Committed: Yes.
+- `resources/views/auth/` — auth pages like `login.blade.php`, `register.blade.php`
+- `resources/views/filament/pages/` — Blade views backing Filament pages such as `reports.blade.php`, `tenant-dashboard.blade.php`, `settings.blade.php`
+- `resources/views/filament/resources/` — resource-specific custom view fragments
+- `resources/views/livewire/` — Livewire-specific view groups for shell, pages, framework demos, and tenant components
+- `resources/views/components/` — shared Blade components for shell/layout/framework/superadmin pieces
+- `resources/views/profile/` and `resources/views/onboarding/` — smaller standalone page views
+- `resources/views/pdf/` — PDF-oriented templates
 
----
+### Frontend assets
 
-*Structure analysis: 2026-03-19*
+- CSS entry: `resources/css/app.css`
+- JS entry: `resources/js/app.js`
+- Axios bootstrap: `resources/js/bootstrap.js`
+
+The frontend is intentionally thin. Most UI behavior is server-driven via Filament/Livewire, with `resources/js/app.js` mainly adding progressive enhancement for auth forms and shell interactions.
+
+## `routes/` directory map
+
+- `routes/web.php` — public/auth/tenant shortcut routes and lightweight endpoints
+- `routes/console.php` — custom artisan commands plus scheduler definitions
+- `routes/channels.php` — broadcast channel authorization
+- `routes/web/` — currently empty, suggesting the app keeps web routing centralized in one file
+
+## `config/` directory map
+
+Most framework defaults are standard Laravel files, but these are especially relevant:
+
+- `config/tenanto.php` — role navigation, locales, shell behavior, tenant/admin defaults
+- `config/filament.php` — Filament-specific configuration
+- `config/livewire.php` — Livewire settings
+- `config/services.php` — external integration config entrypoint
+
+`config/tenanto.php` is architecturally important because it drives role-based navigation structure consumed by `app/Filament/Support/Shell/Navigation/NavigationBuilder.php`.
+
+## `database/` directory map
+
+- `database/migrations/` — high-volume migration history covering platform, billing, property, tenant, security, and project domains
+- `database/factories/` — extensive test factory coverage that mirrors the model surface
+- `database/seeders/` — reference, localization, demo, and system seeders
+- `database/database.sqlite` — default local database
+
+Structure signals:
+
+- migrations are domain-explicit rather than generic
+- factory coverage is broad, which supports feature-heavy test suites
+- seeders are split into reference/demo/support concerns rather than one monolith
+
+## `tests/` directory map
+
+- `tests/Feature/` — dominant suite, organized by concern (`Admin`, `Billing`, `Filament`, `Security`, `Tenant`, `Architecture`, `Projects`, `Superadmin`, etc.)
+- `tests/Unit/` — lower-level unit tests
+- `tests/Performance/` — performance-focused coverage
+- `tests/Support/` — reusable helpers such as `FormRequestScenarioFactory.php` and `TenantPortalFactory.php`
+- `tests/Pest.php` and `tests/TestCase.php` — test bootstrap
+
+The test structure mirrors product and architectural boundaries rather than only technical type. Good planning examples:
+
+- architecture contracts: `tests/Feature/Architecture/WorkspaceBoundaryInventoryTest.php`
+- tenant surface checks: `tests/Feature/Tenant/TenantPortalNavigationTest.php`
+- panel behavior checks: `tests/Feature/Filament/UnifiedPanelTest.php`
+
+## Docs and planning folders
+
+- `docs/operations/`, `docs/security/`, `docs/performance/` — focused operational references
+- `docs/SESSION-BOOTSTRAP.md` and `docs/PROJECT-CONTEXT.md` — high-value repo orientation docs
+- `.planning/` — active planning artifacts, including phase plans and research summaries
+- `.planning/codebase/` — target location for codebase mapping references
+
+The repo also contains assistant/tooling directories such as `.agent/`, `.agents/`, `.claude/`, and `.github/`, but these support automation and workflow guidance rather than runtime application behavior.
+
+## Naming and layout conventions
+
+### Filament naming
+
+- resource folders use plural feature names: `app/Filament/Resources/Invoices/`, `app/Filament/Resources/Projects/`
+- resource classes are singular: `InvoiceResource.php`, `ProjectResource.php`
+- subfolders are predictable: `Pages/`, `Schemas/`, `Tables/`, sometimes `RelationManagers/`
+
+### Livewire naming
+
+- grouped by product area or role: `Auth`, `Tenant`, `PublicSite`, `Shell`, `Preferences`
+- route endpoints often end with `Endpoint`, for example `app/Livewire/Tenant/DownloadInvoiceEndpoint.php`
+- page classes often end with `Page`, for example `app/Livewire/Onboarding/WelcomePage.php`
+
+### Support naming
+
+- builders assemble derived UI/report payloads
+- presenters shape data for Blade/Filament consumption
+- queries encapsulate reusable list filtering or pagination
+- guards enforce mutation constraints
+- registries collect pluggable providers/probes
+- resolvers convert runtime context into a concrete target or payload
+
+### Tests naming
+
+- test files read like behavioral contracts, e.g. `TenantAccessIsolationTest.php`, `MutationPipelineInventoryTest.php`, `ReportBuildersNoRawSqlTest.php`
+
+## Planning shortcuts
+
+- changing authenticated shell behavior usually means `app/Providers/Filament/AppPanelProvider.php`, `config/tenanto.php`, and `app/Filament/Support/Shell/**`
+- changing a CRUD area usually means one `app/Filament/Resources/<Module>/` folder plus its matching model in `app/Models/`
+- changing tenant UX usually means `app/Livewire/Tenant/`, `app/Filament/Pages/Tenant*.php`, and `app/Filament/Support/Tenant/Portal/**`
+- changing billing usually means `app/Services/Billing/`, `app/Filament/Resources/Invoices/`, and billing-related models/migrations/tests
+- changing platform/superadmin behavior usually means `app/Filament/Support/Superadmin/**` and superadmin-facing resources/pages
+
+Overall, the repository is structurally **feature-grouped at the UI layer, model-centric at the domain layer, and support-class heavy in `app/Filament/Support/` for orchestration and read-model composition**.

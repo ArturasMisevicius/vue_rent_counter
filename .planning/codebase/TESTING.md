@@ -1,276 +1,214 @@
-# Testing Patterns
+# Testing Map
 
-**Analysis Date:** 2026-03-19
+## Scope
 
-## Test Framework
+This document maps how the repository currently tests behavior, structure, and quality. It is intended as a planning reference for adding or updating tests in the same style.
 
-**Runner:**
-- The repository uses Pest 4 on top of PHPUnit 12, declared in `composer.json`.
-- Core PHPUnit configuration lives in `phpunit.xml`.
-- Global Pest bootstrap lives in `tests/Pest.php`.
-- The shared base test case lives in `tests/TestCase.php`.
-- The default test environment uses in-memory SQLite plus array/sync drivers from `phpunit.xml`, including `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`, `CACHE_STORE=array`, `QUEUE_CONNECTION=sync`, and `MAIL_MAILER=array`.
+Primary reference files:
 
-**Assertion Library:**
-- Pest `expect()` is the primary assertion style in both feature and unit tests, for example `tests/Feature/Admin/PropertiesResourceTest.php` and `tests/Unit/Services/BillingServiceTest.php`.
-- Laravel HTTP assertions are used for request/response tests, including `assertSuccessful()`, `assertRedirect()`, `assertForbidden()`, `assertTooManyRequests()`, and `assertSeeText()`, as seen in `tests/Feature/Auth/LoginFlowTest.php` and `tests/Feature/Security/SecurityHeadersTest.php`.
-- Livewire component tests use `Livewire::test()` plus Livewire-specific assertions such as `assertSeeHtml()` and `assertDontSeeText()`, as in `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`.
+- `tests/Pest.php`
+- `tests/TestCase.php`
+- `phpunit.xml`
+- `composer.json`
+- `README.md`
 
-**Run Commands:**
-```bash
-composer test                                                     # Clears config, then runs `php artisan test`
-php artisan test --compact                                        # Preferred human-facing command from `AGENTS.md`
-php artisan test --compact tests/Feature/Auth/LoginFlowTest.php   # Run a single Pest file
-php artisan test --compact --filter="rate limits login"           # Run a single named test
-php artisan test tests/Performance/DashboardPerformanceTest.php   # Explicit path for opt-in performance tests
-# No repository coverage script is configured in `composer.json` or `phpunit.xml`
-```
+## Test framework and runner conventions
 
-## Test File Organization
+- The suite is Pest-based. `composer.json` requires `pestphp/pest` and `pestphp/pest-plugin-laravel`.
+- `tests/Pest.php` globally extends `Tests\TestCase` for the `Feature` suite via:
+  - `pest()->extend(TestCase::class)->in('Feature');`
+- `phpunit.xml` declares two test suites only:
+  - `tests/Unit`
+  - `tests/Feature`
+- `tests/Performance/DashboardPerformanceTest.php` exists outside those two suites. Treat `tests/Performance/` as opt-in/manual coverage unless explicitly invoked.
 
-**Location:**
-- Tests live in a separate top-level `tests/` tree, not beside application code.
-- Shared bootstrap files are `tests/Pest.php` and `tests/TestCase.php`.
-- Shared test data builders live under `tests/Support`, including `tests/Support/FormRequestScenarioFactory.php` and `tests/Support/TenantPortalFactory.php`.
-- Default PHPUnit suites only include `tests/Unit` and `tests/Feature` via `phpunit.xml`.
-- `tests/Performance` exists, but it is outside the declared PHPUnit suites in `phpunit.xml`, so treat it as opt-in by explicit file/path invocation.
+## Test environment and bootstrap behavior
 
-**Naming:**
-- Use `*Test.php` for all tests, regardless of layer, such as `tests/Feature/Auth/LoginFlowTest.php`, `tests/Feature/Admin/PropertiesResourceTest.php`, and `tests/Unit/Requests/FormRequestStructureTest.php`.
-- Group feature tests by product area or surface, for example `tests/Feature/Admin`, `tests/Feature/Auth`, `tests/Feature/Livewire/Dashboard`, `tests/Feature/Security`, and `tests/Feature/Superadmin`.
-- Group unit tests by subsystem, for example `tests/Unit/Services`, `tests/Unit/Requests`, `tests/Unit/Support/Admin`, and `tests/Unit/Enums`.
+- `tests/TestCase.php` forces deterministic in-memory SQLite configuration on every application bootstrap:
+  - `APP_ENV=testing`
+  - `DB_CONNECTION=sqlite`
+  - `DB_DATABASE=:memory:`
+- It also overrides route/config cache paths to testing-specific cache files under `bootstrap/cache/`.
+- `phpunit.xml` reinforces the runtime with array-backed cache/session/mail and sync queues.
+- `tests/Pest.php` resets shared state in `beforeEach()` and `afterEach()`:
+  - logs out any authenticated user
+  - resets Carbon test time
+  - flushes `ManagerPermissionService` cache
+  - seeds supported locale config for tests
+  - registers shared synthetic routes used by auth/error tests
 
-**Structure:**
-```text
-tests/
-├── Pest.php
-├── TestCase.php
-├── Support/
-│   ├── FormRequestScenarioFactory.php
-│   └── TenantPortalFactory.php
-├── Feature/
-│   ├── Admin/
-│   ├── Architecture/
-│   ├── Auth/
-│   ├── Filament/
-│   ├── Livewire/
-│   │   └── Dashboard/
-│   ├── Security/
-│   ├── Shell/
-│   ├── Superadmin/
-│   └── Tenant/
-├── Unit/
-│   ├── Enums/
-│   ├── Requests/
-│   ├── Services/
-│   └── Support/
-└── Performance/
-    └── DashboardPerformanceTest.php
-```
+## Test layout and directory conventions
 
-## Test Structure
+- Feature tests are grouped by product surface or concern, for example:
+  - `tests/Feature/Admin/`
+  - `tests/Feature/Superadmin/`
+  - `tests/Feature/Livewire/`
+  - `tests/Feature/Security/`
+  - `tests/Feature/Architecture/`
+  - `tests/Feature/Public/`
+- Unit tests are grouped by technical subject, for example:
+  - `tests/Unit/Requests/`
+  - `tests/Unit/Services/`
+  - `tests/Unit/Support/`
+  - `tests/Unit/Enums/`
+- Naming is behavior-first and highly explicit. Examples:
+  - `tests/Feature/Admin/InvoicesResourceTest.php`
+  - `tests/Feature/Architecture/WorkspaceReadModelInventoryTest.php`
+  - `tests/Unit/Requests/FormRequestValidationTest.php`
+  - `tests/Unit/Services/SecurityMonitoringServiceTest.php`
 
-**Suite Organization:**
-```php
-<?php
+## Base helpers and shared fixtures
 
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+- `tests/Pest.php` defines shared helper functions used across the suite:
+  - `createOrgWithAdmin()`
+  - `createTenantInOrg()`
+  - `signInAs(UserRole $role)`
+  - `registerSharedTestRoutes()`
+- Those helpers are themselves tested in `tests/Feature/TestBootstrapHelpersTest.php`, which is a strong signal that helper behavior is part of the contract.
+- Two reusable support builders live under `tests/Support/`:
+  - `tests/Support/TenantPortalFactory.php` builds realistic tenant/property/meter/invoice fixtures.
+  - `tests/Support/FormRequestScenarioFactory.php` generates cross-request validation/authorization scenarios.
 
-uses(RefreshDatabase::class);
+## Database lifecycle and fixtures
 
-it('renders the login page', function () {
-    $this->get(route('login'))
-        ->assertSuccessful()
-        ->assertSeeText('Welcome back');
-});
+- The dominant database trait is `RefreshDatabase`, usually declared per file with Pest’s `uses(...)` syntax. Examples:
+  - `tests/Feature/Admin/InvoicesResourceTest.php`
+  - `tests/Feature/Livewire/Dashboard/DashboardPageTest.php`
+  - `tests/Unit/Requests/FormRequestValidationTest.php`
+  - `tests/Unit/Services/SecurityMonitoringServiceTest.php`
+- The suite relies heavily on model factories, usually chaining `for(...)`, named states, and inline overrides instead of raw insert arrays.
+- Core factory state usage appears in many tests and is defined in files like:
+  - `database/factories/UserFactory.php` (`superadmin()`, `admin()`, `manager()`, `tenant()`, `suspended()`, `withLocale()`)
+  - `database/factories/SubscriptionFactory.php`
+  - `database/factories/InvoiceFactory.php`
+- Seeders are also first-class tested artifacts, especially for demo/reference data. Example seeders:
+  - `database/seeders/OperationalDemoDatasetSeeder.php`
+  - `database/seeders/LegacyReferenceFoundationSeeder.php`
+  - `database/seeders/BalticReferenceLocalizationSeeder.php`
 
-it('redirects users to the unified app entrypoint for their role context', function (Closure $userFactory, string $expectedRoute) {
-    $user = $userFactory();
+## Feature test style
 
-    $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ])->assertRedirect(route($expectedRoute));
-})->with([
-    'superadmin' => [
-        fn () => User::factory()->superadmin()->create(),
-        'filament.admin.pages.dashboard',
-    ],
-]);
-```
+- Feature tests mix HTTP assertions and Livewire/Filament component assertions depending on the surface.
+- Representative HTTP-style assertions:
+  - route access and visibility in `tests/Feature/Admin/InvoicesResourceTest.php`
+  - redirect/auth flows in `tests/Feature/Auth/LoginFlowTest.php`
+  - public route behavior in `tests/Feature/Public/GuestAuthLocaleSwitcherTest.php`
+- Representative structural/contract feature tests:
+  - `tests/Feature/Architecture/WorkspaceReadModelInventoryTest.php`
+  - `tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php`
+  - `tests/Feature/Architecture/ReportBuildersNoRawSqlTest.php`
+- The suite does not only test business outcomes; it also tests architecture boundaries and inventory contracts to prevent regression-by-drift.
 
-**Patterns:**
-- Feature files usually start with `uses(RefreshDatabase::class);`, as in `tests/Feature/Auth/LoginFlowTest.php`, `tests/Feature/Admin/PropertiesResourceTest.php`, and `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`.
-- `tests/Pest.php` extends `Tests\TestCase` only for the `Feature` directory via `pest()->extend(TestCase::class)->in('Feature');`. Unit and performance tests explicitly declare `uses(TestCase::class)` when they need the application container.
-- Global `beforeEach()` and `afterEach()` hooks in `tests/Pest.php` log users out, reset Carbon test time, restore locale config, and register shared helper routes.
-- File-local helper functions are common and usually sit at the bottom of the test file, for example `registerLoginDestinationFixtures()` in `tests/Feature/Auth/LoginFlowTest.php` and `seedAdminDashboardComponentData()` in `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`.
-- `tests/TestCase.php` overrides `createApplication()` to force a dedicated test routes cache path at `bootstrap/cache/routes-testing.php`.
-- Architecture and inventory tests are written as normal Pest files rather than using Pest’s `arch()` DSL. See `tests/Feature/Architecture/FilamentFoundationPlacementTest.php` and `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`.
+## Livewire and Filament testing patterns
 
-## Mocking
+- Livewire testing uses `Livewire::test(...)` and `Livewire::actingAs(...)` extensively.
+- Representative files:
+  - `tests/Feature/Livewire/Dashboard/DashboardPageTest.php`
+  - `tests/Feature/Filament/SuperadminResourcesTest.php`
+  - `tests/Feature/Admin/InvoicesResourceTest.php`
+  - `tests/Feature/Admin/TenantsResourceTest.php`
+- Common Filament assertions in the suite include:
+  - `assertTableColumnExists(...)`
+  - `assertTableFilterExists(...)`
+  - `assertCanSeeTableRecords(...)`
+  - `assertCanNotSeeTableRecords(...)`
+  - `filterTable(...)`
+  - page/component redirects after actions
+- Example: `tests/Feature/Admin/InvoicesResourceTest.php` exercises both plain HTTP resource pages and Livewire table/page behavior for `ListInvoices`, `CreateInvoice`, and `ViewInvoice`.
 
-**Framework:**
-- Use Laravel facade fakes for framework side effects, especially `Event::fake()` and `Notification::fake()`.
-- Use Livewire’s testing harness for Livewire surfaces instead of mocking the component internals.
-- Use Carbon time control and DB query logging for behavior/performance assertions where appropriate.
+## Authorization and role testing patterns
 
-**Patterns:**
-```php
-Event::fake([
-    SecurityViolationDetected::class,
-]);
+- Role-aware access testing is a recurring theme.
+- Auth helpers are used in three main ways:
+  - `$this->actingAs($user)` for HTTP tests
+  - `test()->actingAs($user)` inside Pest closures
+  - `Livewire::actingAs($user)` for component tests
+- Role matrix examples:
+  - `tests/Feature/Manager/ManagerWorkspaceParityTest.php`
+  - `tests/Feature/Roles/ManagerAccessTest.php`
+  - `tests/Feature/Security/TenantIsolationTest.php`
+  - `tests/Feature/Superadmin/RelationCrudResourcesTest.php`
 
-$response = $this->call(
-    'POST',
-    route('security.csp.report'),
-    [],
-    [],
-    [],
-    ['CONTENT_TYPE' => 'application/csp-report'],
-    json_encode([...], JSON_THROW_ON_ERROR),
-);
+## Factories, support builders, and fixture composition
 
-$response->assertAccepted();
+- Tests prefer composition over giant seed dumps:
+  - create organization
+  - create admin/tenant with role-specific factory state
+  - create related property/building/assignment records with `for(...)`
+  - override only the behavior-relevant attributes
+- `tests/Pest.php` helper composition and `tests/Support/TenantPortalFactory.php` are the clearest examples of this style.
+- `TenantPortalFactory` is especially useful for tenant UX tests because it can toggle assigned property, meters, readings, unpaid invoices, paid invoices, and billing instructions without per-test boilerplate.
 
-Event::assertDispatched(SecurityViolationDetected::class);
-```
+## Request and validation testing patterns
 
-```php
-Livewire::actingAs($admin)
-    ->test(AdminDashboard::class)
-    ->assertSeeText('Total Properties')
-    ->assertSeeHtml('wire:poll.30s');
-```
+- Validation coverage is unusually systematic.
+- `tests/Unit/Requests/FormRequestValidationTest.php` iterates over scenarios supplied by `tests/Support/FormRequestScenarioFactory.php` and validates four behaviors for many request classes:
+  - valid payload acceptance
+  - required field rejection
+  - malformed payload rejection
+  - authorization matrix correctness
+- This means request changes should usually update `FormRequestScenarioFactory` instead of adding a one-off ad hoc test only.
 
-**What to Mock:**
-- Framework side effects such as notifications and events, as seen in `tests/Feature/Security/SecurityHeadersTest.php`, `tests/Feature/Auth/PasswordResetTest.php`, and `tests/Feature/Livewire/Dashboard/DashboardRealtimeEventsTest.php`.
-- Time when expiry or timeout behavior matters, using `Carbon::setTestNow()` globally in `tests/Pest.php` and selectively in `tests/Feature/Auth/PasswordResetTest.php`.
-- Query collection when asserting performance budgets, using `DB::enableQueryLog()` in `tests/Performance/DashboardPerformanceTest.php`.
+## Mocking and facade isolation
 
-**What NOT to Mock:**
-- Eloquent models and relationships for normal feature coverage. Tests generally create real records with factories and run against the in-memory database.
-- Action classes and support services that are the subject of the test. For example, `tests/Feature/Admin/PropertiesResourceTest.php` executes real action classes like `CreatePropertyAction` and `AssignTenantToPropertyAction`.
-- Form Request behavior. Request tests build real request instances and validate real payloads via `tests/Support/FormRequestScenarioFactory.php`.
+- Mocking is present mostly in unit tests and integration-probe tests rather than broad feature tests.
+- Current mocking style relies heavily on facade expectations like `shouldReceive(...)`.
+- Representative files:
+  - `tests/Unit/Services/SecurityMonitoringServiceTest.php` uses `Cache::shouldReceive(...)` and `Log::shouldReceive(...)`
+  - `tests/Unit/Support/FaviconUrlResolverTest.php` uses router and URL generator mocks
+  - `tests/Unit/Support/Dashboard/DashboardCacheServiceTest.php` mocks cache facade behavior
+  - `tests/Feature/Superadmin/IntegrationProbeRuntimeTest.php` mocks `DB`, `Queue`, and `Mail`
+- `Event::fake(...)` is used where event dispatch is incidental to the tested behavior, e.g. `tests/Unit/Services/SecurityMonitoringServiceTest.php`.
 
-## Fixtures and Factories
+## Dataset and data-provider usage
 
-**Test Data:**
-```php
-$organization = Organization::factory()->create();
-$admin = User::factory()->admin()->create([
-    'organization_id' => $organization->id,
-]);
+- Pest datasets are used regularly to avoid repetitive assertions.
+- Examples:
+  - `tests/Feature/Public/GuestAuthLocaleSwitcherTest.php`
+  - `tests/Feature/Livewire/ControllerRouteMigrationTest.php`
+  - `tests/Feature/Security/TenantPropertyBoundaryContractTest.php`
+  - `tests/Unit/Enums/ExpandedEnumBehaviorTest.php`
+  - `tests/Unit/Requests/FormRequestValidationTest.php`
+- The suite mixes inline `->with([...])` datasets and named `dataset(...)` definitions depending on reuse needs.
 
-$property = Property::factory()
-    ->for($organization)
-    ->for($building)
-    ->create([
-        'name' => 'A-12',
-    ]);
-```
+## Assertion style
 
-```php
-$fixture = TenantPortalFactory::new()
-    ->withAssignedProperty()
-    ->withMeters(2)
-    ->withReadings()
-    ->withUnpaidInvoices(2)
-    ->create();
-```
+- The suite favors expressive framework assertions over numeric status checks where possible.
+- Common assertions found across the codebase:
+  - `assertSuccessful()`
+  - `assertForbidden()`
+  - `assertRedirect(...)`
+  - `assertNotFound()`
+  - `assertSeeText(...)`
+  - `assertSeeLivewire(...)`
+  - `assertDatabaseHas(...)`
+  - `assertDatabaseMissing(...)`
+- Example files with strong assertion style:
+  - `tests/Feature/Admin/InvoicesResourceTest.php`
+  - `tests/Feature/Livewire/ControllerRouteMigrationTest.php`
+  - `tests/Feature/Superadmin/AuditLogsResourceTest.php`
 
-**Location:**
-- Use Eloquent model factories from `database/factories` for almost all record setup, with named factory states such as `admin()`, `manager()`, `tenant()`, `superadmin()`, `active()`, and `flat()`.
-- Keep reusable higher-level fixture builders under `tests/Support`, notably `tests/Support/FormRequestScenarioFactory.php` for request contract matrices and `tests/Support/TenantPortalFactory.php` for tenant-portal flows.
-- Keep small scenario seeders local to the test file when they are specific to one surface, for example `seedAdminDashboardComponentData()` in `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`.
+## Practical verification commands
 
-## Coverage
+- General suite:
+  - `php artisan test --compact`
+  - `php artisan test --stop-on-failure`
+  - `composer test`
+- Focused file runs:
+  - `php artisan test --compact tests/Feature/Admin/InvoicesResourceTest.php`
+  - `php artisan test --compact tests/Unit/Requests/FormRequestValidationTest.php`
+- Focused filter runs:
+  - `php artisan test --compact --filter=dashboard`
+  - `php artisan test --compact --filter="renders the tenant dashboard"`
+- Formatting/quality companion commands from project config and docs:
+  - `vendor/bin/pint --dirty --format agent`
+  - `composer run guard:phase1`
 
-**Requirements:**
-- No numeric coverage threshold is configured in `phpunit.xml` or `composer.json`.
-- Coverage is reinforced through inventory and architecture tests that fail when expected surfaces lose regression coverage, such as `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php` and `tests/Unit/Requests/FormRequestStructureTest.php`.
-- The session bootstrap in `docs/SESSION-BOOTSTRAP.md` records a known-good baseline of `php artisan test --stop-on-failure`, but that is operational guidance rather than an enforced coverage percentage.
+## Planning guidance for new tests
 
-**Configuration:**
-- `phpunit.xml` includes `app/` as the source directory for PHPUnit source mapping.
-- No dedicated coverage script, HTML coverage output path, or CI-enforced minimum was detected in the repository.
-- No repo-local CI workflow files were found under `.github/workflows`.
-
-**View Coverage:**
-```bash
-# No repository shortcut is configured
-# Use PHPUnit/Laravel coverage flags manually only if your local PHP build has coverage support enabled
-```
-
-## Test Types
-
-**Unit Tests:**
-- Unit tests cover isolated domain and support logic such as billing calculations, request contracts, dashboard cache behavior, and enum contracts in `tests/Unit/Services/BillingServiceTest.php`, `tests/Unit/Requests/FormRequestValidationTest.php`, `tests/Unit/Support/Dashboard/DashboardCacheServiceTest.php`, and `tests/Unit/Enums/ExpandedEnumBehaviorTest.php`.
-- Unit files often use `uses(TestCase::class)` and add `RefreshDatabase::class` only when the unit under test touches the database.
-- Datasets are used for repetitive enum, validation, and calculation cases, as shown in `tests/Unit/Enums/ExpandedEnumBehaviorTest.php` and `tests/Unit/Services/BillingServiceTest.php`.
-
-**Integration Tests:**
-- Most “feature” tests are integration-heavy: they boot the application, hit real routes, exercise Livewire/Filament pages, and use actual Eloquent factories and policies.
-- Representative files include `tests/Feature/Auth/LoginFlowTest.php`, `tests/Feature/Admin/PropertiesResourceTest.php`, `tests/Feature/Security/SecurityHeadersTest.php`, and `tests/Feature/Filament/UnifiedPanelTest.php`.
-- Integration tests assert both access control and rendered content, often by checking route behavior plus specific translated or domain strings.
-
-**E2E Tests:**
-- Not detected.
-- There is no `tests/Browser` directory, no Dusk test tree, no Playwright config, and no snapshot directories in the repository root.
-
-**Performance Tests:**
-- Performance assertions live in `tests/Performance/DashboardPerformanceTest.php`.
-- These tests warm the page, enable query logging, and assert select-query budgets for dashboard routes.
-- Because `tests/Performance` is outside the default `phpunit.xml` suites, run these tests explicitly when relevant.
-
-## Common Patterns
-
-**Livewire Component Testing:**
-```php
-Livewire::actingAs($admin)
-    ->test(AdminDashboard::class)
-    ->assertSeeText('Total Properties')
-    ->assertDontSeeText('INV-OUTSIDE-001')
-    ->assertSeeHtml('wire:poll.30s');
-```
-
-**Validation and Error Testing:**
-```php
-$this->from(route('login'))
-    ->post(route('login.store'), [
-        'email' => 'asta@example.com',
-        'password' => 'wrong-password',
-    ])
-    ->assertRedirect(route('login'))
-    ->assertSessionHasErrors([
-        'email' => __('auth.invalid_credentials'),
-    ]);
-```
-
-```php
-expect(fn () => app(DeletePropertyAction::class)->handle($propertyAtLimit))
-    ->toThrow(ValidationException::class);
-```
-
-**Performance Regression Testing:**
-```php
-$this->actingAs($admin)
-    ->get(route('filament.admin.pages.dashboard'))
-    ->assertSuccessful();
-
-DB::flushQueryLog();
-DB::enableQueryLog();
-
-$this->actingAs($admin)
-    ->get(route('filament.admin.pages.dashboard'))
-    ->assertSuccessful();
-
-expect(collect(DB::getQueryLog())->count())->toBeLessThan(10);
-```
-
-**Snapshot Testing:**
-- Not used in the inspected repository.
-
----
-
-*Testing analysis: 2026-03-19*
+- Prefer Pest feature tests for user-visible behavior, access control, and Livewire/Filament flows.
+- Prefer unit tests when mocking facades or isolating support/service behavior.
+- Reuse `createOrgWithAdmin()`, `createTenantInOrg()`, `signInAs()`, `TenantPortalFactory`, and factory states before inventing new fixture setup.
+- When changing `FormRequest` logic, update `tests/Support/FormRequestScenarioFactory.php` and the request validation unit tests rather than only adding a single feature assertion.
+- When changing read-model boundaries or moving query logic, look for existing architecture inventory tests under `tests/Feature/Architecture/` and extend those contracts.
+- If work touches `tests/Performance/`, run those files explicitly because that directory is not listed in `phpunit.xml` test suites.

@@ -2,6 +2,32 @@
 
 ## 2026-03-31
 
+<!-- changelog:auto:start:staged-20260331200925 -->
+### Commit updates
+
+- updated `.codex/config.toml`
+- updated `.planning/codebase/ARCHITECTURE.md`
+- updated `.planning/codebase/CONCERNS.md`
+- updated `.planning/codebase/CONVENTIONS.md`
+- updated `.planning/codebase/INTEGRATIONS.md`
+- updated `.planning/codebase/STACK.md`
+- updated `.planning/codebase/STRUCTURE.md`
+- updated `.planning/codebase/TESTING.md`
+<!-- changelog:auto:end:staged-20260331200925 -->
+
+<!-- changelog:auto:start:pending -->
+### Pending staged changes
+
+- updated `.codex/config.toml`
+- updated `.planning/codebase/ARCHITECTURE.md`
+- updated `.planning/codebase/CONCERNS.md`
+- updated `.planning/codebase/CONVENTIONS.md`
+- updated `.planning/codebase/INTEGRATIONS.md`
+- updated `.planning/codebase/STACK.md`
+- updated `.planning/codebase/STRUCTURE.md`
+- updated `.planning/codebase/TESTING.md`
+<!-- changelog:auto:end:pending -->
+
 <!-- changelog:auto:start:staged-20260331194242 -->
 ### Commit updates
 

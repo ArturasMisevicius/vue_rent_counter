@@ -1,185 +1,348 @@
-# Codebase Concerns
+# Codebase Concerns Map
 
-**Analysis Date:** 2026-03-19
+Generated for focus area `concerns` on 2026-03-31.
 
-## Tech Debt
+This document highlights active technical concerns in the repository and is meant to be used as a planning reference. It prioritizes areas where a small change can have a wide blast radius, where the current design depends on conventions rather than guarantees, or where tooling leaves important failure modes unguarded.
 
-**Repository snapshot documents drift from the live tree:**
-- Issue: `AGENTS.md` and `docs/PROJECT-CONTEXT.md` describe `app/Providers/Filament/AdminPanelProvider.php`, 27 Livewire components, and 84 test files, while the repository currently exposes `app/Providers/Filament/AppPanelProvider.php`, 30 PHP files under `app/Livewire/`, and 110 PHP test files under `tests/`.
-- Files: `AGENTS.md`, `docs/PROJECT-CONTEXT.md`, `app/Providers/Filament/AppPanelProvider.php`, `app/Livewire/`, `tests/`
-- Impact: future planning, automation, and repo navigation can target the wrong panel provider and underestimate active surface area.
-- Fix approach: regenerate the workspace snapshot from the live repository whenever provider names, Livewire counts, or test inventory changes.
-- Warning: verify current provider and feature counts against `app/Providers/Filament/`, `app/Livewire/`, and `tests/` before building on documented assumptions.
+## Executive Summary
 
-**Tenant and organization boundaries are enforced query-by-query instead of through one central guardrail:**
-- Issue: tenant scoping is spread across model scopes, Filament resource `getEloquentQuery()` overrides, policy checks, and ad hoc authorization in actions/pages instead of one mandatory tenant boundary layer.
-- Files: `app/Models/User.php`, `app/Models/Invoice.php`, `app/Filament/Resources/Invoices/InvoiceResource.php`, `app/Filament/Resources/Properties/PropertyResource.php`, `app/Filament/Resources/Tenants/TenantResource.php`, `app/Livewire/Tenant/InvoiceHistory.php`, `app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php`
-- Impact: future features can accidentally bypass isolation by adding an unscoped query, a `findOrFail()`, or a new relation path that never applies the workspace scope.
-- Fix approach: centralize workspace resolution in reusable query builders or mandatory scope helpers, and require tenant-aware policy coverage for all new tenant-facing reads and writes.
-- Warning: every new Filament resource, page action, relation manager, and Livewire component touching tenant data should start from an existing scoped builder rather than `parent::getEloquentQuery()` or a naked model query.
+The main risk concentration is in the billing and reporting path. Core business rules are spread across large services, report builders, page classes, jobs, and exports, with a mix of direct database shaping, manual scoping, and queued side effects. The tenant boundary is actively tested, but it is still enforced mostly through opt-in query scopes and per-surface authorization checks instead of a single unavoidable abstraction.
 
-**Billing behavior is concentrated in large orchestration services:**
-- Issue: billing generation, invoice preview, finalization, shared-service distribution, and pricing logic are packed into a few oversized service classes.
-- Files: `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoiceService.php`, `tests/Unit/Services/BillingServiceTest.php`, `tests/Feature/Billing/BillingModuleTest.php`
-- Impact: small billing changes have a wide blast radius, review cost is high, and regressions become hard to localize because the same class mixes fetching, distribution math, invoice assembly, and persistence.
-- Fix approach: split fetching, distribution, preview assembly, and finalization into smaller collaborators with focused tests per billing step.
-- Warning: avoid adding more branches to `app/Services/Billing/BillingService.php`; extract new billing variants into dedicated calculators before touching invoice finalization.
+The repository also has planning friction from stale or conflicting guidance files, legacy `_old/` source trees, limited CI coverage, and inconsistent code conventions. None of these are immediate production failures on their own, but together they raise the cost of upgrades, refactors, and onboarding.
 
-**Panel navigation has multiple sources of truth:**
-- Issue: panel navigation is built imperatively in `app/Providers/Filament/AppPanelProvider.php` while role-based shell navigation also exists in `config/tenanto.php`, and a custom `app/Filament/Support/Shell/Navigation/NavigationBuilder.php` remains in the tree.
-- Files: `app/Providers/Filament/AppPanelProvider.php`, `config/tenanto.php`, `app/Filament/Support/Shell/Navigation/NavigationBuilder.php`
-- Impact: navigation changes can drift between config and runtime wiring, leaving dead configuration or inconsistent menus across roles.
-- Fix approach: pick one authoritative navigation source, delete unused builder code, and keep role/group labels derived from the same structure.
-- Warning: when adding a new admin or tenant destination, update one canonical navigation definition only and verify the other source is either removed or explicitly delegated.
+## Priority Concerns At A Glance
 
-## Known Bugs
+| Priority | Concern | Key files |
+| --- | --- | --- |
+| High | Billing and invoice logic concentrated in large service objects | `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoiceService.php`, `app/Services/ProjectService.php` |
+| High | Tenant and organization isolation depend on manual scoping and per-page authorization | `app/Models/Invoice.php`, `app/Models/Property.php`, `app/Models/Attachment.php`, `app/Models/Comment.php`, `app/Filament/Resources/Invoices/InvoiceResource.php`, `app/Filament/Resources/Projects/ProjectResource.php` |
+| High | Reporting path materializes whole datasets and serializes exports into queued jobs | `app/Livewire/Pages/Reports/ReportsPage.php`, `app/Filament/Support/Admin/Reports/ConsumptionReportBuilder.php`, `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php`, `app/Services/ScheduledExportService.php`, `app/Jobs/GenerateAdminReportExportJob.php` |
+| High | CI and static analysis leave major blind spots | `.github/workflows/phase-1-guardrails.yml`, `composer.json`, `package.json` |
+| Medium | Hidden side effects in observers and service methods make behavior context-dependent | `app/Observers/PropertyAssignmentObserver.php`, `app/Observers/UserObserver.php`, `app/Observers/OrganizationUserObserver.php`, `app/Observers/ProjectObserver.php` |
+| Medium | Tooling and instruction files disagree about framework/runtime versions | `composer.json`, `README.md`, `CLAUDE.md`, `.cursor/rules/laravel-boost.mdc` |
+| Medium | Legacy `_old/` tree and duplicated abstractions increase maintenance noise | `_old/routes/console.php`, `_old/app/Filament/...`, `app/Filament/Pages/Reports.php`, `app/Livewire/Pages/Reports/ReportsPage.php` |
 
-**Outstanding balances age invoices from billing period end instead of due date:**
-- Symptoms: invoices can appear overdue before their actual due date because overdue days are calculated from `billing_period_end` whenever that value exists.
-- Files: `app/Filament/Support/Admin/Reports/OutstandingBalancesReportBuilder.php`, `tests/Feature/Admin/ReportsPageTest.php`
-- Trigger: any unpaid invoice with `billing_period_end` set and a later `due_date` will be counted as overdue too early in the outstanding balances report.
-- Workaround: none in the current admin report flow.
-- Fix approach: compute overdue status from `due_date` first, fall back only when `due_date` is absent, and add a regression test in `tests/Feature/Admin/ReportsPageTest.php`.
+## 1. High-Risk Business Hotspots
 
-**Integration health can show false healthy states:**
-- Symptoms: the superadmin integration health page can report database, queue, or mail as healthy when only config values or the `migrations` table exist.
-- Files: `app/Filament/Pages/IntegrationHealth.php`, `app/Filament/Support/Superadmin/Integration/Probes/DatabaseProbe.php`, `app/Filament/Support/Superadmin/Integration/Probes/QueueProbe.php`, `app/Filament/Support/Superadmin/Integration/Probes/MailProbe.php`, `tests/Feature/Superadmin/IntegrationHealthPageTest.php`
-- Trigger: broken SMTP credentials, a stopped worker, or degraded database access can still pass the current probe logic.
-- Workaround: operators must validate real connectivity outside the application.
-- Fix approach: replace config-only probes with lightweight connectivity checks, queue dispatch/consume verification, and clearer degraded-state messaging.
+### 1.1 Billing and invoice orchestration is centralized in very large classes
 
-## Security Considerations
+- `app/Services/Billing/BillingService.php` is a large orchestration class that handles previewing, generating, drafting, finalizing, payments, assignment lookup, eligibility checks, line-item building, and shared-cost distribution.
+- `app/Services/Billing/InvoiceService.php` owns draft mutation, generated invoice creation, finalization, payment recording, audit logging, cache invalidation, and domain events.
+- `app/Services/ProjectService.php` similarly combines creation, status changes, approvals, passthrough invoice item creation, cost recalculation, completion recalculation, notifications, and audit behavior.
 
-**Anonymous CSP violation intake is writable, CSRF-exempt, and not throttled:**
-- Risk: `POST /csp/report` accepts unauthenticated input, bypasses CSRF protection, and persists data, which creates a log-pollution and storage-amplification surface.
-- Files: `routes/web.php`, `app/Http/Controllers/CspViolationReportController.php`, `app/Http/Requests/Security/CspViolationRequest.php`, `app/Services/Security/SecurityMonitor.php`
-- Current mitigation: the request is validated before persistence.
-- Recommendations: add rate limiting, payload size constraints, and explicit retention/cleanup rules for `SecurityViolation` records; consider isolating report-only traffic on a dedicated middleware profile.
-- Warning: do not attach more expensive side effects to the CSP report endpoint until throttling and retention exist.
+Why this is a concern:
 
-**The CSP still allows inline script and style execution despite nonce support:**
-- Risk: the header builder includes `'unsafe-inline'` in `script-src`, `style-src`, and `style-src-attr`, which weakens the protection gained from nonce-based rendering.
-- Files: `app/Services/Security/CspHeaderBuilder.php`
-- Current mitigation: nonces are also emitted in the policy.
-- Recommendations: remove `'unsafe-inline'` where possible, inventory inline Blade and Filament rendering requirements, and move remaining inline fragments behind explicit nonces or hashed allowances.
-- Warning: avoid introducing new inline scripts or inline style attributes while the policy still contains fallback inline allowances.
+- These classes are business-critical and already mix persistence, policy assumptions, formatting, notifications, audit trails, and side-effect triggering.
+- Refactoring one rule often means touching several methods inside one large file, which raises regression risk.
+- Cross-domain behavior is embedded directly in services instead of being isolated into smaller, named workflows.
 
-**Elevated access has two sources of truth:**
-- Risk: `User::isSuperadmin()` grants platform access from either the `role` enum or the legacy `is_super_admin` boolean, which allows privilege drift if one flag changes and the other does not.
-- Files: `app/Models/User.php`, `database/migrations/2026_03_17_121850_add_system_tenant_support_to_users_and_organizations.php`, `tests/Feature/Admin/LegacyPlatformFoundationTest.php`
-- Current mitigation: the model centralizes the check in one helper.
-- Recommendations: collapse superadmin authority onto one field, add migration-time reconciliation for existing records, and add authorization regression tests for mismatched role/boolean combinations.
-- Warning: any future role-management UI or seeder must update both fields today or it can silently create inconsistent platform access.
+Planning note:
 
-## Performance Bottlenecks
+- Start by extracting the highest-risk operations behind narrower service boundaries: invoice generation, invoice finalization/payment, project approval/status transition, and project cost passthrough.
 
-**Shared-service billing performs repeated peer scans and in-memory distribution work:**
-- Problem: shared-service invoice generation loads candidate assignments, then re-queries peer assignments and measurement context during distribution rather than precomputing reusable aggregates once.
-- Files: `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoiceService.php`, `tests/Unit/Services/BillingServiceTest.php`
-- Cause: `previewBulkInvoices()`, `finalize()`, and `sharedDistributionContext()` perform collection-heavy work after broad eager loads, which grows with organization size and shared-service density.
-- Improvement path: pre-aggregate peer measurements per property/service, cache reusable distribution inputs for a billing window, and move heavy distribution steps behind dedicated calculators.
-- Warning: large organizations with many shared services are the highest-risk path; benchmark `app/Services/Billing/BillingService.php` before adding new distribution modes.
+### 1.2 Side effects are not handled consistently after database commits
 
-**Report builders load full datasets and paginate in PHP memory:**
-- Problem: report rows are materialized as full collections, grouped and transformed in PHP, and only then paginated for display.
-- Files: `app/Livewire/Pages/Reports/ReportsPage.php`, `app/Filament/Support/Admin/Reports/ConsumptionReportBuilder.php`, `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php`, `app/Filament/Support/Admin/Reports/OutstandingBalancesReportBuilder.php`, `app/Filament/Support/Admin/Reports/MeterComplianceReportBuilder.php`
-- Cause: each builder uses broad `->get()` calls followed by collection `groupBy()`, `map()`, and `sum()` operations; `ReportsPage::rows()` slices the already-built array with `forPage()`.
-- Improvement path: push aggregation into Eloquent query layers where possible, precompute heavy metrics, and paginate query results before hydration when row counts can grow.
-- Warning: avoid adding more columns, exports, or cross-organization filters to the current report builders without first moving large aggregations out of Livewire memory.
+- `app/Services/Billing/InvoiceService.php` uses `DB::afterCommit(...)` for cache refreshes and `InvoiceFinalized` event dispatch.
+- `app/Services/ProjectService.php` sends notifications inside transactions in `create()` and `approve()`.
 
-**Notification delivery runs inside interactive request flows:**
-- Problem: invitation and invoice reminder emails are sent inline during Filament actions instead of being queued.
-- Files: `app/Filament/Actions/Auth/CreateOrganizationInvitationAction.php`, `app/Filament/Actions/Admin/Invoices/SendInvoiceReminderAction.php`, `phpunit.xml`
-- Cause: mail notifications are dispatched directly with `Notification::route(...)->notify(...)`, and the test environment uses `QUEUE_CONNECTION=sync`.
-- Improvement path: queue mail delivery, add retry/failure handling, and test with a production-like queue driver in targeted integration tests.
-- Warning: do not add more notification fan-out to Filament actions until background delivery exists, or admin UX will slow down as recipient counts grow.
+Why this is a concern:
 
-## Fragile Areas
+- The billing path protects external side effects from rollbacks, but the project path does not follow the same discipline.
+- That inconsistency makes failure behavior surprising and increases the chance of sending alerts for state that never committed.
 
-**`AppPanelProvider` is a single high-blast-radius bootstrap file:**
-- Files: `app/Providers/Filament/AppPanelProvider.php`
-- Why fragile: one file owns middleware, branding, auth routing, navigation groups, tenant-facing menu items, and panel composition, so changes in unrelated areas collide in the same class.
-- Safe modification: extract navigation, middleware groups, and role-specific panel behavior into smaller support classes before layering in more panel features.
-- Test coverage: `tests/Feature/Auth/LoginFlowTest.php` and panel-adjacent feature tests cover behavior indirectly, but there is no narrow regression suite for provider composition itself.
+Planning note:
 
-**Manual workspace scoping in resources and pages is easy to break during routine CRUD work:**
-- Files: `app/Filament/Resources/Buildings/BuildingResource.php`, `app/Filament/Resources/Invoices/InvoiceResource.php`, `app/Filament/Resources/MeterReadings/MeterReadingResource.php`, `app/Filament/Resources/Properties/Pages/ViewProperty.php`, `app/Filament/Resources/Tenants/Pages/ViewTenant.php`, `app/Livewire/Tenant/InvoiceHistory.php`
-- Why fragile: access depends on developers remembering to reapply workspace scopes when overriding queries or reloading records inside page classes.
-- Safe modification: start from existing workspace scopes such as `forOrganizationWorkspace()`, `forTenantWorkspace()`, and `withTenantWorkspaceSummary()` instead of reconstructing filtering logic inside pages.
-- Test coverage: many tenant/admin feature tests exercise happy paths, but there is no single isolation-focused suite that fails when one resource omits its workspace scope.
+- Normalize the rule: database mutation first, external side effects only after commit.
 
-**The collaboration domain is schema-rich but operationally thin:**
-- Files: `app/Models/Project.php`, `app/Models/Task.php`, `app/Models/EnhancedTask.php`, `app/Models/Comment.php`, `app/Models/Attachment.php`, `app/Models/Activity.php`, `app/Models/DashboardCustomization.php`, `app/Models/TaskAssignment.php`, `app/Models/TimeEntry.php`, `database/migrations/2026_03_17_122200_create_projects_table.php`, `database/migrations/2026_03_17_122900_create_time_entries_table.php`, `tests/Feature/Admin/LegacyCollaborationFoundationTest.php`, `tests/Feature/Admin/OperationalDemoDatasetSeederTest.php`
-- Why fragile: the repository carries a broad collaboration schema and models, but the visible application surface is mostly foundation checks, factories, and seeded data validation rather than mature user flows.
-- Safe modification: treat these models as partially integrated infrastructure until real CRUD, authorization, and reporting surfaces are added.
-- Test coverage: existing tests prove tables, factories, and relations exist, but they do not protect end-user workflows because those workflows are largely absent.
+## 2. Coupling And Fragile Architecture Boundaries
 
-## Scaling Limits
+### 2.1 Tenant and organization isolation are mostly opt-in, not structural
 
-**Current performance validation is dashboard-only and uses very small fixtures:**
-- Current capacity: `tests/Performance/DashboardPerformanceTest.php` warms dashboards with tiny seeded datasets rather than organization-scale billing or reporting volumes.
-- Limit: bottlenecks in `app/Services/Billing/BillingService.php` and `app/Livewire/Pages/Reports/ReportsPage.php` will not be caught before production-sized tenants exercise them.
-- Scaling path: add repeatable performance fixtures for large organizations, high meter counts, and shared-service billing windows; benchmark reports and invoice generation separately from dashboard render time.
+- Models such as `app/Models/Invoice.php`, `app/Models/Property.php`, `app/Models/Attachment.php`, `app/Models/Comment.php`, and `app/Models/SecurityViolation.php` expose `scopeForOrganization(...)` style helpers rather than enforcing tenant or organization scoping globally.
+- Resources such as `app/Filament/Resources/Invoices/InvoiceResource.php` and `app/Filament/Resources/Projects/ProjectResource.php` manually compute the current user or organization and then choose the right query path.
+- Superadmin relation resources explicitly remove scopes in `app/Filament/Resources/Attachments/AttachmentResource.php` and `app/Filament/Resources/Comments/CommentResource.php`.
 
-**Async infrastructure is configured but not exercised as a first-class runtime path:**
-- Current capacity: `phpunit.xml` forces `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, and `SESSION_DRIVER=array`, while the application has no files under `app/Jobs/` or `app/Listeners/`.
-- Limit: retry behavior, queue backpressure, cache invalidation races, and worker failure handling are not validated by the repository's primary test loop.
-- Scaling path: introduce queued delivery for notification and export work, add at least one queued integration path under test, and create operational checks for queue health outside config presence.
+Why this is a concern:
 
-## Dependencies at Risk
+- Correctness depends on every new query remembering to apply the right scope.
+- The security model is understandable today, but it is easy to weaken accidentally in future pages, relation managers, widgets, jobs, or exports.
+- Superadmin paths have to carefully bypass organization filtering while all other paths must preserve it, which raises the chance of accidental overexposure.
 
-**`erag/laravel-pwa` is present with generic application metadata and public assets:**
-- Risk: the repository ships a service worker and manifest with stock naming, while `config/pwa.php` still advertises generic app metadata and `livewire-app` remains disabled.
-- Impact: users can receive a half-enabled PWA experience, and future contributors can assume the PWA layer is product-ready when it still reads as template configuration.
-- Migration plan: either complete the PWA integration with tenant-safe caching/offline behavior and branded metadata, or remove the package and public assets until that work is intentionally scheduled.
-- Files: `composer.json`, `config/pwa.php`, `public/manifest.json`, `public/sw.js`, `public/offline.html`
+Evidence that the risk is known but still manual:
 
-## Missing Critical Features
+- `tests/Feature/Security/TenantPortalIsolationTest.php`
+- `tests/Feature/Tenant/TenantAccessIsolationTest.php`
+- `tests/Feature/Security/WorkspaceContextResolutionTest.php`
+- `tests/Feature/Architecture/WorkspaceBoundaryInventoryTest.php`
 
-**The repository has no CI workflow files:**
-- Problem: `.github/workflows/` is empty, so there is no enforced server-side check for Pest, Pint, static analysis, or migration safety.
-- Blocks: test discipline, code style enforcement, and deployment confidence depend on local runs only.
-- Files: `.github/workflows/`, `phpunit.xml`, `composer.json`
-- Warning: assume every branch can drift in quality until CI is added; do not rely on local developer discipline as the only release gate.
+Planning note:
 
-**Backups and restore operations are configuration concepts, not implemented operations:**
-- Problem: backup settings exist in enums and seed data, but the repository does not expose backup jobs, provider integration, restore tooling, or operational verification.
-- Blocks: disaster recovery, backup retention enforcement, and tenant-safe restore drills.
-- Files: `app/Enums/SystemSettingCategory.php`, `database/seeders/SystemSettingSeeder.php`
-- Warning: do not treat the `backups` settings category as evidence of a working backup program.
+- Reduce the number of places that decide scope independently. A shared query policy or repository layer for tenant/admin/superadmin read models would lower drift.
 
-**Operational health visibility is incomplete for real service failures:**
-- Problem: the current health surface verifies config and table presence but does not prove SMTP delivery, queue processing, or worker execution.
-- Blocks: reliable on-call diagnosis and trustworthy admin-side operational status.
-- Files: `app/Filament/Pages/IntegrationHealth.php`, `app/Filament/Support/Superadmin/Integration/Probes/DatabaseProbe.php`, `app/Filament/Support/Superadmin/Integration/Probes/QueueProbe.php`, `app/Filament/Support/Superadmin/Integration/Probes/MailProbe.php`
-- Warning: future operational features should not depend on the current health page as an authoritative signal.
+### 2.2 Resource authorization is repeated across many Filament classes
 
-## Test Coverage Gaps
+- `app/Filament/Resources/Invoices/InvoiceResource.php` and `app/Filament/Resources/Projects/ProjectResource.php` both implement nearly identical `currentUser()`, `allows()`, and query-selection patterns.
+- Many tables and pages apply additional record-level authorization in-place, for example `app/Filament/Resources/Invoices/Tables/InvoicesTable.php`, `app/Filament/Resources/Tenants/TenantResource.php`, and `app/Filament/Resources/Organizations/Tables/OrganizationsTable.php`.
 
-**Outstanding balance aging rules are not regression-tested:**
-- What's not tested: overdue classification when `due_date` and `billing_period_end` diverge.
-- Files: `app/Filament/Support/Admin/Reports/OutstandingBalancesReportBuilder.php`, `tests/Feature/Admin/ReportsPageTest.php`
-- Risk: report fixes or refactors can keep misclassifying overdue invoices without an explicit failing test.
-- Priority: High
+Why this is a concern:
 
-**Billing preview, finalize, and shared-service performance paths lack deep regression coverage:**
-- What's not tested: end-to-end behavior of `previewBulkInvoices()`, `finalize()`, and the expensive shared-service distribution path under larger datasets.
-- Files: `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoiceService.php`, `tests/Unit/Services/BillingServiceTest.php`, `tests/Feature/Billing/BillingModuleTest.php`, `tests/Feature/Admin/BulkInvoiceGenerationTest.php`
-- Risk: core billing changes can pass unit coverage while still regressing correctness, runtime cost, or invoice composition in production-like data shapes.
-- Priority: High
+- The same security and visibility logic is distributed across resource classes, tables, pages, and actions.
+- It is hard to prove that two resources use the same authorization rules, because the logic is not expressed in one place.
 
-**Production-like queue, cache, and session behavior is not exercised in the main test harness:**
-- What's not tested: queued notifications, cache invalidation, worker retries, and session persistence behavior under non-array drivers.
-- Files: `phpunit.xml`, `app/Filament/Actions/Auth/CreateOrganizationInvitationAction.php`, `app/Filament/Actions/Admin/Invoices/SendInvoiceReminderAction.php`
-- Risk: request-time code appears healthy in tests but fails once real queueing or cache backends are introduced.
-- Priority: Medium
+Planning note:
 
-**The collaboration and audit domain is covered mostly by existence/foundation tests:**
-- What's not tested: real user-facing workflows across projects, tasks, comments, attachments, time tracking, and organization activity review.
-- Files: `app/Models/Project.php`, `app/Models/Task.php`, `app/Models/EnhancedTask.php`, `app/Models/Comment.php`, `app/Models/Attachment.php`, `app/Models/TimeEntry.php`, `app/Models/OrganizationActivityLog.php`, `tests/Feature/Admin/LegacyCollaborationFoundationTest.php`, `tests/Feature/Admin/LegacyMembershipAndAuditFoundationTest.php`, `tests/Feature/Admin/OperationalDemoDatasetSeederTest.php`
-- Risk: future integration work can silently break relations, authorization, or persistence rules because the current suite mostly proves that the tables and factories exist.
-- Priority: Medium
+- Consolidate repeated resource authorization/query patterns into shared Filament concerns or dedicated read-model/query services.
 
----
+### 2.3 UI routing is layered through wrappers and aliases
 
-*Concerns audit: 2026-03-19*
+- `app/Filament/Pages/Reports.php` is a thin Filament wrapper around `app/Livewire/Pages/Reports/ReportsPage.php`.
+- Tenant navigation uses route aliases in `routes/web.php` that point to `app/Livewire/Tenant/TenantPortalRouteEndpoint.php`, which then redirects into Filament page routes.
+- Tenant Filament pages such as `app/Filament/Pages/TenantDashboard.php`, `app/Filament/Pages/TenantInvoiceHistory.php`, `app/Filament/Pages/TenantSubmitMeterReading.php`, and `app/Filament/Pages/TenantPropertyDetails.php` repeat access checks already present in `app/Filament/Pages/TenantPortalPage.php`.
+
+Why this is a concern:
+
+- Navigation, route access, page access, and workspace resolution live in different layers.
+- Small route changes are more likely to break indirect entrypoints, aliases, or page-registration assumptions.
+
+Planning note:
+
+- Collapse redundant wrappers where possible and remove duplicated `canAccess()` implementations when the base class already enforces the rule.
+
+## 3. Security And Data-Exposure Concerns
+
+### 3.1 Public CSP reporting is deliberately open and writes to the database
+
+- `routes/web.php` exposes `security.csp.report` publicly and disables CSRF for it.
+- `app/Livewire/Security/CspViolationReportEndpoint.php` converts each accepted report into a `SecurityViolation` record.
+- `app/Http/Requests/Security/CspViolationRequest.php` validates payload shape, and `app/Providers/AppServiceProvider.php` rate-limits the route to 10 per minute per IP.
+
+Why this is a concern:
+
+- This is a legitimate pattern, but it is still a public write endpoint.
+- It can become a storage or noise amplifier if browsers, extensions, or malicious clients spam the route.
+- The current reaction path in `app/Services/Security/SecurityMonitoringService.php` logs alerts, but does not escalate them beyond logs/cache-based suppression.
+
+Planning note:
+
+- Track retention volume and alerting quality. If CSP reporting becomes noisy in production, add stronger normalization, sampling, or upstream filtering.
+
+### 3.2 Filesystem export helpers use permissive directory creation and local-path attachments
+
+- `app/Filament/Support/Superadmin/Translations/TranslationCatalogService.php` creates directories with `0777` and writes translation files directly.
+- `app/Filament/Support/Superadmin/Exports/OrganizationDataExportBuilder.php` and `app/Filament/Support/Superadmin/Exports/NullOrganizationDataExportBuilder.php` create export directories with `0777` and build ZIP files on local disk.
+- `app/Notifications/Superadmin/OrganizationDataExportReadyNotification.php` attaches the local export path directly to mail.
+
+Why this is a concern:
+
+- World-writable directory creation is broader than necessary.
+- Export and translation flows are tightly coupled to local filesystem semantics.
+- Sensitive export artifacts can linger in storage unless explicit cleanup is performed; `tests/Feature/Superadmin/OrganizationExportsTest.php` manually unlinks generated exports during tests, which is a signal that lifecycle management is manual.
+
+Planning note:
+
+- Standardize export file permissions, retention, and cleanup policies before these flows grow further.
+
+### 3.3 KYC and invoice downloads rely on endpoint-specific authorization, not shared download infrastructure
+
+- `app/Livewire/Kyc/ShowKycAttachmentEndpoint.php` performs inline access checks.
+- `app/Livewire/Tenant/DownloadInvoiceEndpoint.php` delegates to `app/Filament/Actions/Tenant/Invoices/DownloadInvoiceAction.php`, which uses `Gate::authorize('download', $invoice)`.
+- `app/Livewire/Tenant/InvoiceHistory.php` loads an invoice first and authorizes the download afterward.
+
+Why this is a concern:
+
+- The current behavior is correct and tested, but download authorization is handled per endpoint/action rather than through one centralized file-delivery policy abstraction.
+- Future download surfaces can drift if they skip one of the existing patterns.
+
+Relevant coverage:
+
+- `tests/Feature/Security/TenantPortalIsolationTest.php`
+- `tests/Feature/Tenant/TenantInvoiceHistoryTest.php`
+- `tests/Feature/Admin/KycProfilesResourceTest.php`
+- `tests/Feature/Livewire/ControllerRouteMigrationTest.php`
+
+## 4. Performance And Scale Hotspots
+
+### 4.1 Reports are built in memory and then re-packaged for pagination and export
+
+- `app/Livewire/Pages/Reports/ReportsPage.php` computes `report()` as arrays, then `rows()` paginates an in-memory collection with `forPage(...)`.
+- `app/Filament/Support/Admin/Reports/ConsumptionReportBuilder.php` and `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php` fetch full grouped result sets via `->get()` and then reshape them into arrays.
+- `app/Services/ScheduledExportService.php` dispatches `app/Jobs/GenerateAdminReportExportJob.php` with full `$summary`, `$columns`, and `$rows` arrays serialized into the job payload.
+
+Why this is a concern:
+
+- Pagination happens after the full result set is already loaded.
+- Large organizations or wider reporting ranges can turn the report page and export queue into memory-heavy operations.
+- Queue payload size will grow with report size because the export job receives the already-built rows instead of a compact query descriptor.
+
+Planning note:
+
+- Convert report generation toward streamed or query-backed pagination and pass filter state to export jobs instead of materialized rows.
+
+### 4.2 Bulk invoice generation eagerly loads deep relation graphs and loops per assignment
+
+- `app/Services/Billing/BillingService.php` loads assignments with nested `tenant`, `property`, `serviceConfigurations`, `utilityService`, `tariff`, `meters`, and meter `readings`, then iterates through them to build line items.
+- The same class repeats similar eager-loading logic in both `invoiceCandidates(...)` and `invoiceAssignment(...)`.
+
+Why this is a concern:
+
+- This is efficient for small batches, but batch size and billing-period length directly increase memory pressure.
+- The line-item calculation path mixes data access and pricing logic, which makes it harder to optimize query shape separately from billing rules.
+
+Relevant tests:
+
+- `tests/Unit/Services/BillingServiceTest.php`
+- `tests/Feature/Billing/BillingModuleTest.php`
+- `tests/Feature/Billing/BillingPreviewFinalizationParityTest.php`
+
+Planning note:
+
+- Split “fetch billing candidates” from “compute billable totals,” then profile the candidate loader independently.
+
+### 4.3 Some dashboard widgets still run repeated uncached aggregate queries
+
+- `app/Filament/Widgets/Superadmin/PlatformStatsOverview.php` runs separate counts and sums every poll cycle.
+- `app/Filament/Widgets/Superadmin/PropertiesAndManagersStatsOverview.php` performs several independent counts every 60 seconds.
+- `app/Filament/Widgets/Reports/MeterComplianceStatusChart.php` rebuilds report rows and then counts categories from the in-memory collection.
+
+Why this is a concern:
+
+- The repository already has query-budget protection in `tests/Performance/DashboardPerformanceTest.php`, but the risk is concentrated in polled widgets that combine global aggregates with frequent refresh.
+- These widgets are fine now, but they are the first places likely to regress as the data set grows.
+
+## 5. Test Coverage And CI Blind Spots
+
+### 5.1 CI only enforces a subset of the actual quality surface
+
+- `.github/workflows/phase-1-guardrails.yml` is the only visible CI workflow in the repository.
+- `composer.json` defines `guard:phase1`, which runs `pint --test` and a selected subset of tests.
+- `composer.json` does not include `phpstan` or `larastan`, and no `phpstan.neon` or similar config is present at the repository root.
+- `package.json` has only `build` and `dev`; there is no frontend lint or test script.
+
+Why this is a concern:
+
+- A large amount of repository behavior is covered by tests locally, but not all of it is enforced in CI.
+- Static analysis is currently a process expectation, not a repository-enforced gate.
+- Frontend and asset regressions are only guarded by successful build output.
+
+Planning note:
+
+- Add staged CI layers: static analysis, critical feature suite, then optional full suite.
+
+### 5.2 Service-level test coverage is uneven across critical modules
+
+- Direct unit service tests are sparse: `tests/Unit/Services/BillingServiceTest.php` and `tests/Unit/Services/SecurityMonitoringServiceTest.php` are the only visible `tests/Unit/Services/*.php` files.
+- There is no direct `InvoiceService` unit test for `app/Services/Billing/InvoiceService.php`.
+- `app/Services/Billing/InvoicePdfService.php` is covered indirectly through `tests/Feature/Tenant/InvoicePdfLocalizationTest.php` and `tests/Feature/Tenant/InvoiceExplainabilityContractTest.php`, not through dedicated service tests.
+- Report builders are partially guarded by `tests/Feature/Billing/ReportsTest.php` and `tests/Feature/Architecture/ReportBuildersNoRawSqlTest.php`, but not by dedicated builder-level regression suites per builder.
+
+Why this is a concern:
+
+- The most complex state-mutation services are not tested at the same granularity as their risk level.
+- Indirect coverage makes failures harder to localize when a refactor breaks behavior.
+
+### 5.3 Some “coverage” tests assert inventory, not deep behavior
+
+- `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php` verifies that every resource is mapped to a regression test file and that expected pages exist.
+- Shared superadmin relation-resource coverage is concentrated in files such as `tests/Feature/Superadmin/RelationCrudResourcesTest.php`, `tests/Feature/Superadmin/RelationResourceListContextTest.php`, and `tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php`.
+
+Why this is a concern:
+
+- Inventory tests are useful guardrails, but they do not prove that every resource has deep create/view/edit/delete behavior or authorization coverage.
+- It is possible for a resource to remain “covered” in inventory while only receiving shallow list-context assertions.
+
+## 6. Upgrade Friction
+
+### 6.1 Repository instructions disagree about the actual stack
+
+- `composer.json` requires `laravel/framework` `^13.0`.
+- `README.md` describes the verified stack as Laravel `13.2.0`, Filament `5`, Livewire `4`, Tailwind `4`, Pest `4`, PHPUnit `12`.
+- `CLAUDE.md` still describes Laravel `12` as foundational context.
+- `.cursor/rules/laravel-boost.mdc` still references Filament `4`, Livewire `3`, Pest `3`, and PHP `8.4.16`.
+
+Why this is a concern:
+
+- Humans and coding agents will make different assumptions depending on which instruction file they read first.
+- Upgrade and implementation guidance can drift away from the real runtime.
+
+Planning note:
+
+- Treat instruction-file alignment as first-class maintenance work, not documentation cleanup.
+
+### 6.2 Report builders still depend on manual SQL expressions and driver branching
+
+- `app/Filament/Support/Admin/Reports/ConsumptionReportBuilder.php` and `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php` use `Illuminate\Database\Query\Expression` and manual join wiring.
+- `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php` branches on driver name for month formatting.
+- `tests/Feature/Architecture/ReportBuildersNoRawSqlTest.php` only prevents obvious `DB::raw(...)` and `selectRaw(...)` usage; it does not eliminate manual SQL expression complexity.
+
+Why this is a concern:
+
+- Schema changes and database portability work will hit these builders first.
+- The guardrail test gives a false sense of abstraction if the real query complexity still lives in expression strings.
+
+### 6.3 Migration history shows rapid schema evolution and corrective follow-ups
+
+- The repository has a dense migration history in `database/migrations/`, including broad domain creation on `2026_03_17_*`, performance/index patches on `2026_03_18_*` and `2026_03_19_*`, contract changes on `2026_03_24_*`, and project expansion on `2026_03_28_*`.
+- Examples include `database/migrations/2026_03_18_090000_add_dashboard_and_reporting_performance_indexes.php`, `database/migrations/2026_03_24_060000_update_buildings_and_properties_for_admin_contract.php`, and `database/migrations/2026_03_28_180000_expand_projects_module_tables.php`.
+
+Why this is a concern:
+
+- This pattern suggests active correction and expansion of the data model.
+- Future upgrades will need strong migration review because reporting, billing, and workspace boundaries are tightly bound to schema details.
+
+## 7. Maintenance Hazards And Cleanup Targets
+
+### 7.1 The `_old/` tree is still present and contains stale operational guidance
+
+- `_old/routes/console.php` contains schedules for backup, export cleanup, subscription monitoring, and cache warming that are not part of the active app schedule in `routes/console.php`.
+- `_old/app/...` and `_old/resources/...` still contain TODOs and historical Filament code, for example `_old/app/Filament/Clusters/SuperAdmin/Resources/AuditLogResource/Pages/ListAuditLogs.php` and `_old/resources/views/vendor/filament/components/section/index.blade.php`.
+
+Why this is a concern:
+
+- Search results mix active and inactive implementations.
+- New contributors and automated tools can mistake archived behavior for live behavior.
+
+Planning note:
+
+- Either remove `_old/` from the main working tree or make its archive status impossible to misread.
+
+### 7.2 Observer side effects are hidden and not uniformly covered
+
+- `app/Observers/PropertyAssignmentObserver.php` mutates `users.organization_id` when assignments are saved.
+- `app/Observers/UserObserver.php` and `app/Observers/OrganizationUserObserver.php` reset manager permissions using `auth()->user()` as actor context.
+- `app/Observers/ProjectObserver.php` synchronizes legacy columns, validates scope, blocks deletion, and dispatches `RescopeProjectChildrenJob`.
+
+Why this is a concern:
+
+- Persistence side effects are triggered by saving models, not by explicit domain actions.
+- Runtime behavior depends partly on whether a request has an authenticated user.
+- Observer coverage is uneven; `tests/Feature/Models/PropertyAssignmentObserverTest.php` exists, but there are no same-name model observer tests for `UserObserver`, `OrganizationUserObserver`, `ProjectObserver`, `OrganizationObserver`, or `SubscriptionObserver`.
+
+### 7.3 Export and report helpers overlap in responsibility
+
+- `app/Services/ExportService.php` and `app/Services/PdfReportService.php` both wrap `ReportPdfExporter` and both provide streaming/export concerns.
+- `app/Services/ScheduledExportService.php` is a thin job dispatcher over `app/Jobs/GenerateAdminReportExportJob.php`.
+- `app/Filament/Support/Dashboard/DashboardCacheService.php` is only a wrapper subclass around `app/Services/DashboardCacheService.php`.
+
+Why this is a concern:
+
+- Thin wrappers and overlapping services make the service graph harder to reason about than the actual logic warrants.
+- This increases refactor cost because it is not always obvious which class is the true ownership point.
+
+### 7.4 Code conventions are still mixed in active app code
+
+- Some active files use strict typing and modern declarations, such as `app/Services/ProjectService.php`, `app/Services/Billing/InvoiceService.php`, and `app/Livewire/Pages/Reports/ReportsPage.php`.
+- Other active files do not declare strict types, for example `app/Models/Invoice.php`, `app/Models/Property.php`, `app/Models/Organization.php`, `app/Providers/AppServiceProvider.php`, `app/Providers/AuthServiceProvider.php`, and several observer classes.
+
+Why this is a concern:
+
+- Mixed conventions make automated modernization and static analysis adoption harder.
+- It becomes difficult to know which coding expectations are aspirational versus enforced.
+
+## Suggested Planning Order
+
+1. Stabilize the billing/reporting core: reduce responsibility in `app/Services/Billing/BillingService.php`, `app/Services/Billing/InvoiceService.php`, and `app/Livewire/Pages/Reports/ReportsPage.php`.
+2. Centralize tenant/organization scoping so resources and widgets are not deciding isolation independently.
+3. Upgrade CI from “subset guardrails” to “critical-path confidence,” starting with static analysis and a broader required suite.
+4. Align stack guidance in `composer.json`, `README.md`, `CLAUDE.md`, and `.cursor/rules/laravel-boost.mdc`.
+5. Remove or quarantine `_old/` to reduce false positives during maintenance.
+6. Clean up observer side effects and move cross-entity mutations into explicit workflows where possible.

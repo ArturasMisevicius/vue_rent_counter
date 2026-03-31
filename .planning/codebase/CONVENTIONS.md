@@ -1,146 +1,153 @@
-# Coding Conventions
+# Codebase Conventions
 
-**Analysis Date:** 2026-03-19
+## Scope
 
-## Naming Patterns
+This map summarizes the repository’s current quality conventions for planning work in the Tenanto Laravel codebase. It is based on checked-in code and config, not on idealized framework defaults.
 
-**Files:**
-- Use `PascalCase.php` for PHP classes and keep the path aligned to the namespace, for example `app/Livewire/Auth/LoginPage.php`, `app/Http/Requests/Profile/UpdateProfileRequest.php`, and `app/Filament/Resources/Users/UserResource.php`.
-- Use `kebab-case.blade.php` for Blade templates, with directories mirroring the surface area, for example `resources/views/livewire/pages/dashboard/admin-dashboard.blade.php`, `resources/views/livewire/shell/topbar.blade.php`, and `resources/views/components/shell/app-frame.blade.php`.
-- Name tests as `*Test.php` and group them by behavior area under `tests/Feature/*`, `tests/Unit/*`, and `tests/Performance/*`, for example `tests/Feature/Auth/LoginFlowTest.php` and `tests/Unit/Requests/FormRequestStructureTest.php`.
-- For Filament resources, split large resources into companion `Pages`, `Schemas`, `Tables`, and `RelationManagers` classes, for example `app/Filament/Resources/Users/Pages/ListUsers.php`, `app/Filament/Resources/Users/Schemas/UserForm.php`, and `app/Filament/Resources/Tenants/RelationManagers/InvoicesRelationManager.php`.
+Primary reference files:
 
-**Functions:**
-- Use `camelCase` for methods and helper functions across models, requests, Livewire components, services, and tests, for example `scopeWithWorkspaceSummary()` in `app/Models/Property.php` and `registerSharedTestRoutes()` in `tests/Pest.php`.
-- Use `handle()` as the main entrypoint for action classes in `app/Filament/Actions`, for example `app/Filament/Actions/Admin/Properties/CreatePropertyAction.php`.
-- Name Eloquent scopes with the `scopeX` pattern and keep them chainable, for example `scopeForSuperadminControlPlane()` in `app/Models/Organization.php` and `scopeWithTenantWorkspaceSummary()` in `app/Models/User.php`.
-- Expose Livewire derived state through noun-style computed methods decorated with `#[Computed]`, for example `demoAccounts()` in `app/Livewire/Auth/LoginPage.php` and `dashboard()` in `app/Livewire/Pages/Dashboard/AdminDashboard.php`.
+- `.editorconfig`
+- `composer.json`
+- `README.md`
+- `routes/web.php`
+- `app/Providers/AppServiceProvider.php`
+- `app/Providers/AuthServiceProvider.php`
 
-**Variables:**
-- Use descriptive `camelCase` variables and properties such as `$organizationId`, `$showSubscriptionUsage`, `$queryCount`, and `$selectedAssignmentKeys` in `app/Livewire/Pages/Dashboard/AdminDashboard.php`, `tests/Performance/DashboardPerformanceTest.php`, and `app/Services/Billing/BillingService.php`.
-- Use `UPPER_SNAKE_CASE` for class constants, especially query column lists and TTLs, such as `CONTROL_PLANE_COLUMNS` in `app/Models/Organization.php` and `SUPERADMIN_STATS_TTL_SECONDS` in `app/Filament/Support/Dashboard/DashboardCacheService.php`.
-- Prefer intent-revealing array payload names like `$dashboard`, `$valid`, `$skipped`, and `$coverageMatrix` in `app/Livewire/Pages/Dashboard/AdminDashboard.php`, `app/Services/Billing/BillingService.php`, and `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`.
+## Formatting and baseline style
 
-**Types:**
-- Use `PascalCase` for classes, enums, traits, and interfaces, for example `App\Enums\UserRole`, `App\Filament\Support\Dashboard\DashboardCacheService`, and `App\Contracts\BillingServiceInterface`.
-- Use enum case names in `UPPER_SNAKE_CASE`, as reflected by `app/Enums/UserRole.php` and enforced by `tests/Feature/Architecture/TranslatedEnumContractTest.php`.
-- Suffix interfaces with `Interface` instead of using an `I` prefix, for example `app/Contracts/BillingServiceInterface.php`.
-- Document array-heavy return types with PHPDoc array shapes when native types are too broad, for example `app/Http/Requests/Profile/UpdateProfileRequest.php`, `app/Services/Billing/BillingService.php`, and `tests/Pest.php`.
+- Global editor rules live in `.editorconfig`: UTF-8, LF, 4-space indentation, final newline, and trimmed trailing whitespace. YAML files use 2 spaces; Markdown keeps trailing whitespace intact.
+- PHP formatting is Laravel/Pint-oriented via `laravel/pint` in `composer.json` and the repository guidance in `README.md`.
+- Newer backend code commonly starts with `declare(strict_types=1);`, especially in requests, services, exceptions, and Livewire endpoints. Examples:
+  - `app/Http/Requests/Admin/Tenants/StoreTenantRequest.php`
+  - `app/Services/Billing/InvoiceService.php`
+  - `app/Exceptions/InvalidProjectTransitionException.php`
+  - `app/Livewire/Tenant/DownloadInvoiceEndpoint.php`
+- Strict types are **not universal**. Older or more framework-heavy files often omit them, so edits should match sibling files instead of force-normalizing. Examples without strict types:
+  - `app/Models/Invoice.php`
+  - `app/Models/User.php`
+  - `app/Policies/ProjectPolicy.php`
+  - `app/Filament/Actions/Admin/Tenants/CreateTenantAction.php`
+  - `app/Http/Middleware/CheckManagerPermission.php`
 
-## Code Style
+## Naming and namespace patterns
 
-**Formatting:**
-- Base whitespace rules come from `.editorconfig`: UTF-8, LF line endings, four-space indentation, final newline, and trimmed trailing whitespace outside Markdown.
-- Use semicolons consistently in PHP files such as `app/Models/User.php` and `app/Providers/AppServiceProvider.php`.
-- Keep multiline arrays, constructor arguments, and fluent chains vertically formatted with trailing commas, as in `app/Services/Billing/BillingService.php`, `app/Livewire/Auth/LoginPage.php`, and `tests/Feature/Livewire/Dashboard/AdminDashboardComponentTest.php`.
-- Prefer single-quoted strings in PHP unless interpolation or quoting pressure makes double quotes clearer, as shown across `app/Filament/Support/Dashboard/DashboardCacheService.php` and `tests/Feature/Admin/PropertiesResourceTest.php`.
-- There is no repo-local `pint.json`; formatting is driven by Laravel Pint defaults plus the project rule in `AGENTS.md` to run `vendor/bin/pint --dirty --format agent`.
-- `declare(strict_types=1);` is adopted unevenly. Newer request, service, support, and selected Livewire/test files use it, such as `app/Http/Requests/Profile/UpdateProfileRequest.php`, `app/Services/Billing/BillingService.php`, `app/Livewire/Pages/Dashboard/AdminDashboard.php`, and `tests/Unit/Requests/FormRequestValidationTest.php`. Many models, policies, Filament resources, and Blade component classes still omit it, such as `app/Models/User.php`, `app/Policies/OrganizationPolicy.php`, `app/Filament/Resources/Users/UserResource.php`, and `app/View/Components/Shell/AppFrame.php`.
+- Namespaces mirror product surfaces and domain boundaries rather than generic technical layers:
+  - `app/Http/Requests/Admin/...`
+  - `app/Http/Requests/Superadmin/...`
+  - `app/Http/Requests/Tenant/...`
+  - `app/Filament/Actions/Admin/...`
+  - `app/Filament/Support/Admin/...`
+  - `app/Livewire/Pages/...`
+- Class names are descriptive and task-specific. Common suffixes:
+  - `*Request` for validation classes, e.g. `app/Http/Requests/Admin/Invoices/ProcessPaymentRequest.php`
+  - `*Action` for write/mutation logic, e.g. `app/Filament/Actions/Admin/Tenants/CreateTenantAction.php`
+  - `*Service` for orchestrators, e.g. `app/Services/Billing/InvoiceService.php`
+  - `*Builder` for report/read-model composition, e.g. `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php`
+  - `*Policy` for access rules, e.g. `app/Policies/ProjectPolicy.php`
+  - `*Endpoint` or `*Page` for Livewire route handlers, e.g. `app/Livewire/Tenant/DownloadInvoiceEndpoint.php`, `app/Livewire/Pages/DashboardPage.php`
+- Enum classes live under `app/Enums/` and are grouped by domain concept. Cases are currently uppercase constants, not TitleCase. Example: `app/Enums/UserRole.php` defines `SUPERADMIN`, `ADMIN`, `MANAGER`, `TENANT`.
+- Test names follow behavior-first naming and are grouped by product area. Examples:
+  - `tests/Feature/Admin/InvoicesResourceTest.php`
+  - `tests/Feature/Architecture/WorkspaceReadModelInventoryTest.php`
+  - `tests/Unit/Requests/FormRequestValidationTest.php`
 
-**Linting:**
-- Use Laravel Pint as the active formatter. The repository instructions in `AGENTS.md` and `README.md` expect `vendor/bin/pint --dirty` before closeout.
-- No repo-local `phpstan.neon`, `phpstan.neon.dist`, or alternative `phpstan*` config was detected in the project root.
-- No repo-local GitHub Actions workflow directory was detected under `.github/workflows`, so style and static-analysis enforcement is documented in project instructions rather than visible CI config.
+## Architectural conventions that affect code quality
 
-## Import Organization
+- Routes are intentionally thin and point directly to Livewire pages/endpoints instead of controller-heavy flows. See `routes/web.php` for examples such as:
+  - `Route::get('/', HomepagePage::class)`
+  - `Route::get('/dashboard', [DashboardRedirectEndpoint::class, 'show'])`
+  - `Route::get('/tenant/invoices/{invoice}/download', [DownloadInvoiceEndpoint::class, 'download'])`
+- `app/Http/Controllers/` is effectively minimized; `app/Http/Controllers/Controller.php` exists as the base controller, while most interactive flows live in `app/Livewire/` and `app/Filament/`.
+- App wiring is centralized in service providers:
+  - `app/Providers/AppServiceProvider.php` registers singletons, scoped services, observers, rate limiters, and global Filament destructive-action confirmation rules.
+  - `app/Providers/AuthServiceProvider.php` maps model policies and gives `SUPERADMIN` a global `Gate::before()` allow.
+- Access control is layered rather than single-source:
+  - policies in `app/Policies/*`
+  - request `authorize()` methods in `app/Http/Requests/*`
+  - custom middleware like `app/Http/Middleware/CheckManagerPermission.php`
+  - role helpers on models such as `app/Models/User.php`
 
-**Order:**
-1. Application imports from `App\...`
-2. Package and framework imports from `Illuminate\...`, `Livewire\...`, `Filament\...`, `Carbon\...`, or similar
-3. Test-only function imports when needed, such as `use function PHPUnit\Framework\assertContains;` in `tests/Unit/Requests/FormRequestStructureTest.php`
+## Model and query conventions
 
-**Grouping:**
-- Keep all imports beneath the namespace declaration and use one import per line, as seen in `app/Livewire/Auth/LoginPage.php`, `app/Providers/AppServiceProvider.php`, and `tests/Feature/Auth/LoginFlowTest.php`.
-- Separate the `App\...` block from framework/package imports with a blank line only when the file structure benefits from it. Some files stay as a single uninterrupted block, so preserve the sibling-file pattern for the area you are touching.
-- Do not rely on import sorting tools that rewrite domain grouping. Many files are grouped semantically rather than strictly alphabetically, for example `app/Providers/AppServiceProvider.php` and `app/Services/Billing/BillingService.php`.
+- Eloquent models commonly keep:
+  - `protected $fillable`
+  - `casts()` methods instead of a `$casts` property
+  - explicit relationship return types
+  - reusable local scopes for tenant/workspace filtering
+- `app/Models/Invoice.php` and `app/Models/User.php` are representative:
+  - workspace-specific `select()` column lists are stored as private constants
+  - scopes encapsulate business slices like `outstanding()`, `overdue()`, `adminLike()`, `withCurrentPropertySummary()`
+  - relationships are strongly typed (`BelongsTo`, `HasMany`, `HasOne`)
+- Raw SQL is avoided for ordinary CRUD, but query builder expressions are accepted for high-value read models and aggregates. `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php` uses joins and SQL expressions to produce reporting rows.
+- `DB::` is used selectively for transactions and special cases rather than as the default read/write pattern. Example: `app/Services/Billing/InvoiceService.php` wraps multi-step mutations in `DB::transaction()` and uses `DB::afterCommit()`.
 
-**Path Aliases:**
-- PHP code relies on Composer PSR-4 namespaces from `composer.json`: `App\`, `Database\Factories\`, `Database\Seeders\`, and `Tests\`.
-- Blade templates use component aliases and view names instead of filesystem aliases, for example `<x-shell.app-frame>` from `resources/views/components/shell/app-frame.blade.php` and `view('auth.login')` from `app/Livewire/Auth/LoginPage.php`.
+## Validation conventions
 
-## Error Handling
+- Request validation is strongly standardized around `FormRequest` classes under `app/Http/Requests/`.
+- Request classes usually include:
+  - `authorize(): bool`
+  - `rules(): array`
+  - `messages(): array`
+  - `attributes(): array`
+  - `prepareForValidation(): void`
+- `app/Http/Requests/Admin/Tenants/StoreTenantRequest.php` is a good example of current style:
+  - inline array rules
+  - `Rule::exists()` scoped by organization
+  - custom closure validation for property assignment eligibility
+  - localized messages and attributes
+  - pre-validation normalization via trimming and empty-string-to-null conversion
+- The trait `app/Http/Requests/Concerns/InteractsWithValidationPayload.php` is a major convention. It allows request classes to be reused outside controllers by validating arbitrary payload arrays through `validatePayload()` and `authorizePayload()`.
+- That trait is actively consumed from mutation classes. Example: `app/Filament/Actions/Admin/Tenants/CreateTenantAction.php` instantiates `StoreTenantRequest` and validates data before creating records.
 
-**Patterns:**
-- Keep validation inside Form Requests under `app/Http/Requests`, then call those requests from actions and Livewire endpoints, for example `app/Filament/Actions/Admin/Properties/CreatePropertyAction.php` and `app/Livewire/Auth/LoginPage.php`.
-- Use framework exceptions and authorization guards at boundaries instead of custom result wrappers. Common patterns are `ValidationException::withMessages()` in `app/Livewire/Auth/LoginPage.php` and `abort_unless()` in `app/Livewire/Pages/Dashboard/AdminDashboard.php`.
-- Keep policies thin and boolean-returning, with one method per ability, as in `app/Policies/OrganizationPolicy.php`.
-- Prefer action/support-layer validation or mutation helpers over putting rules directly in controllers or Blade templates, which matches the enforced directory rules in `tests/Feature/Architecture/FilamentFoundationPlacementTest.php`.
+## Error-handling conventions
 
-**Error Types:**
-- Throw `ValidationException` for user-correctable input failures, for example in `app/Services/Billing/BillingService.php`.
-- Return HTTP 403/404 through authorization and model scoping boundaries instead of manual response objects, which is the behavior asserted in `tests/Feature/Filament/SuperadminResourcesTest.php` and `tests/Feature/Admin/PropertiesResourceTest.php`.
-- Keep security and audit concerns in dedicated services, events, and observers rather than inline logging, for example `app/Services/Security/SecurityMonitor.php`, `app/Events/SecurityViolationDetected.php`, and `app/Observers/UserObserver.php`.
+- Error handling depends on surface area:
+  - domain/runtime failures throw typed exceptions or framework exceptions
+  - web routes often use `abort(...)`
+  - Filament UI flows use `Filament\Notifications\Notification`
+  - JSON-aware middleware may return JSON error payloads directly
+- Representative patterns:
+  - typed domain exception factory: `app/Exceptions/InvalidProjectTransitionException.php`
+  - HTTP access exception: `app/Services/ImpersonationService.php`
+  - UI notification + redirect + JSON split: `app/Http/Middleware/CheckManagerPermission.php`
+  - low-level runtime failure: `app/Services/Billing/InvoicePdfRenderer.php`
+- The codebase favors explicit failure messages and translated user-facing text rather than silent failure.
 
-## Logging
+## Localization and user-facing strings
 
-**Framework:**
-- Ad hoc `logger()` or `Log::...` usage is not a dominant convention in the inspected files.
-- Cross-cutting audit and security traces flow through dedicated abstractions such as `app/Filament/Support/Audit/AuditLogger.php`, `app/Services/Security/SecurityMonitor.php`, and observer classes in `app/Observers`.
+- User-facing text is usually translated with `__()` rather than hard-coded English.
+- This applies across services, notifications, commands, and UI support classes. Examples:
+  - `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php`
+  - `app/Services/Billing/InvoicePdfDocumentFactory.php`
+  - `app/Notifications/InvoiceOverdueReminderNotification.php`
+  - `app/Console/Commands/LaravelMissingTranslationsPhpFilesCommand.php`
+- Validation requests also translate attribute labels and messages through `InteractsWithValidationPayload`.
 
-**Patterns:**
-- Put audit and tracking behavior behind named support services or observers instead of embedding log statements inside models or Blade views.
-- Trigger events for cross-cutting notifications and monitoring, for example `app/Events/InvoiceFinalized.php` and `app/Events/SecurityViolationDetected.php`.
-- Keep UI code free of debugging output. No `console.log` or dump-style debugging was present in the representative Blade views under `resources/views`.
+## Filament and Livewire conventions
 
-## Comments
+- Filament hosts most authenticated CRUD and admin/superadmin workflows under `app/Filament/`.
+- Shared support logic is intentionally extracted away from page/resource classes into `app/Filament/Support/...` and `app/Filament/Actions/...`.
+- Livewire components under `app/Livewire/` handle page shells, endpoints, dashboard composition, public routes, and tenant self-service.
+- `app/Livewire/Pages/DashboardPage.php` shows the pattern of keeping composition in a parent component and delegating role-specific data to injected presenters/support services.
+- Livewire endpoint classes are often tiny wrappers over actions, e.g. `app/Livewire/Tenant/DownloadInvoiceEndpoint.php`.
 
-**When to Comment:**
-- Prefer minimal inline comments. The inspected codebase leans on clear naming and extracted helpers instead of explanatory inline prose.
-- Use docblocks when native PHP types are not expressive enough, especially for array shapes, generic collections, or trait usage, as in `app/Models/User.php`, `app/Http/Requests/Profile/UpdateProfileRequest.php`, and `tests/Pest.php`.
-- Keep comments focused on contract details rather than restating obvious code, which matches files like `app/Filament/Support/Dashboard/DashboardCacheService.php` and `app/Policies/OrganizationPolicy.php`.
+## Constructors, typing, and PHPDoc usage
 
-**JSDoc/TSDoc:**
-- Not applicable in this repository focus area.
-- For PHPDoc, use `@return`, `@param`, and generic collection annotations where needed, as in `app/Services/Billing/BillingService.php`, `tests/Unit/Requests/FormRequestStructureTest.php`, and `tests/Support/FormRequestScenarioFactory.php`.
+- Constructor property promotion with `private readonly` dependencies is common in newer classes:
+  - `app/Services/Billing/InvoiceService.php`
+  - `app/Http/Middleware/CheckManagerPermission.php`
+  - `app/Filament/Actions/Admin/Tenants/CreateTenantAction.php`
+- Array-shape PHPDoc is used heavily where payloads are complex. Examples:
+  - `app/Http/Requests/Admin/Tenants/StoreTenantRequest.php`
+  - `app/Filament/Support/Admin/Reports/RevenueReportBuilder.php`
+  - `app/Filament/Actions/Admin/Tenants/CreateTenantAction.php`
+- Many service/support classes are marked `final`; models, policies, and a number of Filament classes are not. Plan edits according to local neighborhood style.
 
-**TODO Comments:**
-- No TODO-comment convention was evident in the representative files inspected for this mapping pass.
+## Practical planning notes
 
-## Function Design
-
-**Size:**
-- Keep boundary methods short and push repeated work into helpers or support classes. Examples include `render()` and `mount()` in `app/Livewire/Pages/Dashboard/AdminDashboard.php` and `handle()` in `app/Filament/Actions/Admin/Properties/CreatePropertyAction.php`.
-- Let large orchestration methods live in service classes only when they own the full workflow, as in `app/Services/Billing/BillingService.php`.
-
-**Parameters:**
-- Prefer typed scalar/object parameters and constructor injection, for example `app/Filament/Actions/Admin/Properties/CreatePropertyAction.php` and `app/Livewire/Auth/LoginPage.php`.
-- Use associative arrays for validated payloads only at mutation boundaries, then document the expected shape in PHPDoc, as in `app/Services/Billing/BillingService.php`.
-- In Blade components, define top-level props with `@props([...])`, as in `resources/views/components/layouts/app.blade.php` and `resources/views/components/shell/app-frame.blade.php`.
-
-**Return Values:**
-- Declare explicit return types wherever feasible. This is common in requests, services, Livewire components, and support classes such as `app/Http/Requests/Profile/UpdateProfileRequest.php`, `app/Livewire/Auth/LoginPage.php`, and `app/Filament/Support/Dashboard/DashboardCacheService.php`.
-- For query helpers and scopes, return the `Builder` so chains stay composable, as in `app/Models/Organization.php`, `app/Models/Property.php`, and `app/Models/User.php`.
-- For Livewire view components, return `View` from `render()` and keep view data explicit, as in `app/Livewire/Auth/LoginPage.php` and `app/View/Components/Shell/AppFrame.php`.
-
-## Module Design
-
-**Exports:**
-- There are no barrel files or index-style re-export modules in the PHP application tree. Classes are referenced directly by full namespace, as seen across `app/Providers/AppServiceProvider.php` and the tests under `tests/Feature`.
-- Keep one primary class per file and map the namespace directly to the filesystem path.
-
-**Barrel Files:**
-- Not used in the PHP application tree.
-- Reuse direct class imports and direct view/component names instead of adding aggregation layers.
-
-## Layer-Specific Conventions
-
-**Requests and Validation:**
-- Put request validation in `app/Http/Requests` and mix in `App\Http\Requests\Concerns\InteractsWithValidationPayload`, as shown in `app/Http/Requests/Profile/UpdateProfileRequest.php` and enforced by `tests/Unit/Requests/FormRequestStructureTest.php`.
-- Define the full request contract on each form request: `authorize()`, `rules()`, `messages()`, `attributes()`, and `prepareForValidation()`.
-
-**Models and Queries:**
-- Keep reusable filtering and eager-loading logic on models via local scopes, for example `app/Models/Organization.php`, `app/Models/Property.php`, and `app/Models/User.php`.
-- Prefer explicit select lists and eager-loaded summary scopes for workspace/control-plane queries, such as `scopeForSuperadminControlPlane()` in `app/Models/Organization.php` and `scopeWithWorkspaceSummary()` in `app/Models/Property.php`.
-
-**Filament and Support Code:**
-- Keep business mutations in `app/Filament/Actions`, shared orchestration in `app/Filament/Support`, and resource definitions in `app/Filament/Resources`. This layout is both instructed in `AGENTS.md` and enforced in `tests/Feature/Architecture/FilamentFoundationPlacementTest.php`.
-- Filament resources often remain class-based and may omit `declare(strict_types=1);`, so match the local style of the resource subtree you are editing.
-
-**Livewire and Blade:**
-- Keep Livewire `render()` methods thin and pass precomputed view data to Blade, as in `app/Livewire/Auth/LoginPage.php` and `app/Livewire/Pages/Dashboard/AdminDashboard.php`.
-- Keep Blade files presentational. Use `@props`, `@forelse`, Livewire navigation directives, and small `@php(...)` assignments, as in `resources/views/components/layouts/app.blade.php`, `resources/views/auth/login.blade.php`, and `resources/views/livewire/shell/topbar.blade.php`.
-- Use `wire:poll` and `wire:navigate` directly in views when the UI surface is intentionally real-time or SPA-like, as in `resources/views/livewire/pages/dashboard/admin-dashboard.blade.php` and `resources/views/livewire/shell/topbar.blade.php`.
-
----
-
-*Convention analysis: 2026-03-19*
+- Match the strictness level of sibling files before editing. Do not assume repository-wide strict types or `final` usage.
+- Prefer adding behavior in existing `FormRequest`, `Filament\Actions`, or `Filament\Support` areas instead of expanding controllers.
+- Reuse request validation through `validatePayload()` when implementing Filament or Livewire mutations.
+- Preserve translated messaging with `__()` for anything user-facing.
+- Keep multi-step writes transactional and cache/event side effects in `afterCommit()` when following service-layer patterns like `app/Services/Billing/InvoiceService.php`.
+- There are no `TODO`/`FIXME` markers in `app/**/*.php` from the current scan, so open concerns need to be inferred from tests, structure, or behavior rather than inline comments.

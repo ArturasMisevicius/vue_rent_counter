@@ -1,202 +1,261 @@
-# Architecture
+# Architecture Map
 
-**Analysis Date:** 2026-03-19
+## System shape
 
-## Pattern Overview
+Tenanto is a single Laravel application with one shared runtime and several role-specific surfaces layered on top of it. The dominant shape is **Filament-first for authenticated workspaces** plus **Livewire-driven public and auth entrypoints**.
 
-**Overall:** Unified-panel Laravel monolith with Filament-first administration and Livewire-assisted public, auth, and tenant flows
+- HTTP bootstrap starts in `public/index.php` and delegates application configuration to `bootstrap/app.php`.
+- Public, auth, tenant shortcut, and lightweight endpoint routes are declared in `routes/web.php`.
+- The authenticated workspace is mounted as one Filament panel in `app/Providers/Filament/AppPanelProvider.php` at the `/app` path.
+- Console automation and scheduled operations live in `routes/console.php`.
+- Broadcast authorization is narrow and organization-scoped in `routes/channels.php`.
 
-**Key Characteristics:**
-- A single Laravel application boots from `bootstrap/app.php` and serves the public site, authentication, tenant self-service, organization workspace, and superadmin control plane from one runtime.
-- One Filament panel at `/app` is configured in `app/Providers/Filament/AppPanelProvider.php`; it discovers resources, pages, and widgets and builds role-aware navigation at runtime.
-- Livewire is the primary interaction layer outside traditional controllers: public/auth routes mount `app/Livewire/*` components directly, and several Filament pages are thin wrappers around Livewire components defined in `resources/views/filament/pages/*`.
-- Eloquent models in `app/Models/*` carry most query shaping through explicit workspace and control-plane scopes such as `forSuperadminControlPlane()`, `forOrganizationWorkspace()`, `forAdminWorkspace()`, and `forTenantWorkspace()`.
-- Authorization is layered across `app/Policies/*`, Filament `canAccess()` / `canView()` methods, route middleware in `app/Http/Middleware/*`, and targeted `Gate::authorize()` calls in actions and Livewire components.
-- Validation is centralized in `app/Http/Requests/*`, including request reuse inside Livewire via `app/Http/Requests/Concerns/InteractsWithValidationPayload.php`.
+This produces one codebase with multiple role projections rather than separate apps.
 
-## Layers
+## Runtime entry points
 
-**Bootstrap and Composition Layer:**
-- Purpose: Construct the Laravel application, register providers, wire middleware, and expose runtime entry points.
-- Location: `bootstrap/app.php`, `bootstrap/providers.php`, `app/Providers/AppServiceProvider.php`, `app/Providers/AuthServiceProvider.php`, `app/Providers/Filament/AppPanelProvider.php`
-- Contains: route registration, middleware aliases, singleton/scoped bindings, observer registration, policy mapping, and Filament panel definition.
-- Depends on: Laravel framework configuration plus app services such as `app/Services/SubscriptionChecker.php` and `app/Filament/Support/*`.
-- Used by: every HTTP request, console invocation from `routes/console.php`, and broadcast authorization in `routes/channels.php`.
+### HTTP entry
 
-**HTTP Boundary Layer:**
-- Purpose: Accept browser requests, choose the correct page/controller, and enforce security/access middleware before domain work runs.
-- Location: `routes/web.php`, `routes/web/guest.php`, `routes/web/authenticated.php`, `routes/web/logout.php`, `routes/channels.php`, `app/Http/Controllers/*`, `app/Http/Middleware/*`
-- Contains: public/home routes, auth routes, tenant portal redirects, narrow endpoint controllers, and middleware for blocking IPs, locale, onboarding, account access, subscription enforcement, and security headers.
-- Depends on: the bootstrap/provider layer plus request objects and support services.
-- Used by: traffic hitting `/`, `/login`, `/register`, `/tenant/*`, `/app`, `/csp/report`, and the broadcast channel `org.{organizationId}` in `routes/channels.php`.
+1. `public/index.php`
+2. `bootstrap/app.php`
+3. `routes/web.php`
+4. Either a Livewire component endpoint/page such as `app/Livewire/Auth/LoginPage.php` or a Filament page/resource discovered by `app/Providers/Filament/AppPanelProvider.php`
 
-**Filament Application Layer:**
-- Purpose: Deliver the unified admin, manager, superadmin, and tenant panel UX.
-- Location: `app/Filament/Resources/*`, `app/Filament/Pages/*`, `app/Filament/Widgets/*`, `resources/views/filament/*`
-- Contains: resource bundles such as `app/Filament/Resources/Organizations/*`, `app/Filament/Resources/Properties/*`, and `app/Filament/Resources/Invoices/*`; custom pages such as `app/Filament/Pages/Dashboard.php`, `app/Filament/Pages/Settings.php`, and `app/Filament/Pages/IntegrationHealth.php`; widgets such as `app/Filament/Widgets/Admin/OrganizationStatsOverview.php` and `app/Filament/Widgets/Superadmin/PlatformStatsOverview.php`.
-- Depends on: model scopes, policies, request classes, actions, and support services like `app/Filament/Support/Admin/OrganizationContext.php`.
-- Used by: the unified `/app` panel configured in `app/Providers/Filament/AppPanelProvider.php`.
+### Panel entry
 
-**Livewire Interaction Layer:**
-- Purpose: Handle UI state, user-triggered mutations, and shell behavior without a large controller surface.
-- Location: `app/Livewire/*`, paired views under `resources/views/livewire/*`, auth views under `resources/views/auth/*`, onboarding views under `resources/views/onboarding/*`, and Filament page stubs under `resources/views/filament/pages/*`
-- Contains: auth pages in `app/Livewire/Auth/*`, shell components in `app/Livewire/Shell/*`, public site endpoints/pages in `app/Livewire/PublicSite/*` and `app/Livewire/Preferences/UpdateGuestLocaleEndpoint.php`, dashboard components in `app/Livewire/Pages/Dashboard/*`, and tenant flows in `app/Livewire/Tenant/*`.
-- Depends on: Form Requests, Filament actions, support services, Gate/policies, and Eloquent scopes.
-- Used by: routes in `routes/web*.php`, Filament page wrappers such as `resources/views/filament/pages/tenant-invoice-history.blade.php`, and Blade shell layouts like `resources/views/components/shell/app-frame.blade.php`.
+`app/Providers/Filament/AppPanelProvider.php` is the main authenticated shell composer:
 
-**Validation and Action Layer:**
-- Purpose: Keep validation and mutation logic out of routes, Blade, and thin controllers/components.
-- Location: `app/Http/Requests/*`, `app/Filament/Actions/*`, `app/Rules/*`
-- Contains: role-specific request namespaces such as `app/Http/Requests/Admin/*`, `app/Http/Requests/Superadmin/*`, and `app/Http/Requests/Tenant/*`; action namespaces such as `app/Filament/Actions/Admin/*`, `app/Filament/Actions/Auth/*`, `app/Filament/Actions/Superadmin/*`, and `app/Filament/Actions/Tenant/*`.
-- Depends on: models, enums, services, transactions, and policies/Gate.
-- Used by: Livewire methods in `app/Livewire/Auth/LoginPage.php`, `app/Livewire/Onboarding/WelcomePage.php`, and `app/Livewire/Tenant/SubmitReadingPage.php`, plus narrow controllers such as `app/Http/Controllers/TenantInvoiceDownloadController.php`.
+- mounts the panel at `/app`
+- discovers `app/Filament/Resources`, `app/Filament/Pages`, and `app/Filament/Widgets`
+- injects custom shell components from `app/Livewire/Shell/Topbar.php` and `app/Livewire/Shell/Sidebar.php`
+- applies auth and subscription middleware
+- builds navigation through `app/Filament/Support/Shell/Navigation/NavigationBuilder.php`
 
-**Domain Model Layer:**
-- Purpose: Represent the product domains and expose reusable scopes/relationships for the rest of the application.
-- Location: `app/Models/*`, `app/Enums/*`, `app/Observers/*`, `database/migrations/*`, `database/factories/*`
-- Contains: control-plane models such as `app/Models/Organization.php`, `app/Models/Subscription.php`, `app/Models/SystemSetting.php`, `app/Models/PlatformNotification.php`, and `app/Models/SystemTenant.php`; workspace/billing models such as `app/Models/Building.php`, `app/Models/Property.php`, `app/Models/Meter.php`, `app/Models/MeterReading.php`, `app/Models/Invoice.php`, `app/Models/Tariff.php`, `app/Models/Provider.php`, and `app/Models/UtilityService.php`; security/reference models such as `app/Models/SecurityViolation.php`, `app/Models/Language.php`, and `app/Models/Translation.php`; collaboration/operations models such as `app/Models/Project.php`, `app/Models/Task.php`, `app/Models/Comment.php`, `app/Models/Activity.php`, and `app/Models/TimeEntry.php`.
-- Depends on: Eloquent, enums, observers, and database schema.
-- Used by: resources, actions, services, policies, seeders, and tests.
+### Console and scheduled entry
 
-**Support and Service Layer:**
-- Purpose: Hold reusable orchestration, caching, navigation, search, reporting, security, and presenter/query logic that does not belong in models or UI classes.
-- Location: `app/Filament/Support/*`, `app/Services/*`, `app/View/Components/*`
-- Contains: organization/subscription helpers in `app/Filament/Support/Admin/*`, report builders in `app/Filament/Support/Admin/Reports/*`, shell navigation/search helpers in `app/Filament/Support/Shell/*`, tenant portal presenters/queries in `app/Filament/Support/Tenant/Portal/*`, billing/security services in `app/Services/Billing/*` and `app/Services/Security/*`, and Blade component classes such as `app/View/Components/Shell/AppFrame.php`.
-- Depends on: models, cache, config, notifications, and framework services.
-- Used by: providers, middleware, resources, widgets, Livewire components, and Blade layouts.
+`routes/console.php` contains both ad hoc commands and recurring workflows:
 
-## Data Flow
+- operations checks through `app/Services/Operations/BackupRestoreReadinessService.php` and `app/Services/Operations/ReleaseReadinessEvidenceService.php`
+- project notifications and escalations using models plus notifications under `app/Notifications/Projects/`
+- scheduled pruning and external sync tasks
 
-**Public and Auth Request Flow:**
+## Main architectural layers
 
-1. `bootstrap/app.php` creates the app and applies web middleware such as `App\Http\Middleware\BlockBlockedIpAddresses`, `App\Http\Middleware\SetGuestLocale`, and `App\Http\Middleware\SecurityHeaders`.
-2. `routes/web.php` and `routes/web/guest.php` route the request to a Livewire page or a thin controller.
-3. Livewire components such as `app/Livewire/PublicSite/HomepagePage.php` and `app/Livewire/Auth/LoginPage.php` gather or validate input with request classes like `app/Http/Requests/Auth/LoginRequest.php`.
-4. Actions/support services such as `app/Filament/Support/Auth/LoginRedirector.php`, `app/Filament/Support/Auth/AuthenticatedSessionHistory.php`, or `app/Filament/Actions/Auth/CompleteOnboardingAction.php` perform side effects and persistence.
-5. Blade views such as `resources/views/welcome.blade.php`, `resources/views/auth/login.blade.php`, and `resources/views/onboarding/welcome.blade.php` render the response.
+### 1. Delivery surfaces
 
-**Unified Filament Panel Flow:**
+#### Public and auth Livewire pages
 
-1. `app/Providers/Filament/AppPanelProvider.php` serves `/app`, discovers resources/pages/widgets, and applies panel auth middleware such as `App\Http\Middleware\AuthenticateAdminPanel`, `App\Http\Middleware\EnsureAccountIsAccessible`, `App\Http\Middleware\EnsureOnboardingIsComplete`, and `App\Http\Middleware\CheckSubscriptionStatus`.
-2. `AppPanelProvider::buildNavigation()` chooses navigation groups and items based on role checks like `isSuperadmin()`, `isAdminOrManager()`, and `isTenant()`.
-3. Resource classes such as `app/Filament/Resources/Organizations/OrganizationResource.php`, `app/Filament/Resources/Properties/PropertyResource.php`, and `app/Filament/Resources/Invoices/InvoiceResource.php` scope queries through model methods like `forSuperadminControlPlane()`, `forOrganizationWorkspace()`, `forAdminWorkspace()`, and `forTenantWorkspace()`.
-4. Resource sub-classes under `Pages/`, `Schemas/`, `Tables/`, and `RelationManagers/` shape CRUD screens and related data views.
-5. Custom pages such as `app/Filament/Pages/Dashboard.php`, `app/Filament/Pages/Profile.php`, and `app/Filament/Pages/Settings.php` either render directly or delegate to Livewire page components via Blade wrappers in `resources/views/filament/pages/*`.
+- homepage: `app/Livewire/PublicSite/HomepagePage.php` -> `resources/views/welcome.blade.php`
+- login/register/reset flows: `app/Livewire/Auth/*.php` -> `resources/views/auth/*.blade.php`
+- onboarding/profile: `app/Livewire/Onboarding/WelcomePage.php`, `app/Livewire/Profile/EditProfilePage.php`
 
-**Tenant Self-Service Flow:**
+These classes often act like route handlers with small page concerns and delegate non-trivial decisions to support services or form requests.
 
-1. Authenticated routes in `routes/web/authenticated.php` accept human-friendly `/tenant/*` URLs and direct them through `app/Http/Controllers/TenantPortalRouteController.php`.
-2. `TenantPortalRouteController` maps those destinations to Filament page routes such as `filament.admin.pages.tenant-dashboard` and `filament.admin.pages.tenant-submit-meter-reading`.
-3. Filament page views like `resources/views/filament/pages/tenant-invoice-history.blade.php` and `resources/views/filament/pages/tenant-submit-meter-reading.blade.php` mount Livewire components in `app/Livewire/Tenant/*`.
-4. Livewire components validate payloads with requests like `app/Http/Requests/Tenant/InvoiceHistoryFilterRequest.php` and `app/Http/Requests/Tenant/StoreMeterReadingRequest.php`, then delegate mutations to actions such as `app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php`.
-5. Query helpers and presenters such as `app/Filament/Support/Tenant/Portal/TenantInvoiceIndexQuery.php` and `app/Filament/Support/Tenant/Portal/PaymentInstructionsResolver.php` keep tenant-specific query and presentation logic out of Blade files.
+#### Filament workspace shell
 
-**State Management:**
-- Persistent state lives in the relational schema defined by `database/migrations/*` and modeled in `app/Models/*`.
-- Per-request access context is derived from the authenticated user and helpers such as `app/Filament/Support/Admin/OrganizationContext.php`.
-- Livewire properties hold transient UI state for search, filters, forms, and overlays in components like `app/Livewire/Shell/GlobalSearch.php` and `app/Livewire/Tenant/SubmitReadingPage.php`.
-- Dashboard and subscription summaries are cached by services such as `app/Filament/Support/Dashboard/DashboardCacheService.php` and `app/Services/SubscriptionChecker.php`.
+- panel provider: `app/Providers/Filament/AppPanelProvider.php`
+- standalone pages: `app/Filament/Pages/*.php`
+- widgets: `app/Filament/Widgets/**`
+- resources: `app/Filament/Resources/**`
 
-## Key Abstractions
+Filament is the dominant authenticated UI layer for superadmin, admin, manager, and tenant users.
 
-**Unified Panel Provider:**
-- Purpose: Centralize panel identity, middleware, resource/page discovery, and role-based navigation.
-- Examples: `app/Providers/Filament/AppPanelProvider.php`, `app/Livewire/Shell/Sidebar.php`, `app/Livewire/Shell/Topbar.php`
-- Pattern: One Filament panel with dynamic navigation instead of separate admin and tenant panels.
+#### Hybrid Filament + Livewire pages
 
-**Resource Bundle:**
-- Purpose: Package a CRUD surface as one resource root plus page/schema/table/relation-manager classes.
-- Examples: `app/Filament/Resources/Organizations/OrganizationResource.php`, `app/Filament/Resources/Organizations/Pages/ListOrganizations.php`, `app/Filament/Resources/Organizations/Schemas/OrganizationForm.php`, `app/Filament/Resources/Organizations/RelationManagers/UsersRelationManager.php`
-- Pattern: Filament resource bundle with a singular `*Resource.php` root and nested UI configuration classes.
+Some Filament pages are thin wrappers around larger Livewire page classes. Example:
 
-**Livewire Page-Action Component:**
-- Purpose: Let a single class own a page’s state and orchestrate validation, authorization, and action calls.
-- Examples: `app/Livewire/Auth/LoginPage.php`, `app/Livewire/Onboarding/WelcomePage.php`, `app/Livewire/Tenant/SubmitReadingPage.php`, `app/Livewire/Shell/GlobalSearch.php`
-- Pattern: Livewire component methods use typed request objects and injected actions/services instead of fat controllers.
+- wrapper: `app/Filament/Pages/Reports.php`
+- implementation: `app/Livewire/Pages/Reports/ReportsPage.php`
+- Blade view: `resources/views/filament/pages/reports.blade.php`
 
-**Form Request Payload Adapter:**
-- Purpose: Reuse Laravel Form Request rules for both HTTP requests and Livewire payload validation.
-- Examples: `app/Http/Requests/Concerns/InteractsWithValidationPayload.php`, `app/Http/Requests/Tenant/StoreMeterReadingRequest.php`, `app/Http/Requests/Admin/Properties/StorePropertyRequest.php`
-- Pattern: Request classes expose `validatePayload()` and authorization-aware validation without requiring an actual HTTP controller form submission.
+This is a recurring pattern when a page needs richer state handling but still belongs inside the Filament shell.
 
-**Workspace and Control-Plane Scopes:**
-- Purpose: Give each surface an explicit query shape with selected columns, eager loads, and ordering.
-- Examples: `app/Models/Organization.php`, `app/Models/User.php`, `app/Models/Property.php`, `app/Models/Meter.php`, `app/Models/Invoice.php`
-- Pattern: Eloquent scopes define reusable read models such as control-plane, organization workspace, and tenant workspace queries.
+### 2. Request validation and access control
 
-**Support Registries and Context Services:**
-- Purpose: Provide reusable orchestration objects for navigation, search, reporting, dashboards, and tenant/org context.
-- Examples: `app/Filament/Support/Admin/OrganizationContext.php`, `app/Filament/Support/Shell/Search/GlobalSearchRegistry.php`, `app/Filament/Support/Dashboard/DashboardCacheService.php`, `app/Filament/Support/Admin/Reports/ReportExportService.php`
-- Pattern: Thin UI classes delegate to support services instead of embedding orchestration logic directly.
+- middleware registration and aliases are centralized in `bootstrap/app.php`
+- request throttling and rate limiters are configured in `app/Providers/AppServiceProvider.php`
+- validation is pushed into form requests under `app/Http/Requests/**`
+- authorization is mostly policy-based via `app/Providers/AuthServiceProvider.php` and `app/Policies/**`
 
-## Entry Points
+Examples:
 
-**Laravel Bootstrap:**
-- Location: `bootstrap/app.php`
-- Triggers: Every HTTP request.
-- Responsibilities: Register routes, alias middleware, prepend/append web middleware, and create the application instance.
+- tenant gate middleware: `app/Http/Middleware/EnsureUserIsTenant.php`
+- subscription gating: `app/Http/Middleware/CheckSubscriptionStatus.php`
+- invoice draft validation: `app/Http/Requests/Admin/Invoices/CreateInvoiceDraftRequest.php`
 
-**Unified Filament Panel:**
-- Location: `app/Providers/Filament/AppPanelProvider.php`
-- Triggers: Requests to `/app` and Filament-generated routes.
-- Responsibilities: Define panel path, shell components, middleware stack, navigation, and discovery for resources/pages/widgets.
+Controllers are intentionally minimal; `app/Http/Controllers/` is sparse compared with `app/Livewire/` and `app/Filament/`.
 
-**Web Route Surface:**
-- Location: `routes/web.php`, `routes/web/guest.php`, `routes/web/authenticated.php`, `routes/web/logout.php`
-- Triggers: Browser requests for public, auth, profile, tenant, locale, and CSP routes.
-- Responsibilities: Group routes by guest/authenticated context and keep route files as simple dispatch points.
+### 3. Application support / orchestration layer
 
-**Thin Controllers:**
-- Location: `app/Http/Controllers/TenantPortalRouteController.php`, `app/Http/Controllers/TenantInvoiceDownloadController.php`, `app/Http/Controllers/NotificationTrackingController.php`, `app/Http/Controllers/CspViolationReportController.php`
-- Triggers: Redirect/download/webhook-style endpoints that do not need a full page component.
-- Responsibilities: Route model binding, small authorization/dispatch checks, and delegation to actions/services.
+The main orchestration layer is not a classic `app/Actions` or `app/Support` root. Instead it is split by concern, mostly under `app/Filament/Support/` and `app/Filament/Actions/`.
 
-**Standalone Livewire Pages:**
-- Location: `app/Livewire/PublicSite/HomepagePage.php`, `app/Livewire/Auth/*`, `app/Livewire/Onboarding/WelcomePage.php`
-- Triggers: Public and guest/auth flows mounted directly from route definitions.
-- Responsibilities: Render page views, validate payloads, and hand off side effects to actions/support services.
+Common abstraction types:
 
-**CLI and Broadcasting:**
-- Location: `routes/console.php`, `routes/channels.php`
-- Triggers: Artisan console execution and broadcast subscription authorization.
-- Responsibilities: Register lightweight console endpoints and authorize org-scoped realtime channels.
+- **Resolvers**: `app/Filament/Support/Workspace/WorkspaceResolver.php`, `app/Services/Billing/TariffResolver.php`
+- **Presenters**: `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`, `app/Filament/Support/Admin/Invoices/InvoiceViewPresenter.php`
+- **Builders**: `app/Filament/Support/Admin/Reports/ConsumptionReportBuilder.php`, `app/Filament/Support/Shell/Navigation/NavigationBuilder.php`
+- **Queries**: `app/Filament/Support/Superadmin/Organizations/OrganizationListQuery.php`, `app/Filament/Support/Tenant/Portal/TenantInvoiceIndexQuery.php`
+- **Guards**: `app/Filament/Support/Admin/SubscriptionLimitGuard.php`, `app/Filament/Support/Admin/Invoices/FinalizedInvoiceGuard.php`
+- **Registries**: `app/Filament/Support/Shell/Search/GlobalSearchRegistry.php`, `app/Filament/Support/Superadmin/Integration/IntegrationProbeRegistry.php`
+- **Mutating action classes**: `app/Filament/Actions/Admin/Invoices/SendInvoiceReminderAction.php`
 
-## Error Handling
+This layer is where most planning-level business coordination happens.
 
-**Strategy:** Authorize and validate at the boundary, let middleware and policies short-circuit invalid access, and return explicit redirects, validation errors, abort responses, or dedicated error views.
+### 4. Domain and persistence layer
 
-**Patterns:**
-- Livewire methods throw or catch `ValidationException` and `AuthorizationException` close to the interaction point in `app/Livewire/Auth/LoginPage.php` and `app/Livewire/Tenant/SubmitReadingPage.php`.
-- Middleware enforces account/subscription/onboarding state in `app/Http/Middleware/EnsureAccountIsAccessible.php`, `app/Http/Middleware/EnsureOnboardingIsComplete.php`, and `app/Http/Middleware/CheckSubscriptionStatus.php`; blocked states redirect to login, onboarding, or `resources/views/errors/subscription-suspended.blade.php`.
-- Controllers use route model binding with `abort_if()` / `abort_unless()` in `app/Http/Controllers/TenantPortalRouteController.php` and `app/Http/Controllers/NotificationTrackingController.php`.
-- CSP violations are recorded and acknowledged with `202 No Content` in `app/Http/Controllers/CspViolationReportController.php`.
-- User-facing fallback error screens live in `resources/views/errors/403.blade.php`, `resources/views/errors/404.blade.php`, `resources/views/errors/500.blade.php`, and `resources/views/errors/layout.blade.php`.
+Eloquent models are the main domain boundary and query surface.
 
-## Cross-Cutting Concerns
+- primary business entities live in `app/Models/*.php`
+- enums live in `app/Enums/*.php`
+- model scopes encode read models and context filtering
+- relations are heavily used to express organization, property, tenant, billing, and project boundaries
 
-**Logging and Audit:**
-- Audit and security records flow through `app/Filament/Support/Audit/AuditLogger.php`, model observers in `app/Observers/*`, and audit/security models such as `app/Models/AuditLog.php`, `app/Models/OrganizationActivityLog.php`, `app/Models/SuperAdminAuditLog.php`, and `app/Models/SecurityViolation.php`.
+Examples:
 
-**Validation:**
-- Validation is concentrated in `app/Http/Requests/*` and reused inside Livewire through `app/Http/Requests/Concerns/InteractsWithValidationPayload.php`.
-- Subscription-aware custom rules live in `app/Rules/WithinPropertyLimit.php` and `app/Rules/WithinTenantLimit.php`.
+- tenant/admin invoice query surfaces in `app/Models/Invoice.php`
+- workspace-aware user helpers in `app/Models/User.php`
+- control-plane organization projections in `app/Models/Organization.php`
+- tenancy assignment boundary in `app/Models/PropertyAssignment.php`
 
-**Authentication and Authorization:**
-- Web auth is applied through route groups in `routes/web.php` plus middleware registered in `bootstrap/app.php`.
-- Panel access is gated by `app/Http/Middleware/AuthenticateAdminPanel.php` and per-page/resource checks such as `app/Filament/Pages/PlatformDashboard.php` and `app/Filament/Resources/Properties/PropertyResource.php`.
-- Model-level authorization is centralized in `app/Policies/*` and referenced by Filament resources, Gate checks, and route model binding flows.
+### 5. Async and notification layer
 
-**Tenant and Organization Scoping:**
-- Organization context is resolved centrally in `app/Filament/Support/Admin/OrganizationContext.php`.
-- Workspace read models are encoded as Eloquent scopes in `app/Models/Organization.php`, `app/Models/Property.php`, `app/Models/Meter.php`, `app/Models/Invoice.php`, and `app/Models/User.php`.
+Mutation side effects are pushed into jobs and notifications instead of remaining in UI code.
 
-**Security Headers and CSP:**
-- Security headers are prepared/applied by `app/Http/Middleware/SecurityHeaders.php` and `app/Services/Security/SecurityHeaderService.php`.
-- CSP violation intake is handled by `app/Http/Controllers/CspViolationReportController.php`.
+- jobs: `app/Jobs/*.php`, `app/Jobs/Projects/*.php`, `app/Jobs/Superadmin/*.php`
+- notifications: `app/Notifications/**`
 
-**Localization:**
-- Guest and authenticated locale handling flows through `app/Http/Middleware/SetGuestLocale.php`, `app/Http/Middleware/SetAuthenticatedUserLocale.php`, `app/Filament/Actions/Preferences/*`, and translations in `lang/*/*.php`.
+Concrete flow:
 
----
+1. `app/Filament/Actions/Admin/Invoices/SendInvoiceReminderAction.php`
+2. dispatches `app/Jobs/SendInvoiceReminderJob.php`
+3. job sends `app/Notifications/InvoiceOverdueReminderNotification.php`
+4. job records audit state in `InvoiceReminderLog`
 
-*Architecture analysis: 2026-03-19*
+## Dominant flow patterns
+
+### Flow A: login and workspace routing
+
+1. `routes/web.php` routes `/login` to `app/Livewire/Auth/LoginPage.php`
+2. `LoginPage::store()` validates through `app/Http/Requests/Auth/LoginRequest.php`
+3. redirect target is decided by `app/Filament/Support/Auth/LoginRedirector.php`
+4. `/dashboard` is resolved by `app/Livewire/Shell/DashboardRedirectEndpoint.php`
+5. final destination is usually a Filament page under `/app`
+
+### Flow B: tenant shortcut routes into the shared panel
+
+1. tenant-friendly routes such as `/tenant/invoices` are declared in `routes/web.php`
+2. all map to `app/Livewire/Tenant/TenantPortalRouteEndpoint.php`
+3. endpoint checks tenant workspace through `app/Filament/Support/Workspace/WorkspaceResolver.php`
+4. endpoint redirects to Filament page routes like `filament.admin.pages.tenant-invoice-history`
+
+This keeps one panel while still exposing clean tenant URLs.
+
+### Flow C: billing mutation pipeline
+
+1. UI or page code triggers billing operations from Filament pages/resources
+2. validation lives in `app/Http/Requests/Admin/Invoices/*.php`
+3. orchestration runs through `app/Services/Billing/BillingService.php`
+4. subordinate services handle specialized concerns such as `app/Services/Billing/InvoiceService.php`, `app/Services/Billing/InvoicePdfService.php`, `app/Services/Billing/UniversalBillingCalculator.php`
+5. state is persisted via Eloquent models like `app/Models/Invoice.php`, `app/Models/InvoiceItem.php`, `app/Models/MeterReading.php`
+
+### Flow D: reporting and exports
+
+1. page wrapper `app/Filament/Pages/Reports.php`
+2. stateful implementation `app/Livewire/Pages/Reports/ReportsPage.php`
+3. report builders under `app/Filament/Support/Admin/Reports/*.php`
+4. charts from `app/Filament/Widgets/Reports/*.php`
+5. export scheduling through `app/Services/ScheduledExportService.php`
+
+## Module boundaries
+
+### Shell and workspace context
+
+Core boundary files:
+
+- `app/Providers/Filament/AppPanelProvider.php`
+- `app/Filament/Support/Workspace/WorkspaceResolver.php`
+- `app/Filament/Support/Workspace/WorkspaceContext.php`
+- `app/Filament/Support/Shell/**`
+- `config/tenanto.php`
+
+This boundary decides who the current user is in platform, organization, or tenant scope and drives navigation, redirects, and feature visibility.
+
+### Superadmin control plane
+
+Lives mostly in:
+
+- `app/Filament/Resources/Organizations/**`
+- `app/Filament/Support/Superadmin/**`
+- `app/Livewire/Superadmin/ExportRecentOrganizationsCsvEndpoint.php`
+- `app/Filament/Pages/SystemConfiguration.php`
+
+This area owns cross-organization visibility, subscriptions, system config, integrations, and platform-wide audit/security views.
+
+### Organization operations
+
+Main surfaces:
+
+- `app/Filament/Resources/Buildings/**`
+- `app/Filament/Resources/Properties/**`
+- `app/Filament/Resources/Tenants/**`
+- `app/Filament/Resources/Meters/**`
+- `app/Filament/Resources/MeterReadings/**`
+- `app/Filament/Pages/Reports.php`
+
+This is the default admin/manager workspace for day-to-day property and utility operations.
+
+### Billing subsystem
+
+Main code:
+
+- `app/Services/Billing/**`
+- `app/Filament/Resources/Invoices/**`
+- `app/Filament/Actions/Admin/Invoices/**`
+- `app/Models/Invoice.php`, `app/Models/InvoiceItem.php`, `app/Models/InvoicePayment.php`
+- `app/Notifications/Billing/**` plus `app/Notifications/InvoiceOverdueReminderNotification.php`
+
+This subsystem is one of the deepest and most service-oriented parts of the codebase.
+
+### Tenant self-service subsystem
+
+Main code:
+
+- `app/Livewire/Tenant/**`
+- `app/Filament/Pages/TenantDashboard.php`
+- `app/Filament/Pages/TenantInvoiceHistory.php`
+- `app/Filament/Pages/TenantPropertyDetails.php`
+- `app/Filament/Pages/TenantSubmitMeterReading.php`
+- `app/Filament/Support/Tenant/Portal/**`
+
+Tenant functionality is built as a projection over the same underlying data model, filtered by workspace context.
+
+### Projects and collaboration subsystem
+
+Main code:
+
+- `app/Models/Project.php`, `app/Models/Task.php`, `app/Models/Comment.php`, `app/Models/Attachment.php`
+- `app/Filament/Resources/Projects/**`
+- `app/Filament/Resources/Tasks/**`
+- `app/Jobs/Projects/RescopeProjectChildrenJob.php`
+- `app/Notifications/Projects/**`
+
+This subsystem is structurally separate from billing/property operations but still organization-scoped.
+
+## Cross-cutting concerns
+
+- localization: `app/Http/Middleware/SetGuestLocale.php`, `app/Http/Middleware/SetAuthenticatedUserLocale.php`, `lang/*`, `app/Services/Localization/PhpFileMissingTranslationsScanner.php`
+- security: `app/Http/Middleware/SecurityHeaders.php`, `app/Livewire/Security/CspViolationReportEndpoint.php`, `app/Models/SecurityViolation.php`
+- auditing/observers: observers registered in `app/Providers/AppServiceProvider.php`, model observers under `app/Observers/`
+- subscription enforcement: `app/Services/SubscriptionChecker.php`, `app/Http/Middleware/CheckSubscriptionStatus.php`
+- search/integration registries: `app/Filament/Support/Shell/Search/GlobalSearchRegistry.php`, `app/Filament/Support/Superadmin/Integration/IntegrationProbeRegistry.php`
+
+## Planning reference: where to make changes
+
+- change workspace routing or role landing behavior in `routes/web.php`, `app/Livewire/Shell/DashboardRedirectEndpoint.php`, and `app/Filament/Support/Auth/LoginRedirector.php`
+- change role scoping or tenant boundaries in `app/Filament/Support/Workspace/WorkspaceResolver.php`, related middleware, and relevant model scopes
+- change admin UI behavior in the relevant `app/Filament/Resources/<Module>/` or `app/Filament/Pages/` folder first
+- change tenant projections in `app/Livewire/Tenant/` and `app/Filament/Support/Tenant/Portal/`
+- change business calculations in `app/Services/Billing/` before touching UI files
+- change superadmin list/report composition in `app/Filament/Support/Superadmin/`
+
+The codebase is best understood as **one Laravel runtime with a shared data model, a unified Filament shell, and role-specific read/write projections implemented through workspace-aware support classes and model scopes**.

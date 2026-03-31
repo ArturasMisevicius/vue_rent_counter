@@ -10,6 +10,12 @@ cwd = "/Users/andrejprus/Herd/tenanto"
 [mcp_servers.herd.env]
 SITE_PATH = "/Users/andrejprus/Herd/tenanto"
 
+[mcp_servers.herd.tools.get_site_information]
+approval_mode = "approve"
+
+[mcp_servers.herd.tools.get_all_php_versions]
+approval_mode = "approve"
+
 [mcp_servers.context7]
 command = "npx"
 args = ["-y", "@upstash/context7-mcp"]
