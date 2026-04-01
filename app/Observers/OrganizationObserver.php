@@ -17,6 +17,11 @@ class OrganizationObserver
         app(AuditLogger::class)->updated($organization);
     }
 
+    public function deleting(Organization $organization): void
+    {
+        $organization->managerPermissions()->delete();
+    }
+
     public function deleted(Organization $organization): void
     {
         app(AuditLogger::class)->deleted($organization);

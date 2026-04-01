@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Superadmin\Dashboard;
 
+use App\Enums\ProjectStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Organization;
+use App\Models\Project;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
@@ -52,6 +56,9 @@ class PlatformDashboardData
      *         rows: array<int, array{organization: string, plan: string, expires_at: string}>,
      *         has_more: bool,
      *         view_all_url: string
+     *     },
+     *     stalledProjects: array{
+     *         rows: array<int, array{name: string, organization: string, stale_age: string}>
      *     },
      *     recentSecurityViolations: array<int, array{type: string, ip_address: string, severity: string, occurred_ago: string}>,
      *     recentOrganizations: array{
@@ -109,6 +116,9 @@ class PlatformDashboardData
      *         rows: array<int, array{organization: string, plan: string, expires_at: string}>,
      *         has_more: bool,
      *         view_all_url: string
+     *     },
+     *     stalledProjects: array{
+     *         rows: array<int, array{name: string, organization: string, stale_age: string}>
      *     },
      *     recentSecurityViolations: array<int, array{type: string, ip_address: string, severity: string, occurred_ago: string}>,
      *     recentOrganizations: array{
@@ -176,6 +186,7 @@ class PlatformDashboardData
             ],
             'revenueByPlan' => $this->revenueByPlanLastTwelveMonths(),
             'expiringSubscriptions' => $this->expiringSubscriptions(),
+            'stalledProjects' => $this->stalledProjects(),
             'recentSecurityViolations' => $this->recentSecurityViolations(),
             'recentOrganizations' => [
                 'rows' => $this->recentOrganizationsRows(),
@@ -311,6 +322,33 @@ class PlatformDashboardData
                     ],
                 ],
             ]),
+        ];
+    }
+
+    private function stalledProjects(): array
+    {
+        $threshold = now()->subDays(30)->startOfSecond();
+
+        return [
+            'rows' => Project::query()
+                ->select(['id', 'organization_id', 'name', 'metadata'])
+                ->with(['organization:id,name'])
+                ->where('status', ProjectStatus::ON_HOLD)
+                ->whereNotNull('metadata->on_hold_reason_updated_at')
+                ->where('metadata->on_hold_reason_updated_at', '<', $threshold->toDateTimeString())
+                ->orderBy('metadata->on_hold_reason_updated_at')
+                ->limit(5)
+                ->get()
+                ->map(function (Project $project): array {
+                    $updatedAt = Carbon::parse((string) data_get($project->metadata, 'on_hold_reason_updated_at'));
+
+                    return [
+                        'name' => $project->name,
+                        'organization' => $project->organization?->name ?? $this->notAvailable(),
+                        'stale_age' => $updatedAt->locale(app()->getLocale())->diffForHumans(),
+                    ];
+                })
+                ->all(),
         ];
     }
 

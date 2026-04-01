@@ -12,6 +12,7 @@ use App\Services\Operations\BackupRestoreReadinessService;
 use App\Services\Operations\PhaseOneGuardrailsBranchProtectionService;
 use App\Services\Operations\ReleaseReadinessEvidenceService;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schedule;
@@ -93,6 +94,7 @@ Artisan::command('projects:alert-stalled', function (): int {
             'name',
             'reference_number',
             'status',
+            'metadata',
             'updated_at',
         ])
         ->with([
@@ -100,9 +102,18 @@ Artisan::command('projects:alert-stalled', function (): int {
             'manager:id,organization_id,name,email,role',
         ])
         ->where('status', ProjectStatus::ON_HOLD)
-        ->where('updated_at', '<=', now()->subDays(30))
         ->chunkById(100, function ($projects): void {
             foreach ($projects as $project) {
+                $reasonUpdatedAt = data_get($project->metadata, 'on_hold_reason_updated_at');
+
+                if (blank($reasonUpdatedAt)) {
+                    continue;
+                }
+
+                if (Carbon::parse((string) $reasonUpdatedAt)->gte(now()->subDays(30)->startOfSecond())) {
+                    continue;
+                }
+
                 $recipients = collect([$project->manager])
                     ->filter()
                     ->merge(

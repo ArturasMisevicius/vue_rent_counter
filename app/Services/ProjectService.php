@@ -23,6 +23,8 @@ use App\Models\PropertyAssignment;
 use App\Models\User;
 use App\Notifications\Projects\ProjectApprovalRequestedNotification;
 use App\Notifications\Projects\ProjectApprovedNotification;
+use App\Notifications\Projects\ProjectCancelledNotification;
+use App\Notifications\Projects\ProjectCompletedNotification;
 use App\Notifications\Projects\ProjectEmergencyCreatedNotification;
 use App\Notifications\Projects\ProjectOverBudgetNotification;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -45,7 +47,7 @@ final class ProjectService
         return DB::transaction(function () use ($data, $organization, $actor): Project {
             $settings = $this->lockProjectSettings($organization);
             $type = $this->resolveProjectType($data['type'] ?? null);
-            $status = $this->resolveProjectStatus($data['status'] ?? null, $type);
+            $status = $this->resolveProjectStatus($data['status'] ?? null);
             $referenceNumber = $this->nextReferenceNumber($settings, $data['reference_number'] ?? null);
 
             $this->validateScope(
@@ -70,7 +72,7 @@ final class ProjectService
                 'start_date' => $data['start_date'] ?? $data['estimated_start_date'] ?? null,
                 'estimated_end_date' => $data['estimated_end_date'] ?? $data['due_date'] ?? null,
                 'due_date' => $data['due_date'] ?? $data['estimated_end_date'] ?? null,
-                'actual_start_date' => $status === ProjectStatus::IN_PROGRESS ? today() : ($data['actual_start_date'] ?? null),
+                'actual_start_date' => null,
                 'completion_percentage' => (int) ($data['completion_percentage'] ?? 0),
             ]);
 
@@ -126,15 +128,16 @@ final class ProjectService
         User $actor,
         ?string $reason = null,
         bool $force = false,
+        bool $acknowledgeIncompleteWork = false,
     ): Project {
-        return DB::transaction(function () use ($project, $newStatus, $actor, $reason, $force): Project {
+        return DB::transaction(function () use ($project, $newStatus, $actor, $reason, $force, $acknowledgeIncompleteWork): Project {
             if ($newStatus === ProjectStatus::IN_PROGRESS && $project->requires_approval && $project->approved_at === null && ! $force) {
                 throw ProjectApprovalRequiredException::forStart();
             }
 
             $before = $project->status;
 
-            $project->transitionTo($newStatus, $reason, $force);
+            $project->transitionTo($newStatus, $reason, $force, $acknowledgeIncompleteWork);
             $project->save();
 
             if ($newStatus === ProjectStatus::CANCELLED) {
@@ -151,12 +154,28 @@ final class ProjectService
                         'rejection_reason' => $reason ?? 'Project cancelled',
                     ]);
 
-                $project->invoiceItems()
-                    ->whereNull('voided_at')
-                    ->update([
-                        'voided_at' => now(),
-                        'void_reason' => $reason ?? 'Project cancelled',
-                    ]);
+                if ($project->cost_passed_to_tenant) {
+                    $project->invoiceItems()
+                        ->whereNull('voided_at')
+                        ->where('metadata->source', 'project_cost_passthrough')
+                        ->whereHas('invoice', fn ($invoiceQuery) => $invoiceQuery->where('status', InvoiceStatus::DRAFT->value))
+                        ->update([
+                            'voided_at' => now(),
+                            'void_reason' => $reason ?? 'Project cancelled',
+                        ]);
+                }
+
+                Notification::send(
+                    $this->cancellationRecipients($project->fresh(['manager', 'assignedTo', 'teamMembers'])),
+                    new ProjectCancelledNotification($project->fresh()),
+                );
+            }
+
+            if ($newStatus === ProjectStatus::COMPLETED) {
+                Notification::send(
+                    $this->completionRecipients($project->fresh(['organization', 'manager'])),
+                    new ProjectCompletedNotification($project->fresh()),
+                );
             }
 
             $this->auditLogger->record(
@@ -365,17 +384,19 @@ final class ProjectService
         return ProjectType::from((string) ($value ?: ProjectType::MAINTENANCE->value));
     }
 
-    private function resolveProjectStatus(mixed $value, ProjectType $type): ProjectStatus
+    private function resolveProjectStatus(mixed $value): ProjectStatus
     {
-        if ($value instanceof ProjectStatus) {
-            return $value;
+        $status = $value instanceof ProjectStatus
+            ? $value
+            : ProjectStatus::from((string) ($value ?: ProjectStatus::DRAFT->value));
+
+        if ($status !== ProjectStatus::DRAFT) {
+            throw ValidationException::withMessages([
+                'status' => 'New projects must start in draft status.',
+            ]);
         }
 
-        if ($type->isEmergency() && blank($value)) {
-            return ProjectStatus::IN_PROGRESS;
-        }
-
-        return ProjectStatus::from((string) ($value ?: ProjectStatus::DRAFT->value));
+        return $status;
     }
 
     private function validateScope(
@@ -453,6 +474,36 @@ final class ProjectService
         }
 
         return $users;
+    }
+
+    /**
+     * @return EloquentCollection<int, User>
+     */
+    private function completionRecipients(Project $project): EloquentCollection
+    {
+        return new EloquentCollection(
+            collect([$project->manager])
+                ->filter()
+                ->merge($this->approvalRecipients($project->organization))
+                ->unique('id')
+                ->values()
+                ->all(),
+        );
+    }
+
+    /**
+     * @return EloquentCollection<int, User>
+     */
+    private function cancellationRecipients(Project $project): EloquentCollection
+    {
+        return new EloquentCollection(
+            collect([$project->manager, $project->assignedTo])
+                ->filter()
+                ->merge($project->teamMembers)
+                ->unique('id')
+                ->values()
+                ->all(),
+        );
     }
 
     /**

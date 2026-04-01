@@ -10,7 +10,6 @@ use App\Enums\ProjectType;
 use App\Exceptions\InvalidProjectTransitionException;
 use App\Exceptions\ProjectApprovalRequiredException;
 use Database\Factories\ProjectFactory;
-use Illuminate\Database\Eloquent\Attributes\Computed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -366,17 +365,25 @@ class Project extends Model
                             ->whereNotNull('estimated_end_date')
                             ->whereDate('estimated_end_date', '<', today());
                     })
-                    ->orWhereNull('manager_id');
+                    ->orWhereHas('tasks', function (Builder $taskQuery): void {
+                        $taskQuery
+                            ->where('priority', 'urgent')
+                            ->doesntHave('assignments');
+                    });
             });
     }
 
-    public function transitionTo(ProjectStatus $nextStatus, ?string $reason = null, bool $force = false): self
-    {
+    public function transitionTo(
+        ProjectStatus $nextStatus,
+        ?string $reason = null,
+        bool $force = false,
+        bool $acknowledgeIncompleteWork = false,
+    ): self {
         $currentStatus = $this->status instanceof ProjectStatus
             ? $this->status
             : ProjectStatus::from((string) $this->status);
 
-        if (! $force && ! $currentStatus->canTransitionTo($nextStatus)) {
+        if ((! $force || $currentStatus->isTerminal() || $nextStatus->isTerminal()) && ! $currentStatus->canTransitionTo($nextStatus)) {
             throw InvalidProjectTransitionException::between($currentStatus, $nextStatus);
         }
 
@@ -389,6 +396,12 @@ class Project extends Model
             throw ProjectApprovalRequiredException::forStart();
         }
 
+        if ($nextStatus === ProjectStatus::ON_HOLD && blank($reason)) {
+            throw ValidationException::withMessages([
+                'reason' => __('validation.required', ['attribute' => 'hold reason']),
+            ]);
+        }
+
         if ($nextStatus === ProjectStatus::CANCELLED && blank($reason) && blank($this->cancellation_reason)) {
             throw ValidationException::withMessages([
                 'cancellation_reason' => __('validation.required', ['attribute' => 'cancellation reason']),
@@ -396,6 +409,12 @@ class Project extends Model
         }
 
         $metadata = $this->metadata ?? [];
+
+        if ($nextStatus === ProjectStatus::COMPLETED && $this->hasIncompleteCriticalTasks() && ! $acknowledgeIncompleteWork) {
+            throw ValidationException::withMessages([
+                'acknowledge_incomplete_work' => 'Critical open tasks must be explicitly acknowledged before completing this project.',
+            ]);
+        }
 
         if ($nextStatus === ProjectStatus::IN_PROGRESS && $this->actual_start_date === null) {
             $this->actual_start_date = today();
@@ -406,10 +425,23 @@ class Project extends Model
             }
         }
 
+        if ($nextStatus === ProjectStatus::ON_HOLD) {
+            Arr::set($metadata, 'on_hold_reason', $reason);
+            Arr::set($metadata, 'on_hold_reason_updated_at', now()->toDateTimeString());
+
+            if ($currentStatus !== ProjectStatus::ON_HOLD || blank(Arr::get($metadata, 'on_hold_started_at'))) {
+                Arr::set($metadata, 'on_hold_started_at', now()->toDateTimeString());
+            }
+        }
+
         if ($nextStatus === ProjectStatus::COMPLETED) {
             $this->actual_end_date = $this->actual_end_date ?? today();
             $this->completed_at = $this->completed_at ?? now();
             $this->completion_percentage = 100;
+
+            if ($acknowledgeIncompleteWork && $this->hasIncompleteCriticalTasks()) {
+                Arr::set($metadata, 'completion_acknowledged_at', now()->toDateTimeString());
+            }
 
             if ($this->estimated_end_date !== null && $this->actual_end_date !== null) {
                 Arr::set($metadata, 'schedule_variance_days', $this->estimated_end_date->diffInDays($this->actual_end_date, false));
@@ -431,7 +463,57 @@ class Project extends Model
         return $this;
     }
 
-    #[Computed]
+    public function hasIncompleteCriticalTasks(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->tasks()
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->where('priority', 'critical')
+            ->exists();
+    }
+
+    public function availableTransitionTargets(bool $force = false): array
+    {
+        $currentStatus = $this->status instanceof ProjectStatus
+            ? $this->status
+            : ProjectStatus::from((string) $this->status);
+
+        if ($currentStatus->isTerminal()) {
+            return [];
+        }
+
+        if (! $force) {
+            return $this->validNextStatuses();
+        }
+
+        return array_values(array_filter(
+            ProjectStatus::cases(),
+            function (ProjectStatus $candidate) use ($currentStatus): bool {
+                if ($candidate === $currentStatus) {
+                    return false;
+                }
+
+                if ($candidate->isTerminal()) {
+                    return $currentStatus->canTransitionTo($candidate);
+                }
+
+                return true;
+            },
+        ));
+    }
+
+    public function isReadOnly(): bool
+    {
+        $status = $this->status instanceof ProjectStatus
+            ? $this->status
+            : ProjectStatus::from((string) $this->status);
+
+        return $status->isTerminal();
+    }
+
     public function budgetVarianceAmount(): ?float
     {
         if ($this->budget_amount === null) {
@@ -441,7 +523,6 @@ class Project extends Model
         return round((float) $this->actual_cost - (float) $this->budget_amount, 2);
     }
 
-    #[Computed]
     public function scheduleVarianceDays(): ?int
     {
         if ($this->estimated_end_date === null) {
@@ -450,7 +531,7 @@ class Project extends Model
 
         $comparisonDate = $this->actual_end_date ?? today();
 
-        return $this->estimated_end_date->diffInDays($comparisonDate, false);
+        return (int) $this->estimated_end_date->diffInDays($comparisonDate, false);
     }
 
     public function isOverBudget(): bool

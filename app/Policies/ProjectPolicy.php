@@ -36,6 +36,10 @@ class ProjectPolicy
 
     public function update(User $user, Project $project): bool
     {
+        if ($project->isReadOnly()) {
+            return false;
+        }
+
         if ($user->isSuperadmin()) {
             return true;
         }

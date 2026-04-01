@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\ValidationException;
 
 class Task extends Model
 {
@@ -18,6 +19,21 @@ class Task extends Model
     use HasFactory;
 
     use SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Task $task): void {
+            $project = Project::query()
+                ->select(['id', 'status'])
+                ->find($task->project_id);
+
+            if ($project?->isReadOnly()) {
+                throw ValidationException::withMessages([
+                    'project_id' => 'Tasks cannot be added to completed or cancelled projects.',
+                ]);
+            }
+        });
+    }
 
     private const SUMMARY_COLUMNS = [
         'id',

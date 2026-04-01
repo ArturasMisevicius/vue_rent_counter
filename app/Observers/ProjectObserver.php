@@ -18,6 +18,7 @@ final class ProjectObserver
     {
         $this->syncLegacyColumns($project);
         $this->validateScope($project);
+        $this->syncStatusGuardrails($project);
     }
 
     public function updating(Project $project): void
@@ -28,33 +29,7 @@ final class ProjectObserver
             $this->validateScope($project);
         }
 
-        if (! $project->isDirty('status')) {
-            return;
-        }
-
-        $status = $project->status instanceof ProjectStatus
-            ? $project->status
-            : ProjectStatus::from((string) $project->status);
-
-        if ($status === ProjectStatus::IN_PROGRESS && $project->actual_start_date === null) {
-            $project->actual_start_date = today();
-        }
-
-        if ($status === ProjectStatus::COMPLETED) {
-            $project->actual_end_date = $project->actual_end_date ?? today();
-            $project->completed_at = $project->completed_at ?? now();
-            $project->completion_percentage = 100;
-        }
-
-        if ($status === ProjectStatus::CANCELLED) {
-            if (blank($project->cancellation_reason)) {
-                throw ValidationException::withMessages([
-                    'cancellation_reason' => __('validation.required', ['attribute' => 'cancellation reason']),
-                ]);
-            }
-
-            $project->cancelled_at = $project->cancelled_at ?? now();
-        }
+        $this->syncStatusGuardrails($project);
     }
 
     public function created(Project $project): void
@@ -159,6 +134,48 @@ final class ProjectObserver
         $metadata = $project->metadata ?? [];
 
         Arr::set($metadata, 'approval_required', $project->requires_approval);
+
+        $project->metadata = $metadata;
+    }
+
+    private function syncStatusGuardrails(Project $project): void
+    {
+        $status = $project->status instanceof ProjectStatus
+            ? $project->status
+            : ProjectStatus::from((string) $project->status);
+
+        $metadata = $project->metadata ?? [];
+
+        if ($status === ProjectStatus::IN_PROGRESS && $project->actual_start_date === null) {
+            $project->actual_start_date = today();
+        }
+
+        if ($status === ProjectStatus::ON_HOLD) {
+            if (blank(Arr::get($metadata, 'on_hold_reason'))) {
+                throw ValidationException::withMessages([
+                    'reason' => __('validation.required', ['attribute' => 'hold reason']),
+                ]);
+            }
+
+            Arr::set($metadata, 'on_hold_started_at', Arr::get($metadata, 'on_hold_started_at', now()->toDateTimeString()));
+            Arr::set($metadata, 'on_hold_reason_updated_at', Arr::get($metadata, 'on_hold_reason_updated_at', now()->toDateTimeString()));
+        }
+
+        if ($status === ProjectStatus::COMPLETED) {
+            $project->actual_end_date = $project->actual_end_date ?? today();
+            $project->completed_at = $project->completed_at ?? now();
+            $project->completion_percentage = 100;
+        }
+
+        if ($status === ProjectStatus::CANCELLED) {
+            if (blank($project->cancellation_reason)) {
+                throw ValidationException::withMessages([
+                    'cancellation_reason' => __('validation.required', ['attribute' => 'cancellation reason']),
+                ]);
+            }
+
+            $project->cancelled_at = $project->cancelled_at ?? now();
+        }
 
         $project->metadata = $metadata;
     }

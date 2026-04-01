@@ -99,6 +99,7 @@ class ProjectResource extends Resource
     public static function canEdit(Model $record): bool
     {
         return $record instanceof Project
+            && ! $record->isReadOnly()
             && static::allows('update', $record);
     }
 

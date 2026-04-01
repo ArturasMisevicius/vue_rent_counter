@@ -61,6 +61,26 @@
             </article>
 
             <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-slate-950">{{ __('dashboard.platform_sections.stalled_projects') }}</h2>
+                <p class="mt-2 text-sm text-slate-500">{{ __('dashboard.platform_sections.stalled_projects_description') }}</p>
+
+                <div class="mt-4 space-y-3">
+                    @forelse ($dashboard['stalledProjects']['rows'] as $project)
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+                            <p class="font-medium text-slate-950">{{ $project['name'] }}</p>
+                            <p class="mt-1 text-sm text-slate-600">
+                                {{ $project['organization'] }} · {{ __('dashboard.platform_sections.stalled_projects_updated', ['age' => $project['stale_age']]) }}
+                            </p>
+                        </div>
+                    @empty
+                        <p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-sm text-slate-500">
+                            {{ __('dashboard.platform_sections.stalled_projects_empty') }}
+                        </p>
+                    @endforelse
+                </div>
+            </article>
+
+            <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-semibold text-slate-950">{{ __('dashboard.platform_sections.recent_security_violations') }}</h2>
                 <p class="mt-2 text-sm text-slate-500">{{ __('dashboard.platform_sections.recent_security_violations_description') }}</p>
 

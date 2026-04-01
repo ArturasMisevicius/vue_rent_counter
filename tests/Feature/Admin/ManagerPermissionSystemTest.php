@@ -15,6 +15,7 @@ use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
+use App\Filament\Support\Audit\AuditLogger;
 use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -291,6 +292,78 @@ it('resets persisted manager permissions when the user role changes away from ma
         ->where('organization_id', $organization->id)
         ->where('user_id', $manager->id)
         ->count())->toBe(0);
+});
+
+it('resets persisted manager permissions when the organization membership role changes away from manager', function (): void {
+    ['organization' => $organization, 'admin' => $admin, 'manager' => $manager] = managerWorkspace();
+
+    Notification::fake();
+
+    app(ManagerPermissionService::class)->saveMatrix(
+        $manager,
+        $organization,
+        fullPermissionMatrix([
+            'buildings' => ['can_create' => true],
+            'invoices' => ['can_edit' => true],
+        ]),
+        $admin,
+    );
+
+    $membership = OrganizationUser::query()
+        ->where('organization_id', $organization->id)
+        ->where('user_id', $manager->id)
+        ->sole();
+
+    test()->actingAs($admin);
+
+    $membership->update([
+        'role' => UserRole::ADMIN->value,
+    ]);
+
+    expect(ManagerPermission::query()
+        ->where('organization_id', $organization->id)
+        ->where('user_id', $manager->id)
+        ->count())->toBe(0);
+});
+
+it('deletes manager permission rows before deleting an organization', function (): void {
+    ['organization' => $organization, 'admin' => $admin, 'manager' => $manager] = managerWorkspace();
+
+    Notification::fake();
+
+    app(ManagerPermissionService::class)->saveMatrix(
+        $manager,
+        $organization,
+        fullPermissionMatrix([
+            'buildings' => ['can_create' => true],
+        ]),
+        $admin,
+    );
+
+    $auditLogger = Mockery::mock(AuditLogger::class);
+    $auditLogger->shouldReceive('deleted')->andReturnNull();
+    app()->instance(AuditLogger::class, $auditLogger);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $organization->delete();
+
+    $queries = collect(DB::getQueryLog())
+        ->pluck('query')
+        ->map(fn (mixed $query): string => (string) $query)
+        ->values();
+
+    $managerPermissionsDeleteIndex = $queries->search(
+        fn (string $query): bool => str_contains($query, 'delete') && str_contains($query, 'manager_permissions'),
+    );
+    $organizationsDeleteIndex = $queries->search(
+        fn (string $query): bool => str_contains($query, 'delete') && str_contains($query, 'organizations'),
+    );
+
+    expect($managerPermissionsDeleteIndex)->not->toBeFalse()
+        ->and($organizationsDeleteIndex)->not->toBeFalse()
+        ->and($managerPermissionsDeleteIndex)->toBeLessThan($organizationsDeleteIndex);
 });
 
 it('caches a manager permission matrix in memory for repeated checks within one request', function (): void {

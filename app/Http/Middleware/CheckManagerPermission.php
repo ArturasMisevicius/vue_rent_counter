@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\User;
 use Closure;
 use Filament\Notifications\Notification;
@@ -15,6 +16,7 @@ class CheckManagerPermission
 {
     public function __construct(
         private readonly ManagerPermissionService $managerPermissionService,
+        private readonly OrganizationContext $organizationContext,
     ) {}
 
     public function handle(Request $request, Closure $next, string $resource, string $action): Response
@@ -25,7 +27,7 @@ class CheckManagerPermission
             return $this->forbidden($request);
         }
 
-        $organization = $user->currentOrganization();
+        $organization = $this->organizationContext->currentOrganization();
 
         if ($organization === null) {
             return $user->isManager()

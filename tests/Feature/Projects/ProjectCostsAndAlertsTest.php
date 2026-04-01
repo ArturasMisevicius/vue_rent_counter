@@ -23,7 +23,10 @@ use App\Notifications\Projects\ProjectUnapprovedEscalationNotification;
 use App\Notifications\Projects\ProjectUnapprovedReminderNotification;
 use App\Services\ProjectService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+
+use function Pest\Laravel\artisan;
 
 uses(RefreshDatabase::class);
 
@@ -99,20 +102,54 @@ it('creates draft invoice items for active tenants when cost passthrough is gene
         ->and($invoice->invoiceItems()->first()?->description)->toContain($fixture['project']->name);
 });
 
-it('alerts only stalled on hold projects when the stalled command runs', function (): void {
+it('alerts only on hold projects whose recorded hold reason has gone stale when the stalled command runs', function (): void {
     Notification::fake();
 
     $stalled = projectCostFixture(status: ProjectStatus::ON_HOLD);
     $recent = projectCostFixture(status: ProjectStatus::ON_HOLD);
 
-    $stalled['project']->forceFill(['updated_at' => now()->subDays(31)])->saveQuietly();
-    $recent['project']->forceFill(['updated_at' => now()->subDays(5)])->saveQuietly();
+    $stalled['project']->forceFill([
+        'metadata' => [
+            'on_hold_reason' => 'Waiting for contractor availability',
+            'on_hold_reason_updated_at' => now()->subDays(31)->toDateTimeString(),
+        ],
+        'updated_at' => now()->subDays(5),
+    ])->saveQuietly();
 
-    $this->artisan('projects:alert-stalled')->assertSuccessful();
+    $recent['project']->forceFill([
+        'metadata' => [
+            'on_hold_reason' => 'Weather dependency',
+            'on_hold_reason_updated_at' => now()->subDays(5)->toDateTimeString(),
+        ],
+        'updated_at' => now()->subDays(40),
+    ])->saveQuietly();
+
+    artisan('projects:alert-stalled')->assertSuccessful();
 
     Notification::assertSentTo($stalled['manager'], ProjectStalledAlertNotification::class);
     Notification::assertSentTo($stalled['admin'], ProjectStalledAlertNotification::class);
     Notification::assertNotSentTo($recent['manager'], ProjectStalledAlertNotification::class);
+});
+
+it('does not alert projects whose hold reason was updated exactly 30 days ago', function (): void {
+    Notification::fake();
+
+    Carbon::setTestNow(now()->startOfSecond());
+
+    $boundary = projectCostFixture(status: ProjectStatus::ON_HOLD);
+
+    $boundary['project']->forceFill([
+        'metadata' => [
+            'on_hold_reason' => 'Waiting for contractor availability',
+            'on_hold_reason_updated_at' => now()->subDays(30)->toDateTimeString(),
+        ],
+    ])->saveQuietly();
+
+    artisan('projects:alert-stalled')->assertSuccessful();
+
+    Notification::assertNotSentTo($boundary['manager'], ProjectStalledAlertNotification::class);
+
+    Carbon::setTestNow();
 });
 
 it('alerts overdue projects when the overdue command runs', function (): void {
@@ -129,7 +166,7 @@ it('alerts overdue projects when the overdue command runs', function (): void {
         'estimated_end_date' => now()->addWeek()->toDateString(),
     ]);
 
-    $this->artisan('projects:alert-overdue')->assertSuccessful();
+    artisan('projects:alert-overdue')->assertSuccessful();
 
     Notification::assertSentTo($overdue['manager'], ProjectOverdueAlertNotification::class);
     Notification::assertSentTo($overdue['admin'], ProjectOverdueAlertNotification::class);
@@ -146,7 +183,7 @@ it('reminds approvers and escalates long unapproved projects', function (): void
     $fourteenDay['project']->forceFill(['created_at' => now()->subDays(15)])->saveQuietly();
     $thirtyDay['project']->forceFill(['created_at' => now()->subDays(31)])->saveQuietly();
 
-    $this->artisan('projects:alert-unapproved')->assertSuccessful();
+    artisan('projects:alert-unapproved')->assertSuccessful();
 
     Notification::assertSentTo($fourteenDay['admin'], ProjectUnapprovedReminderNotification::class);
     Notification::assertSentTo($thirtyDay['admin'], ProjectUnapprovedReminderNotification::class);
@@ -189,15 +226,22 @@ function projectCostFixture(
     $project = Project::factory()->for($organization)->create([
         'property_id' => $property->id,
         'manager_id' => $manager->id,
-        'status' => $status->value,
+        'status' => $status === ProjectStatus::COMPLETED ? ProjectStatus::IN_PROGRESS->value : $status->value,
         'type' => ProjectType::RENOVATION->value,
         'priority' => ProjectPriority::HIGH->value,
         'budget_amount' => 150.00,
         'actual_cost' => 0,
         'cost_passed_to_tenant' => false,
         'requires_approval' => $requiresApproval,
-        'completed_at' => $status === ProjectStatus::COMPLETED ? now() : null,
-        'actual_end_date' => $status === ProjectStatus::COMPLETED ? today() : null,
+        'completed_at' => null,
+        'actual_end_date' => null,
+        'metadata' => $status === ProjectStatus::ON_HOLD
+            ? [
+                'on_hold_reason' => 'Waiting for contractor availability',
+                'on_hold_started_at' => now()->subDay()->toDateTimeString(),
+                'on_hold_reason_updated_at' => now()->subDay()->toDateTimeString(),
+            ]
+            : null,
     ]);
 
     $project->teamMembers()->sync([
@@ -212,6 +256,15 @@ function projectCostFixture(
         'status' => 'in_progress',
         'created_by_user_id' => $admin->id,
     ]);
+
+    if ($status === ProjectStatus::COMPLETED) {
+        $project->forceFill([
+            'status' => ProjectStatus::COMPLETED,
+            'completed_at' => now(),
+            'actual_end_date' => today(),
+            'completion_percentage' => 100,
+        ])->saveQuietly();
+    }
 
     return compact('organization', 'admin', 'manager', 'tenant', 'property', 'project', 'task');
 }

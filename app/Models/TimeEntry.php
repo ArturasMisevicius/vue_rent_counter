@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\ValidationException;
 
 class TimeEntry extends Model
 {
@@ -16,6 +17,21 @@ class TimeEntry extends Model
     use HasFactory;
 
     use SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::creating(function (TimeEntry $timeEntry): void {
+            $project = Project::query()
+                ->select(['id', 'status'])
+                ->find($timeEntry->project_id);
+
+            if ($project?->isReadOnly()) {
+                throw ValidationException::withMessages([
+                    'project_id' => 'Time entries cannot be logged against completed or cancelled projects.',
+                ]);
+            }
+        });
+    }
 
     protected $fillable = [
         'organization_id',

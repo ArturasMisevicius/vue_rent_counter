@@ -1,15 +1,20 @@
 <?php
 
+use App\Enums\ProjectStatus;
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Enums\SubscriptionPlan;
 use App\Filament\Support\Superadmin\Dashboard\PlatformDashboardData;
 use App\Models\Organization;
+use App\Models\Project;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 uses(RefreshDatabase::class);
 
@@ -44,6 +49,11 @@ it('shows the superadmin dashboard metrics', function () {
         'name' => 'Harbor Homes',
         'owner_user_id' => $harborOwner->id,
         'created_at' => now()->subDay(),
+    ]);
+
+    $stalledProjectOrganization = Organization::factory()->create([
+        'name' => 'Cedar Point Offices',
+        'created_at' => now()->subDays(12),
     ]);
 
     $basicSubscription = Subscription::factory()
@@ -102,10 +112,22 @@ it('shows the superadmin dashboard metrics', function () {
         'occurred_at' => now()->subDay(),
     ]);
 
+    Project::factory()->create([
+        'organization_id' => $stalledProjectOrganization->id,
+        'name' => 'Permit Review Retrofit',
+        'status' => ProjectStatus::ON_HOLD,
+        'metadata' => [
+            'on_hold_reason' => 'Waiting for permit approval',
+            'on_hold_started_at' => now()->subDays(45)->toDateTimeString(),
+            'on_hold_reason_updated_at' => now()->subDays(45)->toDateTimeString(),
+        ],
+    ]);
+
     $dashboard = app(PlatformDashboardData::class)->for($superadmin);
 
-    $this->actingAs($superadmin)
-        ->get(route('filament.admin.pages.platform-dashboard'))
+    actingAs($superadmin);
+
+    get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
         ->assertSeeText(__('dashboard.platform_metrics.total_organizations'))
         ->assertSeeText(__('dashboard.platform_metrics.active_subscriptions'))
@@ -118,6 +140,7 @@ it('shows the superadmin dashboard metrics', function () {
         ->assertSeeText((string) $dashboard['metrics'][0]['trend'])
         ->assertSeeText(__('dashboard.platform_sections.revenue_by_plan'))
         ->assertSeeText(__('dashboard.platform_sections.expiring_subscriptions'))
+        ->assertSeeText(__('dashboard.platform_sections.stalled_projects'))
         ->assertSeeText(__('dashboard.platform_sections.recent_security_violations'))
         ->assertSeeText(__('dashboard.platform_sections.recent_organizations'))
         ->assertSeeText(__('dashboard.platform_actions.export_csv'))
@@ -125,6 +148,7 @@ it('shows the superadmin dashboard metrics', function () {
         ->assertSeeText(__('dashboard.platform_recent_organizations.columns.owner_email'))
         ->assertSeeText('Basic')
         ->assertSeeText('Professional')
+        ->assertSeeText('Permit Review Retrofit')
         ->assertSeeText($expiringOrganization->name)
         ->assertSeeText($recentOrganization->name)
         ->assertSeeText('Authentication')
@@ -149,8 +173,9 @@ it('streams the recent organizations csv export for superadmins', function () {
             'plan' => SubscriptionPlan::BASIC,
         ]);
 
-    $response = $this->actingAs($superadmin)
-        ->get(route('filament.admin.pages.platform-dashboard.recent-organizations-export'));
+    actingAs($superadmin);
+
+    $response = get(route('filament.admin.pages.platform-dashboard.recent-organizations-export'));
 
     $response->assertOk();
 
@@ -206,8 +231,9 @@ it('shows a filtered subscriptions link when more than five organizations are ex
         ],
     ]);
 
-    $this->actingAs($superadmin)
-        ->get(route('filament.admin.pages.platform-dashboard'))
+    actingAs($superadmin);
+
+    get(route('filament.admin.pages.platform-dashboard'))
         ->assertSuccessful()
         ->assertSeeText(__('dashboard.platform_actions.view_all'))
         ->assertSee($filteredSubscriptionsUrl, false);
@@ -219,7 +245,8 @@ it('keeps the platform dashboard restricted to superadmins', function () {
         'organization_id' => $organization->id,
     ]);
 
-    $this->actingAs($admin)
-        ->get(route('filament.admin.pages.platform-dashboard'))
+    actingAs($admin);
+
+    get(route('filament.admin.pages.platform-dashboard'))
         ->assertForbidden();
 });

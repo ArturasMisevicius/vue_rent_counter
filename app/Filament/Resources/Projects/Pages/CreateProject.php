@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\ProjectService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class CreateProject extends CreateRecord
 {
@@ -22,9 +23,10 @@ class CreateProject extends CreateRecord
     {
         $organization = Organization::query()->findOrFail((int) $data['organization_id']);
 
-        /** @var User $actor */
-        $actor = auth()->user();
+        $user = Auth::guard()->user();
 
-        return app(ProjectService::class)->create($data, $organization, $actor);
+        abort_unless($user instanceof User, 403);
+
+        return app(ProjectService::class)->create($data, $organization, $user);
     }
 }

@@ -8,6 +8,7 @@ use App\Filament\Support\Superadmin\Dashboard\PlatformDashboardData;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -87,6 +88,9 @@ final class SuperadminDashboard extends Component
                 'has_more' => false,
                 'view_all_url' => '',
             ],
+            'stalledProjects' => [
+                'rows' => [],
+            ],
             'recentSecurityViolations' => [],
             'recentOrganizations' => [
                 'rows' => [],
@@ -97,7 +101,7 @@ final class SuperadminDashboard extends Component
 
     protected function user(): User
     {
-        $user = auth()->user();
+        $user = User::query()->find(Auth::id());
 
         abort_unless($user instanceof User, 403);
 

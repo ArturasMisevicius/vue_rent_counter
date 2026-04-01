@@ -1,5 +1,52 @@
 # Changelog
 
+## 2026-04-01
+
+<!-- changelog:auto:start:staged-20260401000409 -->
+### Commit updates
+
+- updated `.planning/config.json`
+- added `app/Filament/Actions/Superadmin/Projects/ExportProjectsCsvAction.php`
+- updated `app/Filament/Resources/Projects/Pages/CreateProject.php`
+- updated `app/Filament/Resources/Projects/Pages/EditProject.php`
+- updated `app/Filament/Resources/Projects/Pages/ViewProject.php`
+- updated `app/Filament/Resources/Projects/ProjectResource.php`
+- updated `app/Filament/Resources/Projects/Schemas/ProjectForm.php`
+- updated `app/Filament/Resources/Projects/Schemas/ProjectInfolist.php`
+- updated `app/Filament/Resources/Projects/Tables/ProjectsTable.php`
+- updated `app/Filament/Support/Superadmin/Dashboard/PlatformDashboardData.php`
+- added `app/Filament/Support/Superadmin/Projects/ProjectOverviewData.php`
+- updated `app/Http/Middleware/CheckManagerPermission.php`
+- updated `app/Livewire/Pages/Dashboard/SuperadminDashboard.php`
+- updated `app/Models/Project.php`
+- updated `app/Models/Task.php`
+- updated `app/Models/TimeEntry.php`
+- added `app/Notifications/Projects/ProjectCancelledNotification.php`
+- added `app/Notifications/Projects/ProjectCompletedNotification.php`
+- updated `app/Observers/OrganizationObserver.php`
+- updated `app/Observers/ProjectObserver.php`
+- updated `app/Policies/ProjectPolicy.php`
+- updated `app/Services/ProjectService.php`
+- updated `lang/en/dashboard.php`
+- updated `lang/es/dashboard.php`
+- updated `lang/lt/dashboard.php`
+- updated `lang/ru/dashboard.php`
+- added `opencode.json`
+- added `resources/views/filament/resources/projects/audit-log-modal.blade.php`
+- added `resources/views/filament/resources/projects/overview.blade.php`
+- added `resources/views/filament/tables/columns/project-progress-bar.blade.php`
+- updated `resources/views/livewire/pages/dashboard/superadmin-dashboard.blade.php`
+- updated `routes/console.php`
+- added `tests/Feature/Admin/ManagerPermissionMiddlewareTest.php`
+- updated `tests/Feature/Admin/ManagerPermissionSystemTest.php`
+- updated `tests/Feature/Livewire/Dashboard/DashboardPageTest.php`
+- updated `tests/Feature/Livewire/Dashboard/SuperadminDashboardComponentTest.php`
+- updated `tests/Feature/Projects/ProjectCostsAndAlertsTest.php`
+- updated `tests/Feature/Projects/ProjectLifecycleTest.php`
+- updated `tests/Feature/Projects/ProjectResourceTest.php`
+- updated `tests/Feature/Superadmin/SuperadminDashboardTest.php`
+<!-- changelog:auto:end:staged-20260401000409 -->
+
 ## 2026-03-31
 
 <!-- changelog:auto:start:staged-20260331200925 -->

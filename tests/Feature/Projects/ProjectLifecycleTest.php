@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Enums\InvoiceStatus;
 use App\Enums\ProjectPriority;
 use App\Enums\ProjectStatus;
 use App\Enums\ProjectType;
+use App\Exceptions\InvalidProjectTransitionException;
 use App\Exceptions\ProjectApprovalRequiredException;
 use App\Exceptions\ProjectDeletionBlockedException;
 use App\Jobs\Projects\RescopeProjectChildrenJob;
 use App\Models\Building;
+use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
 use App\Models\Project;
@@ -16,6 +19,8 @@ use App\Models\Task;
 use App\Models\TimeEntry;
 use App\Models\User;
 use App\Notifications\Projects\ProjectApprovedNotification;
+use App\Notifications\Projects\ProjectCancelledNotification;
+use App\Notifications\Projects\ProjectCompletedNotification;
 use App\Services\ProjectService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -75,7 +80,21 @@ it('rejects mismatched organization building and property scope on create', func
     ], $organization, $actor))->toThrow(ValidationException::class);
 });
 
-it('allows emergency projects to start immediately and stamps the start date', function (): void {
+it('requires newly created projects to start in draft regardless of submitted status', function (): void {
+    $organization = Organization::factory()->create();
+    $actor = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    expect(fn () => app(ProjectService::class)->create([
+        'name' => 'Burst pipe response',
+        'type' => ProjectType::EMERGENCY->value,
+        'priority' => ProjectPriority::CRITICAL->value,
+        'status' => ProjectStatus::IN_PROGRESS->value,
+    ], $organization, $actor))->toThrow(ValidationException::class);
+});
+
+it('creates emergency projects in draft and does not stamp the start date before a transition', function (): void {
     $organization = Organization::factory()->create();
     $actor = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -85,11 +104,11 @@ it('allows emergency projects to start immediately and stamps the start date', f
         'name' => 'Burst pipe response',
         'type' => ProjectType::EMERGENCY->value,
         'priority' => ProjectPriority::CRITICAL->value,
-        'status' => ProjectStatus::IN_PROGRESS->value,
+        'status' => ProjectStatus::DRAFT->value,
     ], $organization, $actor);
 
-    expect($project->status)->toBe(ProjectStatus::IN_PROGRESS)
-        ->and($project->actual_start_date?->toDateString())->toBe(today()->toDateString());
+    expect($project->status)->toBe(ProjectStatus::DRAFT)
+        ->and($project->actual_start_date)->toBeNull();
 });
 
 it('blocks in progress transitions until approval is recorded when required', function (): void {
@@ -134,12 +153,166 @@ it('stamps completion metadata and forces progress to 100 when completed', funct
         ->and($completed->completed_at)->not->toBeNull();
 });
 
+it('requires a reason when moving a project on hold and records the hold metadata', function (): void {
+    $fixture = projectFixture(status: ProjectStatus::IN_PROGRESS);
+
+    expect(fn () => app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::ON_HOLD,
+        $fixture['manager']->fresh(),
+    ))->toThrow(ValidationException::class);
+
+    $onHold = app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::ON_HOLD,
+        $fixture['manager']->fresh(),
+        'Waiting for permit approval',
+    );
+
+    expect($onHold->status)->toBe(ProjectStatus::ON_HOLD)
+        ->and(data_get($onHold->metadata, 'on_hold_reason'))->toBe('Waiting for permit approval')
+        ->and(data_get($onHold->metadata, 'on_hold_reason_updated_at'))->not->toBeNull()
+        ->and(data_get($onHold->metadata, 'on_hold_started_at'))->not->toBeNull();
+});
+
+it('requires acknowledgment before completing projects with critical open tasks and sends a completion summary when acknowledged', function (): void {
+    Notification::fake();
+
+    $fixture = projectFixture(status: ProjectStatus::IN_PROGRESS);
+
+    Task::factory()->for($fixture['organization'])->for($fixture['project'])->create([
+        'status' => 'in_progress',
+        'priority' => 'critical',
+        'completed_at' => null,
+    ]);
+
+    expect(fn () => app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::COMPLETED,
+        $fixture['manager']->fresh(),
+        'Closing project',
+    ))->toThrow(ValidationException::class);
+
+    $completed = app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::COMPLETED,
+        $fixture['manager']->fresh(),
+        'Closing project',
+        acknowledgeIncompleteWork: true,
+    );
+
+    expect($completed->status)->toBe(ProjectStatus::COMPLETED)
+        ->and($completed->completion_percentage)->toBe(100);
+
+    Notification::assertSentTo($fixture['manager'], ProjectCompletedNotification::class);
+    Notification::assertSentTo($fixture['admin'], ProjectCompletedNotification::class);
+});
+
+it('does not require acknowledgment before completing projects with only urgent open tasks', function (): void {
+    $fixture = projectFixture(status: ProjectStatus::IN_PROGRESS);
+
+    Task::factory()->for($fixture['organization'])->for($fixture['project'])->create([
+        'status' => 'in_progress',
+        'priority' => 'urgent',
+        'completed_at' => null,
+    ]);
+
+    $completed = app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::COMPLETED,
+        $fixture['manager']->fresh(),
+        'Closing project',
+    );
+
+    expect($completed->status)->toBe(ProjectStatus::COMPLETED)
+        ->and($completed->completion_percentage)->toBe(100);
+});
+
 it('requires a cancellation reason and closes open tasks when cancelled', function (): void {
+    Notification::fake();
+
     $fixture = projectFixture(status: ProjectStatus::IN_PROGRESS);
 
     $task = Task::factory()->for($fixture['organization'])->for($fixture['project'])->create([
         'status' => 'pending',
         'completed_at' => null,
+    ]);
+
+    $assignedUser = User::factory()->manager()->create([
+        'organization_id' => $fixture['organization']->id,
+    ]);
+
+    $fixture['project']->teamMembers()->syncWithoutDetaching([
+        $assignedUser->id => [
+            'role' => 'assignee',
+            'invited_at' => now(),
+            'invited_by' => $fixture['admin']->id,
+        ],
+    ]);
+
+    TimeEntry::factory()->create([
+        'organization_id' => $fixture['organization']->id,
+        'project_id' => $fixture['project']->id,
+        'task_id' => $task->id,
+        'user_id' => $fixture['manager']->id,
+        'approval_status' => 'pending',
+        'rejected_at' => null,
+        'rejection_reason' => null,
+    ]);
+
+    $draftInvoice = Invoice::factory()->create([
+        'organization_id' => $fixture['organization']->id,
+        'property_id' => $fixture['project']->property_id,
+        'tenant_user_id' => User::factory()->tenant()->create([
+            'organization_id' => $fixture['organization']->id,
+        ])->id,
+        'status' => InvoiceStatus::DRAFT,
+    ]);
+
+    $finalizedInvoice = Invoice::factory()->create([
+        'organization_id' => $fixture['organization']->id,
+        'property_id' => $fixture['project']->property_id,
+        'tenant_user_id' => User::factory()->tenant()->create([
+            'organization_id' => $fixture['organization']->id,
+        ])->id,
+        'status' => InvoiceStatus::FINALIZED,
+    ]);
+
+    $fixture['project']->forceFill([
+        'cost_passed_to_tenant' => true,
+    ])->save();
+
+    $draftItem = $draftInvoice->invoiceItems()->create([
+        'project_id' => $fixture['project']->id,
+        'description' => 'Queued project recovery',
+        'quantity' => 1,
+        'unit' => 'project',
+        'unit_price' => 50,
+        'total' => 50,
+        'metadata' => [
+            'source' => 'project_cost_passthrough',
+        ],
+    ]);
+
+    $nonPassthroughDraftItem = $draftInvoice->invoiceItems()->create([
+        'project_id' => $fixture['project']->id,
+        'description' => 'Manual project line item',
+        'quantity' => 1,
+        'unit' => 'project',
+        'unit_price' => 60,
+        'total' => 60,
+        'metadata' => [
+            'source' => 'manual_adjustment',
+        ],
+    ]);
+
+    $finalizedItem = $finalizedInvoice->invoiceItems()->create([
+        'project_id' => $fixture['project']->id,
+        'description' => 'Already billed project recovery',
+        'quantity' => 1,
+        'unit' => 'project',
+        'unit_price' => 75,
+        'total' => 75,
     ]);
 
     expect(fn () => app(ProjectService::class)->transitionStatus(
@@ -157,7 +330,70 @@ it('requires a cancellation reason and closes open tasks when cancelled', functi
 
     expect($cancelled->cancelled_at)->not->toBeNull()
         ->and($cancelled->cancellation_reason)->toBe('Tenant withdrew access')
-        ->and($task->fresh()->status)->toBe('cancelled');
+        ->and($task->fresh()->status)->toBe('cancelled')
+        ->and(TimeEntry::query()->first()?->approval_status)->toBe('rejected')
+        ->and($draftItem->fresh()->voided_at)->not->toBeNull()
+        ->and($nonPassthroughDraftItem->fresh()->voided_at)->toBeNull()
+        ->and($finalizedItem->fresh()->voided_at)->toBeNull();
+
+    Notification::assertSentTo($fixture['manager'], ProjectCancelledNotification::class);
+    Notification::assertSentTo($assignedUser, ProjectCancelledNotification::class);
+});
+
+it('does not allow superadmins to force transitions out of terminal states', function (): void {
+    $fixture = projectFixture(status: ProjectStatus::COMPLETED);
+    $superadmin = User::factory()->superadmin()->create();
+
+    expect(fn () => app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::IN_PROGRESS,
+        $superadmin,
+        force: true,
+    ))->toThrow(InvalidProjectTransitionException::class);
+});
+
+it('allows superadmins to force non-terminal transitions that bypass the normal graph', function (): void {
+    $fixture = projectFixture(status: ProjectStatus::DRAFT);
+    $superadmin = User::factory()->superadmin()->create();
+
+    $forced = app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::ON_HOLD,
+        $superadmin,
+        'Paused by platform ops',
+        force: true,
+    );
+
+    expect($forced->status)->toBe(ProjectStatus::ON_HOLD)
+        ->and(data_get($forced->metadata, 'on_hold_reason'))->toBe('Paused by platform ops');
+});
+
+it('prevents adding tasks and logging time entries for completed projects', function (): void {
+    $fixture = projectFixture(status: ProjectStatus::IN_PROGRESS);
+
+    $task = Task::factory()->for($fixture['organization'])->for($fixture['project'])->create([
+        'status' => 'in_progress',
+        'created_by_user_id' => $fixture['admin']->id,
+    ]);
+
+    app(ProjectService::class)->transitionStatus(
+        $fixture['project']->fresh(),
+        ProjectStatus::COMPLETED,
+        $fixture['manager']->fresh(),
+        'Finished work',
+        acknowledgeIncompleteWork: true,
+    );
+
+    expect(fn () => Task::factory()->for($fixture['organization'])->for($fixture['project'])->create([
+        'created_by_user_id' => $fixture['admin']->id,
+    ]))->toThrow(ValidationException::class);
+
+    expect(fn () => TimeEntry::factory()->create([
+        'organization_id' => $fixture['organization']->id,
+        'project_id' => $fixture['project']->id,
+        'task_id' => $task->id,
+        'user_id' => $fixture['manager']->id,
+    ]))->toThrow(ValidationException::class);
 });
 
 it('dispatches a child rescope job when the project organization changes', function (): void {
