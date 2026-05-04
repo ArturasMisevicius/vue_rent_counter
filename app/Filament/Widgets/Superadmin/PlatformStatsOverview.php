@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets\Superadmin;
 
 use App\Enums\SubscriptionStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
@@ -38,8 +39,6 @@ class PlatformStatsOverview extends StatsOverviewWidget
 
     private function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        return (string) $formatter->formatCurrency($amount, $currency);
+        return EuMoneyFormatter::format($amount, $currency);
     }
 }

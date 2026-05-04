@@ -35,9 +35,9 @@ return [
 ];
 PHP);
 
-    config()->set('laravelmissingtranslations.paths', [$scanDirectory]);
-    config()->set('laravelmissingtranslations.extensions', ['php']);
-    config()->set('laravelmissingtranslations.exclude_paths', []);
+    config()->set('laravel-missing-translations.paths', [$scanDirectory]);
+    config()->set('laravel-missing-translations.extensions', ['php']);
+    config()->set('laravel-missing-translations.exclude_paths', []);
 
     artisan('missing-translations '.$locale.' --dry-run')
         ->expectsOutputToContain('Keys scanned: 1 | Existing: 1 | Missing: 0')
@@ -55,9 +55,9 @@ it('writes missing keys into php translation group files', function (): void {
 __('demo.farewell');
 PHP);
 
-    config()->set('laravelmissingtranslations.paths', [$scanDirectory]);
-    config()->set('laravelmissingtranslations.extensions', ['php']);
-    config()->set('laravelmissingtranslations.exclude_paths', []);
+    config()->set('laravel-missing-translations.paths', [$scanDirectory]);
+    config()->set('laravel-missing-translations.extensions', ['php']);
+    config()->set('laravel-missing-translations.exclude_paths', []);
 
     artisan('missing-translations '.$locale)
         ->assertExitCode(0);
@@ -91,9 +91,9 @@ __('shell.navigation.groups.{$groupKey}');
 __('No locale specified. Provide a locale argument or use --all.');
 PHP);
 
-    config()->set('laravelmissingtranslations.paths', [$scanDirectory]);
-    config()->set('laravelmissingtranslations.extensions', ['php']);
-    config()->set('laravelmissingtranslations.exclude_paths', []);
+    config()->set('laravel-missing-translations.paths', [$scanDirectory]);
+    config()->set('laravel-missing-translations.extensions', ['php']);
+    config()->set('laravel-missing-translations.exclude_paths', []);
 
     artisan('missing-translations '.$locale)
         ->assertExitCode(0);
@@ -161,9 +161,9 @@ return [
 ];
 PHP);
 
-    config()->set('laravelmissingtranslations.paths', [$scanDirectory]);
-    config()->set('laravelmissingtranslations.extensions', ['php']);
-    config()->set('laravelmissingtranslations.exclude_paths', []);
+    config()->set('laravel-missing-translations.paths', [$scanDirectory]);
+    config()->set('laravel-missing-translations.extensions', ['php']);
+    config()->set('laravel-missing-translations.exclude_paths', []);
 
     Artisan::call('missing-translations', [
         '--all' => true,

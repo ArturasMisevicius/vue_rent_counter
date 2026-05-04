@@ -37,7 +37,9 @@ class StoreTenantRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $user = $this->user();
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
             'phone' => ['nullable', 'string', 'max:255'],
@@ -65,6 +67,14 @@ class StoreTenantRequest extends FormRequest
                 },
             ],
             'unit_area_sqm' => ['nullable', 'numeric', 'min:0'],
+        ];
+
+        if ($user?->isSuperadmin()) {
+            return $rules;
+        }
+
+        return [
+            ...$rules,
             'subscription_limit' => [new WithinTenantLimit(app(SubscriptionChecker::class))],
         ];
     }

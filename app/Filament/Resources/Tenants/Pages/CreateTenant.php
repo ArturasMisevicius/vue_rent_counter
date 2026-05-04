@@ -6,11 +6,14 @@ use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
+use App\Models\Organization;
+use App\Models\User;
 use App\Services\SubscriptionChecker;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class CreateTenant extends CreateRecord
 {
@@ -36,9 +39,15 @@ class CreateTenant extends CreateRecord
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        abort_if($user === null, 403);
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        if ($user->isSuperadmin() && app(OrganizationContext::class)->currentOrganizationId() === null) {
+            return $data;
+        }
 
         $state = app(SubscriptionChecker::class)->accessState($user);
 
@@ -72,7 +81,20 @@ class CreateTenant extends CreateRecord
 
         abort_if($actor === null, 403);
 
-        return app(CreateTenantAction::class)->handle($actor, $data);
+        $organization = app(OrganizationContext::class)->currentOrganization();
+
+        if ($organization === null) {
+            abort_if(! $actor->isSuperadmin(), 403);
+
+            $organizationId = (int) ($data['organization_id'] ?? 0);
+            $organization = Organization::query()
+                ->select(['id', 'name', 'slug', 'status', 'owner_user_id', 'created_at', 'updated_at'])
+                ->findOrFail($organizationId);
+        }
+
+        unset($data['organization_id']);
+
+        return app(CreateTenantAction::class)->handle($actor, $data, $organization);
     }
 
     protected function getRedirectUrl(): string

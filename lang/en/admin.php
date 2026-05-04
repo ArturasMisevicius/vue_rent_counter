@@ -927,6 +927,7 @@ return [
         'sections' => [
             'summary' => 'Tenant Summary',
             'personal_information' => 'Personal Information',
+            'account_activity' => 'Account Activity',
             'property_assignment' => 'Property Assignment',
         ],
         'tabs' => [
@@ -955,9 +956,13 @@ return [
             'floor' => 'Floor',
             'assigned_since' => 'Assigned Since',
             'account_created' => 'Account Created',
+            'email_verified_at' => 'Email Verified',
             'last_login' => 'Last Login',
             'last_login_at' => 'Last Login',
+            'suspended_at' => 'Suspended At',
+            'suspension_reason' => 'Suspension Reason',
             'total_paid' => 'Total Paid',
+            'updated_at' => 'Updated At',
         ],
         'columns' => [
             'full_name' => 'Full Name',
@@ -970,10 +975,12 @@ return [
             'date_added' => 'Date Added',
         ],
         'filters' => [
+            'all_languages' => 'All Languages',
             'all_properties' => 'All Properties',
             'all_statuses' => 'All',
         ],
         'empty' => [
+            'not_verified' => 'Not verified',
             'property' => 'Unassigned',
             'unassigned' => 'Unassigned',
             'no_assignment_yet' => 'No assignment yet',

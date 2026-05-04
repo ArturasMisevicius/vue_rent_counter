@@ -935,6 +935,7 @@ return [
             'invoice_history' => 'История счетов',
             'summary' => 'Tenant Summary',
             'personal_information' => 'Personal Information',
+            'account_activity' => 'Активность аккаунта',
             'property_assignment' => 'Property Assignment',
         ],
         'tabs' => [
@@ -955,6 +956,8 @@ return [
             'building' => 'Здание',
             'assigned_since' => 'Назначен с',
             'invoice_history' => 'История счетов',
+            'account_created' => 'Дата создания аккаунта',
+            'email_verified_at' => 'Email подтверждён',
             'last_login_at' => 'Последний вход',
             'full_name' => 'Full Name',
             'email_address' => 'Email Address',
@@ -964,9 +967,11 @@ return [
             'account_status' => 'Account Status',
             'unit_area' => 'Unit Area',
             'floor' => 'Floor',
-            'account_created' => 'Account Created',
             'last_login' => 'Last Login',
+            'suspended_at' => 'Заблокирован с',
+            'suspension_reason' => 'Причина блокировки',
             'total_paid' => 'Total Paid',
+            'updated_at' => 'Обновлено',
         ],
         'columns' => [
             'name' => 'Имя',
@@ -981,6 +986,7 @@ return [
             'date_added' => 'Date Added',
         ],
         'empty' => [
+            'not_verified' => 'Не подтверждено',
             'property' => 'Не назначено',
             'invoices' => 'Счетов пока нет.',
             'never' => 'Никогда',
@@ -1035,6 +1041,7 @@ return [
             'edit' => 'Edit Tenant: :name',
         ],
         'filters' => [
+            'all_languages' => 'Все языки',
             'all_properties' => 'All Properties',
             'all_statuses' => 'All',
         ],

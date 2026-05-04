@@ -10,6 +10,8 @@ use App\Filament\Support\Admin\Invoices\BulkInvoicePreviewBuilder;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Models\Organization;
 use App\Models\User;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Illuminate\Validation\ValidationException;
@@ -57,7 +59,7 @@ class GenerateBulkInvoices extends Page
         $this->form = [
             'billing_period_start' => now()->startOfMonth()->toDateString(),
             'billing_period_end' => now()->endOfMonth()->toDateString(),
-            'due_date' => now()->addDays(14)->toDateString(),
+            'due_date' => $this->defaultDueDate(now()->endOfMonth()),
         ];
 
         $this->refreshPreview();
@@ -97,6 +99,10 @@ class GenerateBulkInvoices extends Page
     {
         if (! str_starts_with($name, 'form.')) {
             return;
+        }
+
+        if ($name === 'form.billing_period_end') {
+            $this->syncDueDateWithBillingPeriodEnd();
         }
 
         $this->refreshPreview();
@@ -245,5 +251,44 @@ class GenerateBulkInvoices extends Page
         $user = auth()->user();
 
         return $user;
+    }
+
+    private function syncDueDateWithBillingPeriodEnd(): void
+    {
+        $billingPeriodEnd = $this->parseDate($this->form['billing_period_end'] ?? null);
+
+        if (! $billingPeriodEnd instanceof CarbonImmutable) {
+            return;
+        }
+
+        $dueDate = $this->parseDate($this->form['due_date'] ?? null);
+
+        if (! $dueDate instanceof CarbonImmutable || $dueDate->startOfDay()->lessThan($billingPeriodEnd->startOfDay())) {
+            $this->form['due_date'] = $this->defaultDueDate($billingPeriodEnd);
+        }
+    }
+
+    private function defaultDueDate(CarbonInterface|string $billingPeriodEnd): string
+    {
+        $resolvedBillingPeriodEnd = $billingPeriodEnd instanceof CarbonInterface
+            ? $billingPeriodEnd->toDateString()
+            : $billingPeriodEnd;
+
+        return CarbonImmutable::parse($resolvedBillingPeriodEnd)
+            ->addDays(14)
+            ->toDateString();
+    }
+
+    private function parseDate(mixed $value): ?CarbonImmutable
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return CarbonImmutable::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

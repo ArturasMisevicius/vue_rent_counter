@@ -8,6 +8,7 @@ class NavigationItemData
         public readonly string $label,
         public readonly string $url,
         public readonly string $routeName,
+        public readonly ?string $icon = null,
         public readonly bool $active = false,
     ) {}
 }

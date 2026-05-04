@@ -27,6 +27,7 @@ class Sidebar extends Component
 
         return view('livewire.shell.sidebar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
+            'isTenant' => (bool) $user?->isTenant(),
             'groups' => $user ? $navigationBuilder->forUser($user, request()) : [],
         ]);
     }

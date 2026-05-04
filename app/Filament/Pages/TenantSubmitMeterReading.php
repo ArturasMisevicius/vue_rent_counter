@@ -18,11 +18,6 @@ class TenantSubmitMeterReading extends TenantPortalPage
 
     protected string $view = 'filament.pages.tenant-submit-meter-reading';
 
-    public function getTitle(): string
-    {
-        return __('tenant.navigation.readings');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('tenant.navigation.readings');

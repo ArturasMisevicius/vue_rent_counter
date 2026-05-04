@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Dashboard;
 
 use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -92,7 +93,7 @@ final class AdminDashboard extends Component
                 'total_properties' => 0,
                 'active_tenants' => 0,
                 'pending_invoices' => 0,
-                'revenue_this_month' => (string) (new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY))->formatCurrency(0, 'EUR'),
+                'revenue_this_month' => EuMoneyFormatter::format(0),
             ],
             'subscription_usage' => [],
             'recent_invoices' => [],

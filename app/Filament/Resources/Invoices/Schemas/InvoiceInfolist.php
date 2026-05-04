@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Services\Billing\InvoicePresentationService;
 use Filament\Infolists\Components\TextEntry;
@@ -44,18 +45,10 @@ class InvoiceInfolist
                     ->schema([
                         TextEntry::make('total_amount')
                             ->label(__('admin.invoices.fields.total_amount'))
-                            ->state(function ($record): string {
-                                $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-                                return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
-                            }),
+                            ->state(fn ($record): string => EuMoneyFormatter::format($record->total_amount, $record->currency)),
                         TextEntry::make('amount_paid')
                             ->label(__('admin.invoices.fields.amount_paid'))
-                            ->state(function ($record): string {
-                                $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-                                return (string) $formatter->formatCurrency((float) $record->normalized_paid_amount, $record->currency);
-                            }),
+                            ->state(fn ($record): string => EuMoneyFormatter::format($record->normalized_paid_amount, $record->currency)),
                         TextEntry::make('outstanding_amount')
                             ->label(__('admin.invoices.status_summaries.outstanding'))
                             ->state(fn ($record): string => app(InvoicePresentationService::class)->present($record)['outstanding_amount_display']),

@@ -34,6 +34,24 @@ it('shows the tenant invoice history with paid and outstanding invoices', functi
         ->assertSeeText('Pay by bank transfer before the due date.');
 });
 
+it('exposes direct billing guidance and contact anchors', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices()
+        ->withBillingContact(
+            name: 'Updated Billing Team',
+            email: 'billing@example.com',
+            phone: '+37060000000',
+        )
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
+        ->assertSuccessful()
+        ->assertSee('id="tenant-billing-guidance"', false)
+        ->assertSee('id="tenant-billing-contact"', false);
+});
+
 it('shows the tenant phone in the invoice history sidebar', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

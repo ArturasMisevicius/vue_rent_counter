@@ -15,6 +15,7 @@
 .chief/
 /auth.json
 /node_modules
+/public/
 /public/build
 /public/hot
 /public/storage

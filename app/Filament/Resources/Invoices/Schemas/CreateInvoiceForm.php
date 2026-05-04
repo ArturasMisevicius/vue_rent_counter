@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -234,9 +235,7 @@ class CreateInvoiceForm
 
     private static function formatMoney(float $amount): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        return (string) $formatter->formatCurrency($amount, 'EUR');
+        return EuMoneyFormatter::format($amount);
     }
 
     private static function resolvedOrganizationId(mixed $organizationId): ?int

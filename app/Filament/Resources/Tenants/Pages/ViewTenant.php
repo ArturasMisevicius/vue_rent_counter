@@ -214,7 +214,7 @@ class ViewTenant extends ViewRecord
 
     private function refreshRecord(): void
     {
-        $this->record = TenantResource::getEloquentQuery()
+        $this->record = TenantResource::getRecordRouteBindingEloquentQuery()
             ->findOrFail($this->record->getKey());
     }
 

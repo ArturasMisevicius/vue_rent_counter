@@ -10,6 +10,7 @@ use App\Livewire\Onboarding\WelcomePage;
 use App\Livewire\Preferences\SwitchGuestLocaleEndpoint;
 use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
 use App\Livewire\Profile\EditProfilePage;
+use App\Livewire\Profile\ShowProfileAvatarEndpoint;
 use App\Livewire\PublicSite\HomepagePage;
 use App\Livewire\PublicSite\ShowFaviconEndpoint;
 use App\Livewire\Security\CspViolationReportEndpoint;
@@ -68,6 +69,9 @@ Route::post('/register', [RegisterPage::class, 'store'])
 Route::get('/welcome', WelcomePage::class)->middleware('auth')->name('welcome.show');
 Route::post('/welcome', [WelcomePage::class, 'store'])->middleware('auth')->name('welcome.store');
 Route::get('/profile', EditProfilePage::class)->middleware('auth')->name('profile.edit');
+Route::get('/profile/avatar', [ShowProfileAvatarEndpoint::class, 'show'])
+    ->middleware('auth')
+    ->name('profile.avatar.show');
 
 Route::middleware('auth')
     ->prefix('app/platform-dashboard')

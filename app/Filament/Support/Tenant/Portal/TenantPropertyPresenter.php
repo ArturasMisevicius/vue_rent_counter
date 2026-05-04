@@ -2,9 +2,14 @@
 
 namespace App\Filament\Support\Tenant\Portal;
 
+use App\Enums\PropertyType;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Workspace\WorkspaceResolver;
+use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\Property;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class TenantPropertyPresenter
 {
@@ -106,7 +111,7 @@ class TenantPropertyPresenter
             ->forProperty($property->id)
             ->submittedBy($tenant->id)
             ->with([
-                'meter:id,organization_id,property_id,name,identifier,unit',
+                'meter:id,organization_id,property_id,name,identifier,type,unit',
             ])
             ->latestFirst();
 
@@ -142,15 +147,15 @@ class TenantPropertyPresenter
             ->get()
             ->map(fn (MeterReading $reading): array => [
                 'id' => $reading->id,
-                'meter_name' => $reading->meter?->name ?? __('dashboard.not_available'),
+                'meter_name' => $this->displayMeterName($reading->meter),
                 'meter_identifier' => $reading->meter?->identifier ?? '—',
                 'reading_value' => $this->formatDecimal((float) $reading->reading_value, 3),
                 'unit' => $reading->meter?->unit ?? '',
-                'reading_date' => $reading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
+                'reading_date' => LocalizedDateFormatter::date($reading->reading_date),
                 'month_label' => $reading->reading_date->translatedFormat('F Y'),
                 'status_label' => $reading->validation_status?->label() ?? __('dashboard.not_available'),
                 'submitted_via' => $reading->submission_method?->label() ?? __('dashboard.not_available'),
-                'submitted_at' => $reading->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—',
+                'submitted_at' => LocalizedDateFormatter::dateTime($reading->created_at),
             ])
             ->all();
 
@@ -160,22 +165,24 @@ class TenantPropertyPresenter
             'tenant_email' => $tenant->email,
             'tenant_phone' => $tenant->phone,
             'property_name' => $property->name,
+            'property_display_name' => $this->displayPropertyName($property),
             'property_address' => $property->address,
             'property_building_name' => $property->building?->name,
             'property_unit_number' => $property->unit_number,
             'property_floor_area' => $property->areaDisplay(),
-            'assigned_since' => optional($tenant->currentPropertyAssignment?->assigned_at)?->locale(app()->getLocale())->isoFormat('ll'),
+            'assigned_since' => LocalizedDateFormatter::date($tenant->currentPropertyAssignment?->assigned_at),
             'meter_count' => $property->meters->count(),
             'meters' => $property->meters->map(fn ($meter) => [
                 'id' => $meter->id,
                 'name' => $meter->name,
+                'display_name' => $this->displayMeterName($meter),
                 'identifier' => $meter->identifier,
                 'unit' => $meter->unit,
                 'last_reading' => $meter->latestReading
                     ? __('tenant.pages.property.last_reading', [
                         'value' => $this->formatDecimal((float) $meter->latestReading->reading_value, 3),
                         'unit' => $meter->unit,
-                        'date' => $meter->latestReading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
+                        'date' => LocalizedDateFormatter::date($meter->latestReading->reading_date),
                     ])
                     : __('tenant.pages.property.last_reading_none'),
                 'has_reading' => $meter->latestReading !== null,
@@ -196,5 +203,83 @@ class TenantPropertyPresenter
         $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
 
         return (string) $formatter->format($value);
+    }
+
+    private function displayPropertyName(Property $property): string
+    {
+        $name = trim((string) $property->name);
+        $unitNumber = trim((string) $property->unit_number);
+
+        if ($unitNumber === '') {
+            return $name !== '' ? $name : __('dashboard.not_available');
+        }
+
+        $generatedTypeLabel = $this->generatedPropertyTypeLabel($name, $unitNumber);
+
+        if ($name !== '' && $generatedTypeLabel === null) {
+            return $name;
+        }
+
+        $typeLabel = $generatedTypeLabel ?? $property->type?->label();
+
+        if ($typeLabel === null) {
+            return $name !== '' ? $name : __('dashboard.not_available');
+        }
+
+        return __('tenant.pages.property.property_unit_label', [
+            'type' => $typeLabel,
+            'unit' => $unitNumber,
+        ]);
+    }
+
+    private function generatedPropertyTypeLabel(string $name, string $unitNumber): ?string
+    {
+        foreach (PropertyType::cases() as $type) {
+            $generatedEnglishName = trim((string) __($type->translationKey(), [], 'en').' '.$unitNumber);
+
+            if (Str::of($name)->lower()->exactly(Str::of($generatedEnglishName)->lower()->value())) {
+                return $type->label();
+            }
+        }
+
+        return null;
+    }
+
+    private function displayMeterName(?Meter $meter): string
+    {
+        if (! $meter instanceof Meter) {
+            return __('dashboard.not_available');
+        }
+
+        $name = trim((string) $meter->name);
+
+        if ($name === '') {
+            return __('dashboard.not_available');
+        }
+
+        if (preg_match('/^Meter (?<number>[A-Za-z0-9-]+)$/', $name, $matches) === 1) {
+            return __('tenant.pages.property.generic_meter_label', [
+                'number' => $matches['number'],
+            ]);
+        }
+
+        if ($meter->type !== null) {
+            $englishType = (string) __($meter->type->translationKey(), [], 'en');
+            $generatedDemoName = __('tenant.pages.property.demo_meter_label', ['type' => $englishType], 'en');
+
+            if (Str::of($name)->lower()->exactly(Str::of($generatedDemoName)->lower()->value())) {
+                return __('tenant.pages.property.demo_meter_label', [
+                    'type' => $meter->type->label(),
+                ]);
+            }
+        }
+
+        if (Str::of($name)->lower()->exactly('operations demo meter')) {
+            return __('tenant.pages.property.operations_demo_meter_label', [
+                'type' => $meter->type?->label() ?? __('tenant.pages.property.meter_label'),
+            ]);
+        }
+
+        return $name;
     }
 }

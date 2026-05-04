@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use Closure;
 use Database\Factories\UserFactory;
@@ -30,10 +31,17 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'phone',
+        'avatar_disk',
+        'avatar_path',
+        'avatar_mime_type',
+        'avatar_updated_at',
         'role',
         'status',
         'locale',
+        'email_verified_at',
         'last_login_at',
+        'suspended_at',
+        'suspension_reason',
         'created_at',
         'updated_at',
     ];
@@ -44,10 +52,17 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'phone',
+        'avatar_disk',
+        'avatar_path',
+        'avatar_mime_type',
+        'avatar_updated_at',
         'role',
         'status',
         'locale',
+        'email_verified_at',
         'last_login_at',
+        'suspended_at',
+        'suspension_reason',
         'created_at',
         'updated_at',
     ];
@@ -69,6 +84,10 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'phone',
+        'avatar_disk',
+        'avatar_path',
+        'avatar_mime_type',
+        'avatar_updated_at',
         'role',
         'status',
         'locale',
@@ -101,6 +120,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'avatar_updated_at' => 'datetime',
             'last_login_at' => 'datetime',
             'is_super_admin' => 'boolean',
             'suspended_at' => 'datetime',
@@ -194,25 +214,27 @@ class User extends Authenticatable implements FilamentUser
     public function scopeWithTenantWorkspaceSummary(Builder $query, int $organizationId): Builder
     {
         return $query
-            ->select(self::TENANT_WORKSPACE_COLUMNS)
+            ->withTenantResourceSummary()
             ->forOrganization($organizationId)
-            ->tenants()
-            ->withCurrentPropertySummary()
-            ->withPaidInvoiceSummary()
-            ->withTenantDeletionSummary()
             ->orderedByName();
     }
 
     public function scopeForTenantControlPlane(Builder $query): Builder
     {
         return $query
+            ->withTenantResourceSummary()
+            ->withOrganizationSummary()
+            ->orderedByName();
+    }
+
+    public function scopeWithTenantResourceSummary(Builder $query): Builder
+    {
+        return $query
             ->select(self::TENANT_WORKSPACE_COLUMNS)
             ->tenants()
             ->withCurrentPropertySummary()
             ->withPaidInvoiceSummary()
-            ->withTenantDeletionSummary()
-            ->withOrganizationSummary()
-            ->orderedByName();
+            ->withTenantDeletionSummary();
     }
 
     public function organization(): BelongsTo
@@ -595,9 +617,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function totalPaidDisplay(string $currency = 'EUR'): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        return (string) $formatter->formatCurrency($this->totalPaidAmount(), $currency);
+        return EuMoneyFormatter::format($this->totalPaidAmount(), $currency);
     }
 
     private function formatDecimal(float $value, int $precision): string

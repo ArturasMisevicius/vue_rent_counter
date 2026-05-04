@@ -9,6 +9,7 @@ use App\Enums\ProjectStatus;
 use App\Enums\ProjectType;
 use App\Filament\Actions\Superadmin\Projects\ExportProjectsCsvAction;
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Project;
@@ -81,11 +82,11 @@ class ProjectsTable
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('budget_amount')
-                    ->money('EUR')
+                    ->formatStateUsing(fn (mixed $state): string => EuMoneyFormatter::format($state))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('actual_cost')
-                    ->money('EUR')
+                    ->formatStateUsing(fn (mixed $state): string => EuMoneyFormatter::format($state))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('budget_variance')
@@ -467,7 +468,7 @@ class ProjectsTable
             return '—';
         }
 
-        $formatted = '€'.number_format(abs($variance), 2);
+        $formatted = EuMoneyFormatter::format(abs($variance));
 
         return match (true) {
             $variance > 0 => "{$formatted} over",

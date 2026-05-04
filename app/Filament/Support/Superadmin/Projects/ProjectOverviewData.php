@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Superadmin\Projects;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\AuditLog;
 use App\Models\Project;
 use App\Models\ProjectUser;
@@ -257,6 +258,6 @@ final class ProjectOverviewData
             return '—';
         }
 
-        return '€'.number_format((float) $amount, 2);
+        return EuMoneyFormatter::format($amount);
     }
 }

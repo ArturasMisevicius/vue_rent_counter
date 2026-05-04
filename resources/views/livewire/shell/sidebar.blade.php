@@ -1,4 +1,9 @@
 <div class="h-full">
+    @if ($isTenant)
+        <div data-shell-nav="tenant-sidebar-disabled" class="hidden"></div>
+
+        <x-filament-actions::modals />
+    @else
     <aside
         x-data="{}"
         x-cloak="-lg"
@@ -67,4 +72,5 @@
     </aside>
 
     <x-filament-actions::modals />
+    @endif
 </div>

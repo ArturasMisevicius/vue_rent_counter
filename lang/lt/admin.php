@@ -927,6 +927,7 @@ return [
         'sections' => [
             'summary' => 'Nuomininko santrauka',
             'personal_information' => 'Asmeninė informacija',
+            'account_activity' => 'Paskyros aktyvumas',
             'property_assignment' => 'Patalpos priskyrimas',
         ],
         'tabs' => [
@@ -955,9 +956,13 @@ return [
             'floor' => 'Aukštas',
             'assigned_since' => 'Priskirta nuo',
             'account_created' => 'Paskyra sukurta',
+            'email_verified_at' => 'El. paštas patvirtintas',
             'last_login' => 'Paskutinis prisijungimas',
             'last_login_at' => 'Paskutinis prisijungimas',
+            'suspended_at' => 'Sustabdyta',
+            'suspension_reason' => 'Sustabdymo priežastis',
             'total_paid' => 'Iš viso apmokėta',
+            'updated_at' => 'Atnaujinta',
         ],
         'columns' => [
             'full_name' => 'Vardas ir pavardė',
@@ -970,10 +975,12 @@ return [
             'date_added' => 'Pridėjimo data',
         ],
         'filters' => [
+            'all_languages' => 'Visos kalbos',
             'all_properties' => 'Visos patalpos',
             'all_statuses' => 'Visos',
         ],
         'empty' => [
+            'not_verified' => 'Nepatvirtinta',
             'property' => 'Nepriskirta',
             'unassigned' => 'Nepriskirta',
             'no_assignment_yet' => 'Kol kas nepriskirta',

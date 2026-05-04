@@ -45,18 +45,21 @@
     <label class="sr-only" for="global-search">{{ __('shell.search.label') }}</label>
     <span class="sr-only">{{ __('shell.search.placeholder') }}</span>
 
-    <input
-        id="global-search"
-        type="search"
-        x-ref="input"
-        wire:model.live.debounce.{{ (int) config('tenanto.shell.search_debounce_ms', 300) }}ms="query"
-        x-on:focus="$wire.openOverlay()"
-        x-on:keydown.down.prevent="focusFirstResult()"
-        x-on:keydown.escape.prevent="dismiss()"
-        class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-500 focus:border-brand-warm focus:bg-white"
-        placeholder="{{ __('shell.search.placeholder') }}"
-        autocomplete="off"
-    />
+    <div class="relative">
+        <x-heroicon-m-magnifying-glass class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+        <input
+            id="global-search"
+            type="search"
+            x-ref="input"
+            wire:model.live.debounce.{{ (int) config('tenanto.shell.search_debounce_ms', 300) }}ms="query"
+            x-on:focus="$wire.openOverlay()"
+            x-on:keydown.down.prevent="focusFirstResult()"
+            x-on:keydown.escape.prevent="dismiss()"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-500 focus:border-brand-warm focus:bg-white"
+            placeholder="{{ __('shell.search.placeholder') }}"
+            autocomplete="off"
+        />
+    </div>
 
     <div
         wire:show="open"
@@ -80,12 +83,17 @@
                                     x-on:keydown.down.prevent="focusRelativeResult($el, 1)"
                                     x-on:keydown.up.prevent="focusRelativeResult($el, -1)"
                                     x-on:keydown.escape.prevent="dismiss()"
-                                    class="block rounded-[1.25rem] border border-slate-200 bg-slate-50/70 px-4 py-3 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-brand-warm focus:bg-white focus:ring-2 focus:ring-brand-warm/20"
+                                    class="flex items-start gap-3 rounded-[1.25rem] border border-slate-200 bg-slate-50/70 px-4 py-3 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-brand-warm focus:bg-white focus:ring-2 focus:ring-brand-warm/20"
                                 >
-                                    <p class="text-sm font-semibold text-slate-950">{{ $result['title'] }}</p>
-                                    @if ($result['subtitle'])
-                                        <p class="mt-1 text-sm text-slate-500">{{ $result['subtitle'] }}</p>
-                                    @endif
+                                    <span class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm">
+                                        <x-heroicon-m-arrow-right class="size-4" />
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="block text-sm font-semibold text-slate-950">{{ $result['title'] }}</span>
+                                        @if ($result['subtitle'])
+                                            <span class="mt-1 block text-sm text-slate-500">{{ $result['subtitle'] }}</span>
+                                        @endif
+                                    </span>
                                 </a>
                             @endif
                         @endforeach

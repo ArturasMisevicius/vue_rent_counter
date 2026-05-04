@@ -3,6 +3,10 @@
 namespace App\Filament\Support\Tenant\Portal;
 
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Formatting\LocalizedNumberFormatter;
+use App\Filament\Support\Formatting\MeasurementFormatter;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -151,8 +155,8 @@ class TenantHomePresenter
                 'meter_name' => $reading->meter?->name,
                 'meter_type' => $reading->meter?->type?->label(),
                 'unit' => $reading->meter?->unit,
-                'value' => $this->formatDecimal((float) $reading->reading_value, 3),
-                'date' => $reading->reading_date->locale(app()->getLocale())->isoFormat('ll'),
+                'value' => LocalizedNumberFormatter::decimal((float) $reading->reading_value, 3),
+                'date' => LocalizedDateFormatter::date($reading->reading_date),
             ])->all(),
         ];
     }
@@ -216,8 +220,8 @@ class TenantHomePresenter
             ->map(fn (array $row): array => [
                 'type' => $row['type'],
                 'unit' => $row['unit'],
-                'value' => $this->formatDecimal((float) $row['amount'], 3),
-                'display' => trim($this->formatDecimal((float) $row['amount'], 3).' '.$row['unit']),
+                'value' => LocalizedNumberFormatter::decimal((float) $row['amount'], 3),
+                'display' => MeasurementFormatter::consumption((float) $row['amount'], (string) $row['unit']),
             ])
             ->values()
             ->all();
@@ -225,19 +229,6 @@ class TenantHomePresenter
 
     private function formatCurrency(float $amount, string $currency): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
-        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
-        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
-
-        return trim($currency.' '.(string) $formatter->format($amount));
-    }
-
-    private function formatDecimal(float $value, int $precision): string
-    {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
-        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $precision);
-        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
-
-        return (string) $formatter->format($value);
+        return EuMoneyFormatter::format($amount, $currency);
     }
 }

@@ -49,7 +49,7 @@ class NavigationBuilder
     /**
      * @param  list<string>|null  $activePatterns
      */
-    protected function item(Request $request, string $routeName, string $label, ?array $activePatterns = null): ?NavigationItemData
+    protected function item(Request $request, string $routeName, string $label, ?array $activePatterns = null, ?string $icon = null): ?NavigationItemData
     {
         if (! Route::has($routeName)) {
             return null;
@@ -59,12 +59,13 @@ class NavigationBuilder
             label: $label,
             url: route($routeName),
             routeName: $routeName,
+            icon: $icon,
             active: $request->routeIs(...($activePatterns ?? [$routeName])),
         );
     }
 
     /**
-     * @param  array<int, array{label: string, route: string}>  $items
+     * @param  array<int, array{label: string, route: string, icon?: string, active_patterns?: list<string>}>  $items
      */
     protected function configuredGroup(Request $request, string $groupKey, array $items): ?NavigationGroupData
     {
@@ -77,6 +78,7 @@ class NavigationBuilder
                     $item['route'],
                     $this->resolveLabel($item['label']),
                     $this->activePatternsFor($item),
+                    $item['icon'] ?? null,
                 ),
                 $items,
             ),
@@ -84,7 +86,7 @@ class NavigationBuilder
     }
 
     /**
-     * @return array<string, array<int, array{label: string, route: string}>>
+     * @return array<string, array<int, array{label: string, route: string, icon?: string, active_patterns?: list<string>}>>
      */
     protected function groupsFor(User $user): array
     {
@@ -94,7 +96,7 @@ class NavigationBuilder
             return [];
         }
 
-        /** @var array<string, array<int, array{label: string, route: string}>> $groups */
+        /** @var array<string, array<int, array{label: string, route: string, icon?: string, active_patterns?: list<string>}>> $groups */
         $groups = config("tenanto.shell.navigation.roles.{$role}", []);
 
         if ($role === 'manager') {
@@ -129,7 +131,7 @@ class NavigationBuilder
     }
 
     /**
-     * @param  array{route: string, label: string, active_patterns?: list<string>}  $item
+     * @param  array{route: string, label: string, icon?: string, active_patterns?: list<string>}  $item
      * @return list<string>
      */
     protected function activePatternsFor(array $item): array

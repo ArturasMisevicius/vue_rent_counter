@@ -13,9 +13,22 @@ abstract class TenantPortalPage extends Page
 {
     use RefreshesOnShellLocaleUpdate;
 
+    public function getTitle(): string|Htmlable
+    {
+        return '';
+    }
+
     public function getHeading(): string|Htmlable|null
     {
         return null;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getBreadcrumbs(): array
+    {
+        return [];
     }
 
     public static function canAccess(): bool

@@ -13,7 +13,7 @@ class HomepagePage extends Component
     {
         return view('welcome', [
             'page' => $this->page,
-        ]);
+        ])->extends('layouts.public');
     }
 
     /**

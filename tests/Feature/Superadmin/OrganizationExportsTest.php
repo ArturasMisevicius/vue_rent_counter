@@ -221,7 +221,7 @@ it('exports the selected organizations with visible summary columns', function (
         ->and($rows[1][1])->toBe('owner@aurora.test')
         ->and($rows[1][4])->toBe('1')
         ->and($rows[1][5])->toBe('3')
-        ->and($rows[1][6])->toBe('EUR 50.00')
+        ->and($rows[1][6])->toBe("50,00\u{00A0}€")
         ->and($rows[2][0])->toBe('Beacon Holdings')
         ->and($rows[2][1])->toBe('owner@beacon.test')
         ->and($rows[2][5])->toBe('2')

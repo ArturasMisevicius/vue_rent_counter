@@ -5,6 +5,7 @@ namespace App\Filament\Support\Admin\Dashboard;
 use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
@@ -453,11 +454,7 @@ class AdminDashboardStats
 
     private function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
-        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
-        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
-
-        return trim($currency.' '.(string) $formatter->format($amount));
+        return EuMoneyFormatter::format($amount, $currency);
     }
 
     private function formatDueLabel(CarbonInterface $dueDate): string

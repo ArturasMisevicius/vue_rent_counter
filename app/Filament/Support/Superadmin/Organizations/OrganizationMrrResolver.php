@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Superadmin\Organizations;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Organization;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
@@ -54,10 +55,6 @@ final class OrganizationMrrResolver
             return '—';
         }
 
-        return sprintf(
-            '%s %s',
-            $payment->currency,
-            number_format($this->monthlyAmountForSubscription($subscription), 2, '.', ''),
-        );
+        return EuMoneyFormatter::format($this->monthlyAmountForSubscription($subscription), $payment->currency);
     }
 }

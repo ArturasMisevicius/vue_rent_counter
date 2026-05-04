@@ -18,11 +18,6 @@ class TenantPropertyDetails extends TenantPortalPage
 
     protected string $view = 'filament.pages.tenant-property-details';
 
-    public function getTitle(): string
-    {
-        return __('tenant.pages.property.title');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('tenant.pages.property.title');

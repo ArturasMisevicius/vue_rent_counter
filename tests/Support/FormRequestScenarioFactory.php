@@ -53,6 +53,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Preferences\SetLocaleRequest;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
+use App\Http\Requests\Profile\UpdateProfileAvatarRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Profile\UpsertKycProfileRequest;
 use App\Http\Requests\Security\CspViolationRequest;
@@ -92,6 +93,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rules\RequiredIf;
 use Illuminate\Validation\Rules\Unique;
 use ReflectionMethod;
+use RuntimeException;
 
 final class FormRequestScenarioFactory
 {
@@ -228,6 +230,20 @@ final class FormRequestScenarioFactory
                     'email disposable' => static fn (array $valid, array $context): array => [
                         'field' => 'email',
                         'input' => self::withField($valid, 'email', 'profile-owner@10minutemail.com'),
+                    ],
+                ],
+            ],
+            'UpdateProfileAvatarRequest' => [
+                'request' => static fn (array $context): FormRequest => new UpdateProfileAvatarRequest,
+                'valid' => static fn (array $context): array => [
+                    'avatar' => self::avatarDataUrl(),
+                ],
+                'required' => ['avatar'],
+                'authorize' => self::tenantOnly(),
+                'invalid' => [
+                    'avatar invalid data url' => static fn (array $valid, array $context): array => [
+                        'field' => 'avatar',
+                        'input' => self::withField($valid, 'avatar', 'not-an-image'),
                     ],
                 ],
             ],
@@ -951,6 +967,25 @@ final class FormRequestScenarioFactory
         $validated = self::validatorFor($request, $context, $input, $user)->validate();
 
         return $validated;
+    }
+
+    private static function avatarDataUrl(): string
+    {
+        $image = imagecreatetruecolor(512, 512);
+
+        imagefill($image, 0, 0, imagecolorallocate($image, 19, 38, 63));
+
+        ob_start();
+        imagepng($image);
+        $contents = ob_get_clean();
+
+        imagedestroy($image);
+
+        if (! is_string($contents)) {
+            throw new RuntimeException('Could not generate avatar fixture image.');
+        }
+
+        return 'data:image/png;base64,'.base64_encode($contents);
     }
 
     /**

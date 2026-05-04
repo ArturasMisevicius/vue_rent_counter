@@ -3,6 +3,7 @@
 namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 
 class InvoiceTablePresenter
@@ -29,9 +30,7 @@ class InvoiceTablePresenter
 
     public static function amount(Invoice $invoice): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        return (string) $formatter->formatCurrency((float) $invoice->total_amount, $invoice->currency);
+        return EuMoneyFormatter::format($invoice->total_amount, $invoice->currency);
     }
 
     public static function issuedDate(Invoice $invoice): string

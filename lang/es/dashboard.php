@@ -117,6 +117,7 @@ return [
     'tenant_eyebrow' => 'Acceso del inquilino',
     'tenant_heading' => 'La página principal del inquilino está lista.',
     'tenant_body' => 'El historial de facturas, el envío de lecturas y las acciones del perfil crecerán desde esta página principal pensada para inquilinos.',
+    'menu' => 'Menú',
     'logout_button' => 'Cerrar sesión',
     'organization_invoice_period' => ':from to :to',
 ];

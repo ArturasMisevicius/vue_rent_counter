@@ -48,6 +48,10 @@ class TenantsTable
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('locale')
+                    ->label(__('admin.tenants.fields.preferred_language'))
+                    ->state(fn (User $record): string => (string) (config('tenanto.locales')[$record->locale] ?? $record->locale))
+                    ->toggleable(),
                 TextColumn::make('currentPropertyAssignment.property.name')
                     ->label(__('admin.tenants.columns.property'))
                     ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
@@ -66,6 +70,11 @@ class TenantsTable
                     ->label(__('admin.tenants.columns.status'))
                     ->badge()
                     ->sortable(),
+                TextColumn::make('last_login_at')
+                    ->label(__('admin.tenants.fields.last_login'))
+                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('admin.tenants.empty.never'))
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.columns.date_added'))
                     ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
@@ -99,12 +108,26 @@ class TenantsTable
                             fn (Builder $assignmentQuery): Builder => $assignmentQuery->where('property_id', $propertyId),
                         );
                     }),
+                SelectFilter::make('locale')
+                    ->label(__('admin.tenants.fields.preferred_language'))
+                    ->placeholder(__('admin.tenants.filters.all_languages'))
+                    ->options(config('tenanto.locales', []))
+                    ->query(function (Builder $query, array $data): Builder {
+                        $locale = $data['value'] ?? null;
+
+                        if (blank($locale)) {
+                            return $query;
+                        }
+
+                        return $query->where('locale', $locale);
+                    }),
                 SelectFilter::make('status')
                     ->label(__('admin.tenants.columns.status'))
                     ->placeholder(__('admin.tenants.filters.all_statuses'))
                     ->options([
                         UserStatus::ACTIVE->value => UserStatus::ACTIVE->getLabel(),
                         UserStatus::INACTIVE->value => UserStatus::INACTIVE->getLabel(),
+                        UserStatus::SUSPENDED->value => UserStatus::SUSPENDED->getLabel(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $status = $data['value'] ?? null;

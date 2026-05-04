@@ -364,6 +364,7 @@ return [
                         [
                             'route' => 'filament.admin.pages.dashboard',
                             'label' => 'tenant.navigation.home',
+                            'icon' => 'heroicon-m-home',
                             'active_patterns' => [
                                 'filament.admin.pages.dashboard',
                                 'filament.admin.pages.tenant-dashboard',
@@ -373,18 +374,20 @@ return [
                         [
                             'route' => 'filament.admin.pages.tenant-property-details',
                             'label' => 'tenant.pages.property.title',
+                            'icon' => 'heroicon-m-home-modern',
                         ],
                         [
                             'route' => 'filament.admin.pages.tenant-submit-meter-reading',
                             'label' => 'tenant.navigation.readings',
+                            'icon' => 'heroicon-m-clipboard-document-list',
                         ],
                         [
                             'route' => 'filament.admin.pages.tenant-invoice-history',
                             'label' => 'tenant.navigation.invoices',
+                            'icon' => 'heroicon-m-document-text',
                         ],
                     ],
-                    'account' => [
-                    ],
+                    'account' => [],
                 ],
             ],
         ],

@@ -101,7 +101,7 @@ it('bulk generates invoices while skipping tenants already billed for the select
     $result = app(GenerateBulkInvoicesAction::class)->handle($organization, [
         'billing_period_start' => now()->startOfMonth()->toDateString(),
         'billing_period_end' => now()->endOfMonth()->toDateString(),
-        'due_date' => now()->addDays(14)->toDateString(),
+        'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
     ], $admin);
 
     expect($result['created'])->toHaveCount(1)
@@ -140,7 +140,7 @@ it('renders the bulk invoice generation page contract with live preview warnings
         ->assertSeeText('Already has an invoice for this period')
         ->assertSeeText('Number of invoices to be generated')
         ->assertSeeText('Estimated combined total')
-        ->assertSeeText('EUR 17.50')
+        ->assertSeeText("17,50\u{00A0}€")
         ->assertSeeText('Tenants with no meter readings')
         ->assertSeeText((string) $missingReadingsTenant->name)
         ->assertDontSeeText('INV-OTHER-ORG-001');

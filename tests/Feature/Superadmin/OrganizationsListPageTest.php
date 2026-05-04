@@ -406,5 +406,5 @@ it('shows users count and monthly normalized mrr in the organizations list', fun
         ->assertTableColumnExists('users_count')
         ->assertTableColumnExists('mrr_display')
         ->assertTableColumnStateSet('users_count', 3, $organization)
-        ->assertTableColumnStateSet('mrr_display', 'EUR 50.00', $organization);
+        ->assertTableColumnStateSet('mrr_display', "50,00\u{00A0}€", $organization);
 });

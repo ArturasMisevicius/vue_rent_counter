@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions\Superadmin\Projects;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Project;
 use Illuminate\Support\Collection;
 
@@ -58,9 +59,9 @@ final class ExportProjectsCsvAction
                 $project->priority?->getLabel(),
                 $project->type?->getLabel(),
                 $project->manager?->name ?? 'Unassigned',
-                $this->decimal($project->budget_amount),
-                $this->decimal($project->actual_cost),
-                $this->decimal($project->budgetVarianceAmount()),
+                $this->money($project->budget_amount),
+                $this->money($project->actual_cost),
+                $this->money($project->budgetVarianceAmount()),
                 (string) ((int) $project->completion_percentage),
                 $project->estimated_end_date?->toDateString(),
                 $project->scheduleVarianceDays(),
@@ -73,12 +74,12 @@ final class ExportProjectsCsvAction
         return $path;
     }
 
-    private function decimal(float|int|string|null $value): string
+    private function money(float|int|string|null $value): string
     {
         if ($value === null || $value === '') {
             return '';
         }
 
-        return number_format((float) $value, 2, '.', '');
+        return EuMoneyFormatter::format($value);
     }
 }

@@ -12,7 +12,7 @@
                 @endphp
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p class="text-sm font-semibold text-slate-900">
-                        {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY))->formatCurrency((float) $payment->amount, $payment->currency) }}
+                        {{ \App\Filament\Support\Formatting\EuMoneyFormatter::format($payment->amount, $payment->currency) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.paid_on', [

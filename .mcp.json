@@ -8,6 +8,27 @@
             "env": {
                 "SITE_PATH": "/Users/andrejprus/Herd/tenanto"
             }
+        },
+        "21st-dev-magic": {
+            "command": "sh",
+            "args": [
+                "-lc",
+                "API_KEY=\"$TWENTY_FIRST_DEV_API_KEY\" exec npx -y @21st-dev/magic@latest"
+            ]
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ]
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest"
+            ]
         }
     }
 }

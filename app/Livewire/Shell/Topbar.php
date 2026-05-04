@@ -3,6 +3,7 @@
 namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\DashboardUrlResolver;
+use App\Filament\Support\Shell\Navigation\NavigationBuilder;
 use App\Livewire\Concerns\AppliesShellLocale;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -32,6 +33,7 @@ class Topbar extends Component
     }
 
     #[On('shell-locale-updated')]
+    #[On('profile-avatar-updated')]
     public function refresh(): void
     {
         $this->applyShellLocale();
@@ -39,15 +41,27 @@ class Topbar extends Component
 
     public function render(
         DashboardUrlResolver $dashboardUrlResolver,
+        NavigationBuilder $navigationBuilder,
     ): View {
         $user = auth()->user();
 
         return view('livewire.shell.topbar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
+            'navigationGroups' => $this->navigationGroupsFor($user, $navigationBuilder),
             'profileUrl' => $this->resolveProfileUrl($user),
             'roleLabel' => $user?->role?->label(),
+            'showLanguageSwitcher' => ! $user?->isTenant(),
             'user' => $user,
         ]);
+    }
+
+    protected function navigationGroupsFor(?User $user, NavigationBuilder $navigationBuilder): array
+    {
+        if ($user === null || ! $user->isTenant()) {
+            return [];
+        }
+
+        return $navigationBuilder->forUser($user, request());
     }
 
     protected function resolveProfileUrl(?User $user): ?string

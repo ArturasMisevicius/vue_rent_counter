@@ -35,7 +35,7 @@
         <div class="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(62,197,173,0.18),transparent_28%),linear-gradient(160deg,#13263f_0%,#10253b_34%,#f6eddc_34%,#f8f4ea_100%)]">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(248,205,116,0.18),transparent_24%)]"></div>
 
-            <div class="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
+            <div class="relative mx-auto flex min-h-screen w-full max-w-[112rem] flex-col px-4 pb-8 pt-5 sm:px-6 sm:pt-7 2xl:px-8">
                 @livewire(\App\Livewire\Shell\Topbar::class, ['context' => 'page', 'eyebrow' => $eyebrow, 'heading' => $heading])
 
                 <main class="flex-1">

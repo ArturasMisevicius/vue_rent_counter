@@ -153,7 +153,7 @@ it('shows the admin dashboard contract with live usage, recent invoices, and rea
         ->assertSeeText((string) $tenants[0]->name)
         ->assertSeeText((string) $properties[0]->name)
         ->assertSeeText('INV-100002')
-        ->assertSeeText('EUR 321.45')
+        ->assertSeeText("321,45\u{00A0}€")
         ->assertSeeText('Process Payment')
         ->assertSeeText('Upcoming Reading Deadlines')
         ->assertSeeText('WM-A1')

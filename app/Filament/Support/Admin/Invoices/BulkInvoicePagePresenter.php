@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Admin\Invoices;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use Illuminate\Support\Collection;
 
 final class BulkInvoicePagePresenter
@@ -148,11 +149,7 @@ final class BulkInvoicePagePresenter
 
     private static function formatMoney(mixed $value): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL);
-        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
-        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
-
-        return trim('EUR '.(string) $formatter->format((float) ($value ?? 0)));
+        return EuMoneyFormatter::format($value ?? 0);
     }
 
     private static function reasonLabel(?string $reason): string

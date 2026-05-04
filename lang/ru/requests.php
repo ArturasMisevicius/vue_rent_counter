@@ -7,6 +7,7 @@ return [
         'address_line_1' => 'адресная строка 1',
         'address_line_2' => 'адресная строка 2',
         'amount_paid' => 'оплаченная сумма',
+        'avatar' => 'фото профиля',
         'billing_contact_email' => 'контактный email для выставления счетов',
         'billing_contact_name' => 'контактное имя для выставления счетов',
         'billing_contact_phone' => 'контактный телефон для выставления счетов',

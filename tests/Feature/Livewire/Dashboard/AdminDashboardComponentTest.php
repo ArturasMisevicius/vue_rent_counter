@@ -35,7 +35,7 @@ it('renders the admin dashboard component for admin users with the new contract'
         ->assertSeeText('Recent Invoices')
         ->assertSeeText('Upcoming Reading Deadlines')
         ->assertSeeText('INV-FINALIZED-001')
-        ->assertSeeText('EUR 321.45')
+        ->assertSeeText("321,45\u{00A0}€")
         ->assertSeeText('WM-A1')
         ->assertDontSeeText('INV-OUTSIDE-001')
         ->assertSeeHtml('wire:poll.visible.30s="refreshDashboardOnInterval"');

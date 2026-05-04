@@ -70,8 +70,8 @@ it('uses the tenants outstanding invoice currency on the home balance card', fun
     $this->actingAs($tenant->user)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('USD 75.00')
-        ->assertDontSeeText('EUR 75.00');
+        ->assertSeeText("75,00\u{00A0}USD")
+        ->assertDontSeeText("75,00\u{00A0}€");
 });
 
 it('shows no reading this month when a meter is missing a current-month reading', function () {
@@ -98,6 +98,30 @@ it('shows the my property link on the tenant home screen', function () {
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('My Property')
+        ->assertSee(route('filament.admin.pages.tenant-property-details'), false);
+});
+
+it('links tenant home sidebar cards to the detailed tenant pages', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices()
+        ->withBillingContact(
+            name: 'Updated Billing Team',
+            email: 'billing@example.com',
+            phone: '+37060000000',
+        )
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSee('data-tenant-home-card="tenant-information"', false)
+        ->assertSee(route('filament.admin.pages.profile'), false)
+        ->assertSee('data-tenant-home-card="billing-guidance"', false)
+        ->assertSee(route('filament.admin.pages.tenant-invoice-history').'#tenant-billing-guidance', false)
+        ->assertSee('data-tenant-home-card="billing-contact"', false)
+        ->assertSee(route('filament.admin.pages.tenant-invoice-history').'#tenant-billing-contact', false)
+        ->assertSee('data-tenant-home-card="assigned-property"', false)
         ->assertSee(route('filament.admin.pages.tenant-property-details'), false);
 });
 
@@ -161,8 +185,8 @@ it('does not include malformed cross-organization invoices in the home balance s
     $this->actingAs($tenant->user)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('EUR 75.00')
-        ->assertDontSeeText('EUR 1,074.00');
+        ->assertSeeText("75,00\u{00A0}€")
+        ->assertDontSeeText("1 074,00\u{00A0}€");
 });
 
 it('does not include malformed cross-organization readings in the home activity summary', function () {
@@ -204,7 +228,7 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
     $this->actingAs($tenant->user->fresh())
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Nuomininko suvestinė')
+        ->assertDontSeeText('Nuomininko suvestinė')
         ->assertSeeText('Pateikti naują rodmenį')
         ->assertSeeText('Naujausi rodmenys');
 });
@@ -224,7 +248,7 @@ it('falls back to english when a tenant has an unsupported locale', function () 
     $this->actingAs($tenant->user->fresh())
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Tenant Summary')
+        ->assertDontSeeText('Tenant Summary')
         ->assertSeeText('Submit New Reading')
         ->assertSeeText('Recent Readings');
 });

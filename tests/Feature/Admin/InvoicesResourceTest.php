@@ -103,7 +103,7 @@ it('shows organization-scoped invoice resource pages to admin and manager users'
         ->assertSeeText('Payment History')
         ->assertSeeText('Email History')
         ->assertSeeText($property->name)
-        ->assertSeeText('EUR 145.30');
+        ->assertSeeText("145,30\u{00A0}€");
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.invoices.index'))

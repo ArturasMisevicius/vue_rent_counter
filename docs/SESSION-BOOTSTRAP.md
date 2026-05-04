@@ -10,11 +10,13 @@ Verify the available Laravel-side MCP commands before trying to start them:
 php artisan list --raw | rg '^(boost:mcp|mcp:start)$'
 ```
 
-Verified on 2026-03-19 in this repository:
+Verified on 2026-05-04 in this repository:
 
-- `php artisan boost:mcp` is not registered
-- `php artisan mcp:start tenanto` is not registered
-- repository-local `.mcp.json` currently defines only `herd`
+- `php artisan boost:mcp` may not be registered in this workspace
+- `php artisan mcp:start tenanto` may not be registered in this workspace
+- repository-local `.mcp.json` defines `herd`, `21st-dev-magic`, `context7`, and `playwright`
+- `21st-dev-magic` requires `TWENTY_FIRST_DEV_API_KEY` in the host agent/editor process
+- the current skill and MCP inventory lives in `docs/SKILLS-MCP-INVENTORY.md`
 
 If both commands become available in a future environment, use this startup order:
 
@@ -48,9 +50,11 @@ Use the installed skill names below rather than the older shorthand aliases:
 - `laravel-11-12-app-guidelines` instead of `tenanto-laravel-stack`
 - `pest-testing` whenever writing or debugging tests
 - `tailwindcss-development` instead of `tailwind-patterns`
+- `21st-dev-design` for tenant/admin UI redesign tasks that should use 21st.dev Magic MCP design guardrails
 - `filament` for Filament resources, pages, actions, and widgets
 - `architecture` for service boundaries, class responsibilities, and data flow
 - `laravel-security-audit` instead of `vulnerability-scanner` when work touches auth, authorization, impersonation, or tenant-scoped data
+- `mcp-development` or `mcp-builder` when adding or changing MCP servers, tools, resources, prompts, or startup instructions
 
 ## 3. Application Baseline Checks
 
@@ -85,5 +89,18 @@ When Boost MCP is actually connected, prefer:
 - Boost `database-schema` before writing migrations or changing model persistence assumptions
 - Boost `browser-logs` when a Livewire component does not render as expected
 - Boost `search-docs` before relying on framework or package behavior you have not verified
+- `context7` MCP for package documentation when Boost docs are unavailable
+- `playwright` MCP for browser-level tenant/admin UI checks when the host agent exposes it
 
 In the current verified repository state, do not assume those Boost MCP tools are available until the `boost:mcp` command exists and a working MCP connection has been confirmed.
+
+## 5. Tenant UX Baseline
+
+Before changing tenant screens, verify:
+
+- Tenant navigation source: `config/tenanto.php` under `tenanto.shell.navigation.roles.tenant`
+- Tenant topbar/sidebar shell: `app/Livewire/Shell/Topbar.php`, `app/Livewire/Shell/Sidebar.php`, `resources/views/livewire/shell/*.blade.php`
+- Tenant pages: `app/Filament/Pages/Tenant*.php` and `resources/views/livewire/tenant`
+- Tenant read models/actions: `app/Filament/Support/Tenant/Portal` and `app/Filament/Actions/Tenant`
+
+Tenant UI should not become an admin-style left-menu workspace. Keep tenant navigation in the topbar and keep Blade templates free of queries.

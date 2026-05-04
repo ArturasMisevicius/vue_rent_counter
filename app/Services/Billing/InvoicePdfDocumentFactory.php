@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
@@ -43,13 +44,13 @@ final class InvoicePdfDocumentFactory
                 'description_lines' => $this->wrapText((string) ($item['description'] ?? ''), 40),
                 'quantity' => $quantity === '' ? '—' : $quantity,
                 'period' => (string) ($item['period'] ?? '—'),
-                'unit_price' => $this->formatCurrency(
+                'unit_price' => EuMoneyFormatter::format(
+                    $item['unit_price'] ?? '0.00',
                     (string) $presentation['currency'],
-                    (string) ($item['unit_price_display'] ?? '0.00'),
                 ),
-                'total' => $this->formatCurrency(
+                'total' => EuMoneyFormatter::format(
+                    $item['total'] ?? '0.00',
                     (string) $presentation['currency'],
-                    (string) ($item['total_display'] ?? '0.00'),
                 ),
                 'is_adjustment' => (bool) ($item['is_adjustment'] ?? false),
             ];
@@ -99,10 +100,7 @@ final class InvoicePdfDocumentFactory
                         $payment->paid_at?->locale(app()->getLocale())->isoFormat('ll'),
                         $payment->reference,
                     ]))),
-                    'amount' => $this->formatCurrency(
-                        (string) $presentation['currency'],
-                        (string) ($payment->amount ?? '0.00'),
-                    ),
+                    'amount' => EuMoneyFormatter::format($payment->amount ?? '0.00', (string) $presentation['currency']),
                 ],
                 $invoice->payments->all(),
             ),
@@ -213,10 +211,5 @@ final class InvoicePdfDocumentFactory
             $building->postal_code,
             $building->country_code,
         ])->filter(fn (?string $value): bool => filled($value))->implode(', ');
-    }
-
-    private function formatCurrency(string $currency, string $amount): string
-    {
-        return trim($currency.' '.$amount);
     }
 }

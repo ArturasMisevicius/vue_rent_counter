@@ -110,7 +110,9 @@ class TenantResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getModel()::query()->tenants();
+        return parent::getModel()::query()
+            ->withTenantResourceSummary()
+            ->withOrganizationSummary();
     }
 
     public static function canViewAny(): bool
@@ -123,6 +125,10 @@ class TenantResource extends Resource
     public static function canCreate(): bool
     {
         $user = self::currentUser();
+
+        if ($user?->isSuperadmin()) {
+            return true;
+        }
 
         if (! $user?->isAdmin() && ! $user?->isManager()) {
             return false;

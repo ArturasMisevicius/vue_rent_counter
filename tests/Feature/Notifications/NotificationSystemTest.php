@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Jobs\SendInvoiceReminderJob;
 use App\Models\Invoice;
 use App\Models\InvoiceReminderLog;
@@ -80,11 +81,7 @@ it('queues overdue invoice reminders and the queued job sends the correct email 
         return $channels === ['mail']
             && $mailMessage->subject === __('admin.reports.notifications.overdue_subject', ['number' => $invoice->invoice_number])
             && in_array(__('admin.reports.notifications.overdue_balance', [
-                'amount' => sprintf(
-                    '%s %s',
-                    $invoice->currency,
-                    number_format($invoice->outstanding_balance, 2, '.', ''),
-                ),
+                'amount' => EuMoneyFormatter::format($invoice->outstanding_balance, $invoice->currency),
             ]), $mailMessage->introLines, true)
             && $mailMessage->actionUrl === route('tenant.invoices.download', $invoice);
     });

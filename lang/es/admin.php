@@ -935,6 +935,7 @@ return [
             'invoice_history' => 'Factura History',
             'summary' => 'Tenant Summary',
             'personal_information' => 'Personal Information',
+            'account_activity' => 'Actividad de la cuenta',
             'property_assignment' => 'Property Assignment',
         ],
         'tabs' => [
@@ -955,6 +956,8 @@ return [
             'building' => 'Edificio',
             'assigned_since' => 'Assigned Since',
             'invoice_history' => 'Factura History',
+            'account_created' => 'Cuenta creada',
+            'email_verified_at' => 'Correo verificado',
             'last_login_at' => 'Last Login',
             'full_name' => 'Full Name',
             'email_address' => 'Email Address',
@@ -964,9 +967,11 @@ return [
             'account_status' => 'Account Status',
             'unit_area' => 'Unit Area',
             'floor' => 'Floor',
-            'account_created' => 'Account Created',
             'last_login' => 'Last Login',
+            'suspended_at' => 'Suspendido desde',
+            'suspension_reason' => 'Motivo de suspensión',
             'total_paid' => 'Total Paid',
+            'updated_at' => 'Updated At',
         ],
         'columns' => [
             'name' => 'Name',
@@ -981,6 +986,7 @@ return [
             'date_added' => 'Date Added',
         ],
         'empty' => [
+            'not_verified' => 'Not verified',
             'property' => 'Unassigned',
             'invoices' => 'No facturas yet.',
             'never' => 'Never',
@@ -1035,6 +1041,7 @@ return [
             'edit' => 'Edit Tenant: :name',
         ],
         'filters' => [
+            'all_languages' => 'All Languages',
             'all_properties' => 'All Properties',
             'all_statuses' => 'All',
         ],

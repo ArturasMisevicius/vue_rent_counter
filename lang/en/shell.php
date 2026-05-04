@@ -75,6 +75,25 @@ return [
             'heading' => 'Personal Information',
             'description' => 'Keep your full name, email address, phone number, and preferred language up to date.',
         ],
+        'avatar' => [
+            'heading' => 'Profile Image',
+            'description' => 'Upload a square avatar for your tenant account.',
+            'current_label' => 'Current avatar',
+            'upload_label' => 'Upload image',
+            'zoom_label' => 'Crop zoom',
+            'preview_label' => 'Avatar crop preview',
+            'actions' => [
+                'crop' => 'Use Crop',
+                'save' => 'Save Avatar',
+            ],
+            'messages' => [
+                'empty' => 'Choose an image to crop.',
+                'ready' => 'Image ready for cropping.',
+                'cropped' => 'Crop ready. Save the avatar to update your profile.',
+                'invalid_file' => 'Choose a JPEG, PNG, or WebP image.',
+                'saved' => 'Your avatar has been updated.',
+            ],
+        ],
         'password' => [
             'heading' => 'Change Password',
             'description' => 'Update your password only when you need to change it.',

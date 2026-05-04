@@ -75,6 +75,25 @@ return [
             'heading' => 'Asmeninė informacija',
             'description' => 'Atnaujinkite pilną vardą, el. pašto adresą, telefono numerį ir pageidaujamą kalbą.',
         ],
+        'avatar' => [
+            'heading' => 'Profilio nuotrauka',
+            'description' => 'Įkelkite kvadratinį avatarą savo nuomininko paskyrai.',
+            'current_label' => 'Dabartinis avataras',
+            'upload_label' => 'Įkelti nuotrauką',
+            'zoom_label' => 'Apkirpimo priartinimas',
+            'preview_label' => 'Avataro apkirpimo peržiūra',
+            'actions' => [
+                'crop' => 'Naudoti apkirpimą',
+                'save' => 'Išsaugoti avatarą',
+            ],
+            'messages' => [
+                'empty' => 'Pasirinkite nuotrauką apkirpimui.',
+                'ready' => 'Nuotrauka paruošta apkirpimui.',
+                'cropped' => 'Apkirpimas paruoštas. Išsaugokite avatarą, kad atnaujintumėte profilį.',
+                'invalid_file' => 'Pasirinkite JPEG, PNG arba WebP nuotrauką.',
+                'saved' => 'Jūsų avataras atnaujintas.',
+            ],
+        ],
         'password' => [
             'heading' => 'Slaptažodžio keitimas',
             'description' => 'Keiskite slaptažodį tik tada, kai to tikrai reikia.',

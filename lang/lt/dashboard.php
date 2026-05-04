@@ -114,5 +114,6 @@ return [
     'tenant_eyebrow' => 'Nuomininko įėjimas',
     'tenant_heading' => 'Jūsų nuomininko pradinis puslapis paruoštas.',
     'tenant_body' => 'Sąskaitų istorija, rodmenų pateikimas ir profilio veiksmai bus plečiami nuo šio nuomininkui skirto puslapio.',
+    'menu' => 'Meniu',
     'logout_button' => 'Atsijungti',
 ];

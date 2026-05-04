@@ -7,6 +7,7 @@ use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
+use App\Filament\Resources\Tenants\Pages\CreateTenant;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Filament\Resources\Tenants\Pages\ViewTenant;
 use App\Filament\Resources\Tenants\RelationManagers\AuditTrailRelationManager;
@@ -62,6 +63,8 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         'phone' => '+37060000001',
         'locale' => 'lt',
         'status' => UserStatus::ACTIVE,
+        'email_verified_at' => now()->subDays(10),
+        'last_login_at' => now()->subDay(),
     ]);
 
     PropertyAssignment::factory()
@@ -144,6 +147,11 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->assertSeeText('Audit Trail')
         ->assertSeeText('Tenant Summary')
         ->assertSeeText('Total Paid')
+        ->assertSeeText('Organization')
+        ->assertSeeText($organization->name)
+        ->assertSeeText('Account Activity')
+        ->assertSeeText('Email Verified')
+        ->assertSeeText('Updated At')
         ->assertSeeText('Reassign Property')
         ->assertSeeText('Deactivate')
         ->assertSeeText('Delete')
@@ -180,7 +188,16 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
         ->assertSeeText($tenant->name)
-        ->assertSeeText($otherTenant->name);
+        ->assertSeeText($otherTenant->name)
+        ->assertSeeText('New Tenant');
+
+    actingAs($superadmin)
+        ->get(route('filament.admin.resources.tenants.create'))
+        ->assertSuccessful()
+        ->assertSeeText('New Tenant')
+        ->assertSeeText('Organization')
+        ->assertSeeText('Personal Information')
+        ->assertSeeText('Property Assignment');
 });
 
 it('exposes the tenants list and relation manager contracts', function () {
@@ -222,6 +239,14 @@ it('exposes the tenants list and relation manager contracts', function () {
         'name' => 'Jordan Tenant',
         'phone' => '+37060000111',
         'status' => UserStatus::ACTIVE,
+        'locale' => 'lt',
+        'last_login_at' => now()->subDay(),
+    ]);
+    $suspendedTenant = User::factory()->tenant()->create([
+        'organization_id' => $organizationA->id,
+        'name' => 'Suspended Tenant',
+        'status' => UserStatus::SUSPENDED,
+        'locale' => 'en',
     ]);
     $tenantB = User::factory()->tenant()->create([
         'organization_id' => $organizationB->id,
@@ -291,15 +316,24 @@ it('exposes the tenants list and relation manager contracts', function () {
         ->assertTableColumnExists('currentPropertyAssignment.property.name', fn (TextColumn $column): bool => $column->getLabel() === 'Property')
         ->assertTableColumnExists('unit_area', fn (TextColumn $column): bool => $column->getLabel() === 'Unit Area')
         ->assertTableColumnExists('phone', fn (TextColumn $column): bool => $column->getLabel() === 'Phone')
+        ->assertTableColumnExists('locale', fn (TextColumn $column): bool => $column->getLabel() === 'Preferred Language')
         ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === 'Status')
+        ->assertTableColumnExists('last_login_at', fn (TextColumn $column): bool => $column->getLabel() === 'Last Login')
         ->assertTableColumnExists('created_at', fn (TextColumn $column): bool => $column->getLabel() === 'Date Added')
         ->assertTableFilterExists('property_id')
+        ->assertTableFilterExists('locale')
         ->assertTableFilterExists('status')
         ->assertCanSeeTableRecords([$tenantA])
         ->searchTable('Jordan Tenant')
         ->assertCanSeeTableRecords([$tenantA])
         ->assertCanNotSeeTableRecords([$tenantB])
         ->searchTable()
+        ->assertCanNotSeeTableRecords([$tenantB]);
+
+    Livewire::test(ListTenants::class)
+        ->filterTable('status', UserStatus::SUSPENDED->value)
+        ->assertCanSeeTableRecords([$suspendedTenant])
+        ->assertCanNotSeeTableRecords([$tenantA])
         ->assertCanNotSeeTableRecords([$tenantB]);
 
     actingAs($superadmin);
@@ -455,6 +489,132 @@ it('creates invited tenants with phone and assignment data, updates them, and to
 
     expect($activated->status)->toBe(UserStatus::ACTIVE)
         ->and($deactivated->status)->toBe(UserStatus::INACTIVE);
+});
+
+it('allows superadmins to create tenants by selecting an organization', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create([
+        'name' => 'Harbor Estates',
+    ]);
+    $organizationAdmin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'email' => 'harbor.admin@example.com',
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => 'H-21',
+        'floor_area_sqm' => 63.5,
+    ]);
+
+    actingAs($superadmin);
+
+    Livewire::test(ListTenants::class)
+        ->assertActionVisible('create');
+
+    Livewire::test(CreateTenant::class)
+        ->fillForm([
+            'organization_id' => $organization->id,
+            'name' => 'Global Tenant',
+            'email' => 'global.tenant@example.com',
+            'phone' => '+37060000009',
+            'locale' => 'en',
+            'property_id' => $property->id,
+            'unit_area_sqm' => 63.5,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $tenant = User::query()
+        ->where('email', 'global.tenant@example.com')
+        ->firstOrFail();
+
+    expect($tenant->organization_id)->toBe($organization->id)
+        ->and($tenant->role)->toBe(UserRole::TENANT)
+        ->and($tenant->currentProperty?->is($property))->toBeTrue();
+
+    $invitation = OrganizationInvitation::query()
+        ->where('organization_id', $organization->id)
+        ->where('email', 'global.tenant@example.com')
+        ->first();
+
+    expect($invitation)->not->toBeNull()
+        ->and($invitation?->inviter_user_id)->toBe($organizationAdmin->id);
+});
+
+it('resets property assignment state when superadmins change the selected organization', function () {
+    $organizationA = Organization::factory()->create();
+    $organizationB = Organization::factory()->create();
+    $superadmin = User::factory()->superadmin()->create();
+    $building = Building::factory()->for($organizationA)->create();
+    $property = Property::factory()->for($organizationA)->for($building)->create([
+        'floor_area_sqm' => 71.25,
+    ]);
+
+    actingAs($superadmin);
+
+    Livewire::test(CreateTenant::class)
+        ->set('data.organization_id', $organizationA->id)
+        ->set('data.property_id', $property->id)
+        ->assertSet('data.unit_area_sqm', 71.25)
+        ->set('data.organization_id', $organizationB->id)
+        ->assertSet('data.property_id', null)
+        ->assertSet('data.unit_area_sqm', null);
+});
+
+it('rejects superadmin tenant creation with a property from another organization', function () {
+    Notification::fake();
+
+    $organizationA = Organization::factory()->create();
+    User::factory()->admin()->create([
+        'organization_id' => $organizationA->id,
+    ]);
+    $organizationB = Organization::factory()->create();
+    $superadmin = User::factory()->superadmin()->create();
+    $building = Building::factory()->for($organizationB)->create();
+    $propertyFromAnotherOrganization = Property::factory()->for($organizationB)->for($building)->create();
+
+    actingAs($superadmin);
+
+    Livewire::test(CreateTenant::class)
+        ->fillForm([
+            'organization_id' => $organizationA->id,
+            'name' => 'Cross Org Tenant',
+            'email' => 'cross.org.tenant@example.com',
+            'phone' => '+37060000010',
+            'locale' => 'en',
+            'property_id' => $propertyFromAnotherOrganization->id,
+            'unit_area_sqm' => 48,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['property_id']);
+
+    expect(User::query()->where('email', 'cross.org.tenant@example.com')->exists())->toBeFalse();
+});
+
+it('validates tenant creation against the explicit actor passed to the action', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $superadmin = User::factory()->superadmin()->create();
+
+    app(CreateTenantAction::class)->handle($superadmin, [
+        'name' => 'Explicit Actor Tenant',
+        'email' => 'explicit.actor@example.com',
+        'phone' => '+37060000011',
+        'locale' => 'en',
+        'property_id' => null,
+        'unit_area_sqm' => null,
+    ], $organization);
+
+    expect(User::query()
+        ->where('organization_id', $organization->id)
+        ->where('email', 'explicit.actor@example.com')
+        ->exists())->toBeTrue();
 });
 
 it('prevents deleting tenants with invoice history and removes tenants without invoice history', function () {

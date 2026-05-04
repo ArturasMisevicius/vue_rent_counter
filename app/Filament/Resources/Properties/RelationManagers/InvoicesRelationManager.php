@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Properties\RelationManagers;
 
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Services\Billing\InvoicePdfService;
 use Filament\Actions\Action;
@@ -53,11 +54,7 @@ class InvoicesRelationManager extends RelationManager
                     ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
                     ->label(__('admin.invoices.columns.amount'))
-                    ->state(function (Invoice $record): string {
-                        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-                        return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
-                    }),
+                    ->state(fn (Invoice $record): string => EuMoneyFormatter::format($record->total_amount, $record->currency)),
                 TextColumn::make('status')
                     ->label(__('admin.invoices.columns.status'))
                     ->badge(),

@@ -61,13 +61,13 @@ it('matches monthly paid totals in the revenue report', function () {
 
     expect($rows)->toHaveCount(2)
         ->and($rows[(string) $paidInvoiceCurrentMonth->billing_period_end?->format('Y-m')]['total_paid'] ?? null)
-        ->toBe('EUR 120.00')
+        ->toBe("120,00\u{00A0}€")
         ->and($rows[(string) $paidInvoiceCurrentMonth->billing_period_end?->format('Y-m')]['total_invoiced'] ?? null)
-        ->toBe('EUR 120.00')
+        ->toBe("120,00\u{00A0}€")
         ->and($rows[(string) $paidInvoicePreviousMonth->billing_period_end?->format('Y-m')]['total_paid'] ?? null)
-        ->toBe('EUR 200.00')
+        ->toBe("200,00\u{00A0}€")
         ->and($rows[(string) $paidInvoicePreviousMonth->billing_period_end?->format('Y-m')]['total_invoiced'] ?? null)
-        ->toBe('EUR 200.00');
+        ->toBe("200,00\u{00A0}€");
 });
 
 it('keeps the revenue report strictly bounded to the selected billing period end date range', function () {
@@ -91,7 +91,7 @@ it('keeps the revenue report strictly bounded to the selected billing period end
         ->and($rows->has((string) $paidInvoicePreviousMonth->billing_period_end?->format('Y-m')))
         ->toBeFalse()
         ->and($rows[(string) $paidInvoiceCurrentMonth->billing_period_end?->format('Y-m')]['total_paid'] ?? null)
-        ->toBe('EUR 120.00');
+        ->toBe("120,00\u{00A0}€");
 });
 
 it('identifies overdue invoices in the outstanding balances report', function () {

@@ -19,6 +19,215 @@ const dispatchInputEvents = (element) => {
     });
 };
 
+const avatarCropperInstances = new WeakSet();
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const initializeAvatarCroppers = () => {
+    document.querySelectorAll('[data-avatar-cropper]').forEach((cropper) => {
+        if (avatarCropperInstances.has(cropper)) {
+            return;
+        }
+
+        avatarCropperInstances.add(cropper);
+
+        const fileInput = cropper.querySelector('[data-avatar-file]');
+        const hiddenInput = cropper.querySelector('[data-avatar-cropped-input]');
+        const canvas = cropper.querySelector('[data-avatar-canvas]');
+        const zoomInput = cropper.querySelector('[data-avatar-zoom]');
+        const controls = cropper.querySelector('[data-avatar-controls]');
+        const applyButton = cropper.querySelector('[data-avatar-apply]');
+        const status = cropper.querySelector('[data-avatar-status]');
+        const previewImage = cropper.querySelector('[data-avatar-preview-image]');
+        const previewFallback = cropper.querySelector('[data-avatar-preview-fallback]');
+
+        if (!(fileInput instanceof HTMLInputElement)
+            || !(hiddenInput instanceof HTMLInputElement)
+            || !(canvas instanceof HTMLCanvasElement)
+            || !(zoomInput instanceof HTMLInputElement)
+            || !(applyButton instanceof HTMLButtonElement)
+        ) {
+            return;
+        }
+
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            return;
+        }
+
+        const state = {
+            baseScale: 1,
+            dragging: false,
+            image: null,
+            lastX: 0,
+            lastY: 0,
+            offsetX: 0,
+            offsetY: 0,
+        };
+
+        const setStatus = (text) => {
+            if (status) {
+                status.textContent = text;
+            }
+        };
+
+        const constrainOffsets = () => {
+            if (!state.image) {
+                return;
+            }
+
+            const scale = state.baseScale * Number(zoomInput.value || 1);
+            const width = state.image.naturalWidth * scale;
+            const height = state.image.naturalHeight * scale;
+            const maxOffsetX = Math.max(0, (width - canvas.width) / 2);
+            const maxOffsetY = Math.max(0, (height - canvas.height) / 2);
+
+            state.offsetX = clamp(state.offsetX, -maxOffsetX, maxOffsetX);
+            state.offsetY = clamp(state.offsetY, -maxOffsetY, maxOffsetY);
+        };
+
+        const render = () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#f8fafc';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (!state.image) {
+                context.strokeStyle = '#cbd5e1';
+                context.lineWidth = 3;
+                context.strokeRect(1.5, 1.5, canvas.width - 3, canvas.height - 3);
+
+                return;
+            }
+
+            const scale = state.baseScale * Number(zoomInput.value || 1);
+            const width = state.image.naturalWidth * scale;
+            const height = state.image.naturalHeight * scale;
+
+            constrainOffsets();
+
+            const x = (canvas.width - width) / 2 + state.offsetX;
+            const y = (canvas.height - height) / 2 + state.offsetY;
+
+            context.drawImage(state.image, x, y, width, height);
+        };
+
+        const showControls = () => {
+            controls?.classList.remove('hidden');
+            applyButton.disabled = false;
+        };
+
+        const loadImage = (file) => {
+            if (!file || !file.type.startsWith('image/')) {
+                setStatus(cropper.dataset.invalidMessage || '');
+
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onerror = () => {
+                setStatus(cropper.dataset.invalidMessage || '');
+            };
+
+            reader.onload = () => {
+                if (typeof reader.result !== 'string') {
+                    setStatus(cropper.dataset.invalidMessage || '');
+
+                    return;
+                }
+
+                state.image = new Image();
+                state.image.onload = () => {
+                    state.baseScale = Math.max(
+                        canvas.width / state.image.naturalWidth,
+                        canvas.height / state.image.naturalHeight,
+                    );
+                    state.offsetX = 0;
+                    state.offsetY = 0;
+                    zoomInput.value = '1';
+                    showControls();
+                    setStatus(cropper.dataset.readyMessage || '');
+                    render();
+                };
+                state.image.onerror = () => {
+                    setStatus(cropper.dataset.invalidMessage || '');
+                };
+                state.image.src = reader.result;
+            };
+
+            reader.readAsDataURL(file);
+        };
+
+        const canvasPoint = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const ratio = canvas.width / rect.width;
+
+            return {
+                x: (event.clientX - rect.left) * ratio,
+                y: (event.clientY - rect.top) * ratio,
+            };
+        };
+
+        fileInput.addEventListener('change', () => {
+            loadImage(fileInput.files?.[0]);
+        });
+
+        zoomInput.addEventListener('input', render);
+
+        canvas.addEventListener('pointerdown', (event) => {
+            if (!state.image) {
+                return;
+            }
+
+            const point = canvasPoint(event);
+            state.dragging = true;
+            state.lastX = point.x;
+            state.lastY = point.y;
+            canvas.setPointerCapture(event.pointerId);
+        });
+
+        canvas.addEventListener('pointermove', (event) => {
+            if (!state.dragging) {
+                return;
+            }
+
+            const point = canvasPoint(event);
+            state.offsetX += point.x - state.lastX;
+            state.offsetY += point.y - state.lastY;
+            state.lastX = point.x;
+            state.lastY = point.y;
+            render();
+        });
+
+        canvas.addEventListener('pointerup', (event) => {
+            state.dragging = false;
+            canvas.releasePointerCapture(event.pointerId);
+        });
+
+        applyButton.addEventListener('click', () => {
+            if (!state.image) {
+                return;
+            }
+
+            const dataUrl = canvas.toDataURL('image/png');
+
+            hiddenInput.value = dataUrl;
+            dispatchInputEvents(hiddenInput);
+
+            if (previewImage instanceof HTMLImageElement) {
+                previewImage.src = dataUrl;
+                previewImage.classList.remove('hidden');
+            }
+
+            previewFallback?.classList.add('hidden');
+            setStatus(cropper.dataset.croppedMessage || '');
+        });
+
+        render();
+    });
+};
+
 document.querySelectorAll('[data-auth-form]').forEach((form) => {
     const submitButton = form.querySelector('[data-submit-button]');
     const password = form.querySelector('[data-password-field]');
@@ -119,3 +328,6 @@ document.querySelectorAll('[data-demo-account-trigger]').forEach((trigger) => {
         passwordInput.focus();
     });
 });
+
+document.addEventListener('DOMContentLoaded', initializeAvatarCroppers);
+document.addEventListener('livewire:navigated', initializeAvatarCroppers);

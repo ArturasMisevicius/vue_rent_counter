@@ -181,7 +181,7 @@ it('calculates invoice totals from valid meter readings and tariff rates', funct
     $result = app(GenerateBulkInvoicesAction::class)->handle($organization, [
         'billing_period_start' => now()->startOfMonth()->toDateString(),
         'billing_period_end' => now()->endOfMonth()->toDateString(),
-        'due_date' => now()->addDays(14)->toDateString(),
+        'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
     ], $admin);
 
     /** @var Invoice $invoice */

@@ -57,9 +57,9 @@ it('renders the same explainable invoice breakdown across tenant, admin, and pdf
         ->assertSuccessful()
         ->assertSeeText('Water usage')
         ->assertSeeText('Shared heating')
-        ->assertSeeText('EUR 145.30')
-        ->assertSeeText('EUR 20.00')
-        ->assertSeeText('EUR 125.30')
+        ->assertSeeText("145,30\u{00A0}€")
+        ->assertSeeText("20,00\u{00A0}€")
+        ->assertSeeText("125,30\u{00A0}€")
         ->assertSeeText('Amount Paid')
         ->assertSeeText('Balance Due');
 
@@ -68,9 +68,9 @@ it('renders the same explainable invoice breakdown across tenant, admin, and pdf
         ->assertSuccessful()
         ->assertSeeText('Water usage')
         ->assertSeeText('Shared heating')
-        ->assertSeeText('EUR 145.30')
-        ->assertSeeText('EUR 20.00')
-        ->assertSeeText('EUR 125.30');
+        ->assertSeeText("145,30\u{00A0}€")
+        ->assertSeeText("20,00\u{00A0}€")
+        ->assertSeeText("125,30\u{00A0}€");
 
     $response = app(InvoicePdfService::class)->streamDownload($invoice->fresh());
 

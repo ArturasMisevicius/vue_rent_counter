@@ -114,5 +114,6 @@ return [
     'tenant_eyebrow' => 'Tenant Entry',
     'tenant_heading' => 'Your tenant home is ready.',
     'tenant_body' => 'Invoice history, reading submission, and profile actions will expand from this tenant-first home page.',
+    'menu' => 'Menu',
     'logout_button' => 'Logout',
 ];

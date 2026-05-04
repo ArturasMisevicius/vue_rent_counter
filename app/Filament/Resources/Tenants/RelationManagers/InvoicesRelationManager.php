@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Billing\InvoicePdfService;
@@ -59,11 +60,7 @@ class InvoicesRelationManager extends RelationManager
                     ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
                     ->label(__('admin.tenants.invoices.columns.total_amount'))
-                    ->state(function (Invoice $record): string {
-                        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-                        return (string) $formatter->formatCurrency((float) $record->total_amount, $record->currency);
-                    }),
+                    ->state(fn (Invoice $record): string => EuMoneyFormatter::format($record->total_amount, $record->currency)),
                 TextColumn::make('status')
                     ->label(__('admin.tenants.invoices.columns.status'))
                     ->badge(),

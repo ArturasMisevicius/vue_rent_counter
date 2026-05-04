@@ -53,7 +53,7 @@ class InvoiceHistoryItemsFallbackTest extends TestCase
             ->assertSeeText('INV-ITEMS-001')
             ->assertSeeText('Water base charge')
             ->assertSeeText('Heating usage')
-            ->assertSeeText('EUR 84.50')
-            ->assertSeeText('EUR 100.00');
+            ->assertSeeText("84,50\u{00A0}€")
+            ->assertSeeText("100,00\u{00A0}€");
     }
 }

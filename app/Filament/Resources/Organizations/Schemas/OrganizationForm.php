@@ -20,6 +20,7 @@ class OrganizationForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make(__('superadmin.organizations.form.sections.details'))
                     ->schema([
@@ -28,6 +29,7 @@ class OrganizationForm
                             ->required()
                             ->maxLength(255),
                     ])
+                    ->columnSpanFull()
                     ->columns(2),
                 Section::make(__('superadmin.organizations.form.sections.owner'))
                     ->schema([
@@ -41,7 +43,8 @@ class OrganizationForm
                                 email: $get('owner_email'),
                                 operation: $operation,
                             )),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
                 Section::make(__('superadmin.organizations.form.sections.subscription'))
                     ->schema([
                         Select::make('plan')
@@ -75,6 +78,7 @@ class OrganizationForm
                             ->columnSpanFull()
                             ->visibleOn('edit'),
                     ])
+                    ->columnSpanFull()
                     ->columns(2),
             ]);
     }

@@ -8,10 +8,13 @@ use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Auth\CreateOrganizationInvitationAction;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
+use App\Models\Organization;
+use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CreateTenantAction
 {
@@ -21,21 +24,23 @@ class CreateTenantAction
         private readonly CreateOrganizationInvitationAction $createOrganizationInvitationAction,
     ) {}
 
-    public function handle(User $actor, array $data): User
+    public function handle(User $actor, array $data, ?Organization $organization = null): User
     {
-        $organization = $actor->organization;
+        $organization ??= $actor->organization;
 
-        if ((! $actor->isAdmin() && ! $actor->isManager()) || $organization === null) {
+        if ((! $actor->isAdmin() && ! $actor->isManager() && ! $actor->isSuperadmin()) || $organization === null) {
             abort(403);
         }
 
-        $this->subscriptionLimitGuard->ensureCanCreateTenant($organization);
+        if (! $actor->isSuperadmin()) {
+            $this->subscriptionLimitGuard->ensureCanCreateTenant($organization);
+        }
 
-        $validated = $this->validate($organization->id, $data);
+        $validated = $this->validate($actor, $organization->id, $data);
 
-        return DB::transaction(function () use ($actor, $validated): User {
+        return DB::transaction(function () use ($actor, $organization, $validated): User {
             $tenant = User::query()->create([
-                'organization_id' => $actor->organization_id,
+                'organization_id' => $organization->id,
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
@@ -45,12 +50,8 @@ class CreateTenantAction
                 'password' => Str::random(32),
             ]);
 
-            $this->createOrganizationInvitationAction->handle($actor, [
-                'email' => $tenant->email,
-                'role' => UserRole::TENANT,
-                'full_name' => $tenant->name,
-                'existing_user_id' => $tenant->id,
-            ]);
+            $this->issueInvitation($actor, $organization, $tenant);
+
             if ($validated['property'] !== null) {
                 $this->assignTenantToPropertyAction->handle(
                     $validated['property'],
@@ -65,6 +66,20 @@ class CreateTenantAction
         });
     }
 
+    private function issueInvitation(User $actor, Organization $organization, User $tenant): OrganizationInvitation
+    {
+        $inviter = $actor->isSuperadmin()
+            ? $this->resolveInviterForSuperadmin($organization)
+            : $actor;
+
+        return $this->createOrganizationInvitationAction->handle($inviter, [
+            'email' => $tenant->email,
+            'role' => UserRole::TENANT,
+            'full_name' => $tenant->name,
+            'existing_user_id' => $tenant->id,
+        ]);
+    }
+
     /**
      * @return array{
      *     name: string,
@@ -76,13 +91,13 @@ class CreateTenantAction
      *     property: Property|null
      * }
      */
-    private function validate(int $organizationId, array $data): array
+    private function validate(User $actor, int $organizationId, array $data): array
     {
         /** @var StoreTenantRequest $request */
         $request = new StoreTenantRequest;
         $validated = $request
             ->forOrganization($organizationId)
-            ->validatePayload($data);
+            ->validatePayload($data, $actor);
 
         /** @var Property|null $property */
         $property = null;
@@ -98,5 +113,30 @@ class CreateTenantAction
             ...$validated,
             'property' => $property,
         ];
+    }
+
+    private function resolveInviterForSuperadmin(Organization $organization): User
+    {
+        $organization->loadMissing([
+            'owner:id,organization_id,name,email,role,status',
+        ]);
+
+        $inviter = $organization->owner;
+
+        if (! $inviter instanceof User || ! $inviter->isAdminLike()) {
+            $inviter = $organization->users()
+                ->select(['id', 'organization_id', 'name', 'email', 'role', 'status'])
+                ->adminLike()
+                ->orderedByName()
+                ->first();
+        }
+
+        if (! $inviter instanceof User) {
+            throw ValidationException::withMessages([
+                'organization_id' => __('superadmin.organizations.messages.no_primary_admin'),
+            ]);
+        }
+
+        return $inviter;
     }
 }

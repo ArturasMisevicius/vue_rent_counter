@@ -11,18 +11,42 @@ it('renders tenant pages inside the authenticated shell', function () {
         'phone' => '+37061234567',
     ]);
 
-    $this->actingAs($tenant)
+    $response = $this->actingAs($tenant)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText(__('shell.search.placeholder'))
         ->assertSeeText(__('tenant.navigation.home'))
+        ->assertSeeText(__('tenant.navigation.property'))
+        ->assertSeeText(__('tenant.navigation.readings'))
+        ->assertSeeText(__('tenant.navigation.invoices'))
+        ->assertDontSeeText(__('tenant.navigation.profile'))
         ->assertSeeText($tenant->name)
-        ->assertSeeText($tenant->email)
-        ->assertSeeText('+37061234567')
-        ->assertDontSeeText(__('shell.navigation.items.profile'))
-        ->assertSee('data-shell-nav="sidebar"', false)
+        ->assertDontSee('data-shell-locale="switcher"', false)
+        ->assertSee('data-shell-nav="tenant-topbar"', false)
+        ->assertSee('data-shell-nav="tenant-mobile-menu"', false)
+        ->assertSee('data-shell-mobile-menu-trigger', false)
+        ->assertSee('data-shell-mobile-menu', false)
+        ->assertSee('x-bind:hidden="! tenantMenuOpen"', false)
+        ->assertSee('min-h-12 min-w-12 shrink-0 touch-manipulation', false)
+        ->assertSee('flex min-h-14 touch-manipulation items-center justify-between', false)
+        ->assertSee('inline-flex min-h-14 w-14 shrink-0 touch-manipulation', false)
+        ->assertSee('inline-flex min-h-14 w-full touch-manipulation', false)
+        ->assertSee('data-shell-nav-icon="filament.admin.pages.dashboard"', false)
+        ->assertSee('data-shell-nav-icon="filament.admin.pages.tenant-property-details"', false)
+        ->assertSee('data-shell-nav-icon="filament.admin.pages.tenant-submit-meter-reading"', false)
+        ->assertSee('data-shell-nav-icon="filament.admin.pages.tenant-invoice-history"', false)
+        ->assertSee('data-shell-mobile-nav-icon="filament.admin.pages.dashboard"', false)
+        ->assertSee('data-shell-mobile-nav-icon="filament.admin.pages.tenant-property-details"', false)
+        ->assertSee('data-shell-mobile-nav-icon="filament.admin.pages.tenant-submit-meter-reading"', false)
+        ->assertSee('data-shell-mobile-nav-icon="filament.admin.pages.tenant-invoice-history"', false)
+        ->assertSee('data-shell-nav="tenant-sidebar-disabled"', false)
+        ->assertDontSee('fi-header-heading', false)
+        ->assertDontSee('data-shell-nav="sidebar"', false)
+        ->assertDontSee('$store.sidebar.open', false)
         ->assertDontSeeText(__('admin.buildings.plural'))
         ->assertDontSeeText(__('superadmin.organizations.plural'));
+
+    assertShellUserAvatarText($response->getContent(), $tenant->name, $tenant->email, '+37061234567');
 });
 
 it('does not register echo listeners when broadcasting is configured to log', function () {
@@ -236,7 +260,7 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     ]);
 });
 
-it('renders localized tenant sidebar labels from the authenticated user locale', function () {
+it('renders localized tenant topbar labels from the authenticated user locale', function () {
     $organization = Organization::factory()->create();
     $tenant = User::factory()->tenant()->create([
         'locale' => 'lt',
@@ -249,14 +273,21 @@ it('renders localized tenant sidebar labels from the authenticated user locale',
 
     $content = $response->getContent();
 
-    assertSidebarGroupLabels($content, 'my_home', [
+    assertShellGroupLabels($content, 'tenant-topbar', 'my_home', [
         __('tenant.navigation.home', [], 'lt'),
         __('tenant.pages.property.title', [], 'lt'),
         __('tenant.navigation.readings', [], 'lt'),
         __('tenant.navigation.invoices', [], 'lt'),
     ]);
 
-    assertSidebarGroupLabels($content, 'account', []);
+    assertShellGroupLabels($content, 'tenant-mobile-menu', 'my_home', [
+        __('tenant.navigation.home', [], 'lt'),
+        __('tenant.pages.property.title', [], 'lt'),
+        __('tenant.navigation.readings', [], 'lt'),
+        __('tenant.navigation.invoices', [], 'lt'),
+    ]);
+
+    expect($content)->not->toContain('data-shell-group="account"');
 });
 
 it('redirects admin-like users from the shared profile route into the filament-backed profile page', function () {
@@ -275,6 +306,14 @@ it('redirects admin-like users from the shared profile route into the filament-b
  */
 function assertSidebarGroupLabels(string $content, string $groupKey, array $labels): void
 {
+    assertShellGroupLabels($content, 'sidebar', $groupKey, $labels);
+}
+
+/**
+ * @param  list<string>  $labels
+ */
+function assertShellGroupLabels(string $content, string $navKey, string $groupKey, array $labels): void
+{
     $document = new DOMDocument;
 
     libxml_use_internal_errors(true);
@@ -283,7 +322,8 @@ function assertSidebarGroupLabels(string $content, string $groupKey, array $labe
 
     $xpath = new DOMXPath($document);
     $nodes = $xpath->query(sprintf(
-        '//nav[@data-shell-nav="sidebar"]//section[@data-shell-group="%s"]//a',
+        '//*[@data-shell-nav="%s"]//section[@data-shell-group="%s"]//a',
+        $navKey,
         $groupKey,
     ));
 
@@ -296,4 +336,33 @@ function assertSidebarGroupLabels(string $content, string $groupKey, array $labe
     }
 
     expect($actualLabels)->toBe($labels);
+}
+
+function assertShellUserAvatarText(string $content, string $name, string $email, string $phone): void
+{
+    $document = new DOMDocument;
+
+    libxml_use_internal_errors(true);
+    $document->loadHTML($content);
+    libxml_clear_errors();
+
+    $xpath = new DOMXPath($document);
+    $nodes = $xpath->query('//*[@data-shell-user-avatar]');
+
+    expect($nodes)->not->toBeFalse();
+
+    if ($nodes === false) {
+        return;
+    }
+
+    expect($nodes->length)->toBeGreaterThan(0);
+
+    foreach ($nodes as $node) {
+        $text = trim(preg_replace('/\s+/', ' ', $node->textContent ?? '') ?? '');
+
+        expect($text)
+            ->toContain($name)
+            ->not->toContain($email)
+            ->not->toContain($phone);
+    }
 }

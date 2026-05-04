@@ -14,18 +14,47 @@ it('shows the tenant filament navigation labels and hides admin resource links',
         'phone' => '+37069876543',
     ]);
 
-    $this->actingAs($tenant)
+    $response = $this->actingAs($tenant)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Home')
         ->assertSeeText('Readings')
+        ->assertSeeText('Property')
         ->assertSeeText('Invoices')
-        ->assertSeeText($tenant->name)
-        ->assertSeeText($tenant->email)
-        ->assertSeeText('+37069876543')
         ->assertDontSeeText('Profile')
+        ->assertSeeText($tenant->name)
+        ->assertDontSee('data-shell-locale="switcher"', false)
         ->assertDontSeeText('Buildings')
         ->assertDontSeeText('Organizations');
+
+    expect(tenantNavigationAvatarText($response->getContent()))
+        ->toContain($tenant->name)
+        ->not->toContain($tenant->email)
+        ->not->toContain('+37069876543');
+});
+
+it('renders all tenant mobile navigation destinations with distinct active states', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-property-details'))
+        ->assertSuccessful()
+        ->assertSee('data-shell-nav="tenant-topbar"', false)
+        ->assertSee('data-shell-nav="tenant-mobile-menu"', false)
+        ->assertSee('data-shell-mobile-menu-trigger', false)
+        ->assertSee('data-shell-mobile-menu', false)
+        ->assertSee(route('filament.admin.pages.dashboard'), false)
+        ->assertSee(route('filament.admin.pages.tenant-submit-meter-reading'), false)
+        ->assertSee(route('filament.admin.pages.tenant-property-details'), false)
+        ->assertSee(route('filament.admin.pages.tenant-invoice-history'), false)
+        ->assertDontSee('data-shell-group="account"', false)
+        ->assertSee('bg-brand-ink text-white shadow-[0_14px_30px_rgba(19,38,63,0.18)]', false)
+        ->assertDontSee('$store.sidebar.open', false)
+        ->assertDontSee('data-tenant-bottom-nav', false);
 });
 
 it('serves the tenant portal route set for authenticated tenants', function (string $routeName) {
@@ -98,3 +127,21 @@ it('resolves the tenant route aliases to the canonical tenant portal pages', fun
     'property alias' => ['tenant.property.show', 'filament.admin.pages.tenant-property-details'],
     'profile alias' => ['tenant.profile.edit', 'filament.admin.pages.profile'],
 ]);
+
+function tenantNavigationAvatarText(string $content): string
+{
+    $document = new DOMDocument;
+
+    libxml_use_internal_errors(true);
+    $document->loadHTML($content);
+    libxml_clear_errors();
+
+    $xpath = new DOMXPath($document);
+    $nodes = $xpath->query('//*[@data-shell-user-avatar]');
+
+    if ($nodes === false || $nodes->length === 0) {
+        return '';
+    }
+
+    return trim(preg_replace('/\s+/', ' ', $nodes->item(0)?->textContent ?? '') ?? '');
+}

@@ -18,11 +18,6 @@ class TenantDashboard extends TenantPortalPage
 
     protected string $view = 'filament.pages.tenant-dashboard';
 
-    public function getTitle(): string
-    {
-        return __('tenant.navigation.home');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('tenant.navigation.home');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications\Projects;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,7 +32,7 @@ final class ProjectOverBudgetNotification extends Notification
             ->subject('Project over budget')
             ->greeting('Project budget alert')
             ->line("{$this->project->name} is over budget.")
-            ->line('Budget: '.number_format((float) ($this->project->budget_amount ?? 0), 2, '.', ''))
-            ->line('Actual: '.number_format((float) $this->project->actual_cost, 2, '.', ''));
+            ->line('Budget: '.EuMoneyFormatter::format($this->project->budget_amount ?? 0))
+            ->line('Actual: '.EuMoneyFormatter::format($this->project->actual_cost));
     }
 }

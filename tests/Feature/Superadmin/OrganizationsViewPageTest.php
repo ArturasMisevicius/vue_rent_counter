@@ -111,6 +111,8 @@ it('shows organization health metrics and full subscription usage gauges', funct
 });
 
 it('shows portfolio, financial, usage, and subscription widgets on the org detail page', function () {
+    $this->travelTo(now()->startOfMonth()->addDays(20));
+
     [$organization, $owner, $subscription] = seedOrganizationViewFixture();
     $superadmin = User::factory()->superadmin()->create();
 
@@ -240,10 +242,10 @@ it('shows portfolio, financial, usage, and subscription widgets on the org detai
         ->assertSeeText('3')
         ->assertSeeText('4')
         ->assertSeeText('43%')
-        ->assertSeeText('EUR 129.00')
-        ->assertSeeText('EUR 500.00')
-        ->assertSeeText('EUR 300.00')
-        ->assertSeeText('EUR 240.00')
+        ->assertSeeText("129,00\u{00A0}€")
+        ->assertSeeText("500,00\u{00A0}€")
+        ->assertSeeText("300,00\u{00A0}€")
+        ->assertSeeText("240,00\u{00A0}€")
         ->assertSeeText('5 days')
         ->assertSeeText('7 of 10')
         ->assertSeeText('3 of 25')

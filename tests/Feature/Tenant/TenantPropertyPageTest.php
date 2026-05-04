@@ -46,6 +46,27 @@ it('shows normal tenant information in lithuanian instead of a not-available fal
         ->assertSeeText('+37067778888');
 });
 
+it('localizes generated property and meter labels in lithuanian', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-property-details'))
+        ->assertSuccessful()
+        ->assertSeeText('Butas 12')
+        ->assertSeeText('Skaitiklis 1')
+        ->assertDontSeeText('Apartment 12')
+        ->assertDontSeeText('Meter 1');
+});
+
 it('shows the empty reading state when a meter has no recorded reading', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

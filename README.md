@@ -50,6 +50,8 @@ Verified from the checked-in manifests and local CLI on 2026-03-28:
 - Meter reading submission
 - Shared profile and KYC maintenance
 
+Tenant UX is intentionally self-service oriented. Tenant users should use top navigation rather than admin-style left navigation, and every tenant page should preserve a clear route to Home, Readings, Property, Invoices, and Profile.
+
 ## Local Setup
 
 The app is configured for SQLite by default.
@@ -133,17 +135,30 @@ with `1005 passed`.
 - Shared views/components: `resources/views`
 - Route surface: `routes/web.php`
 - Assistant/project instructions: `AGENTS.md`
+- Current project context and role UX contracts: [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md)
 
 ## MCP
 
-The repo-local [`.mcp.json`](.mcp.json) configures only the `herd` MCP server:
+The repo-local [`.mcp.json`](.mcp.json) configures these MCP servers:
 
 - `herd`
+- `21st-dev-magic`
+- `context7`
+- `playwright`
+
+The `21st-dev-magic` server uses `npx @21st-dev/magic@latest` and expects a `TWENTY_FIRST_DEV_API_KEY` environment variable in the host agent/editor process. Generate the key from the 21st.dev Magic console and keep it out of repository files. This single server exposes all current 21st.dev Magic MCP capabilities:
+
+- Inspiration Search
+- SVG Icon Search
+- Magic Generate
+
+`context7` is available for current framework/package documentation lookups. `playwright` is available for browser-level UI inspection and regression checks.
 
 If Laravel-specific MCP servers are available in your editor or Codex session, they are coming from user-global configuration rather than this repository file.
 
 ## Additional Docs
 
 - Session bootstrap: [docs/SESSION-BOOTSTRAP.md](docs/SESSION-BOOTSTRAP.md)
+- Skills and MCP inventory: [docs/SKILLS-MCP-INVENTORY.md](docs/SKILLS-MCP-INVENTORY.md)
 - Delivery plans/specs index: [docs/superpowers/README.md](docs/superpowers/README.md)
 - AI assistant and repo instructions: [AGENTS.md](AGENTS.md)

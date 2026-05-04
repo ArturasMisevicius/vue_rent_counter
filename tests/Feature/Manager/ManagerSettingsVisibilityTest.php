@@ -19,7 +19,7 @@ it('hides the admin-only settings navigation item for managers', function () {
         ->get('/app')
         ->assertSuccessful()
         ->assertSeeText($manager->name)
-        ->assertSeeText($manager->email)
+        ->assertDontSeeText($manager->email)
         ->assertDontSeeText('Profile')
         ->assertDontSeeText('Settings');
 });

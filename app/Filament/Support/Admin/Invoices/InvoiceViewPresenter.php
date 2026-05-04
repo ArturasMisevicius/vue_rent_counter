@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\InvoiceEmailLog;
 use App\Models\InvoicePayment;
@@ -46,20 +47,15 @@ final class InvoiceViewPresenter
 
         $presentation = $this->invoicePresentationService->present($invoice);
         $chargeRows = $this->chargeRows($presentation, $invoice);
+        $items = is_array($presentation['items'] ?? null) ? $presentation['items'] : [];
 
         return [
             'presentation' => $presentation,
             'subtitle' => $this->subtitle($invoice),
             'summary' => $this->summary($invoice, $presentation),
             'charge_rows' => $chargeRows,
-            'subtotal_display' => $this->formatCurrency(
-                (string) $invoice->currency,
-                array_sum(array_map(
-                    fn (array $row): float => $row['is_adjustment'] ? 0.0 : (float) preg_replace('/[^0-9.\\-]/', '', $row['total']),
-                    $chargeRows,
-                )),
-            ),
-            'adjustments_display' => $this->adjustmentsDisplay($invoice, $chargeRows),
+            'subtotal_display' => $this->formatCurrency((string) $invoice->currency, $this->subtotal($items)),
+            'adjustments_display' => $this->adjustmentsDisplay($invoice, $items),
             'total_display' => (string) ($presentation['total_amount_display'] ?? '—'),
             'payment_history' => $this->paymentHistory($invoice),
             'email_history' => $this->emailHistory($invoice),
@@ -117,7 +113,7 @@ final class InvoiceViewPresenter
             ->map(function (array $item) use ($currency, $fallbackPeriod): array {
                 $unit = trim((string) ($item['unit'] ?? ''));
                 $quantity = trim((string) ($item['quantity'] ?? ''));
-                $rate = trim($currency.' '.(string) ($item['unit_price_display'] ?? '—'));
+                $rate = EuMoneyFormatter::format($item['unit_price'] ?? 0, $currency);
 
                 if ($unit !== '') {
                     $rate .= ' / '.$unit;
@@ -128,7 +124,7 @@ final class InvoiceViewPresenter
                     'period' => (string) ($item['period'] ?? $fallbackPeriod ?: '—'),
                     'quantity' => trim($quantity.($unit !== '' ? ' '.$unit : '')),
                     'rate' => $rate,
-                    'total' => trim($currency.' '.(string) ($item['total_display'] ?? '—')),
+                    'total' => EuMoneyFormatter::format($item['total'] ?? 0, $currency),
                     'is_adjustment' => (bool) ($item['is_adjustment'] ?? false),
                 ];
             })
@@ -137,13 +133,13 @@ final class InvoiceViewPresenter
     }
 
     /**
-     * @param  array<int, array{description: string, period: string, quantity: string, rate: string, total: string, is_adjustment: bool}>  $chargeRows
+     * @param  array<int, array<string, mixed>>  $items
      */
-    private function adjustmentsDisplay(Invoice $invoice, array $chargeRows): ?string
+    private function adjustmentsDisplay(Invoice $invoice, array $items): ?string
     {
         $total = array_sum(array_map(
-            fn (array $row): float => $row['is_adjustment'] ? (float) preg_replace('/[^0-9.\\-]/', '', $row['total']) : 0.0,
-            $chargeRows,
+            fn (array $item): float => ($item['is_adjustment'] ?? false) ? (float) ($item['total'] ?? 0) : 0.0,
+            $items,
         ));
 
         if ((float) $total === 0.0) {
@@ -217,8 +213,17 @@ final class InvoiceViewPresenter
 
     private function formatCurrency(string $currency, float $amount): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+        return EuMoneyFormatter::format($amount, $currency);
+    }
 
-        return (string) $formatter->formatCurrency($amount, $currency);
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     */
+    private function subtotal(array $items): float
+    {
+        return array_sum(array_map(
+            fn (array $item): float => ($item['is_adjustment'] ?? false) ? 0.0 : (float) ($item['total'] ?? 0),
+            $items,
+        ));
     }
 }

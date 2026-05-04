@@ -48,7 +48,7 @@ class AppPanelProvider extends PanelProvider
             ->login(fn () => redirect()->route('login'))
             ->darkMode(false)
             ->defaultThemeMode(ThemeMode::Light)
-            ->viteTheme('resources/css/app.css')
+            ->viteTheme(['resources/css/app.css', 'resources/js/app.js'])
             ->maxContentWidth(Width::Full)
             ->simplePageMaxContentWidth(Width::Full)
             ->colors([

@@ -183,6 +183,6 @@ class LaravelMissingTranslationsPhpFilesCommand extends BaseLaravelMissingTransl
 
     private function usesPhpFiles(): bool
     {
-        return config('laravelmissingtranslations.translation_storage', 'json') === 'php';
+        return config('laravel-missing-translations.translation_storage', 'json') === 'php';
     }
 }

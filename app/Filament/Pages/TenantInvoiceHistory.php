@@ -18,11 +18,6 @@ class TenantInvoiceHistory extends TenantPortalPage
 
     protected string $view = 'filament.pages.tenant-invoice-history';
 
-    public function getTitle(): string
-    {
-        return __('tenant.navigation.invoices');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('tenant.navigation.invoices');

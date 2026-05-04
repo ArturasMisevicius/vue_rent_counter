@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 
@@ -69,7 +70,7 @@ final class InvoicePresentationService
         $totalAmount = $this->calculator->money($invoice->total_amount ?? '0');
         $paidAmount = $this->calculator->money($invoice->normalized_paid_amount);
         $outstandingAmount = $this->calculator->money($invoice->outstanding_balance);
-        $items = $this->presentItems($invoice);
+        $items = $this->presentItems($invoice, $currency);
         $subtotal = $this->calculator->money(
             $this->calculator->sum(
                 array_map(
@@ -95,16 +96,16 @@ final class InvoicePresentationService
             'total_amount' => $totalAmount,
             'paid_amount' => $paidAmount,
             'outstanding_amount' => $outstandingAmount,
-            'total_amount_display' => $this->formatCurrency($currency, $totalAmount),
-            'paid_amount_display' => $this->formatCurrency($currency, $paidAmount),
-            'outstanding_amount_display' => $this->formatCurrency($currency, $outstandingAmount),
-            'subtotal_display' => $this->formatCurrency($currency, $subtotal),
+            'total_amount_display' => EuMoneyFormatter::format($totalAmount, $currency),
+            'paid_amount_display' => EuMoneyFormatter::format($paidAmount, $currency),
+            'outstanding_amount_display' => EuMoneyFormatter::format($outstandingAmount, $currency),
+            'subtotal_display' => EuMoneyFormatter::format($subtotal, $currency),
             'items' => $items,
             'payments' => $invoice->payments
                 ->map(fn (InvoicePayment $payment): array => [
                     'method_label' => (string) ($payment->method?->label() ?? __('dashboard.not_available')),
                     'paid_at_display' => $payment->paid_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—',
-                    'amount_display' => $this->formatCurrency($currency, $this->calculator->money($payment->amount ?? '0')),
+                    'amount_display' => EuMoneyFormatter::format($this->calculator->money($payment->amount ?? '0'), $currency),
                     'reference' => (string) ($payment->reference ?? ''),
                     'notes' => (string) ($payment->notes ?? ''),
                 ])
@@ -124,7 +125,7 @@ final class InvoicePresentationService
             ->map(fn (array $item): string => trim(implode(' · ', array_filter([
                 $item['description'],
                 trim($item['quantity'].($item['unit'] !== '' ? ' '.$item['unit'] : '')),
-                $this->formatCurrency($presentation['currency'], $item['total_display']),
+                EuMoneyFormatter::format($item['total'], (string) $presentation['currency']),
             ]))))
             ->implode(PHP_EOL);
     }
@@ -142,9 +143,9 @@ final class InvoicePresentationService
      *     is_adjustment: bool
      * }>
      */
-    private function presentItems(Invoice $invoice): array
+    private function presentItems(Invoice $invoice, string $currency): array
     {
-        return array_values(array_map(function (mixed $item): array {
+        return array_values(array_map(function (mixed $item) use ($currency): array {
             $resolvedItem = is_array($item) ? $item : [];
             $quantity = $this->calculator->quantity($resolvedItem['quantity'] ?? 1);
             $unitPrice = $this->calculator->rate(
@@ -168,9 +169,9 @@ final class InvoicePresentationService
                 'quantity' => $quantity,
                 'unit' => (string) ($resolvedItem['unit'] ?? ''),
                 'unit_price' => $unitPrice,
-                'unit_price_display' => $this->calculator->money($unitPrice),
+                'unit_price_display' => EuMoneyFormatter::format($unitPrice, $currency),
                 'total' => $total,
-                'total_display' => $total,
+                'total_display' => EuMoneyFormatter::format($total, $currency),
                 'is_adjustment' => (bool) ($resolvedItem['is_adjustment'] ?? false),
             ];
         }, $this->canonicalItems($invoice)));
@@ -218,10 +219,5 @@ final class InvoicePresentationService
         }
 
         return __('admin.invoices.status_summaries.outstanding');
-    }
-
-    private function formatCurrency(string $currency, string $amount): string
-    {
-        return trim($currency.' '.$amount);
     }
 }

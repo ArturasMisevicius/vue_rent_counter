@@ -4,6 +4,7 @@ use App\Filament\Pages\Profile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
@@ -17,9 +18,45 @@ it('shows the tenant profile form with the current account details', function ()
         ->assertSuccessful()
         ->assertSeeText('My Profile')
         ->assertSeeText('Personal Information')
+        ->assertSeeText(__('shell.profile.avatar.heading'))
+        ->assertSee('data-avatar-cropper', false)
+        ->assertSee('data-avatar-canvas', false)
+        ->assertDontSee('data-shell-locale="switcher"', false)
         ->assertSeeText('Change Password')
         ->assertSee('value="'.$tenant->user->name.'"', false)
         ->assertSee('value="'.$tenant->user->email.'"', false);
+});
+
+it('stores a cropped tenant avatar and serves it through the authenticated avatar endpoint', function () {
+    Storage::fake('local');
+
+    $tenant = TenantPortalFactory::new()->create();
+
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('avatarForm.avatar', croppedAvatarDataUrl())
+        ->call('saveProfileAvatar')
+        ->assertHasNoErrors();
+
+    $user = $tenant->user->fresh();
+
+    expect($user->avatar_disk)->toBe('local')
+        ->and($user->avatar_path)->not->toBeNull()
+        ->and($user->avatar_mime_type)->toBe('image/png')
+        ->and($user->avatar_updated_at)->not->toBeNull();
+
+    Storage::disk('local')->assertExists((string) $user->avatar_path);
+
+    $this->actingAs($user)
+        ->get(route('profile.avatar.show'))
+        ->assertSuccessful()
+        ->assertHeader('content-type', 'image/png');
+
+    $this->actingAs($user)
+        ->get(route('filament.admin.pages.dashboard'))
+        ->assertSuccessful()
+        ->assertSee('data-shell-user-avatar-image', false)
+        ->assertSee(route('profile.avatar.show'), false);
 });
 
 it('updates the tenant profile and locale', function () {
@@ -123,6 +160,21 @@ it('renders tenant profile copy in lithuanian for lithuanian tenants', function 
         ->assertSeeText('Asmeninė informacija');
 });
 
+it('shows the tenant avatar required validation message in the selected locale', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    Livewire::actingAs($tenant->user->fresh())
+        ->test(Profile::class)
+        ->call('saveProfileAvatar')
+        ->assertHasErrors(['avatarForm.avatar'])
+        ->assertSeeText('Laukas „profilio nuotrauka“ yra privalomas.')
+        ->assertDontSeeText('The profilio nuotrauka field is required.');
+});
+
 it('shows human-readable labels for supported locales only on the tenant profile form', function () {
     config()->set('app.supported_locales', [
         'en' => 'EN',
@@ -177,3 +229,20 @@ it('refreshes translated tenant profile copy when the shell locale changes', fun
         ->assertSeeText(__('shell.profile.title', [], 'lt'))
         ->assertSeeText(__('shell.profile.personal_information.heading', [], 'lt'));
 });
+
+function croppedAvatarDataUrl(): string
+{
+    $image = imagecreatetruecolor(512, 512);
+
+    imagefill($image, 0, 0, imagecolorallocate($image, 19, 38, 63));
+
+    ob_start();
+    imagepng($image);
+    $contents = ob_get_clean();
+
+    imagedestroy($image);
+
+    expect($contents)->toBeString();
+
+    return 'data:image/png;base64,'.base64_encode($contents);
+}

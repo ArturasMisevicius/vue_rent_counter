@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Superadmin\Organizations;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\Organization;
 use Carbon\CarbonInterface;
@@ -117,6 +118,6 @@ final readonly class OrganizationFinancialSnapshot
 
     private static function formatMoney(float $amount, string $currency): string
     {
-        return sprintf('%s %s', $currency, number_format($amount, 2, '.', ''));
+        return EuMoneyFormatter::format($amount, $currency);
     }
 }

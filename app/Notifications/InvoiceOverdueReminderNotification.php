@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -49,10 +50,7 @@ final class InvoiceOverdueReminderNotification extends Notification
                 'to' => $periodEnd,
             ]))
             ->line(__('admin.reports.notifications.overdue_balance', [
-                'amount' => $this->formatCurrency(
-                    (string) $this->invoice->currency,
-                    (float) $this->invoice->outstanding_balance,
-                ),
+                'amount' => EuMoneyFormatter::format($this->invoice->outstanding_balance, (string) $this->invoice->currency),
             ]))
             ->line(__('admin.reports.notifications.overdue_days', [
                 'count' => $this->daysOverdue(),
@@ -72,10 +70,5 @@ final class InvoiceOverdueReminderNotification extends Notification
         }
 
         return (int) max(0, $referenceDate->startOfDay()->diffInDays(now()->startOfDay(), false));
-    }
-
-    private function formatCurrency(string $currency, float $amount): string
-    {
-        return sprintf('%s %s', $currency, number_format($amount, 2, '.', ''));
     }
 }

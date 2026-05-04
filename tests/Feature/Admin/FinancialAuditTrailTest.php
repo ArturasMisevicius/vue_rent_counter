@@ -218,7 +218,7 @@ it('records bulk invoice generation audits with actor and workspace context', fu
     $result = app(GenerateBulkInvoicesAction::class)->handle($organization, [
         'billing_period_start' => now()->startOfMonth()->toDateString(),
         'billing_period_end' => now()->endOfMonth()->toDateString(),
-        'due_date' => now()->addDays(14)->toDateString(),
+        'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
     ], $admin);
 
     $invoice = $result['created']->sole();

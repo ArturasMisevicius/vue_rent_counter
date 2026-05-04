@@ -3,10 +3,6 @@
 @php
     $labels = $chart['labels'] ?? [];
     $series = $chart['series'] ?? [];
-    $currencyFormatter = new NumberFormatter(app()->getLocale(), NumberFormatter::CURRENCY);
-    $integerFormatter = new NumberFormatter(app()->getLocale(), NumberFormatter::DECIMAL);
-    $integerFormatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, 0);
-    $integerFormatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 0);
     $allPoints = collect($series)->flatMap(fn (array $line): array => $line['points'] ?? []);
     $hasData = $allPoints->contains(fn (float|int $value): bool => $value > 0);
     $maxValue = max(1, (float) ($allPoints->max() ?? 0));
@@ -47,7 +43,7 @@
                         $y = $paddingTop + (($plotHeight / $tickCount) * $index);
                     @endphp
                     <line x1="{{ $paddingLeft }}" y1="{{ $y }}" x2="{{ $width - $paddingRight }}" y2="{{ $y }}" stroke="#e2e8f0" stroke-width="1" />
-                    <text x="0" y="{{ $y + 4 }}" fill="#64748b" font-size="11">{{ $currencyFormatter->formatCurrency((float) $tick, 'EUR') }}</text>
+                    <text x="0" y="{{ $y + 4 }}" fill="#64748b" font-size="11">{{ \App\Filament\Support\Formatting\EuMoneyFormatter::format($tick) }}</text>
                 @endforeach
 
                 @foreach ($labels as $index => $label)
@@ -68,7 +64,7 @@
                                 'x' => round($x, 2),
                                 'y' => round($y, 2),
                                 'month' => $labels[$index] ?? '',
-                                'formatted' => $line['formatted'][$index] ?? $currencyFormatter->formatCurrency(0, 'EUR'),
+                                'formatted' => $line['formatted'][$index] ?? \App\Filament\Support\Formatting\EuMoneyFormatter::format(0),
                             ];
                         })->all();
                         $polyline = collect($points)->map(fn (array $point): string => "{$point['x']},{$point['y']}")->implode(' ');

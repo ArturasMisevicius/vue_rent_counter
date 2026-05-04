@@ -7,6 +7,7 @@ return [
         'address_line_1' => 'address line 1',
         'address_line_2' => 'address line 2',
         'amount_paid' => 'amount paid',
+        'avatar' => 'profile image',
         'billing_contact_email' => 'billing contact email',
         'billing_contact_name' => 'billing contact name',
         'billing_contact_phone' => 'billing contact phone',

@@ -16,7 +16,7 @@ class PhpFileMissingTranslationsScanner extends LaravelMissingTranslations
         }
 
         $existingKeys = $this->existingKeys($locale);
-        $excludePatterns = config('laravelmissingtranslations.exclude_patterns', []);
+        $excludePatterns = config('laravel-missing-translations.exclude_patterns', []);
         $missingKeys = [];
 
         foreach ($this->scan() as $key) {
@@ -310,7 +310,7 @@ class PhpFileMissingTranslationsScanner extends LaravelMissingTranslations
 
     private function usesPhpFiles(): bool
     {
-        return config('laravelmissingtranslations.translation_storage', 'json') === 'php';
+        return config('laravel-missing-translations.translation_storage', 'json') === 'php';
     }
 
     private function placeholderValue(string $group, string $key): string

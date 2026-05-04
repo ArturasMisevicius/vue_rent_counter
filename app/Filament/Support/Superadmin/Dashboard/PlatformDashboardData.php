@@ -9,6 +9,7 @@ use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Organization;
 use App\Models\Project;
 use App\Models\SecurityViolation;
@@ -425,8 +426,6 @@ class PlatformDashboardData
 
     private function formatCurrency(float $amount, string $currency = 'EUR'): string
     {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        return (string) $formatter->formatCurrency($amount, $currency);
+        return EuMoneyFormatter::format($amount, $currency);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -11,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class TenantForm
 {
@@ -20,6 +22,22 @@ class TenantForm
             ->components([
                 Section::make(__('admin.tenants.sections.personal_information'))
                     ->schema([
+                        Select::make('organization_id')
+                            ->label(__('superadmin.organizations.singular'))
+                            ->options(fn (): array => Organization::query()
+                                ->select(['id', 'name'])
+                                ->ordered()
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->required(fn (): bool => self::showsOrganizationSelector())
+                            ->visible(fn (): bool => self::showsOrganizationSelector())
+                            ->afterStateUpdated(function (Set $set): void {
+                                $set('property_id', null);
+                                $set('unit_area_sqm', null);
+                            }),
                         TextInput::make('name')
                             ->label(__('admin.tenants.fields.full_name'))
                             ->required()
@@ -43,12 +61,12 @@ class TenantForm
                         Select::make('property_id')
                             ->label(__('admin.tenants.fields.property'))
                             ->placeholder(__('admin.tenants.empty.no_assignment_yet'))
-                            ->options(fn (): array => self::propertyOptions())
+                            ->options(fn (Get $get): array => self::propertyOptions($get('organization_id')))
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->afterStateUpdated(function (mixed $state, Set $set): void {
-                                $property = self::findProperty($state);
+                            ->afterStateUpdated(function (mixed $state, Set $set, Get $get): void {
+                                $property = self::findProperty($state, $get('organization_id'));
 
                                 if ($property === null) {
                                     $set('unit_area_sqm', null);
@@ -65,7 +83,10 @@ class TenantForm
                             ->label(__('admin.tenants.fields.unit_area_sqm'))
                             ->numeric()
                             ->minValue(0)
-                            ->helperText(fn (Get $get): ?string => self::unitAreaHelperText($get('property_id')))
+                            ->helperText(fn (Get $get): ?string => self::unitAreaHelperText(
+                                $get('property_id'),
+                                $get('organization_id'),
+                            ))
                             ->default(fn (?User $record): mixed => $record?->currentPropertyAssignment?->unit_area_sqm),
                     ])
                     ->columns(2),
@@ -75,16 +96,26 @@ class TenantForm
     /**
      * @return array<int, string>
      */
-    private static function propertyOptions(): array
+    private static function propertyOptions(mixed $selectedOrganizationId = null): array
     {
         $tenant = self::currentTenant();
-        $organizationId = $tenant?->organization_id ?? app(OrganizationContext::class)->currentOrganizationId();
+        $organizationId = self::resolveOrganizationId($tenant, $selectedOrganizationId);
 
         if ($organizationId === null) {
             return [];
         }
 
         return Property::query()
+            ->select([
+                'id',
+                'organization_id',
+                'building_id',
+                'name',
+                'floor',
+                'unit_number',
+                'type',
+                'floor_area_sqm',
+            ])
             ->availableForTenantAssignment($organizationId, $tenant?->id)
             ->get()
             ->mapWithKeys(fn (Property $property): array => [
@@ -110,27 +141,37 @@ class TenantForm
             ->find($record);
     }
 
-    private static function findProperty(mixed $propertyId): ?Property
+    private static function findProperty(mixed $propertyId, mixed $selectedOrganizationId = null): ?Property
     {
         if (blank($propertyId)) {
             return null;
         }
 
         $tenant = self::currentTenant();
-        $organizationId = $tenant?->organization_id ?? app(OrganizationContext::class)->currentOrganizationId();
+        $organizationId = self::resolveOrganizationId($tenant, $selectedOrganizationId);
 
         if ($organizationId === null) {
             return null;
         }
 
         return Property::query()
+            ->select([
+                'id',
+                'organization_id',
+                'building_id',
+                'name',
+                'floor',
+                'unit_number',
+                'type',
+                'floor_area_sqm',
+            ])
             ->availableForTenantAssignment($organizationId, $tenant?->id)
             ->find($propertyId);
     }
 
-    private static function unitAreaHelperText(mixed $propertyId): ?string
+    private static function unitAreaHelperText(mixed $propertyId, mixed $selectedOrganizationId = null): ?string
     {
-        $property = self::findProperty($propertyId);
+        $property = self::findProperty($propertyId, $selectedOrganizationId);
 
         if ($property?->floor_area_sqm === null) {
             return null;
@@ -139,5 +180,34 @@ class TenantForm
         return __('admin.tenants.messages.unit_area_defaults_to_property', [
             'area' => $property->areaDisplay(),
         ]);
+    }
+
+    private static function resolveOrganizationId(?User $tenant, mixed $selectedOrganizationId = null): ?int
+    {
+        if ($tenant?->organization_id !== null) {
+            return $tenant->organization_id;
+        }
+
+        $currentOrganizationId = app(OrganizationContext::class)->currentOrganizationId();
+
+        if ($currentOrganizationId !== null) {
+            return $currentOrganizationId;
+        }
+
+        if (blank($selectedOrganizationId)) {
+            return null;
+        }
+
+        return (int) $selectedOrganizationId;
+    }
+
+    private static function showsOrganizationSelector(): bool
+    {
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->isSuperadmin()
+            && self::currentTenant() === null
+            && app(OrganizationContext::class)->currentOrganizationId() === null;
     }
 }

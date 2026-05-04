@@ -62,7 +62,7 @@
                             <td class="px-4 py-4 text-slate-700">{{ $item['description'] ?? __('dashboard.not_available') }}</td>
                             <td class="px-4 py-4 text-slate-600">{{ $item['quantity'] ?? '—' }}{{ filled($item['unit'] ?? null) ? ' '.$item['unit'] : '' }}</td>
                             <td class="px-4 py-4 text-slate-600">{{ $item['unit_price_display'] ?? '—' }}</td>
-                            <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ ($presentation['currency'] ?? '').' '.($item['total_display'] ?? '—') }}</td>
+                            <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ $item['total_display'] ?? '—' }}</td>
                         </tr>
                     @empty
                         <tr>

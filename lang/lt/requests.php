@@ -7,6 +7,7 @@ return [
         'address_line_1' => 'adreso eilutė 1',
         'address_line_2' => 'adreso eilutė 2',
         'amount_paid' => 'sumokėta suma',
+        'avatar' => 'profilio nuotrauka',
         'billing_contact_email' => 'atsiskaitymų kontaktinis el. paštas',
         'billing_contact_name' => 'atsiskaitymų kontaktinis vardas',
         'billing_contact_phone' => 'atsiskaitymų kontaktinis telefonas',

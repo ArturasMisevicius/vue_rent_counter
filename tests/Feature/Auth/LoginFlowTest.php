@@ -302,5 +302,5 @@ it('renders the tenant dashboard even when the latest assignment belongs to anot
         ->get('/app')
         ->assertSuccessful()
         ->assertSeeText('Dashboard')
-        ->assertSeeText('Tenant Summary');
+        ->assertDontSeeText('Tenant Summary');
 });

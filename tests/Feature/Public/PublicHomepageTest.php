@@ -88,4 +88,8 @@ it('serves the favicon asset', function () {
     $this->get('/favicon')
         ->assertSuccessful()
         ->assertHeader('content-type', 'image/x-icon');
+
+    $this->get('/favicon.ico')
+        ->assertSuccessful()
+        ->assertHeader('content-type', 'image/x-icon');
 });
