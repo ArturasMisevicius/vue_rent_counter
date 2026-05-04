@@ -76,6 +76,14 @@ return [
             ],
         ],
     ],
+    'preview' => [
+        'operations_workspace' => 'Operations workspace',
+        'columns' => [
+            'workflow' => 'Workflow',
+            'status' => 'Status',
+            'owner' => 'Owner',
+        ],
+    ],
     'cta' => [
         'heading' => 'Start with the right entry point',
         'description' => 'Sign in to continue active operations, or register a new Admin account to launch your organization workspace.',

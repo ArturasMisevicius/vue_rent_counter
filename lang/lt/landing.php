@@ -76,6 +76,14 @@ return [
             ],
         ],
     ],
+    'preview' => [
+        'operations_workspace' => 'Operacijų darbo erdvė',
+        'columns' => [
+            'workflow' => 'Darbo eiga',
+            'status' => 'Būsena',
+            'owner' => 'Atsakingas',
+        ],
+    ],
     'cta' => [
         'heading' => 'Pasirinkite tinkamą įėjimo tašką',
         'description' => 'Prisijunkite, jei jau dirbate sistemoje, arba užregistruokite Admin paskyrą naujos organizacijos paleidimui.',

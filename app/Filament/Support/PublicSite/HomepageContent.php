@@ -38,6 +38,14 @@ class HomepageContent
                 'status' => __('landing.roadmap.status'),
                 'items' => trans('landing.roadmap.items'),
             ],
+            'preview' => [
+                'operations_workspace' => __('landing.preview.operations_workspace'),
+                'columns' => [
+                    'workflow' => __('landing.preview.columns.workflow'),
+                    'status' => __('landing.preview.columns.status'),
+                    'owner' => __('landing.preview.columns.owner'),
+                ],
+            ],
             'cta' => [
                 'heading' => __('landing.cta.heading'),
                 'description' => __('landing.cta.description'),

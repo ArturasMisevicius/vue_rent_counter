@@ -2,14 +2,14 @@
     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex items-start justify-between gap-6">
             <div>
-                <h2 class="text-lg font-semibold text-slate-950">User Dossier</h2>
+                <h2 class="text-lg font-semibold text-slate-950">{{ __('superadmin.users.dossier.title') }}</h2>
                 <p class="mt-1 text-sm text-slate-500">
-                    Full superadmin support view with the user record, all loaded relations, and all available linked metadata.
+                    {{ __('superadmin.users.dossier.description') }}
                 </p>
             </div>
 
             <div class="rounded-2xl bg-slate-50 px-4 py-3 text-right">
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Total Sections</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{{ __('superadmin.users.dossier.total_sections') }}</p>
                 <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ count($sections) }}</p>
             </div>
         </div>

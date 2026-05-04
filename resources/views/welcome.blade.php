@@ -84,7 +84,7 @@
                                 <p class="text-[0.64rem] font-bold uppercase tracking-[0.24em] text-[#f6b13d]">
                                     {{ $page['brand']['tagline'] }}
                                 </p>
-                                <p class="mt-1 text-sm font-semibold text-white">Operations workspace</p>
+                                <p class="mt-1 text-sm font-semibold text-white">{{ $page['preview']['operations_workspace'] }}</p>
                             </div>
                             <div class="grid grid-cols-3 gap-1">
                                 <span class="size-2 rounded-full bg-[#3ec5ad]"></span>
@@ -120,9 +120,9 @@
 
                                 <div class="mt-4 rounded-lg border border-[#d6c6ae] bg-white">
                                     <div class="grid grid-cols-[1.2fr_0.7fr_0.7fr] border-b border-[#e5d8c8] px-4 py-3 text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#7b8796]">
-                                        <span>Workflow</span>
-                                        <span>Status</span>
-                                        <span>Owner</span>
+                                        <span>{{ $page['preview']['columns']['workflow'] }}</span>
+                                        <span>{{ $page['preview']['columns']['status'] }}</span>
+                                        <span>{{ $page['preview']['columns']['owner'] }}</span>
                                     </div>
                                     @forelse ($page['roadmap']['items'] as $item)
                                         <div class="grid grid-cols-[1.2fr_0.7fr_0.7fr] gap-3 border-b border-[#eee4d7] px-4 py-3 text-sm last:border-b-0">

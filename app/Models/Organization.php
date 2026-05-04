@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrganizationStatus;
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\UserRole;
+use App\Filament\Support\Features\OrganizationFeatureManager;
 use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -304,13 +305,7 @@ class Organization extends Model
 
     public function featureEnabled(string $feature, bool $default = false): bool
     {
-        $override = $this->featureOverrides()
-            ->select(['id', 'organization_id', 'feature', 'enabled', 'reason', 'created_by', 'created_at', 'updated_at'])
-            ->forFeature($feature)
-            ->latestFirst()
-            ->first();
-
-        return $override?->enabled ?? $default;
+        return app(OrganizationFeatureManager::class)->enabled($this, $feature, $default);
     }
 
     private function effectiveLimit(string $dimension): int

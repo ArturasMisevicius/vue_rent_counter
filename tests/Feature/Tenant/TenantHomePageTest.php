@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MeterType;
 use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\Organization;
@@ -231,6 +232,31 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
         ->assertDontSeeText('Nuomininko suvestinė')
         ->assertSeeText('Pateikti naują rodmenį')
         ->assertSeeText('Naujausi rodmenys');
+});
+
+it('localizes seeded operations demo meter names in tenant recent readings', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withReadings()
+        ->create();
+
+    $tenant->meters->firstOrFail()->forceFill([
+        'name' => 'Operations Demo Meter',
+        'type' => MeterType::ELECTRICITY,
+    ])->save();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSeeText('Operacijų demonstracinis skaitiklis: Elektra')
+        ->assertDontSeeText('Operations Demo Meter');
 });
 
 it('falls back to english when a tenant has an unsupported locale', function () {

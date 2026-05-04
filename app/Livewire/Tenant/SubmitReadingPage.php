@@ -4,6 +4,7 @@ namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Tenant\Portal\TenantMeterNameLocalizer;
 use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Meter;
@@ -107,6 +108,7 @@ class SubmitReadingPage extends Component
             'meters' => $this->availableMeters,
             'readingRows' => $this->readingRows,
             'selectedMeter' => $this->selectedMeter,
+            'selectedMeterName' => $this->meterDisplayName($this->selectedMeter),
             'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
             'tenant' => $tenant,
@@ -157,7 +159,7 @@ class SubmitReadingPage extends Component
 
                 return [
                     'id' => (int) $meter->id,
-                    'name' => (string) $meter->name,
+                    'name' => $this->meterDisplayName($meter),
                     'identifier' => (string) $meter->identifier,
                     'unit' => (string) $meter->unit,
                     'value' => $readingValue,
@@ -323,7 +325,7 @@ class SubmitReadingPage extends Component
     private function completeSubmission(array $readings): void
     {
         foreach ($readings as $reading) {
-            $reading->loadMissing('meter:id,name,identifier,unit');
+            $reading->loadMissing('meter:id,name,identifier,unit,type');
 
             $meterId = (string) $reading->meter_id;
             $this->readings[$meterId] = [
@@ -357,11 +359,16 @@ class SubmitReadingPage extends Component
     {
         return [
             'meter_identifier' => (string) ($reading->meter?->identifier ?? ''),
-            'meter_name' => (string) ($reading->meter?->name ?? ''),
+            'meter_name' => $this->meterDisplayName($reading->meter),
             'unit' => (string) ($reading->meter?->unit ?? ''),
             'value' => $this->formatDecimal((float) $reading->reading_value, 3),
             'date' => LocalizedDateFormatter::date($reading->reading_date),
         ];
+    }
+
+    private function meterDisplayName(?Meter $meter): string
+    {
+        return app(TenantMeterNameLocalizer::class)->displayName($meter);
     }
 
     private function submissionSuccessMessage(int $readingCount): string

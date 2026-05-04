@@ -13,8 +13,10 @@ uses(RefreshDatabase::class);
 it('shows the tenant profile form with the current account details', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->get(route('filament.admin.pages.profile'))
+    $response = $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.profile'));
+
+    $response
         ->assertSuccessful()
         ->assertSeeText('My Profile')
         ->assertSeeText('Personal Information')
@@ -25,6 +27,10 @@ it('shows the tenant profile form with the current account details', function ()
         ->assertSeeText('Change Password')
         ->assertSee('value="'.$tenant->user->name.'"', false)
         ->assertSee('value="'.$tenant->user->email.'"', false);
+
+    expect($response->getContent())
+        ->toMatch('/<div[^>]*class="[^"]*\bhidden\b[^"]*"[^>]*data-avatar-editor[^>]*>/')
+        ->toMatch('/<button[^>]*data-avatar-save[^>]*disabled[^>]*>/');
 });
 
 it('stores a cropped tenant avatar and serves it through the authenticated avatar endpoint', function () {

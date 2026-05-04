@@ -26,6 +26,7 @@ return [
             'my_home' => 'My Home',
             'organization' => 'Organization',
             'account' => 'Account',
+            'operations' => 'Operations',
         ],
         'items' => [
             'organizations' => 'Organizations',

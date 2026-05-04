@@ -7,7 +7,7 @@
     <div class="text-sm text-slate-900">{{ filled($data) ? $data : '—' }}</div>
 @elseif ($data === [])
     <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
-        No values recorded.
+        {{ __('superadmin.users.dossier.no_values_recorded') }}
     </div>
 @elseif ($isScalarList)
     <ul class="space-y-2">
@@ -23,7 +23,7 @@
             <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Record {{ $index + 1 }}
+                        {{ __('superadmin.users.dossier.record_number', ['number' => $index + 1]) }}
                     </h3>
                 </div>
 

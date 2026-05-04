@@ -34,6 +34,19 @@ it('shows the tenant invoice history with paid and outstanding invoices', functi
         ->assertSeeText('Pay by bank transfer before the due date.');
 });
 
+it('does not show invoice filter empty copy inside invoices without line items', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
+        ->assertSuccessful()
+        ->assertSeeText('UNPAID-001')
+        ->assertDontSeeText('No invoices match the selected filter.');
+});
+
 it('exposes direct billing guidance and contact anchors', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
@@ -120,8 +133,29 @@ it('shows a localized empty payment guidance state instead of hardcoded fallback
     $this->actingAs($tenant->user)
         ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
-        ->assertSeeText('Payment instructions will appear here once your organization updates its billing settings.')
+        ->assertSeeText('Payment method not configured')
+        ->assertSeeText('Payment instructions are not configured yet. Invoice totals are still valid; contact billing if you need to pay now.')
+        ->assertSeeText('Paid so far')
+        ->assertDontSeeText('Amount Paid')
+        ->assertDontSeeText('Payment instructions will appear here once your organization updates its billing settings.')
         ->assertDontSeeText('Contact your building manager for payment instructions.');
+});
+
+it('localizes default demo payment instructions for lithuanian tenants', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
+        ->assertSuccessful()
+        ->assertSeeText('Apmokėkite banko pavedimu arba biure.')
+        ->assertDontSeeText('Pay by bank transfer or at the office.');
 });
 
 it('allows a tenant to download their own invoice document', function () {
@@ -201,6 +235,28 @@ it('renders the invoice billing period with localized copy', function () {
         ->assertSuccessful()
         ->assertSeeText($invoice->billing_period_start->format('Y-m-d').' iki '.$invoice->billing_period_end->format('Y-m-d'))
         ->assertDontSeeText($invoice->billing_period_start->format('Y-m-d').' to '.$invoice->billing_period_end->format('Y-m-d'));
+});
+
+it('renders tenant invoice dates with full lithuanian month names', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $invoice = $tenant->invoices->firstOrFail()->forceFill([
+        'due_date' => '2026-03-23',
+    ]);
+    $invoice->save();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
+        ->assertSuccessful()
+        ->assertSeeText('2026 m. kovo 23 d.')
+        ->assertDontSeeText('kov 23, 2026');
 });
 
 it('refreshes translated invoice history copy when the shell locale changes', function () {

@@ -31,7 +31,7 @@ class ViewProject extends ViewRecord
         return [
             EditAction::make(),
             Action::make('changeStatus')
-                ->label('Change status')
+                ->label(__('admin.projects.actions.change_status'))
                 ->visible(fn (): bool => $this->availableTransitionOptions() !== [])
                 ->requiresConfirmation()
                 ->form([
@@ -46,8 +46,8 @@ class ViewProject extends ViewRecord
                         ->visible(fn (callable $get): bool => in_array($get('status'), [ProjectStatus::ON_HOLD->value, ProjectStatus::CANCELLED->value], true))
                         ->required(fn (callable $get): bool => in_array($get('status'), [ProjectStatus::ON_HOLD->value, ProjectStatus::CANCELLED->value], true)),
                     Toggle::make('acknowledge_incomplete_work')
-                        ->label('Acknowledge incomplete critical tasks')
-                        ->helperText('Required before completing a project that still has critical open tasks.')
+                        ->label(__('admin.projects.fields.acknowledge_incomplete_work'))
+                        ->helperText(__('admin.projects.helpers.acknowledge_incomplete_work'))
                         ->visible(fn (callable $get): bool => $get('status') === ProjectStatus::COMPLETED->value),
                 ])
                 ->action(function (array $data): void {
@@ -69,12 +69,12 @@ class ViewProject extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Project status updated')
+                        ->title(__('admin.projects.notifications.project_status_updated'))
                         ->success()
                         ->send();
                 }),
             Action::make('updateHoldReason')
-                ->label('Update hold reason')
+                ->label(__('admin.projects.actions.update_hold_reason'))
                 ->visible(fn (): bool => $this->record->status === ProjectStatus::ON_HOLD)
                 ->form([
                     Textarea::make('reason')
@@ -94,12 +94,12 @@ class ViewProject extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Hold reason updated')
+                        ->title(__('admin.projects.notifications.hold_reason_updated'))
                         ->success()
                         ->send();
                 }),
             Action::make('assignManager')
-                ->label('Assign manager')
+                ->label(__('admin.projects.actions.assign_manager'))
                 ->visible(fn (): bool => ! $this->record->isReadOnly())
                 ->form([
                     Select::make('manager_id')
@@ -110,7 +110,7 @@ class ViewProject extends ViewRecord
                             ->pluck('name', 'id')
                             ->all())
                         ->searchable()
-                        ->placeholder('Unassigned'),
+                        ->placeholder(__('admin.projects.overview.unassigned')),
                 ])
                 ->action(function (array $data): void {
                     $managerId = blank($data['manager_id'] ?? null)
@@ -124,12 +124,14 @@ class ViewProject extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title($managerId === null ? 'Project manager removed' : 'Project manager updated')
+                        ->title($managerId === null
+                            ? __('admin.projects.notifications.manager_removed')
+                            : __('admin.projects.notifications.manager_updated'))
                         ->success()
                         ->send();
                 }),
             Action::make('approveProject')
-                ->label('Approve project')
+                ->label(__('admin.projects.actions.approve_project'))
                 ->visible(fn (): bool => $this->record->status === ProjectStatus::PLANNED && $this->record->requires_approval && $this->record->approved_at === null)
                 ->action(function (): void {
                     $actor = request()->user();
@@ -143,15 +145,15 @@ class ViewProject extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title('Project approved')
+                        ->title(__('admin.projects.notifications.project_approved'))
                         ->success()
                         ->send();
                 }),
             Action::make('generateCostPassthrough')
-                ->label('Generate cost passthrough')
+                ->label(__('admin.projects.actions.generate_cost_passthrough'))
                 ->visible(fn (): bool => $this->record->cost_passed_to_tenant && $this->record->status === ProjectStatus::COMPLETED)
                 ->requiresConfirmation()
-                ->modalDescription('Generate draft invoice items for each affected tenant using the current project cost allocation.')
+                ->modalDescription(__('admin.projects.modals.cost_passthrough_description'))
                 ->action(function (): void {
                     $actor = request()->user();
 
@@ -164,16 +166,16 @@ class ViewProject extends ViewRecord
                     $this->refreshRecord();
 
                     Notification::make()
-                        ->title("Generated {$items->count()} passthrough invoice item(s)")
+                        ->title(__('admin.projects.notifications.cost_passthrough_generated', ['count' => $items->count()]))
                         ->success()
                         ->send();
                 }),
             Action::make('viewOrganization')
-                ->label('View organization')
+                ->label(__('admin.projects.actions.view_organization'))
                 ->url(fn (): string => OrganizationResource::getUrl('view', ['record' => $this->record->organization_id])),
             Action::make('viewAuditLog')
-                ->label('View audit log')
-                ->modalHeading('Project audit log')
+                ->label(__('admin.projects.actions.view_audit_log'))
+                ->modalHeading(__('admin.projects.modals.audit_log_heading'))
                 ->modalWidth(Width::Screen)
                 ->modalSubmitAction(false)
                 ->modalContent(fn () => view('filament.resources.projects.audit-log-modal', [

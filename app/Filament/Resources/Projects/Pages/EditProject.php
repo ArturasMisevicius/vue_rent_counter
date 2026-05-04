@@ -33,7 +33,7 @@ class EditProject extends EditRecord
     {
         return parent::getSaveFormAction()
             ->requiresConfirmation(fn (): bool => $this->shouldWarnAboutStatusOverride())
-            ->modalHeading('Confirm status override')
+            ->modalHeading(__('admin.projects.modals.confirm_status_override'))
             ->modalDescription(fn (): ?string => $this->statusOverrideWarningMessage());
     }
 
@@ -80,7 +80,7 @@ class EditProject extends EditRecord
         }
 
         if ($nextStatus->isTerminal() && $nextStatus !== $this->record->status) {
-            return 'You are forcing this project into a terminal state. Open work and downstream records may also be affected.';
+            return __('admin.projects.warnings.terminal_status_override');
         }
 
         if (
@@ -88,7 +88,7 @@ class EditProject extends EditRecord
             && (bool) data_get($this->data, 'requires_approval', $this->record->requires_approval)
             && $this->record->approved_at === null
         ) {
-            return 'This project still requires approval. Saving will bypass that gate because you are acting as a superadmin.';
+            return __('admin.projects.warnings.approval_bypass');
         }
 
         return null;

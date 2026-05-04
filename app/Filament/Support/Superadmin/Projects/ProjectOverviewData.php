@@ -52,11 +52,11 @@ final class ProjectOverviewData
         return $query
             ->get()
             ->map(fn (AuditLog $entry): array => [
-                'actor' => $entry->actor?->name ?? 'System',
+                'actor' => $entry->actor?->name ?? __('admin.projects.overview.system'),
                 'action' => $entry->action?->value !== null
                     ? Str::of($entry->action->value)->replace('_', ' ')->title()->toString()
-                    : 'Activity',
-                'description' => $entry->description ?: (string) data_get($entry->metadata, 'context.mutation', 'No description recorded'),
+                    : __('admin.projects.overview.activity'),
+                'description' => $entry->description ?: (string) data_get($entry->metadata, 'context.mutation', __('admin.projects.overview.no_description_recorded')),
                 'occurred_at' => $entry->occurred_at?->toDateTimeString() ?? '—',
             ])
             ->all();
@@ -65,20 +65,20 @@ final class ProjectOverviewData
     private function identity(Project $project): array
     {
         return [
-            ['label' => 'Project name', 'value' => $project->name],
-            ['label' => 'Reference number', 'value' => $project->reference_number ?: '—'],
-            ['label' => 'Organization', 'value' => $project->organization?->name ?? '—'],
-            ['label' => 'Building', 'value' => $project->building?->name ?? '—'],
-            ['label' => 'Property', 'value' => $project->property?->name ?? '—'],
-            ['label' => 'Status', 'value' => $project->status?->getLabel() ?? '—'],
-            ['label' => 'Priority', 'value' => $project->priority?->getLabel() ?? '—'],
-            ['label' => 'Type', 'value' => $project->type?->getLabel() ?? '—'],
-            ['label' => 'Manager', 'value' => $project->manager?->name ?? 'Unassigned'],
-            ['label' => 'Requires approval', 'value' => $project->requires_approval ? 'Yes' : 'No'],
-            ['label' => 'Approved at', 'value' => $project->approved_at?->toDateTimeString() ?? '—'],
-            ['label' => 'Approved by', 'value' => $project->approver?->name ?? '—'],
-            ['label' => 'Created at', 'value' => $project->created_at?->toDateTimeString() ?? '—'],
-            ['label' => 'Updated at', 'value' => $project->updated_at?->toDateTimeString() ?? '—'],
+            ['label' => __('admin.projects.overview.project_name'), 'value' => $project->name],
+            ['label' => __('admin.projects.overview.reference_number'), 'value' => $project->reference_number ?: '—'],
+            ['label' => __('admin.projects.overview.organization'), 'value' => $project->organization?->name ?? '—'],
+            ['label' => __('admin.projects.overview.building'), 'value' => $project->building?->name ?? '—'],
+            ['label' => __('admin.projects.overview.property'), 'value' => $project->property?->name ?? '—'],
+            ['label' => __('admin.projects.overview.status'), 'value' => $project->status?->getLabel() ?? '—'],
+            ['label' => __('admin.projects.overview.priority'), 'value' => $project->priority?->getLabel() ?? '—'],
+            ['label' => __('admin.projects.overview.type'), 'value' => $project->type?->getLabel() ?? '—'],
+            ['label' => __('admin.projects.overview.manager'), 'value' => $project->manager?->name ?? __('admin.projects.overview.unassigned')],
+            ['label' => __('admin.projects.overview.requires_approval'), 'value' => $project->requires_approval ? __('admin.projects.overview.yes') : __('admin.projects.overview.no')],
+            ['label' => __('admin.projects.overview.approved_at'), 'value' => $project->approved_at?->toDateTimeString() ?? '—'],
+            ['label' => __('admin.projects.overview.approved_by'), 'value' => $project->approver?->name ?? '—'],
+            ['label' => __('admin.projects.overview.created_at'), 'value' => $project->created_at?->toDateTimeString() ?? '—'],
+            ['label' => __('admin.projects.overview.updated_at'), 'value' => $project->updated_at?->toDateTimeString() ?? '—'],
         ];
     }
 
@@ -122,10 +122,10 @@ final class ProjectOverviewData
             'actual_end_date' => $project->actual_end_date?->toDateString() ?? '—',
             'completion_percentage' => max(0, min(100, (int) $project->completion_percentage)),
             'variance_label' => match (true) {
-                $varianceDays === null => 'No estimated end date',
-                $varianceDays > 0 => "{$varianceDays} day(s) behind schedule",
-                $varianceDays < 0 => abs($varianceDays).' day(s) ahead of schedule',
-                default => 'On schedule',
+                $varianceDays === null => __('admin.projects.overview.no_estimated_end_date'),
+                $varianceDays > 0 => __('admin.projects.overview.days_behind_schedule', ['count' => $varianceDays]),
+                $varianceDays < 0 => __('admin.projects.overview.days_ahead_of_schedule', ['count' => abs($varianceDays)]),
+                default => __('admin.projects.overview.on_schedule'),
             },
             'variance_tone' => match (true) {
                 $varianceDays === null => 'gray',
@@ -147,10 +147,10 @@ final class ProjectOverviewData
             'budget_amount' => $this->money($project->budget_amount),
             'actual_cost' => $this->money($project->actual_cost),
             'variance_label' => match (true) {
-                $variance === null => 'No budget set',
-                $variance > 0 => $this->money(abs($variance)).' over budget',
-                $variance < 0 => $this->money(abs($variance)).' under budget',
-                default => 'On budget',
+                $variance === null => __('admin.projects.overview.no_budget_set'),
+                $variance > 0 => __('admin.projects.overview.amount_over_budget', ['amount' => $this->money(abs($variance))]),
+                $variance < 0 => __('admin.projects.overview.amount_under_budget', ['amount' => $this->money(abs($variance))]),
+                default => __('admin.projects.overview.on_budget'),
             },
             'variance_tone' => match (true) {
                 $variance === null => 'gray',
@@ -171,7 +171,7 @@ final class ProjectOverviewData
             $rows->push([
                 'name' => $project->manager->name,
                 'email' => $project->manager->email,
-                'role' => 'Manager',
+                'role' => __('admin.projects.overview.manager_role'),
             ]);
         }
 
@@ -182,7 +182,7 @@ final class ProjectOverviewData
         $membershipRows = $memberships
             ->filter(fn (ProjectUser $membership): bool => $membership->user !== null)
             ->map(fn (ProjectUser $membership): array => [
-                'name' => $membership->user?->name ?? 'Unknown user',
+                'name' => $membership->user?->name ?? __('admin.projects.overview.unknown_user'),
                 'email' => $membership->user?->email ?? '—',
                 'role' => Str::of((string) $membership->role)->replace('_', ' ')->title()->toString(),
             ]);
@@ -210,10 +210,10 @@ final class ProjectOverviewData
         return [
             'total' => $counts->sum(),
             'columns' => [
-                ['label' => 'To do', 'count' => $toDo, 'tone' => 'gray'],
-                ['label' => 'In progress', 'count' => $inProgress, 'tone' => 'warning'],
-                ['label' => 'Completed', 'count' => $completed, 'tone' => 'success'],
-                ['label' => 'Blocked', 'count' => $blocked, 'tone' => 'danger'],
+                ['label' => __('admin.projects.overview.to_do'), 'count' => $toDo, 'tone' => 'gray'],
+                ['label' => __('admin.projects.overview.in_progress'), 'count' => $inProgress, 'tone' => 'warning'],
+                ['label' => __('admin.projects.overview.completed'), 'count' => $completed, 'tone' => 'success'],
+                ['label' => __('admin.projects.overview.blocked'), 'count' => $blocked, 'tone' => 'danger'],
             ],
         ];
     }
@@ -243,7 +243,7 @@ final class ProjectOverviewData
             'share_label' => $this->money($share),
             'rows' => $assignments
                 ->map(fn (PropertyAssignment $assignment): array => [
-                    'tenant' => $assignment->tenant?->name ?? 'Unknown tenant',
+                    'tenant' => $assignment->tenant?->name ?? __('admin.projects.overview.unknown_tenant'),
                     'property' => $assignment->property?->name ?? '—',
                     'building' => $assignment->property?->building?->name ?? '—',
                     'share' => $this->money($share),

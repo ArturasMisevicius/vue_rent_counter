@@ -89,7 +89,7 @@
                     <p class="min-h-5 text-sm text-slate-500" data-avatar-status>{{ __('shell.profile.avatar.messages.empty') }}</p>
                 </div>
 
-                <div class="flex flex-col items-start gap-3">
+                <div class="hidden flex-col items-start gap-3" data-avatar-editor>
                     <canvas
                         width="512"
                         height="512"
@@ -101,6 +101,8 @@
                     <button
                         type="submit"
                         class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
+                        data-avatar-save
+                        disabled
                     >
                         <x-heroicon-m-check class="size-4" />
                         {{ __('shell.profile.avatar.actions.save') }}

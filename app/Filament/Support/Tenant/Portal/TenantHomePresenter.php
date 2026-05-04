@@ -20,6 +20,7 @@ class TenantHomePresenter
         protected PaymentInstructionsResolver $paymentInstructionsResolver,
         protected DashboardCacheService $dashboardCacheService,
         protected WorkspaceResolver $workspaceResolver,
+        protected TenantMeterNameLocalizer $meterNameLocalizer,
     ) {}
 
     /**
@@ -152,7 +153,7 @@ class TenantHomePresenter
             'recent_readings' => $recentReadings->map(fn (MeterReading $reading) => [
                 'id' => $reading->id,
                 'meter_identifier' => $reading->meter?->identifier,
-                'meter_name' => $reading->meter?->name,
+                'meter_name' => $this->meterNameLocalizer->displayName($reading->meter),
                 'meter_type' => $reading->meter?->type?->label(),
                 'unit' => $reading->meter?->unit,
                 'value' => LocalizedNumberFormatter::decimal((float) $reading->reading_value, 3),

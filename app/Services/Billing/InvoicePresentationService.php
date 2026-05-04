@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Billing\InvoiceContentLocalizer;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 
@@ -13,6 +15,7 @@ final class InvoicePresentationService
 {
     public function __construct(
         private readonly UniversalBillingCalculator $calculator,
+        private readonly InvoiceContentLocalizer $contentLocalizer,
     ) {}
 
     /**
@@ -87,9 +90,9 @@ final class InvoicePresentationService
             'status' => $status->value,
             'status_label' => $status->label(),
             'status_summary' => $this->statusSummary($invoice, $status),
-            'billing_period_start_display' => $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
-            'billing_period_end_display' => $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
-            'due_date_display' => $invoice->due_date?->locale(app()->getLocale())->isoFormat('ll') ?? '—',
+            'billing_period_start_display' => LocalizedDateFormatter::date($invoice->billing_period_start),
+            'billing_period_end_display' => LocalizedDateFormatter::date($invoice->billing_period_end),
+            'due_date_display' => LocalizedDateFormatter::date($invoice->due_date),
             'property_name' => (string) ($invoice->property?->name ?? '—'),
             'building_name' => (string) ($invoice->property?->building?->name ?? ''),
             'tenant_name' => (string) ($invoice->tenant?->name ?? '—'),
@@ -104,7 +107,7 @@ final class InvoicePresentationService
             'payments' => $invoice->payments
                 ->map(fn (InvoicePayment $payment): array => [
                     'method_label' => (string) ($payment->method?->label() ?? __('dashboard.not_available')),
-                    'paid_at_display' => $payment->paid_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—',
+                    'paid_at_display' => LocalizedDateFormatter::dateTime($payment->paid_at),
                     'amount_display' => EuMoneyFormatter::format($this->calculator->money($payment->amount ?? '0'), $currency),
                     'reference' => (string) ($payment->reference ?? ''),
                     'notes' => (string) ($payment->notes ?? ''),
@@ -162,12 +165,14 @@ final class InvoicePresentationService
             );
 
             return [
-                'description' => (string) ($resolvedItem['description'] ?? ''),
+                'description' => $this->contentLocalizer->lineItemDescription(
+                    (string) ($resolvedItem['description'] ?? ''),
+                ),
                 'period' => filled($resolvedItem['period'] ?? null)
                     ? (string) $resolvedItem['period']
                     : '—',
                 'quantity' => $quantity,
-                'unit' => (string) ($resolvedItem['unit'] ?? ''),
+                'unit' => $this->contentLocalizer->unit((string) ($resolvedItem['unit'] ?? '')),
                 'unit_price' => $unitPrice,
                 'unit_price_display' => EuMoneyFormatter::format($unitPrice, $currency),
                 'total' => $total,
@@ -182,10 +187,10 @@ final class InvoicePresentationService
      */
     private function canonicalItems(Invoice $invoice): array
     {
-        $snapshotItems = $invoice->snapshot_data;
+        $snapshotItems = $this->itemRowsFrom($invoice->snapshot_data);
 
-        if (is_array($snapshotItems) && $snapshotItems !== []) {
-            return array_values(array_filter($snapshotItems, is_array(...)));
+        if ($snapshotItems !== []) {
+            return $snapshotItems;
         }
 
         if ($invoice->relationLoaded('invoiceItems') && $invoice->invoiceItems->isNotEmpty()) {
@@ -205,7 +210,21 @@ final class InvoicePresentationService
                 ->all();
         }
 
-        return array_values(array_filter($invoice->items, is_array(...)));
+        return $this->itemRowsFrom($invoice->items);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function itemRowsFrom(mixed $items): array
+    {
+        if (! is_array($items)) {
+            return [];
+        }
+
+        $rows = is_array($items['items'] ?? null) ? $items['items'] : $items;
+
+        return array_values(array_filter($rows, is_array(...)));
     }
 
     private function statusSummary(Invoice $invoice, InvoiceStatus $status): string

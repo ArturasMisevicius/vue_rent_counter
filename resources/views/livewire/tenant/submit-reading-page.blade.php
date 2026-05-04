@@ -200,7 +200,7 @@
                             <x-heroicon-m-bolt class="size-5" />
                         </span>
                         <div>
-                            <p class="font-semibold text-slate-950">{{ $selectedMeter->name }}</p>
+                            <p class="font-semibold text-slate-950">{{ $selectedMeterName }}</p>
                             <p class="mt-1 text-sm text-slate-500">{{ $selectedMeter->identifier }} · {{ $selectedMeter->unit }}</p>
                         </div>
                     </div>

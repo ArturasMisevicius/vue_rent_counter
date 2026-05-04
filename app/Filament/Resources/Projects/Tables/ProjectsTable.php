@@ -42,12 +42,12 @@ class ProjectsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Project')
+                    ->label(__('admin.projects.columns.project'))
                     ->url(fn (Project $record): string => ProjectResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('reference_number')
-                    ->label('Reference #')
+                    ->label(__('admin.projects.columns.reference_number'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('organization.name')
@@ -76,8 +76,8 @@ class ProjectsTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('manager.name')
-                    ->label('Manager')
-                    ->state(fn (Project $record): string => $record->manager?->name ?? 'Unassigned')
+                    ->label(__('admin.projects.columns.manager'))
+                    ->state(fn (Project $record): string => $record->manager?->name ?? __('admin.projects.overview.unassigned'))
                     ->color(fn (Project $record): string => $record->manager === null ? 'warning' : 'primary')
                     ->searchable()
                     ->toggleable(),
@@ -90,22 +90,22 @@ class ProjectsTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('budget_variance')
-                    ->label('Budget variance')
+                    ->label(__('admin.projects.columns.budget_variance'))
                     ->state(fn (Project $record): string => self::budgetVarianceLabel($record))
                     ->color(fn (Project $record): string => ($record->budgetVarianceAmount() ?? 0) > 0 ? 'danger' : 'success')
                     ->toggleable(),
                 ViewColumn::make('completion_percentage')
-                    ->label('Completion')
+                    ->label(__('admin.projects.columns.completion'))
                     ->view('filament.tables.columns.project-progress-bar')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('estimated_end_date')
-                    ->label('Estimated end')
+                    ->label(__('admin.projects.columns.estimated_end'))
                     ->date()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('schedule_variance')
-                    ->label('Schedule variance')
+                    ->label(__('admin.projects.columns.schedule_variance'))
                     ->state(fn (Project $record): string => self::scheduleVarianceLabel($record))
                     ->color(fn (Project $record): string => ($record->scheduleVarianceDays() ?? 0) > 0 ? 'danger' : 'success')
                     ->toggleable(),
@@ -125,19 +125,19 @@ class ProjectsTable
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $query->forOrganizationValue($data['value'] ?? null)),
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('admin.projects.filters.status'))
                     ->multiple()
                     ->options(self::projectStatusOptions()),
                 SelectFilter::make('priority')
-                    ->label('Priority')
+                    ->label(__('admin.projects.filters.priority'))
                     ->multiple()
                     ->options(self::projectPriorityOptions()),
                 SelectFilter::make('type')
-                    ->label('Type')
+                    ->label(__('admin.projects.filters.type'))
                     ->multiple()
                     ->options(self::projectTypeOptions()),
                 SelectFilter::make('manager')
-                    ->label('Manager')
+                    ->label(__('admin.projects.filters.manager'))
                     ->options(fn (): array => User::query()
                         ->select(['id', 'name'])
                         ->orderedByName()
@@ -146,7 +146,7 @@ class ProjectsTable
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $query->forManagerValue($data['value'] ?? null)),
                 SelectFilter::make('building')
-                    ->label('Building')
+                    ->label(__('admin.projects.filters.building'))
                     ->options(fn ($livewire): array => Building::query()
                         ->select(['id', 'name', 'organization_id'])
                         ->when(
@@ -161,14 +161,14 @@ class ProjectsTable
                         ? $query
                         : $query->where('building_id', (int) $data['value'])),
                 TernaryFilter::make('has_overdue_tasks')
-                    ->label('Has overdue tasks')
+                    ->label(__('admin.projects.filters.has_overdue_tasks'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereHas('tasks', fn (Builder $taskQuery): Builder => $taskQuery->overdue()),
                         false: fn (Builder $query): Builder => $query->whereDoesntHave('tasks', fn (Builder $taskQuery): Builder => $taskQuery->overdue()),
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 TernaryFilter::make('is_over_budget')
-                    ->label('Is over budget')
+                    ->label(__('admin.projects.filters.is_over_budget'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereColumn('actual_cost', '>', 'budget_amount'),
                         false: fn (Builder $query): Builder => $query->where(function (Builder $budgetQuery): void {
@@ -179,7 +179,7 @@ class ProjectsTable
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 TernaryFilter::make('is_behind_schedule')
-                    ->label('Is behind schedule')
+                    ->label(__('admin.projects.filters.is_behind_schedule'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query
                             ->whereNotNull('estimated_end_date')
@@ -205,19 +205,19 @@ class ProjectsTable
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 TernaryFilter::make('is_unassigned')
-                    ->label('Is unassigned')
+                    ->label(__('admin.projects.filters.is_unassigned'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereNull('manager_id'),
                         false: fn (Builder $query): Builder => $query->whereNotNull('manager_id'),
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 Filter::make('created_between')
-                    ->label('Created date range')
+                    ->label(__('admin.projects.filters.created_date_range'))
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.projects.filters.created_from')),
                         DatePicker::make('created_to')
-                            ->label('Created to'),
+                            ->label(__('admin.projects.filters.created_to')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when(
@@ -229,12 +229,12 @@ class ProjectsTable
                             fn (Builder $query): Builder => $query->whereDate('created_at', '<=', (string) $data['created_to']),
                         )),
                 Filter::make('estimated_end_between')
-                    ->label('Estimated end date range')
+                    ->label(__('admin.projects.filters.estimated_end_date_range'))
                     ->schema([
                         DatePicker::make('estimated_end_from')
-                            ->label('Estimated end from'),
+                            ->label(__('admin.projects.filters.estimated_end_from')),
                         DatePicker::make('estimated_end_to')
-                            ->label('Estimated end to'),
+                            ->label(__('admin.projects.filters.estimated_end_to')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when(
@@ -246,7 +246,7 @@ class ProjectsTable
                             fn (Builder $query): Builder => $query->whereDate('estimated_end_date', '<=', (string) $data['estimated_end_to']),
                         )),
                 Filter::make('needs_attention')
-                    ->label('Needs attention')
+                    ->label(__('admin.projects.filters.needs_attention'))
                     ->query(fn (Builder $query): Builder => $query->needsAttention()),
             ])
             ->recordActions([
@@ -256,7 +256,7 @@ class ProjectsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('changeStatus')
-                        ->label('Change status')
+                        ->label(__('admin.projects.actions.change_status'))
                         ->form([
                             Select::make('status')
                                 ->options(self::projectStatusOptions())
@@ -267,7 +267,7 @@ class ProjectsTable
                                 ->visible(fn (callable $get): bool => in_array($get('status'), [ProjectStatus::ON_HOLD->value, ProjectStatus::CANCELLED->value], true))
                                 ->required(fn (callable $get): bool => in_array($get('status'), [ProjectStatus::ON_HOLD->value, ProjectStatus::CANCELLED->value], true)),
                             Toggle::make('acknowledge_incomplete_work')
-                                ->label('Acknowledge incomplete critical tasks')
+                                ->label(__('admin.projects.fields.acknowledge_incomplete_work'))
                                 ->visible(fn (callable $get): bool => $get('status') === ProjectStatus::COMPLETED->value),
                         ])
                         ->action(function (BulkAction $action, Collection $records, array $data): void {
@@ -294,19 +294,22 @@ class ProjectsTable
                                 } catch (Throwable $exception) {
                                     $action->reportBulkProcessingFailure(
                                         md5($exception->getMessage()),
-                                        fn (int $count): string => "Skipped {$count} project(s): {$exception->getMessage()}",
+                                        fn (int $count): string => __('admin.projects.notifications.skipped_projects', [
+                                            'count' => $count,
+                                            'message' => $exception->getMessage(),
+                                        ]),
                                     );
                                 }
                             }
 
                             Notification::make()
-                                ->title("Updated {$updatedCount} project(s)")
+                                ->title(__('admin.projects.notifications.updated_projects', ['count' => $updatedCount]))
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                     BulkAction::make('assignManager')
-                        ->label('Assign manager')
+                        ->label(__('admin.projects.actions.assign_manager'))
                         ->form([
                             Select::make('manager_id')
                                 ->options(fn ($livewire): array => User::query()
@@ -352,12 +355,12 @@ class ProjectsTable
                             }
 
                             $notification = Notification::make()
-                                ->title("Assigned a manager to {$updatedCount} project(s)");
+                                ->title(__('admin.projects.notifications.manager_assigned', ['count' => $updatedCount]));
 
                             if ($skippedCount > 0) {
                                 $notification
                                     ->warning()
-                                    ->body("{$skippedCount} project(s) were skipped because they belong to a different organization than the first selected project.");
+                                    ->body(__('admin.projects.notifications.manager_assign_skipped', ['count' => $skippedCount]));
                             } else {
                                 $notification->success();
                             }
@@ -366,10 +369,10 @@ class ProjectsTable
                         })
                         ->deselectRecordsAfterCompletion(),
                     BulkAction::make('addTag')
-                        ->label('Add tag')
+                        ->label(__('admin.projects.actions.add_tag'))
                         ->form([
                             TextInput::make('tag_name')
-                                ->label('Tag')
+                                ->label(__('admin.projects.fields.tag'))
                                 ->required()
                                 ->maxLength(255),
                         ])
@@ -402,12 +405,12 @@ class ProjectsTable
                             }
 
                             Notification::make()
-                                ->title('Tag added to selected projects')
+                                ->title(__('admin.projects.notifications.tag_added'))
                                 ->success()
                                 ->send();
                         }),
                     BulkAction::make('exportCsv')
-                        ->label('Export CSV')
+                        ->label(__('admin.projects.actions.export_csv'))
                         ->action(function (Collection $records, ExportProjectsCsvAction $exportProjectsCsvAction) {
                             $path = $exportProjectsCsvAction->handle($records);
 
@@ -417,8 +420,7 @@ class ProjectsTable
             ])
             ->defaultSort(fn (Builder $query): Builder => $query
                 ->reorder()
-                ->orderByRaw("case priority when 'critical' then 1 when 'high' then 2 when 'medium' then 3 else 4 end")
-                ->orderByRaw('case when estimated_end_date is null then 1 else 0 end')
+                ->orderBy('priority')
                 ->orderBy('estimated_end_date')
                 ->orderBy('id'));
     }
@@ -471,9 +473,9 @@ class ProjectsTable
         $formatted = EuMoneyFormatter::format(abs($variance));
 
         return match (true) {
-            $variance > 0 => "{$formatted} over",
-            $variance < 0 => "{$formatted} under",
-            default => 'On budget',
+            $variance > 0 => __('admin.projects.overview.amount_over_budget_short', ['amount' => $formatted]),
+            $variance < 0 => __('admin.projects.overview.amount_under_budget_short', ['amount' => $formatted]),
+            default => __('admin.projects.overview.on_budget'),
         };
     }
 
@@ -486,13 +488,13 @@ class ProjectsTable
         }
 
         if ($variance > 0) {
-            return "{$variance} day(s) behind";
+            return __('admin.projects.overview.days_behind_short', ['count' => $variance]);
         }
 
         if ($variance < 0) {
-            return abs($variance).' day(s) ahead';
+            return __('admin.projects.overview.days_ahead_short', ['count' => abs($variance)]);
         }
 
-        return 'On schedule';
+        return __('admin.projects.overview.on_schedule');
     }
 }

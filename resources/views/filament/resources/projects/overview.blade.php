@@ -15,7 +15,7 @@
     <section class="grid gap-6 xl:grid-cols-[2fr,1fr]">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Project identity</h2>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.project_identity') }}</h2>
                 <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ $scheduleToneClass }}">{{ $schedule['variance_label'] }}</span>
             </div>
 
@@ -30,10 +30,10 @@
         </div>
 
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Metadata</h2>
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.metadata') }}</h2>
 
             @if ($metadata === [])
-                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No metadata recorded.</p>
+                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.no_metadata_recorded') }}</p>
             @else
                 <dl class="mt-4 space-y-3">
                     @foreach ($metadata as $item)
@@ -49,39 +49,39 @@
 
     <section class="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Project narrative</h2>
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.project_narrative') }}</h2>
 
             <div class="mt-4 grid gap-4 lg:grid-cols-2">
                 <div class="rounded-xl bg-gray-50 p-4 dark:bg-white/5">
-                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Description</p>
+                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.description') }}</p>
                     <div class="prose prose-sm mt-3 max-w-none dark:prose-invert">{!! $details['description'] !!}</div>
                 </div>
 
                 <div class="rounded-xl bg-gray-50 p-4 dark:bg-white/5">
-                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Internal notes</p>
+                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.notes') }}</p>
                     <div class="prose prose-sm mt-3 max-w-none dark:prose-invert">{!! $details['notes'] !!}</div>
                 </div>
             </div>
         </div>
 
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Contractor & cancellation</h2>
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.contractor_cancellation') }}</h2>
 
             <dl class="mt-4 space-y-4">
                 <div>
-                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">External contractor</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.external_contractor') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $details['external_contractor'] }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Contractor contact</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.contractor_contact') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $details['contractor_contact'] }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Contractor reference</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.contractor_reference') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $details['contractor_reference'] }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Cancellation reason</dt>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.fields.cancellation_reason') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $details['cancellation_reason'] }}</dd>
                 </div>
             </dl>
@@ -91,33 +91,33 @@
     <section class="grid gap-6 xl:grid-cols-2">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Schedule health</h2>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.schedule_health') }}</h2>
                 <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ $scheduleToneClass }}">{{ $schedule['variance_label'] }}</span>
             </div>
 
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="rounded-xl border border-dashed border-gray-300 p-4 dark:border-white/10">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Estimated start</p>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.estimated_start') }}</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ $schedule['estimated_start_date'] }}</p>
                     </div>
                     <div class="rounded-xl border border-dashed border-gray-300 p-4 dark:border-white/10">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Actual start</p>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.actual_start') }}</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ $schedule['actual_start_date'] }}</p>
                     </div>
                     <div class="rounded-xl border border-dashed border-gray-300 p-4 dark:border-white/10">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Estimated end</p>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.estimated_end') }}</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ $schedule['estimated_end_date'] }}</p>
                     </div>
                     <div class="rounded-xl border border-dashed border-gray-300 p-4 dark:border-white/10">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Actual end</p>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.actual_end') }}</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ $schedule['actual_end_date'] }}</p>
                     </div>
                 </div>
 
                 <div>
                     <div class="mb-2 flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-                        <span>Completion</span>
+                        <span>{{ __('admin.projects.overview.completion') }}</span>
                         <span>{{ $schedule['completion_percentage'] }}%</span>
                     </div>
                     <div class="h-3 overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
@@ -129,24 +129,24 @@
 
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Budget health</h2>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.budget_health') }}</h2>
                 <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ $budgetToneClass }}">{{ $budget['variance_label'] }}</span>
             </div>
 
             <div class="space-y-4">
                 <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-                    <span>Budget</span>
+                    <span>{{ __('admin.projects.overview.budget') }}</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $budget['budget_amount'] }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-                    <span>Actual cost</span>
+                    <span>{{ __('admin.projects.overview.actual_cost') }}</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $budget['actual_cost'] }}</span>
                 </div>
 
                 <div class="space-y-3 rounded-xl bg-gray-50 p-4 dark:bg-white/5">
                     <div>
                         <div class="mb-2 flex items-center justify-between text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            <span>Budget</span>
+                            <span>{{ __('admin.projects.overview.budget') }}</span>
                             <span>{{ $budget['budget_amount'] }}</span>
                         </div>
                         <div class="h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
@@ -156,7 +156,7 @@
 
                     <div>
                         <div class="mb-2 flex items-center justify-between text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            <span>Actual</span>
+                            <span>{{ __('admin.projects.overview.actual') }}</span>
                             <span>{{ $budget['actual_cost'] }}</span>
                         </div>
                         <div class="h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
@@ -170,10 +170,10 @@
 
     <section class="grid gap-6 xl:grid-cols-2">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Team</h2>
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.team') }}</h2>
 
             @if ($team === [])
-                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No team members assigned.</p>
+                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.no_team_members_assigned') }}</p>
             @else
                 <div class="mt-4 space-y-3">
                     @foreach ($team as $member)
@@ -191,8 +191,8 @@
 
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Tasks summary</h2>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $tasks['total'] }} total</span>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.tasks_summary') }}</h2>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.total_count', ['count' => $tasks['total']]) }}</span>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -209,12 +209,12 @@
     <section class="grid gap-6 xl:grid-cols-[1.3fr,1fr]">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Recent activity</h2>
-                <span class="text-sm text-gray-500 dark:text-gray-400">Last {{ count($recentActivity) }}</span>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.recent_activity') }}</h2>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.last_count', ['count' => count($recentActivity)]) }}</span>
             </div>
 
             @if ($recentActivity === [])
-                <p class="text-sm text-gray-500 dark:text-gray-400">No audit activity recorded yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.no_audit_activity_recorded') }}</p>
             @else
                 <div class="space-y-3">
                     @foreach ($recentActivity as $entry)
@@ -234,17 +234,17 @@
         @if ($costBreakdown !== null)
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
                 <div class="mb-4 flex items-center justify-between">
-                    <h2 class="text-base font-semibold text-gray-950 dark:text-white">Cost breakdown</h2>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $costBreakdown['affected_tenants_count'] }} tenants</span>
+                    <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.cost_breakdown') }}</h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.tenants_count', ['count' => $costBreakdown['affected_tenants_count']]) }}</span>
                 </div>
 
                 <div class="mb-4 rounded-xl bg-gray-50 p-4 dark:bg-white/5">
-                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Projected share per tenant</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.projected_share_per_tenant') }}</p>
                     <p class="mt-1 text-lg font-semibold text-gray-950 dark:text-white">{{ $costBreakdown['share_label'] }}</p>
                 </div>
 
                 @if ($costBreakdown['rows'] === [])
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No active tenants are currently affected by this passthrough.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.no_active_tenants_passthrough') }}</p>
                 @else
                     <div class="space-y-3">
                         @foreach ($costBreakdown['rows'] as $row)

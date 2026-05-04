@@ -26,6 +26,7 @@ return [
             'my_home' => 'Mano namai',
             'organization' => 'Organizacija',
             'account' => 'Paskyra',
+            'operations' => 'Operacijos',
         ],
         'items' => [
             'organizations' => 'Organizacijos',

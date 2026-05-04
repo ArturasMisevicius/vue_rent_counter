@@ -17,6 +17,7 @@ use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
 use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Support\Features\OrganizationFeatureCatalog;
 use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Models\Organization;
@@ -378,10 +379,12 @@ class OrganizationsTable
                         ->visible(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
                         ->authorize(fn (): bool => self::currentUser()?->isSuperadmin() ?? false)
                         ->schema([
-                            TextInput::make('feature')
+                            Select::make('feature')
                                 ->label(__('superadmin.organizations.form.fields.feature'))
-                                ->required()
-                                ->maxLength(100),
+                                ->options(OrganizationFeatureCatalog::options())
+                                ->searchable()
+                                ->native(false)
+                                ->required(),
                             Select::make('enabled')
                                 ->label(__('superadmin.organizations.form.fields.feature_state'))
                                 ->options([

@@ -1,6 +1,6 @@
 <div class="space-y-4">
     @if ($entries === [])
-        <p class="text-sm text-gray-500 dark:text-gray-400">No audit entries recorded for this project.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.projects.overview.no_audit_entries') }}</p>
     @else
         @foreach ($entries as $entry)
             <div class="rounded-xl border border-gray-200 p-4 dark:border-white/10">

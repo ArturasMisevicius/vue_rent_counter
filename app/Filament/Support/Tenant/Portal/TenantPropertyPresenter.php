@@ -5,7 +5,6 @@ namespace App\Filament\Support\Tenant\Portal;
 use App\Enums\PropertyType;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Workspace\WorkspaceResolver;
-use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\User;
@@ -15,6 +14,7 @@ class TenantPropertyPresenter
 {
     public function __construct(
         private readonly WorkspaceResolver $workspaceResolver,
+        private readonly TenantMeterNameLocalizer $meterNameLocalizer,
     ) {}
 
     /**
@@ -147,7 +147,7 @@ class TenantPropertyPresenter
             ->get()
             ->map(fn (MeterReading $reading): array => [
                 'id' => $reading->id,
-                'meter_name' => $this->displayMeterName($reading->meter),
+                'meter_name' => $this->meterNameLocalizer->displayName($reading->meter),
                 'meter_identifier' => $reading->meter?->identifier ?? '—',
                 'reading_value' => $this->formatDecimal((float) $reading->reading_value, 3),
                 'unit' => $reading->meter?->unit ?? '',
@@ -175,7 +175,7 @@ class TenantPropertyPresenter
             'meters' => $property->meters->map(fn ($meter) => [
                 'id' => $meter->id,
                 'name' => $meter->name,
-                'display_name' => $this->displayMeterName($meter),
+                'display_name' => $this->meterNameLocalizer->displayName($meter),
                 'identifier' => $meter->identifier,
                 'unit' => $meter->unit,
                 'last_reading' => $meter->latestReading
@@ -243,43 +243,5 @@ class TenantPropertyPresenter
         }
 
         return null;
-    }
-
-    private function displayMeterName(?Meter $meter): string
-    {
-        if (! $meter instanceof Meter) {
-            return __('dashboard.not_available');
-        }
-
-        $name = trim((string) $meter->name);
-
-        if ($name === '') {
-            return __('dashboard.not_available');
-        }
-
-        if (preg_match('/^Meter (?<number>[A-Za-z0-9-]+)$/', $name, $matches) === 1) {
-            return __('tenant.pages.property.generic_meter_label', [
-                'number' => $matches['number'],
-            ]);
-        }
-
-        if ($meter->type !== null) {
-            $englishType = (string) __($meter->type->translationKey(), [], 'en');
-            $generatedDemoName = __('tenant.pages.property.demo_meter_label', ['type' => $englishType], 'en');
-
-            if (Str::of($name)->lower()->exactly(Str::of($generatedDemoName)->lower()->value())) {
-                return __('tenant.pages.property.demo_meter_label', [
-                    'type' => $meter->type->label(),
-                ]);
-            }
-        }
-
-        if (Str::of($name)->lower()->exactly('operations demo meter')) {
-            return __('tenant.pages.property.operations_demo_meter_label', [
-                'type' => $meter->type?->label() ?? __('tenant.pages.property.meter_label'),
-            ]);
-        }
-
-        return $name;
     }
 }

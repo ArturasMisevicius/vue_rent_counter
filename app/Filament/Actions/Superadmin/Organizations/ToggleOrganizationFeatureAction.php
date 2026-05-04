@@ -6,6 +6,8 @@ namespace App\Filament\Actions\Superadmin\Organizations;
 
 use App\Enums\AuditLogAction;
 use App\Filament\Support\Audit\AuditLogger;
+use App\Filament\Support\Features\OrganizationFeatureCatalog;
+use App\Filament\Support\Features\OrganizationFeatureManager;
 use App\Models\Organization;
 use App\Models\OrganizationFeatureOverride;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +17,7 @@ final class ToggleOrganizationFeatureAction
 {
     public function __construct(
         private readonly AuditLogger $auditLogger,
+        private readonly OrganizationFeatureManager $featureManager,
     ) {}
 
     public function handle(
@@ -23,6 +26,8 @@ final class ToggleOrganizationFeatureAction
         bool $enabled,
         string $reason,
     ): OrganizationFeatureOverride {
+        $feature = OrganizationFeatureCatalog::normalize($feature);
+
         if (blank($feature)) {
             throw ValidationException::withMessages([
                 'feature' => __('superadmin.organizations.validation.feature_required'),
@@ -32,11 +37,13 @@ final class ToggleOrganizationFeatureAction
         return DB::transaction(function () use ($organization, $feature, $enabled, $reason): OrganizationFeatureOverride {
             $override = OrganizationFeatureOverride::query()->create([
                 'organization_id' => $organization->id,
-                'feature' => trim($feature),
+                'feature' => $feature,
                 'enabled' => $enabled,
                 'reason' => $reason,
                 'created_by' => auth()->id(),
             ]);
+
+            $this->featureManager->sync($organization, $feature, $enabled);
 
             $this->auditLogger->record(
                 AuditLogAction::UPDATED,

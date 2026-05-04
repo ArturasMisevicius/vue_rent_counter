@@ -60,7 +60,7 @@ it('renders the same explainable invoice breakdown across tenant, admin, and pdf
         ->assertSeeText("145,30\u{00A0}€")
         ->assertSeeText("20,00\u{00A0}€")
         ->assertSeeText("125,30\u{00A0}€")
-        ->assertSeeText('Amount Paid')
+        ->assertSeeText('Paid so far')
         ->assertSeeText('Balance Due');
 
     $this->actingAs($admin)

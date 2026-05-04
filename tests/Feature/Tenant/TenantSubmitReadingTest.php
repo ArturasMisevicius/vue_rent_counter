@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterType;
 use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -131,6 +132,37 @@ it('shows full lithuanian month names in previous reading dates', function () {
         ->test(SubmitReadingPage::class)
         ->assertSeeText('2026 m. kovo 2 d.')
         ->assertDontSeeText('kov 2, 2026');
+});
+
+it('localizes seeded operations demo meter names on the tenant reading page', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+    $meter->forceFill([
+        'name' => 'Operations Demo Meter',
+        'type' => MeterType::ELECTRICITY,
+    ])->save();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    Livewire::actingAs($tenant->user->fresh())
+        ->test(SubmitReadingPage::class)
+        ->assertSeeText('Operacijų demonstracinis skaitiklis: Elektra')
+        ->assertDontSeeText('Operations Demo Meter')
+        ->set("readings.{$meter->id}.value", '245.125')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertSeeText('Operacijų demonstracinis skaitiklis: Elektra')
+        ->assertDontSeeText('Operations Demo Meter');
 });
 
 it('shows a live warning when the entered reading is lower than the previous value', function () {

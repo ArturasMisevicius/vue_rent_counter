@@ -225,7 +225,8 @@ it('allows tenant users without an organization assignment to access the unified
     $this->actingAs($tenant)
         ->get('/app')
         ->assertSuccessful()
-        ->assertSeeText('Dashboard');
+        ->assertSeeText('Home')
+        ->assertSeeText('No property assigned yet');
 });
 
 it('logs in tenant users without an organization assignment and redirects to the shared dashboard entrypoint', function () {
@@ -301,6 +302,6 @@ it('renders the tenant dashboard even when the latest assignment belongs to anot
     $this->actingAs($tenant)
         ->get('/app')
         ->assertSuccessful()
-        ->assertSeeText('Dashboard')
+        ->assertSeeText('Home')
         ->assertDontSeeText('Tenant Summary');
 });

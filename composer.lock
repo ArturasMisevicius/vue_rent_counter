@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f53cfd1d9d1b704d9e51f5ed666ca38a",
+    "content-hash": "357ffef37816d71f86f0ccd34418af84",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -215,6 +215,63 @@
                 }
             ],
             "time": "2026-02-10T14:33:43+00:00"
+        },
+        {
+            "name": "brick/money",
+            "version": "0.11.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brick/money.git",
+                "reference": "57fb799337d9c532da7f7c7def52b926bfcf0917"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brick/money/zipball/57fb799337d9c532da7f7c7def52b926bfcf0917",
+                "reference": "57fb799337d9c532da7f7c7def52b926bfcf0917",
+                "shasum": ""
+            },
+            "require": {
+                "brick/math": "~0.14.4",
+                "php": "^8.2",
+                "symfony/deprecation-contracts": "^2.2|^3.0"
+            },
+            "require-dev": {
+                "brick/varexporter": "0.7.0",
+                "ext-dom": "*",
+                "ext-pdo": "*",
+                "phpunit/phpunit": "^11.0",
+                "vimeo/psalm": "6.14.3"
+            },
+            "suggest": {
+                "ext-intl": "Required to format Money objects"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Brick\\Money\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Money and currency library",
+            "keywords": [
+                "brick",
+                "currency",
+                "money"
+            ],
+            "support": {
+                "issues": "https://github.com/brick/money/issues",
+                "source": "https://github.com/brick/money/tree/0.11.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/BenMorel",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-02T20:25:37+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2323,6 +2380,82 @@
                 "source": "https://github.com/laravel/framework"
             },
             "time": "2026-04-28T17:18:25+00:00"
+        },
+        {
+            "name": "laravel/pennant",
+            "version": "v1.23.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/pennant.git",
+                "reference": "d3d531d0ba640f9d0bd3580990fb205244e956ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/pennant/zipball/d3d531d0ba640f9d0bd3580990fb205244e956ca",
+                "reference": "d3d531d0ba640f9d0bd3580990fb205244e956ca",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/container": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/queue": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.1",
+                "symfony/console": "^6.0|^7.0|^8.0",
+                "symfony/finder": "^6.0|^7.0|^8.0"
+            },
+            "require-dev": {
+                "laravel/octane": "^1.4|^2.0",
+                "orchestra/testbench": "^8.36|^9.15|^10.8|^11.0",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Feature": "Laravel\\Pennant\\Feature"
+                    },
+                    "providers": [
+                        "Laravel\\Pennant\\PennantServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Laravel\\Pennant\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "A simple, lightweight library for managing feature flags.",
+            "homepage": "https://github.com/laravel/pennant",
+            "keywords": [
+                "feature",
+                "flags",
+                "laravel",
+                "pennant"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/pennant/issues",
+                "source": "https://github.com/laravel/pennant"
+            },
+            "time": "2026-03-19T02:27:39+00:00"
         },
         {
             "name": "laravel/pint",
@@ -6230,6 +6363,95 @@
                 }
             ],
             "time": "2026-03-31T21:14:05+00:00"
+        },
+        {
+            "name": "symfony/intl",
+            "version": "v8.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/intl.git",
+                "reference": "604a1dbbd67471e885e93274379cadd80dc33535"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/intl/zipball/604a1dbbd67471e885e93274379cadd80dc33535",
+                "reference": "604a1dbbd67471e885e93274379cadd80dc33535",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "conflict": {
+                "symfony/string": "<7.4"
+            },
+            "require-dev": {
+                "symfony/filesystem": "^7.4|^8.0",
+                "symfony/var-exporter": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Intl\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/",
+                    "/Resources/data/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                },
+                {
+                    "name": "Eriksen Costa",
+                    "email": "eriksen.costa@infranology.com.br"
+                },
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides access to the localization data of the ICU library",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "i18n",
+                "icu",
+                "internationalization",
+                "intl",
+                "l10n",
+                "localization"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/intl/tree/v8.0.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-30T15:14:47+00:00"
         },
         {
             "name": "symfony/mailer",

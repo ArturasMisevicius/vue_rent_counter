@@ -51,6 +51,14 @@ return [
             ],
         ],
     ],
+    'preview' => [
+        'operations_workspace' => 'Espacio de operaciones',
+        'columns' => [
+            'workflow' => 'Flujo',
+            'status' => 'Estado',
+            'owner' => 'Responsable',
+        ],
+    ],
     'roles' => [
         'heading' => 'Espacios de trabajo por rol',
         'description' => 'Cada rol tiene una responsabilidad clara y las reglas compartidas mantienen alineados todos los traspasos operativos.',

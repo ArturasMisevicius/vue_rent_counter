@@ -18,6 +18,7 @@ use App\Filament\Actions\Superadmin\Organizations\WriteOffOrganizationInvoicesAc
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Pages\ViewRecord;
+use App\Filament\Support\Features\OrganizationFeatureCatalog;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -242,10 +243,12 @@ class ViewOrganization extends ViewRecord
                 ->visible(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
                 ->authorize(fn (): bool => $this->authenticatedUser()?->isSuperadmin() ?? false)
                 ->schema([
-                    TextInput::make('feature')
+                    Select::make('feature')
                         ->label(__('superadmin.organizations.form.fields.feature'))
-                        ->required()
-                        ->maxLength(100),
+                        ->options(OrganizationFeatureCatalog::options())
+                        ->searchable()
+                        ->native(false)
+                        ->required(),
                     Select::make('enabled')
                         ->label(__('superadmin.organizations.form.fields.feature_state'))
                         ->options([

@@ -70,26 +70,24 @@
 
             <div class="space-y-5">
                 @forelse ($invoices as $invoice)
-                    <div wire:key="tenant-invoice-{{ $invoice->id }}" class="space-y-4 rounded-[1.25rem] border border-slate-200/80 bg-slate-50/70 p-4 sm:p-5">
-                        <x-shared.invoice-summary
+                    <div wire:key="tenant-invoice-{{ $invoice->id }}">
+                        <x-tenant.invoice-card
                             :invoice="$invoice"
                             :presentation="$invoicePresentations[$invoice->id] ?? null"
                             :period-display="__('tenant.pages.invoices.period', [
                                 'start' => $invoice->billing_period_start?->toDateString() ?? '—',
                                 'end' => $invoice->billing_period_end?->toDateString() ?? '—',
                             ])"
-                        />
-
-                        <div class="flex justify-end">
+                        >
                             <button
                                 type="button"
                                 wire:click="downloadPdf({{ $invoice->id }})"
-                                class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                                class="inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                             >
                                 <x-heroicon-m-arrow-down-tray class="size-4 text-slate-500" />
                                 {{ __('tenant.actions.download_pdf') }}
                             </button>
-                        </div>
+                        </x-tenant.invoice-card>
                     </div>
                 @empty
                     @if ($selectedStatus === 'unpaid')
@@ -148,12 +146,24 @@
                     <p class="mt-3 text-sm leading-6 text-slate-600">{{ $paymentGuidance['content'] }}</p>
                 </div>
             @else
-                <div id="tenant-billing-guidance" class="scroll-mt-28">
-                    <x-shared.empty-state
-                        icon="heroicon-m-credit-card"
-                        :title="__('tenant.pages.invoices.how_to_pay')"
-                        :description="__('tenant.messages.payment_guidance_unavailable')"
-                    />
+                <div id="tenant-billing-guidance" class="scroll-mt-28 rounded-[1.25rem] border border-amber-200 bg-amber-50/70 px-5 py-5">
+                    <div class="flex items-start gap-3">
+                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
+                            <x-heroicon-m-credit-card class="size-5" />
+                        </span>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-normal text-amber-700">{{ __('tenant.pages.invoices.payment_guidance') }}</p>
+                            <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.payment_guidance_pending') }}</h3>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-sm leading-6 text-slate-700">{{ __('tenant.messages.payment_guidance_unavailable') }}</p>
+
+                    @if ($paymentGuidance['has_contact_details'])
+                        <a href="#tenant-billing-contact" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400/40">
+                            <x-heroicon-m-phone class="size-4 text-amber-700" />
+                            {{ __('tenant.pages.invoices.view_billing_contact') }}
+                        </a>
+                    @endif
                 </div>
             @endif
 

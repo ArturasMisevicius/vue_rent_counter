@@ -26,6 +26,7 @@ return [
             'my_home' => 'Мой дом',
             'organization' => 'Организация',
             'account' => 'Аккаунт',
+            'operations' => 'Операции',
         ],
         'items' => [
             'organizations' => 'Организации',

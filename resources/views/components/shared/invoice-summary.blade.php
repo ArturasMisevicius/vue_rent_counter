@@ -130,8 +130,8 @@
             @empty
                 <x-shared.empty-state
                     icon="heroicon-m-credit-card"
-                    :title="__('admin.invoices.fields.amount_paid')"
-                    :description="__('tenant.messages.payment_guidance_unavailable')"
+                    :title="__('tenant.pages.invoices.no_payment_activity')"
+                    :description="__('tenant.pages.invoices.no_payment_activity_description')"
                 />
             @endforelse
         </div>

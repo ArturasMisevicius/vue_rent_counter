@@ -2,11 +2,14 @@
 
 use App\Enums\AuditLogAction;
 use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureAction;
+use App\Filament\Support\Features\OrganizationFeatureCatalog;
 use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\OrganizationFeatureOverride;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Pennant\Feature;
 
 uses(RefreshDatabase::class);
 
@@ -45,7 +48,7 @@ it('toggles organization feature flags through the superadmin action with audit 
 
     $override = app(ToggleOrganizationFeatureAction::class)->handle(
         $organization->fresh(),
-        'advanced_reporting',
+        'Advanced Reporting',
         true,
         'Pilot rollout',
     );
@@ -53,7 +56,8 @@ it('toggles organization feature flags through the superadmin action with audit 
     expect($override->organization_id)->toBe($organization->id)
         ->and($override->feature)->toBe('advanced_reporting')
         ->and($override->enabled)->toBeTrue()
-        ->and($organization->fresh()->featureEnabled('advanced_reporting'))->toBeTrue();
+        ->and($organization->fresh()->featureEnabled('advanced_reporting'))->toBeTrue()
+        ->and(Feature::for($organization->fresh())->active('advanced_reporting'))->toBeTrue();
 
     $auditLog = AuditLog::query()
         ->where('organization_id', $organization->id)
@@ -68,4 +72,25 @@ it('toggles organization feature flags through the superadmin action with audit 
             'feature' => 'advanced_reporting',
             'enabled' => true,
         ]);
+});
+
+it('resolves catalog feature defaults through pennant by active subscription plan', function () {
+    $starterOrganization = Organization::factory()->create();
+    $professionalOrganization = Organization::factory()->create();
+
+    Subscription::factory()
+        ->starter()
+        ->active()
+        ->for($starterOrganization)
+        ->create();
+
+    Subscription::factory()
+        ->professional()
+        ->active()
+        ->for($professionalOrganization)
+        ->create();
+
+    expect($starterOrganization->fresh()->featureEnabled(OrganizationFeatureCatalog::ADVANCED_REPORTING))->toBeFalse()
+        ->and($professionalOrganization->fresh()->featureEnabled(OrganizationFeatureCatalog::ADVANCED_REPORTING))->toBeTrue()
+        ->and(Feature::for($professionalOrganization->fresh())->active(OrganizationFeatureCatalog::ADVANCED_REPORTING))->toBeTrue();
 });

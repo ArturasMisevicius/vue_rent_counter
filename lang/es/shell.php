@@ -38,6 +38,7 @@ return [
             'my_home' => 'My Home',
             'organization' => 'Organización',
             'account' => 'Account',
+            'operations' => 'Operaciones',
         ],
         'items' => [
             'organizations' => 'Organizacións',
@@ -55,7 +56,7 @@ return [
             'reports' => 'Informes',
             'settings' => 'Configuración',
             'organization_users' => 'Organization Users',
-            'projects' => 'Projects',
+            'projects' => 'Proyectos',
             'tasks' => 'Tasks',
             'task_assignments' => 'Task Assignments',
             'time_entries' => 'Time Entries',

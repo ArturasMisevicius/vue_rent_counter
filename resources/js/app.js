@@ -36,7 +36,9 @@ const initializeAvatarCroppers = () => {
         const canvas = cropper.querySelector('[data-avatar-canvas]');
         const zoomInput = cropper.querySelector('[data-avatar-zoom]');
         const controls = cropper.querySelector('[data-avatar-controls]');
+        const editor = cropper.querySelector('[data-avatar-editor]');
         const applyButton = cropper.querySelector('[data-avatar-apply]');
+        const saveButton = cropper.querySelector('[data-avatar-save]');
         const status = cropper.querySelector('[data-avatar-status]');
         const previewImage = cropper.querySelector('[data-avatar-preview-image]');
         const previewFallback = cropper.querySelector('[data-avatar-preview-fallback]');
@@ -46,6 +48,7 @@ const initializeAvatarCroppers = () => {
             || !(canvas instanceof HTMLCanvasElement)
             || !(zoomInput instanceof HTMLInputElement)
             || !(applyButton instanceof HTMLButtonElement)
+            || !(saveButton instanceof HTMLButtonElement)
         ) {
             return;
         }
@@ -113,12 +116,34 @@ const initializeAvatarCroppers = () => {
         };
 
         const showControls = () => {
+            editor?.classList.remove('hidden');
+            editor?.classList.add('flex');
             controls?.classList.remove('hidden');
+            controls?.classList.add('flex');
             applyButton.disabled = false;
         };
 
+        const hideEditor = () => {
+            editor?.classList.add('hidden');
+            editor?.classList.remove('flex');
+            controls?.classList.add('hidden');
+            controls?.classList.remove('flex');
+            applyButton.disabled = true;
+            saveButton.disabled = true;
+        };
+
+        const clearCroppedAvatar = () => {
+            hiddenInput.value = '';
+            dispatchInputEvents(hiddenInput);
+            saveButton.disabled = true;
+        };
+
         const loadImage = (file) => {
+            clearCroppedAvatar();
+
             if (!file || !file.type.startsWith('image/')) {
+                state.image = null;
+                hideEditor();
                 setStatus(cropper.dataset.invalidMessage || '');
 
                 return;
@@ -127,11 +152,15 @@ const initializeAvatarCroppers = () => {
             const reader = new FileReader();
 
             reader.onerror = () => {
+                state.image = null;
+                hideEditor();
                 setStatus(cropper.dataset.invalidMessage || '');
             };
 
             reader.onload = () => {
                 if (typeof reader.result !== 'string') {
+                    state.image = null;
+                    hideEditor();
                     setStatus(cropper.dataset.invalidMessage || '');
 
                     return;
@@ -151,6 +180,8 @@ const initializeAvatarCroppers = () => {
                     render();
                 };
                 state.image.onerror = () => {
+                    state.image = null;
+                    hideEditor();
                     setStatus(cropper.dataset.invalidMessage || '');
                 };
                 state.image.src = reader.result;
@@ -221,9 +252,11 @@ const initializeAvatarCroppers = () => {
             }
 
             previewFallback?.classList.add('hidden');
+            saveButton.disabled = false;
             setStatus(cropper.dataset.croppedMessage || '');
         });
 
+        hideEditor();
         render();
     });
 };

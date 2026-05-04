@@ -308,18 +308,18 @@ class UserDossierData
     private function summary(User $user): array
     {
         return [
-            ['label' => 'Role', 'value' => $user->role instanceof UserRole ? $user->role->label() : (string) $user->role],
-            ['label' => 'Status', 'value' => $user->status instanceof UserStatus ? $user->status->label() : (string) $user->status],
-            ['label' => 'Memberships', 'value' => (string) $user->getAttribute('organization_memberships_count')],
-            ['label' => 'Invitations', 'value' => (string) $user->getAttribute('organization_invitations_count')],
-            ['label' => 'Assignments', 'value' => (string) $user->getAttribute('property_assignments_count')],
-            ['label' => 'Invoices', 'value' => (string) $user->getAttribute('invoices_count')],
-            ['label' => 'Leases', 'value' => (string) $user->getAttribute('leases_count')],
-            ['label' => 'Meter Readings', 'value' => (string) $user->getAttribute('submitted_meter_readings_count')],
-            ['label' => 'Security Violations', 'value' => (string) $user->getAttribute('security_violations_count')],
-            ['label' => 'Audit Logs', 'value' => (string) $user->getAttribute('actor_audit_logs_count')],
-            ['label' => 'Org Activity Logs', 'value' => (string) $user->getAttribute('organization_activity_logs_count')],
-            ['label' => 'Superadmin Logs', 'value' => (string) $user->getAttribute('super_admin_audit_logs_count')],
+            ['label' => __('superadmin.users.dossier.summary.role'), 'value' => $user->role instanceof UserRole ? $user->role->label() : (string) $user->role],
+            ['label' => __('superadmin.users.dossier.summary.status'), 'value' => $user->status instanceof UserStatus ? $user->status->label() : (string) $user->status],
+            ['label' => __('superadmin.users.dossier.summary.memberships'), 'value' => (string) $user->getAttribute('organization_memberships_count')],
+            ['label' => __('superadmin.users.dossier.summary.invitations'), 'value' => (string) $user->getAttribute('organization_invitations_count')],
+            ['label' => __('superadmin.users.dossier.summary.assignments'), 'value' => (string) $user->getAttribute('property_assignments_count')],
+            ['label' => __('superadmin.users.dossier.summary.invoices'), 'value' => (string) $user->getAttribute('invoices_count')],
+            ['label' => __('superadmin.users.dossier.summary.leases'), 'value' => (string) $user->getAttribute('leases_count')],
+            ['label' => __('superadmin.users.dossier.summary.meter_readings'), 'value' => (string) $user->getAttribute('submitted_meter_readings_count')],
+            ['label' => __('superadmin.users.dossier.summary.security_violations'), 'value' => (string) $user->getAttribute('security_violations_count')],
+            ['label' => __('superadmin.users.dossier.summary.audit_logs'), 'value' => (string) $user->getAttribute('actor_audit_logs_count')],
+            ['label' => __('superadmin.users.dossier.summary.organization_activity_logs'), 'value' => (string) $user->getAttribute('organization_activity_logs_count')],
+            ['label' => __('superadmin.users.dossier.summary.superadmin_logs'), 'value' => (string) $user->getAttribute('super_admin_audit_logs_count')],
         ];
     }
 
@@ -329,34 +329,34 @@ class UserDossierData
     private function sections(User $user): array
     {
         return [
-            $this->section('Account', $this->accountData($user), 'No account information available.'),
-            $this->section('Primary Organization', $this->modelData($user->organization), 'No primary organization assigned.'),
-            $this->section('Owned Organization', $this->modelData($user->ownedOrganization), 'This user does not own an organization.'),
-            $this->section('System Tenant', $this->modelData($user->systemTenant), 'No system tenant assigned.'),
-            $this->section('Dashboard Customization', $this->modelData($user->dashboardCustomization), 'No dashboard customization saved.'),
-            $this->section('KYC Profile', $this->modelData($user->kycProfile), 'No KYC profile on file.'),
-            $this->collectionSection('Organization Memberships', $user->organizationMemberships, 'No organization memberships.'),
-            $this->collectionSection('Manager Permissions', $user->managerPermissions, 'No manager permissions configured.'),
-            $this->collectionSection('Organization Invitations For This Email', $user->organizationInvitations, 'No organization invitations linked to this email.'),
-            $this->collectionSection('Organization Invitations Sent By User', $user->sentOrganizationInvitations, 'This user has not sent any organization invitations.'),
-            $this->collectionSection('Organization Memberships Invited By User', $user->invitedOrganizationMemberships, 'This user has not invited any memberships.'),
-            $this->collectionSection('Property Assignments', $user->propertyAssignments, 'No property assignments recorded.'),
-            $this->section('Current Property Assignment', $this->modelData($user->currentPropertyAssignment), 'No current property assignment.'),
-            $this->collectionSection('Current Property Meters', $user->currentPropertyMeters, 'No current property meters found.'),
-            $this->collectionSection('Current Property Readings', $user->currentPropertyReadings, 'No current property readings found.'),
-            $this->collectionSection('Submitted Meter Readings', $user->submittedMeterReadings, 'No meter readings submitted by this user.'),
-            $this->collectionSection('Invoices', $user->invoices, 'No invoices linked to this user.'),
-            $this->collectionSection('Leases', $user->leases, 'No leases linked to this user.'),
-            $this->collectionSection('Subscription Renewals', $user->subscriptionRenewals, 'No subscription renewals linked to this user.'),
-            $this->collectionSection('Created System Tenants', $user->createdSystemTenants, 'This user has not created any system tenants.'),
-            $this->collectionSection('Updated System Configurations', $user->updatedSystemConfigurations, 'This user has not updated any system configurations.'),
-            $this->collectionSection('Platform Organization Invitations', $user->sentPlatformOrganizationInvitations, 'This user has not sent any platform invitations.'),
-            $this->collectionSection('Audit Logs As Actor', $user->actorAuditLogs, 'No audit logs recorded for this user as actor.'),
-            $this->collectionSection('Organization Activity Logs', $user->organizationActivityLogs, 'No organization activity logs recorded for this user.'),
-            $this->collectionSection('Resource Activity Logs', $user->resourceActivityLogs, 'No resource activity logs recorded for this user.'),
-            $this->collectionSection('Superadmin Audit Logs', $user->superAdminAuditLogs, 'No superadmin audit logs recorded for this user.'),
-            $this->collectionSection('Security Violations', $user->securityViolations, 'No security violations recorded for this user.'),
-            $this->collectionSection('Blocked IP Addresses', $user->blockedIpAddresses, 'No blocked IP addresses recorded for this user.'),
+            $this->section(__('superadmin.users.dossier.sections.account'), $this->accountData($user), __('superadmin.users.dossier.empty.account')),
+            $this->section(__('superadmin.users.dossier.sections.primary_organization'), $this->modelData($user->organization), __('superadmin.users.dossier.empty.primary_organization')),
+            $this->section(__('superadmin.users.dossier.sections.owned_organization'), $this->modelData($user->ownedOrganization), __('superadmin.users.dossier.empty.owned_organization')),
+            $this->section(__('superadmin.users.dossier.sections.system_tenant'), $this->modelData($user->systemTenant), __('superadmin.users.dossier.empty.system_tenant')),
+            $this->section(__('superadmin.users.dossier.sections.dashboard_customization'), $this->modelData($user->dashboardCustomization), __('superadmin.users.dossier.empty.dashboard_customization')),
+            $this->section(__('superadmin.users.dossier.sections.kyc_profile'), $this->modelData($user->kycProfile), __('superadmin.users.dossier.empty.kyc_profile')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.organization_memberships'), $user->organizationMemberships, __('superadmin.users.dossier.empty.organization_memberships')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.manager_permissions'), $user->managerPermissions, __('superadmin.users.dossier.empty.manager_permissions')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.organization_invitations_for_email'), $user->organizationInvitations, __('superadmin.users.dossier.empty.organization_invitations_for_email')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.organization_invitations_sent'), $user->sentOrganizationInvitations, __('superadmin.users.dossier.empty.organization_invitations_sent')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.organization_memberships_invited'), $user->invitedOrganizationMemberships, __('superadmin.users.dossier.empty.organization_memberships_invited')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.property_assignments'), $user->propertyAssignments, __('superadmin.users.dossier.empty.property_assignments')),
+            $this->section(__('superadmin.users.dossier.sections.current_property_assignment'), $this->modelData($user->currentPropertyAssignment), __('superadmin.users.dossier.empty.current_property_assignment')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.current_property_meters'), $user->currentPropertyMeters, __('superadmin.users.dossier.empty.current_property_meters')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.current_property_readings'), $user->currentPropertyReadings, __('superadmin.users.dossier.empty.current_property_readings')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.submitted_meter_readings'), $user->submittedMeterReadings, __('superadmin.users.dossier.empty.submitted_meter_readings')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.invoices'), $user->invoices, __('superadmin.users.dossier.empty.invoices')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.leases'), $user->leases, __('superadmin.users.dossier.empty.leases')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.subscription_renewals'), $user->subscriptionRenewals, __('superadmin.users.dossier.empty.subscription_renewals')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.created_system_tenants'), $user->createdSystemTenants, __('superadmin.users.dossier.empty.created_system_tenants')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.updated_system_configurations'), $user->updatedSystemConfigurations, __('superadmin.users.dossier.empty.updated_system_configurations')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.platform_organization_invitations'), $user->sentPlatformOrganizationInvitations, __('superadmin.users.dossier.empty.platform_organization_invitations')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.audit_logs_as_actor'), $user->actorAuditLogs, __('superadmin.users.dossier.empty.audit_logs_as_actor')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.organization_activity_logs'), $user->organizationActivityLogs, __('superadmin.users.dossier.empty.organization_activity_logs')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.resource_activity_logs'), $user->resourceActivityLogs, __('superadmin.users.dossier.empty.resource_activity_logs')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.superadmin_audit_logs'), $user->superAdminAuditLogs, __('superadmin.users.dossier.empty.superadmin_audit_logs')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.security_violations'), $user->securityViolations, __('superadmin.users.dossier.empty.security_violations')),
+            $this->collectionSection(__('superadmin.users.dossier.sections.blocked_ip_addresses'), $user->blockedIpAddresses, __('superadmin.users.dossier.empty.blocked_ip_addresses')),
         ];
     }
 
@@ -465,7 +465,7 @@ class UserDossierData
 
     private function bool(bool $value): string
     {
-        return $value ? 'Yes' : 'No';
+        return $value ? __('superadmin.users.dossier.values.yes') : __('superadmin.users.dossier.values.no');
     }
 
     private function dateTime(mixed $value): ?string

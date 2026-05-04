@@ -32,12 +32,14 @@ class ProjectForm
     {
         return $schema
             ->components([
-                Section::make('Identity')
+                Section::make(__('admin.projects.sections.identity'))
                     ->schema([
                         TextInput::make('name')
+                            ->label(__('admin.projects.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('reference_number')
+                            ->label(__('admin.projects.fields.reference_number'))
                             ->maxLength(50)
                             ->rule(
                                 fn (callable $get, ?Project $record) => Rule::unique(Project::class, 'reference_number')
@@ -46,6 +48,7 @@ class ProjectForm
                                 fn (callable $get): bool => filled($get('organization_id')),
                             ),
                         Select::make('organization_id')
+                            ->label(__('admin.projects.fields.organization'))
                             ->options(fn (): array => Organization::query()
                                 ->select(['id', 'name'])
                                 ->ordered()
@@ -55,7 +58,7 @@ class ProjectForm
                             ->searchable()
                             ->required()
                             ->helperText(fn (callable $get, ?Project $record): ?string => ($record !== null && (int) $get('organization_id') !== $record->organization_id)
-                                ? 'Changing the organization will move child records such as tasks, time entries, cost records, comments, attachments, and audit logs to the new organization.'
+                                ? __('admin.projects.helpers.organization_change')
                                 : null)
                             ->afterStateUpdated(function (Set $set): void {
                                 $set('building_id', null);
@@ -64,6 +67,7 @@ class ProjectForm
                             })
                             ->live(),
                         Select::make('building_id')
+                            ->label(__('admin.projects.fields.building'))
                             ->options(fn (callable $get): array => Building::query()
                                 ->select(['id', 'name', 'organization_id'])
                                 ->when(
@@ -79,6 +83,7 @@ class ProjectForm
                             })
                             ->live(),
                         Select::make('property_id')
+                            ->label(__('admin.projects.fields.property'))
                             ->options(fn (callable $get): array => Property::query()
                                 ->select(['id', 'name', 'organization_id', 'building_id'])
                                 ->when(
@@ -93,32 +98,42 @@ class ProjectForm
                                 ->all())
                             ->searchable(),
                         Select::make('type')
+                            ->label(__('admin.projects.fields.type'))
                             ->options(self::projectTypeOptions())
                             ->required(),
                         Select::make('priority')
+                            ->label(__('admin.projects.fields.priority'))
                             ->options(self::projectPriorityOptions())
                             ->required(),
                     ])->columns(2),
-                Section::make('Schedule & Budget')
+                Section::make(__('admin.projects.sections.schedule_budget'))
                     ->schema([
-                        DatePicker::make('estimated_start_date'),
+                        DatePicker::make('estimated_start_date')
+                            ->label(__('admin.projects.fields.estimated_start_date')),
                         DatePicker::make('actual_start_date')
-                            ->helperText('This value is auto-filled when the project starts, but superadmins can override it.'),
-                        DatePicker::make('estimated_end_date'),
+                            ->label(__('admin.projects.fields.actual_start_date'))
+                            ->helperText(__('admin.projects.helpers.actual_start_override')),
+                        DatePicker::make('estimated_end_date')
+                            ->label(__('admin.projects.fields.estimated_end_date')),
                         DatePicker::make('actual_end_date')
+                            ->label(__('admin.projects.fields.actual_end_date'))
                             ->visible(fn (callable $get): bool => $get('status') === ProjectStatus::COMPLETED->value),
                         TextInput::make('budget_amount')
+                            ->label(__('admin.projects.fields.budget_amount'))
                             ->numeric()
                             ->prefix('EUR'),
                         Toggle::make('cost_passed_to_tenant')
+                            ->label(__('admin.projects.fields.cost_passed_to_tenant'))
                             ->helperText(fn (callable $get): ?string => $get('cost_passed_to_tenant')
-                                ? 'When this project is completed, the passthrough action can generate draft invoice items for the affected tenants.'
+                                ? __('admin.projects.helpers.cost_passthrough_ready')
                                 : null),
-                        Toggle::make('requires_approval'),
+                        Toggle::make('requires_approval')
+                            ->label(__('admin.projects.fields.requires_approval')),
                     ])->columns(2),
-                Section::make('Team')
+                Section::make(__('admin.projects.sections.team'))
                     ->schema([
                         Select::make('manager_id')
+                            ->label(__('admin.projects.fields.manager'))
                             ->options(fn (callable $get): array => User::query()
                                 ->select(['id', 'name', 'organization_id'])
                                 ->when(
@@ -129,15 +144,20 @@ class ProjectForm
                                 ->pluck('name', 'id')
                                 ->all())
                             ->searchable(),
-                        TextInput::make('external_contractor'),
-                        TextInput::make('contractor_contact'),
-                        TextInput::make('contractor_reference'),
+                        TextInput::make('external_contractor')
+                            ->label(__('admin.projects.fields.external_contractor')),
+                        TextInput::make('contractor_contact')
+                            ->label(__('admin.projects.fields.contractor_contact')),
+                        TextInput::make('contractor_reference')
+                            ->label(__('admin.projects.fields.contractor_reference')),
                     ])->columns(2),
-                Section::make('Internal')
+                Section::make(__('admin.projects.sections.internal'))
                     ->schema([
                         RichEditor::make('description')
+                            ->label(__('admin.projects.fields.description'))
                             ->columnSpanFull(),
                         RichEditor::make('notes')
+                            ->label(__('admin.projects.fields.notes'))
                             ->visible(function (): bool {
                                 $user = request()->user();
 
@@ -145,15 +165,18 @@ class ProjectForm
                             })
                             ->columnSpanFull(),
                         Select::make('status')
+                            ->label(__('admin.projects.fields.status'))
                             ->options([ProjectStatus::DRAFT->value => ProjectStatus::DRAFT->getLabel()])
                             ->default(ProjectStatus::DRAFT->value)
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->required()
                             ->visibleOn('create'),
                         Textarea::make('cancellation_reason')
+                            ->label(__('admin.projects.fields.cancellation_reason'))
                             ->visible(fn (callable $get): bool => $get('status') === ProjectStatus::CANCELLED->value)
                             ->required(fn (callable $get): bool => $get('status') === ProjectStatus::CANCELLED->value),
                         KeyValue::make('metadata')
+                            ->label(__('admin.projects.fields.metadata'))
                             ->nullable()
                             ->columnSpanFull(),
                     ])->columns(2),
