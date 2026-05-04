@@ -2,6 +2,13 @@
 
 ## 2026-05-04
 
+<!-- changelog:auto:start:staged-20260504101448 -->
+### Commit updates
+
+- updated `resources/views/livewire/shell/topbar.blade.php`
+- updated `tests/Feature/Shell/AuthenticatedShellTest.php`
+<!-- changelog:auto:end:staged-20260504101448 -->
+
 <!-- changelog:auto:start:staged-20260504101320 -->
 ### Commit updates
 

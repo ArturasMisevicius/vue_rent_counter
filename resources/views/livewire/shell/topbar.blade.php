@@ -80,12 +80,12 @@
                         x-bind:aria-expanded="tenantMenuOpen.toString()"
                         aria-controls="tenant-mobile-menu"
                         aria-label="{{ __('dashboard.menu') }}"
-                        class="ml-auto inline-flex min-h-12 min-w-12 shrink-0 touch-manipulation items-center justify-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:hidden"
+                        class="ml-auto inline-flex size-12 shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 aria-expanded:border-slate-950 aria-expanded:bg-slate-950 aria-expanded:text-white lg:hidden"
                         data-shell-mobile-menu-trigger
                     >
                         <x-heroicon-m-bars-3 x-bind:hidden="tenantMenuOpen" class="size-6" />
                         <x-heroicon-m-x-mark hidden x-bind:hidden="! tenantMenuOpen" class="size-6" />
-                        <span>{{ __('dashboard.menu') }}</span>
+                        <span class="sr-only">{{ __('dashboard.menu') }}</span>
                     </button>
                 @endif
 
@@ -129,22 +129,39 @@
                     hidden
                     x-bind:hidden="! tenantMenuOpen"
                     x-bind:aria-hidden="(! tenantMenuOpen).toString()"
-                    class="border-t border-slate-200/80 px-4 pb-5 pt-4 lg:hidden"
+                    class="absolute inset-x-0 top-full z-50 border-t border-slate-200/80 bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 shadow-[0_28px_70px_rgba(15,23,42,0.20)] lg:hidden"
                     data-shell-mobile-menu
                 >
-                    <div class="mx-auto flex w-full max-w-[112rem] flex-col gap-4">
-                        <div>
-                            @livewire(\App\Livewire\Shell\GlobalSearch::class, [], key('shell-global-search-mobile'))
+                    <div class="mx-auto flex max-h-[calc(100dvh-4.75rem)] w-full max-w-xl flex-col gap-3 overflow-y-auto overscroll-contain">
+                        <div class="flex items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                    {{ __('shell.navigation.groups.my_home') }}
+                                </p>
+
+                                @if ($user)
+                                    <p class="truncate text-sm font-semibold text-slate-950">{{ $user->name }}</p>
+                                @endif
+                            </div>
+
+                            <button
+                                type="button"
+                                x-on:click="tenantMenuOpen = false"
+                                aria-label="{{ __('dashboard.menu') }}"
+                                class="inline-flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                            >
+                                <x-heroicon-m-x-mark class="size-5" />
+                            </button>
                         </div>
 
-                        <div class="flex flex-col gap-3" data-shell-nav="tenant-mobile-menu">
+                        <div class="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-2.5" data-shell-nav="tenant-mobile-menu">
                             @foreach ($navigationGroups as $group)
-                                <section wire:key="tenant-mobile-menu-group-{{ $group->key }}" data-shell-group="{{ $group->key }}" class="flex flex-col gap-2.5">
-                                    <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                <section wire:key="tenant-mobile-menu-group-{{ $group->key }}" data-shell-group="{{ $group->key }}" class="flex flex-col gap-2">
+                                    <p class="sr-only">
                                         {{ $group->label }}
                                     </p>
 
-                                    <div class="flex flex-col gap-2.5">
+                                    <div class="flex flex-wrap gap-2.5">
                                         @foreach ($group->items as $item)
                                             <a
                                                 href="{{ $item->url }}"
@@ -156,12 +173,12 @@
                                                     data-shell-current="{{ $item->routeName }}"
                                                 @endif
                                                 @class([
-                                                    'flex min-h-14 touch-manipulation items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-base font-semibold transition',
-                                                    'bg-brand-ink text-white shadow-[0_14px_30px_rgba(19,38,63,0.18)]' => $item->active,
-                                                    'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' => ! $item->active,
+                                                    'flex min-h-[5.25rem] min-w-0 basis-[calc(50%-0.3125rem)] touch-manipulation flex-col justify-between rounded-[1.35rem] border p-3 text-left transition',
+                                                    'border-slate-950 bg-slate-950 text-white shadow-[0_16px_34px_rgba(15,23,42,0.22)]' => $item->active,
+                                                    'border-slate-200 bg-slate-50/80 text-slate-800 hover:border-slate-300 hover:bg-white' => ! $item->active,
                                                 ])
                                             >
-                                                <span class="flex min-w-0 items-center gap-3">
+                                                <span class="flex items-center justify-between gap-2">
                                                     @if (filled($item->icon))
                                                         <x-dynamic-component
                                                             :component="$item->icon"
@@ -174,16 +191,14 @@
                                                         />
                                                     @endif
 
-                                                    <span class="truncate">{{ $item->label }}</span>
+                                                    @if ($item->active)
+                                                        <span class="size-2 rounded-full bg-brand-mint"></span>
+                                                    @else
+                                                        <x-heroicon-m-chevron-right class="size-4 shrink-0 text-slate-400" />
+                                                    @endif
                                                 </span>
 
-                                                <x-heroicon-m-chevron-right
-                                                    @class([
-                                                        'size-5 shrink-0',
-                                                        'text-white' => $item->active,
-                                                        'text-slate-400' => ! $item->active,
-                                                    ])
-                                                />
+                                                <span class="truncate text-sm font-semibold leading-tight">{{ $item->label }}</span>
                                             </a>
                                         @endforeach
                                     </div>
@@ -191,44 +206,57 @@
                             @endforeach
                         </div>
 
-                        <div class="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-3">
-                            <div class="flex items-center justify-between gap-3">
-                                @if ($roleLabel)
-                                    <span class="rounded-full bg-white px-3 py-2 text-xs font-semibold uppercase tracking-normal text-slate-500">
-                                        {{ $roleLabel }}
-                                    </span>
-                                @endif
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-2.5">
+                            @livewire(\App\Livewire\Shell\GlobalSearch::class, [], key('shell-global-search-mobile'))
+                        </div>
 
-                                @if ($showLanguageSwitcher)
-                                    @livewire(\App\Livewire\Shell\LanguageSwitcher::class, [], key('shell-language-mobile'))
-                                @endif
-                            </div>
-
-                            <div class="flex items-center gap-3">
-                                @if ($user && $profileUrl)
-                                    <a
-                                        href="{{ $profileUrl }}"
-                                        wire:navigate
-                                        x-on:click="tenantMenuOpen = false"
-                                        aria-label="{{ __('shell.profile.title') }}"
-                                        class="inline-flex min-h-14 w-14 shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 py-3 text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                                        data-shell-mobile-profile-link
-                                    >
+                        <div class="flex items-center gap-2.5 rounded-3xl border border-slate-200 bg-slate-50 p-2.5">
+                            @if ($user && $profileUrl)
+                                <a
+                                    href="{{ $profileUrl }}"
+                                    wire:navigate
+                                    x-on:click="tenantMenuOpen = false"
+                                    aria-label="{{ __('shell.profile.title') }}"
+                                    class="flex min-h-12 min-w-0 flex-1 touch-manipulation items-center gap-3 rounded-2xl bg-white px-3 py-2.5 text-slate-700 shadow-sm transition hover:bg-slate-100"
+                                    data-shell-mobile-profile-link
+                                >
+                                    <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-white">
                                         <x-heroicon-m-user-circle class="size-5" />
-                                    </a>
-                                @endif
+                                    </span>
 
-                                <form method="POST" action="{{ route('logout') }}" class="flex-1">
-                                    @csrf
+                                    <span class="min-w-0">
+                                        <span class="block truncate text-sm font-semibold text-slate-950">{{ $user->name }}</span>
+                                        @if ($roleLabel)
+                                            <span class="block truncate text-xs font-semibold uppercase tracking-normal text-slate-500">{{ $roleLabel }}</span>
+                                        @endif
+                                    </span>
+                                </a>
+                            @endif
+
+                            @if ($showLanguageSwitcher)
+                                @livewire(\App\Livewire\Shell\LanguageSwitcher::class, [], key('shell-language-mobile'))
+                            @endif
+
+                            <form method="POST" action="{{ route('logout') }}" @class(['flex-1' => ! ($user && $profileUrl)])>
+                                @csrf
+                                @if ($user && $profileUrl)
                                     <button
                                         type="submit"
-                                        class="inline-flex min-h-14 w-full touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                                        aria-label="{{ __('dashboard.logout_button') }}"
+                                        class="inline-flex size-12 shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100"
+                                    >
+                                        <x-heroicon-m-arrow-right-start-on-rectangle class="size-5" />
+                                    </button>
+                                @else
+                                    <button
+                                        type="submit"
+                                        class="inline-flex min-h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100"
                                     >
                                         <x-heroicon-m-arrow-right-start-on-rectangle class="size-5" />
                                         {{ __('dashboard.logout_button') }}
                                     </button>
-                                </form>
-                            </div>
+                                @endif
+                            </form>
                         </div>
                     </div>
                 </div>
