@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Shell\Navigation\NavigationBuilder;
+use App\Models\ManagerPermission;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,3 +63,43 @@ it('keeps the panel provider delegated to the shell navigation builder instead o
         ->and(Str::contains((string) $contents, 'filament.admin.resources.projects.index'))->toBeFalse()
         ->and(Str::contains((string) $contents, 'filament.admin.resources.tags.index'))->toBeFalse();
 });
+
+it('keeps every configured role navigation route reachable for authorized roles', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $superadmin = User::factory()->superadmin()->create();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    ManagerPermission::syncForManager(
+        $manager,
+        $organization,
+        ManagerPermissionCatalog::presets()['full_access']['matrix'],
+    );
+
+    foreach ([$superadmin, $admin, $manager] as $user) {
+        $this->actingAs($user);
+
+        foreach (navigationRouteNamesFor($user) as $routeName) {
+            $this->followingRedirects()
+                ->get(route($routeName))
+                ->assertSuccessful();
+        }
+    }
+});
+
+/**
+ * @return list<string>
+ */
+function navigationRouteNamesFor(User $user): array
+{
+    $request = Request::create(route('filament.admin.pages.dashboard'));
+
+    return collect(app(NavigationBuilder::class)->forUser($user, $request))
+        ->flatMap(fn ($group): array => $group->items)
+        ->map(fn ($item): string => $item->routeName)
+        ->unique()
+        ->values()
+        ->all();
+}

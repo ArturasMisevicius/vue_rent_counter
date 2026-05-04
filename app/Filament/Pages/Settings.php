@@ -78,6 +78,8 @@ class Settings extends Page
 
     public function mount(): void
     {
+        $this->ensureAdmin();
+
         app()->setLocale($this->user()->locale);
         $this->fillForms();
     }

@@ -276,9 +276,14 @@ it('shows the admin settings page with organization, notification, and subscript
 
 it('restricts the settings page to admins', function () {
     $organization = Organization::factory()->create();
+    $superadmin = User::factory()->superadmin()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
+
+    $this->actingAs($superadmin)
+        ->get(route('filament.admin.pages.settings'))
+        ->assertForbidden();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.settings'))

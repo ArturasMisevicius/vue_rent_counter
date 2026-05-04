@@ -4,6 +4,16 @@
 
 ## 2026-05-04
 
+<!-- changelog:auto:start:staged-20260504130529 -->
+### Commit updates
+
+- updated `app/Filament/Pages/Settings.php`
+- updated `config/tenanto.php`
+- updated `tests/Feature/Admin/ProfileAndSettingsTest.php`
+- updated `tests/Feature/Shell/AuthenticatedShellTest.php`
+- updated `tests/Feature/Shell/NavigationSourceOfTruthTest.php`
+<!-- changelog:auto:end:staged-20260504130529 -->
+
 <!-- changelog:auto:start:staged-20260504125053 -->
 ### Commit updates
 

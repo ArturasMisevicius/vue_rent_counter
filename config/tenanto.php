@@ -246,12 +246,7 @@ return [
                             'label' => 'shell.navigation.items.reports',
                         ],
                     ],
-                    'account' => [
-                        [
-                            'route' => 'filament.admin.pages.settings',
-                            'label' => 'shell.navigation.items.settings',
-                        ],
-                    ],
+                    'account' => [],
                 ],
                 'admin' => [
                     'properties' => [

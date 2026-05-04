@@ -109,7 +109,7 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSee('data-shell-group="properties"', false)
         ->assertSee('data-shell-group="billing"', false)
         ->assertSee('data-shell-group="reports"', false)
-        ->assertSee('data-shell-group="account"', false)
+        ->assertDontSee('data-shell-group="account"', false)
         ->assertSee(route('filament.admin.resources.organizations.index'), false)
         ->assertSee(route('filament.admin.resources.service-configurations.index'), false)
         ->assertSee(route('filament.admin.resources.utility-services.index'), false)
@@ -118,7 +118,6 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSeeText(__('shell.navigation.groups.properties'))
         ->assertSeeText(__('shell.navigation.groups.billing'))
         ->assertSeeText(__('shell.navigation.groups.reports'))
-        ->assertSeeText(__('shell.navigation.groups.account'))
         ->assertSeeText(__('dashboard.logout_button'));
 
     $content = $response->getContent();
@@ -172,10 +171,6 @@ it('renders platform navigation for superadmins without organization navigation'
 
     assertSidebarGroupLabels($content, 'reports', [
         'Reports',
-    ]);
-
-    assertSidebarGroupLabels($content, 'account', [
-        'Settings',
     ]);
 });
 
