@@ -1,5 +1,7 @@
 # Phase 1 Guardrails Branch Protection
 
+> **AI agent usage:** This is an operations runbook. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` first; do not run destructive, external, release, backup, or secret-bearing commands unless the user explicitly asks.
+
 Use this helper when Phase `01-05` is the only remaining blocker and you have a machine with GitHub network access plus an admin-scoped token.
 
 ## Target

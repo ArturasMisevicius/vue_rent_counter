@@ -559,7 +559,7 @@ return [
             'reject' => 'Reject',
         ],
         'validation' => [
-            'previous_reading_higher' => 'The reading value must be higher than the previous reading.',
+            'previous_reading_higher' => 'The reading value must be higher than the previous reading (:previous :unit on :date). This value would create negative consumption.',
             'potential_gap_detected' => 'Potential 60-day gap detected since the previous reading.',
             'potential_anomalous_spike' => 'Potential anomalous spike detected compared with the previous reading.',
         ],

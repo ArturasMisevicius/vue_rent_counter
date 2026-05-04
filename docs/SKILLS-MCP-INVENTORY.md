@@ -1,5 +1,7 @@
 # Tenanto Skills And MCP Inventory
 
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+
 This document records the project-local agent skills and MCP server contract for Tenanto as of 2026-05-04. Use it when starting a new assistant session, adding an MCP server, or deciding which skill should guide a task.
 
 ## Current Skill Inventory

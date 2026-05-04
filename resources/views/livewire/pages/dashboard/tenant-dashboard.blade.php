@@ -11,9 +11,10 @@
         <x-tenant.split>
             <x-tenant.main-panel>
                 <div class="flex flex-col gap-3 md:flex-row">
-                    <a
-                        href="{{ $summary['submit_reading_url'] }}"
-                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 rounded-2xl border border-brand-mint/40 bg-brand-mint/10 px-4 py-4 transition hover:border-brand-mint hover:bg-brand-mint/15"
+                    <x-tenant.card
+                        :href="$summary['submit_reading_url']"
+                        tone="muted"
+                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 border-brand-mint/40 bg-brand-mint/10 px-4 py-4 hover:border-brand-mint hover:bg-brand-mint/15"
                     >
                         <span class="space-y-2">
                             <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.readings') }}</span>
@@ -22,11 +23,12 @@
                         <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-ink text-white transition group-hover:bg-slate-900">
                             <x-heroicon-m-clipboard-document-list class="size-5" />
                         </span>
-                    </a>
+                    </x-tenant.card>
 
-                    <a
-                        href="{{ route('filament.admin.pages.tenant-invoice-history') }}"
-                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
+                    <x-tenant.card
+                        :href="route('filament.admin.pages.tenant-invoice-history')"
+                        tone="muted"
+                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 px-4 py-4"
                     >
                         <span class="space-y-2">
                             <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.invoices') }}</span>
@@ -37,11 +39,12 @@
                         <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm transition group-hover:text-slate-950">
                             <x-heroicon-m-document-text class="size-5" />
                         </span>
-                    </a>
+                    </x-tenant.card>
 
-                    <a
-                        href="{{ $summary['property_url'] }}"
-                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
+                    <x-tenant.card
+                        :href="$summary['property_url']"
+                        tone="muted"
+                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 px-4 py-4"
                     >
                         <span class="space-y-2">
                             <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.property') }}</span>
@@ -50,7 +53,7 @@
                         <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm transition group-hover:text-slate-950">
                             <x-heroicon-m-home-modern class="size-5" />
                         </span>
-                    </a>
+                    </x-tenant.card>
                 </div>
 
                 <div class="flex flex-col gap-4 md:flex-row">
@@ -73,29 +76,28 @@
                     </div>
                 </div>
 
-                <article class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div class="flex items-start gap-3">
-                            <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                                <x-heroicon-m-bolt class="size-5" />
-                            </span>
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.home.current_month_consumption') }}</p>
-                                <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.home.current_month_consumption') }}</h3>
-                            </div>
-                        </div>
-
+                <x-tenant.card class="px-4 py-4 sm:px-5 sm:py-5">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-bolt"
+                        icon-tone="white"
+                        :eyebrow="__('tenant.pages.home.current_month_consumption')"
+                        :title="__('tenant.pages.home.current_month_consumption')"
+                    >
                         @if ($summary['property_address'])
-                            <p class="max-w-xs text-sm leading-6 text-slate-500 sm:text-right">{{ $summary['property_address'] }}</p>
+                            <x-slot:actions>
+                                <p class="max-w-xs text-sm leading-6 text-slate-500 sm:text-right">{{ $summary['property_address'] }}</p>
+                            </x-slot:actions>
                         @endif
-                    </div>
+                    </x-tenant.section-heading>
 
                     <div class="mt-4 flex flex-col gap-3 md:flex-row md:flex-wrap">
                         @forelse ($summary['consumption_by_type'] as $consumption)
-                            <div class="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 md:min-w-[16rem]">
-                                <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ $consumption['type'] }}</p>
-                                <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ $consumption['display'] }}</p>
-                            </div>
+                            <x-tenant.detail-card
+                                :label="$consumption['type']"
+                                :value="$consumption['display']"
+                                tone="white"
+                                class="min-w-0 flex-1 rounded-2xl px-4 py-3 md:min-w-[16rem]"
+                            />
                         @empty
                             <x-shared.empty-state
                                 icon="heroicon-m-bolt"
@@ -104,53 +106,17 @@
                             />
                         @endforelse
                     </div>
-                </article>
+                </x-tenant.card>
 
-                <article class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div class="flex items-start gap-3">
-                            <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                                <x-heroicon-m-clipboard-document-list class="size-5" />
-                            </span>
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.home.recent_readings') }}</p>
-                                <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.home.recent_readings') }}</h3>
-                            </div>
-                        </div>
-                        @if ($summary['property_address'])
-                            <p class="max-w-xs text-sm leading-6 text-slate-500 sm:text-right">{{ $summary['property_address'] }}</p>
-                        @endif
-                    </div>
-
-                    <div class="mt-4 space-y-3">
-                        @forelse ($summary['recent_readings'] as $reading)
-                            <div id="tenant-reading-{{ $reading['id'] }}" wire:key="reading-{{ $reading['id'] }}" class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <p class="font-semibold text-slate-950">{{ $reading['meter_name'] ?? $reading['meter_identifier'] }}</p>
-                                    <p class="text-sm text-slate-500">{{ $reading['meter_identifier'] }}</p>
-                                </div>
-                                <div class="sm:text-right">
-                                    <p class="font-semibold text-slate-950">{{ $reading['value'] }} {{ $reading['unit'] }}</p>
-                                    <p class="text-sm text-slate-500">{{ $reading['date'] }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <x-shared.empty-state
-                                icon="heroicon-m-beaker"
-                                :title="__('tenant.pages.home.recent_readings')"
-                                :description="__('tenant.messages.no_readings_yet')"
-                            />
-                        @endforelse
-                    </div>
-                </article>
+                <x-tenant.recent-readings :groups="$summary['recent_reading_groups']" />
             </x-tenant.main-panel>
 
             <x-tenant.aside-panel>
-                <a
-                    href="{{ route('filament.admin.pages.profile') }}"
-                    wire:navigate
+                <x-tenant.card
+                    :href="route('filament.admin.pages.profile')"
+                    wire-navigate
                     data-tenant-home-card="tenant-information"
-                    class="group block rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/35"
+                    class="group block"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
@@ -175,13 +141,14 @@
                             <p>{{ $summary['tenant_phone'] }}</p>
                         @endif
                     </div>
-                </a>
+                </x-tenant.card>
 
-                <a
-                    href="{{ route('filament.admin.pages.tenant-invoice-history') }}#tenant-billing-guidance"
-                    wire:navigate
+                <x-tenant.card
+                    :href="route('filament.admin.pages.tenant-invoice-history').'#tenant-billing-guidance'"
+                    wire-navigate
+                    tone="white"
                     data-tenant-home-card="billing-guidance"
-                    class="group block rounded-3xl border border-slate-200 bg-white px-5 py-5 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-mint/35"
+                    class="group block"
                 >
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
@@ -198,14 +165,14 @@
                     <p class="mt-3 text-sm leading-6 text-slate-600">
                         {{ $summary['payment_guidance']['content'] ?? __('tenant.messages.payment_guidance_unavailable') }}
                     </p>
-                </a>
+                </x-tenant.card>
 
                 @if ($summary['payment_guidance']['has_contact_details'])
-                    <a
-                        href="{{ route('filament.admin.pages.tenant-invoice-history') }}#tenant-billing-contact"
-                        wire:navigate
+                    <x-tenant.card
+                        :href="route('filament.admin.pages.tenant-invoice-history').'#tenant-billing-contact'"
+                        wire-navigate
                         data-tenant-home-card="billing-contact"
-                        class="group block rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/35"
+                        class="group block"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
@@ -230,15 +197,15 @@
                                 <p>{{ $summary['payment_guidance']['contact_phone'] }}</p>
                             @endif
                         </div>
-                    </a>
+                    </x-tenant.card>
                 @endif
 
                 @if ($summary['assigned_property']['name'])
-                    <a
-                        href="{{ $summary['property_url'] }}"
-                        wire:navigate
+                    <x-tenant.card
+                        :href="$summary['property_url']"
+                        wire-navigate
                         data-tenant-home-card="assigned-property"
-                        class="group block rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/35"
+                        class="group block"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
@@ -256,7 +223,7 @@
                         @endif
 
                         <p class="mt-2 text-sm text-slate-500">{{ $summary['assigned_property']['address'] }}</p>
-                    </a>
+                    </x-tenant.card>
                 @endif
             </x-tenant.aside-panel>
         </x-tenant.split>

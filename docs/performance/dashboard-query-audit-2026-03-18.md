@@ -1,5 +1,7 @@
 # Dashboard Query Audit — 2026-03-18
 
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
 ## Audit Method
 
 - Requested Laravel Boost MCP tools were not available in this session.

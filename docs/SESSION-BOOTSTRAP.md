@@ -1,5 +1,7 @@
 # Tenanto Session Bootstrap
 
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+
 Run this at the start of every work session when you need the current MCP status, project skills, and application baseline.
 
 ## 1. MCP Connection Check

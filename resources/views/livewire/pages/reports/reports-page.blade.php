@@ -38,23 +38,19 @@
                 </label>
             @endif
 
-            <label class="space-y-2 text-sm font-medium text-slate-700">
-                <span>{{ __('admin.reports.filters.start_date') }}</span>
-                <input
-                    type="date"
-                    wire:model.live="dateFrom"
-                    class="w-full rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-                />
-            </label>
+            <x-shared.calendar-modal
+                id="dateFrom"
+                :label="__('admin.reports.filters.start_date')"
+                :value="$dateFrom"
+                wire:model.live="dateFrom"
+            />
 
-            <label class="space-y-2 text-sm font-medium text-slate-700">
-                <span>{{ __('admin.reports.filters.end_date') }}</span>
-                <input
-                    type="date"
-                    wire:model.live="dateTo"
-                    class="w-full rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-                />
-            </label>
+            <x-shared.calendar-modal
+                id="dateTo"
+                :label="__('admin.reports.filters.end_date')"
+                :value="$dateTo"
+                wire:model.live="dateTo"
+            />
 
             <label class="space-y-2 text-sm font-medium text-slate-700">
                 <span>{{ __('admin.reports.filters.building') }}</span>

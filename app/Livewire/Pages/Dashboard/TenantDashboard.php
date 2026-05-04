@@ -123,6 +123,7 @@ class TenantDashboard extends Component
             'empty_state_title' => __('tenant.pages.home.unassigned_title'),
             'empty_state_description' => __('tenant.pages.home.unassigned_description'),
             'recent_readings' => [],
+            'recent_reading_groups' => [],
         ];
     }
 

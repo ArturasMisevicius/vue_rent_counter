@@ -1,4 +1,5 @@
 import './bootstrap';
+import { initializeCalendarModals } from './calendar-modal';
 
 const toggleSubmitState = (button, isLoading) => {
     if (!button) {
@@ -364,3 +365,5 @@ document.querySelectorAll('[data-demo-account-trigger]').forEach((trigger) => {
 
 document.addEventListener('DOMContentLoaded', initializeAvatarCroppers);
 document.addEventListener('livewire:navigated', initializeAvatarCroppers);
+document.addEventListener('DOMContentLoaded', initializeCalendarModals);
+document.addEventListener('livewire:navigated', initializeCalendarModals);

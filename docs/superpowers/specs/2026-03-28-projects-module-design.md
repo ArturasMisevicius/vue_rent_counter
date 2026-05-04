@@ -1,5 +1,7 @@
 # Projects Module Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Extend the existing lightweight Projects surface into a full organization-scoped operational module that supports lifecycle management, budgeting, scheduling, approvals, team assignment, cost passthrough, and superadmin diagnostics.

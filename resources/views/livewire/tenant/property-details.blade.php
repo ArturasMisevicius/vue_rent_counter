@@ -22,15 +22,12 @@
     <x-shared.page-header icon="heroicon-m-home-modern" :title="__('tenant.pages.property.heading')" :subtitle="__('tenant.pages.property.description')">
         @if (($summary['has_assignment'] ?? false) && filled($summary['assigned_since'] ?? null))
             <x-slot:actions>
-                <div class="flex items-center gap-3 rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-4 text-left">
-                    <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                        <x-heroicon-m-calendar-days class="size-5" />
-                    </span>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('admin.properties.fields.assigned_since') }}</p>
-                        <p class="mt-2 text-sm font-semibold text-slate-950">{{ $summary['assigned_since'] }}</p>
-                    </div>
-                </div>
+                <x-tenant.detail-card
+                    icon="heroicon-m-calendar-days"
+                    :label="__('admin.properties.fields.assigned_since')"
+                    :value="$summary['assigned_since']"
+                    class="px-5 py-4 text-left"
+                />
             </x-slot:actions>
         @endif
     </x-shared.page-header>
@@ -82,60 +79,40 @@
 
         <x-tenant.split>
             <x-tenant.main-panel>
-                <div class="flex items-start gap-4">
-                    <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-ink text-white">
-                        <x-heroicon-m-home-modern class="size-6" />
-                    </span>
-                    <div class="min-w-0 space-y-2">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.property.eyebrow') }}</p>
-                        <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ $summary['property_display_name'] }}</h2>
-
-                        @if (filled($summary['property_building_name'] ?? null))
-                            <p class="text-sm font-medium text-slate-700">{{ __('tenant.pages.home.building_label', ['building' => $summary['property_building_name']]) }}</p>
-                        @endif
-
-                        @if (filled($summary['property_address'] ?? null))
-                            <p class="text-sm leading-6 text-slate-500">{{ $summary['property_address'] }}</p>
-                        @endif
-                    </div>
-                </div>
+                <x-tenant.section-heading
+                    icon="heroicon-m-home-modern"
+                    :eyebrow="__('tenant.pages.property.eyebrow')"
+                    :title="$summary['property_display_name']"
+                    :description="$summary['property_address']"
+                    class="[&>div:first-child>span]:size-12 [&>div:first-child>span>svg]:size-6 [&_h2]:text-3xl"
+                >
+                    @if (filled($summary['property_building_name'] ?? null))
+                        <x-slot:actions>
+                            <p class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
+                                {{ __('tenant.pages.home.building_label', ['building' => $summary['property_building_name']]) }}
+                            </p>
+                        </x-slot:actions>
+                    @endif
+                </x-tenant.section-heading>
 
                 <div class="flex flex-col gap-4 md:flex-row md:flex-wrap">
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5 md:min-w-[16rem]">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('admin.properties.fields.building') }}</p>
-                        <p class="mt-2 font-semibold text-slate-950">{{ $summary['property_building_name'] ?: __('dashboard.not_available') }}</p>
-                    </div>
-
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5 md:min-w-[16rem]">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('admin.properties.fields.unit_number') }}</p>
-                        <p class="mt-2 font-semibold text-slate-950">{{ $summary['property_unit_number'] ?: __('dashboard.not_available') }}</p>
-                    </div>
-
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5 md:min-w-[16rem]">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('admin.properties.fields.floor_area_sqm') }}</p>
-                        <p class="mt-2 font-semibold text-slate-950">{{ $summary['property_floor_area'] ?: __('dashboard.not_available') }}</p>
-                    </div>
-
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5 md:min-w-[16rem]">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('admin.properties.fields.assigned_since') }}</p>
-                        <p class="mt-2 font-semibold text-slate-950">{{ $summary['assigned_since'] ?: __('dashboard.not_available') }}</p>
-                    </div>
+                    <x-tenant.detail-card class="min-w-0 flex-1 md:min-w-[16rem]" :label="__('admin.properties.fields.building')" :value="$summary['property_building_name'] ?: __('dashboard.not_available')" />
+                    <x-tenant.detail-card class="min-w-0 flex-1 md:min-w-[16rem]" :label="__('admin.properties.fields.unit_number')" :value="$summary['property_unit_number'] ?: __('dashboard.not_available')" />
+                    <x-tenant.detail-card class="min-w-0 flex-1 md:min-w-[16rem]" :label="__('admin.properties.fields.floor_area_sqm')" :value="$summary['property_floor_area'] ?: __('dashboard.not_available')" />
+                    <x-tenant.detail-card class="min-w-0 flex-1 md:min-w-[16rem]" :label="__('admin.properties.fields.assigned_since')" :value="$summary['assigned_since'] ?: __('dashboard.not_available')" />
                 </div>
 
                 <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                            <x-heroicon-m-beaker class="size-5" />
-                        </span>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.property.meters_heading') }}</p>
-                            <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.property.meters_heading') }}</h3>
-                        </div>
-                    </div>
+                    <x-tenant.section-heading
+                        icon="heroicon-m-beaker"
+                        icon-tone="soft"
+                        :eyebrow="__('tenant.pages.property.meters_heading')"
+                        :title="__('tenant.pages.property.meters_heading')"
+                    />
 
                     <div class="space-y-3">
                         @forelse ($summary['meters'] as $meter)
-                            <article wire:key="tenant-property-meter-{{ $meter['id'] }}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5">
+                            <x-tenant.card wire:key="tenant-property-meter-{{ $meter['id'] }}">
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div class="flex items-start gap-3">
                                         <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
@@ -151,7 +128,7 @@
 
                                     <p class="text-sm leading-6 text-slate-600 sm:max-w-xs sm:text-right">{{ $meter['last_reading'] }}</p>
                                 </div>
-                            </article>
+                            </x-tenant.card>
                         @empty
                             <x-shared.empty-state
                                 icon="heroicon-m-building-office-2"
@@ -164,32 +141,28 @@
             </x-tenant.main-panel>
 
             <x-tenant.aside-panel>
-                <div class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5">
-                    <div class="flex items-center gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                            <x-heroicon-m-user-circle class="size-5" />
-                        </span>
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.property.tenant_information') }}</p>
-                    </div>
-                    <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $summary['tenant_name'] }}</p>
+                <x-tenant.card>
+                    <x-tenant.section-heading
+                        icon="heroicon-m-user-circle"
+                        icon-tone="white"
+                        :eyebrow="__('tenant.pages.property.tenant_information')"
+                        :title="$summary['tenant_name']"
+                    />
                     @if (filled($summary['tenant_email'] ?? null))
                         <p class="mt-2 text-sm text-slate-600">{{ $summary['tenant_email'] }}</p>
                     @endif
                     @if (filled($summary['tenant_phone'] ?? null))
                         <p class="mt-2 text-sm text-slate-600">{{ $summary['tenant_phone'] }}</p>
                     @endif
-                </div>
+                </x-tenant.card>
 
-                <div class="rounded-[1.25rem] border border-slate-200 bg-white px-5 py-5">
-                    <div class="flex items-start gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                            <x-heroicon-m-map-pin class="size-5" />
-                        </span>
-                        <div class="space-y-2">
-                            <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.property') }}</p>
-                            <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ $summary['property_display_name'] }}</h3>
-                        </div>
-                    </div>
+                <x-tenant.card tone="white">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-map-pin"
+                        icon-tone="soft"
+                        :eyebrow="__('tenant.navigation.property')"
+                        :title="$summary['property_display_name']"
+                    />
 
                     <dl class="mt-4 space-y-4 text-sm text-slate-600">
                         <div class="space-y-1">
@@ -209,51 +182,33 @@
                             </div>
                         </div>
                     </dl>
-                </div>
+                </x-tenant.card>
             </x-tenant.aside-panel>
         </x-tenant.split>
 
         <x-tenant.main-panel>
             <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-                <div class="flex items-start gap-3">
-                    <span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-ink text-white">
-                        <x-heroicon-m-document-text class="size-5" />
-                    </span>
-                    <div class="space-y-2">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.property.history_heading') }}</p>
-                        <h2 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.property.history_heading') }}</h2>
-                        <p class="text-sm leading-6 text-slate-600">{{ __('tenant.pages.property.history_description') }}</p>
-                    </div>
-                </div>
+                <x-tenant.section-heading
+                    icon="heroicon-m-document-text"
+                    :eyebrow="__('tenant.pages.property.history_heading')"
+                    :title="__('tenant.pages.property.history_heading')"
+                    :description="__('tenant.pages.property.history_description')"
+                />
 
                 <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 sm:min-w-[16rem]">
-                        <label for="propertyHistoryYear" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.property.history_year') }}</label>
-                        <select
-                            id="propertyHistoryYear"
-                            wire:model.live="selectedYear"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
-                        >
+                    <x-tenant.select-field id="propertyHistoryYear" :label="__('tenant.pages.property.history_year')" wire:model.live="selectedYear" class="min-w-0 flex-1 sm:min-w-[16rem]">
                             <option value="all">{{ __('tenant.pages.property.all_years') }}</option>
                             @foreach ($summary['available_years'] as $year)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endforeach
-                        </select>
-                    </div>
+                    </x-tenant.select-field>
 
-                    <div class="min-w-0 flex-1 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 sm:min-w-[16rem]">
-                        <label for="propertyHistoryMonth" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.property.history_month') }}</label>
-                        <select
-                            id="propertyHistoryMonth"
-                            wire:model.live="selectedMonth"
-                            class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
-                        >
+                    <x-tenant.select-field id="propertyHistoryMonth" :label="__('tenant.pages.property.history_month')" wire:model.live="selectedMonth" class="min-w-0 flex-1 sm:min-w-[16rem]">
                             <option value="all">{{ __('tenant.pages.property.all_months') }}</option>
                             @foreach ($summary['available_months'] as $month)
                                 <option value="{{ $month }}">{{ \Illuminate\Support\Carbon::createFromDate(null, (int) $month, 1)->translatedFormat('F') }}</option>
                             @endforeach
-                        </select>
-                    </div>
+                    </x-tenant.select-field>
                 </div>
             </div>
 

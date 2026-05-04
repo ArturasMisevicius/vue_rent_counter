@@ -17,29 +17,41 @@
                 </div>
 
                 <div class="mt-6 grid gap-4 md:grid-cols-3">
-                    <label class="space-y-2 text-sm font-medium text-slate-700">
-                        <span>{{ __('admin.invoices.fields.billing_period_start') }}</span>
-                        <input type="date" wire:model.live="form.billing_period_start" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900">
+                    <div class="text-sm font-medium text-slate-700">
+                        <x-shared.calendar-modal
+                            id="billing_period_start"
+                            :label="__('admin.invoices.fields.billing_period_start')"
+                            :value="$form['billing_period_start'] ?? ''"
+                            wire:model.live="form.billing_period_start"
+                        />
                         @error('billing_period_start')
                             <p class="text-sm text-rose-600">{{ $message }}</p>
                         @enderror
-                    </label>
+                    </div>
 
-                    <label class="space-y-2 text-sm font-medium text-slate-700">
-                        <span>{{ __('admin.invoices.fields.billing_period_end') }}</span>
-                        <input type="date" wire:model.live="form.billing_period_end" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900">
+                    <div class="text-sm font-medium text-slate-700">
+                        <x-shared.calendar-modal
+                            id="billing_period_end"
+                            :label="__('admin.invoices.fields.billing_period_end')"
+                            :value="$form['billing_period_end'] ?? ''"
+                            wire:model.live="form.billing_period_end"
+                        />
                         @error('billing_period_end')
                             <p class="text-sm text-rose-600">{{ $message }}</p>
                         @enderror
-                    </label>
+                    </div>
 
-                    <label class="space-y-2 text-sm font-medium text-slate-700">
-                        <span>{{ __('admin.invoices.fields.due_date') }}</span>
-                        <input type="date" wire:model.live="form.due_date" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900">
+                    <div class="text-sm font-medium text-slate-700">
+                        <x-shared.calendar-modal
+                            id="due_date"
+                            :label="__('admin.invoices.fields.due_date')"
+                            :value="$form['due_date'] ?? ''"
+                            wire:model.live="form.due_date"
+                        />
                         @error('due_date')
                             <p class="text-sm text-rose-600">{{ $message }}</p>
                         @enderror
-                    </label>
+                    </div>
                 </div>
             </section>
 

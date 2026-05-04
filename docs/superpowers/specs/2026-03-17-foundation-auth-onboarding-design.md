@@ -1,5 +1,7 @@
 # Tenanto Foundation, Auth, and Onboarding Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 > **Workflow note:** Keep spec and implementation changes for this slice on `main` only. Do not create or use separate branches or worktrees.
 
 ## Goal

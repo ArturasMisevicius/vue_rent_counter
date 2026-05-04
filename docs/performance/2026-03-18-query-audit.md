@@ -1,5 +1,7 @@
 # Performance Audit — 2026-03-18
 
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
 This audit was prepared from the live repository with a local SQLite fallback because the requested Laravel Boost MCP profiling tools were not available in the session.
 
 ## Verified cache behavior

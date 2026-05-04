@@ -1,5 +1,7 @@
 # Organization Single Subscription Relation Implementation Plan
 
+> **AI agent usage:** This is an execution plan, not proof of current implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify every referenced file, command, route, schema, and test before acting.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make the organization subscriptions relation tab manage only the current subscription, with create available only when none exists.

@@ -559,7 +559,7 @@ return [
             'reject' => 'Atmesti',
         ],
         'validation' => [
-            'previous_reading_higher' => 'Rodmens reikšmė turi būti didesnė už ankstesnį rodmenį.',
+            'previous_reading_higher' => 'Rodmens reikšmė turi būti didesnė už ankstesnį rodmenį (:previous :unit, data :date). Ši reikšmė sukurtų neigiamą sunaudojimą.',
             'potential_gap_detected' => 'Nuo ankstesnio rodmens aptiktas galimas 60 dienų tarpas.',
             'potential_anomalous_spike' => 'Palyginti su ankstesniu rodmeniu, aptiktas galimas anomalus šuolis.',
         ],

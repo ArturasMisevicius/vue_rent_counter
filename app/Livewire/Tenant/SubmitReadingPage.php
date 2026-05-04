@@ -109,6 +109,7 @@ class SubmitReadingPage extends Component
             'readingRows' => $this->readingRows,
             'selectedMeter' => $this->selectedMeter,
             'selectedMeterName' => $this->meterDisplayName($this->selectedMeter),
+            'readingDateDisplay' => $this->readingDateDisplay(),
             'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
             'tenant' => $tenant,
@@ -286,6 +287,11 @@ class SubmitReadingPage extends Component
         $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
 
         return (string) $formatter->format($value);
+    }
+
+    private function readingDateDisplay(): string
+    {
+        return LocalizedDateFormatter::date($this->readingDate);
     }
 
     /**
@@ -479,7 +485,9 @@ class SubmitReadingPage extends Component
         ];
 
         foreach ($exception->errors() as $field => $messages) {
-            $this->addError($fieldMap[$field] ?? $field, $messages[0]);
+            foreach ($messages as $message) {
+                $this->addError($fieldMap[$field] ?? $field, $message);
+            }
         }
     }
 }

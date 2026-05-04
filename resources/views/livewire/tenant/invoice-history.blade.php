@@ -20,14 +20,10 @@
         <x-slot:actions>
             <div class="flex flex-wrap gap-2">
                 @foreach ($statusFilters as $filter => $filterData)
-                    <button
+                    <x-tenant.action
                         type="button"
+                        :variant="$selectedStatus === $filter ? 'primary' : 'secondary'"
                         wire:click="$set('selectedStatus', '{{ $filter }}')"
-                        @class([
-                            'inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition',
-                            'bg-brand-ink text-white' => $selectedStatus === $filter,
-                            'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' => $selectedStatus !== $filter,
-                        ])
                     >
                         <x-dynamic-component
                             :component="$filterData['icon']"
@@ -38,7 +34,7 @@
                             ])
                         />
                         {{ $filterData['label'] }}
-                    </button>
+                    </x-tenant.action>
                 @endforeach
             </div>
         </x-slot:actions>
@@ -47,16 +43,12 @@
     <x-tenant.split>
         <x-tenant.main-panel>
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div class="flex items-start gap-3">
-                    <span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-ink text-white">
-                        <x-heroicon-m-document-text class="size-5" />
-                    </span>
-                    <div class="space-y-2">
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.invoices') }}</p>
-                        <h2 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.page_heading') }}</h2>
-                        <p class="text-sm leading-6 text-slate-600">{{ __('tenant.pages.invoices.description') }}</p>
-                    </div>
-                </div>
+                <x-tenant.section-heading
+                    icon="heroicon-m-document-text"
+                    :eyebrow="__('tenant.navigation.invoices')"
+                    :title="__('tenant.pages.invoices.page_heading')"
+                    :description="__('tenant.pages.invoices.description')"
+                />
 
                 <div class="lg:max-w-xs lg:min-w-72">
                     <x-shared.stat-card
@@ -79,14 +71,13 @@
                                 'end' => $invoice->billing_period_end?->toDateString() ?? '—',
                             ])"
                         >
-                            <button
+                            <x-tenant.action
                                 type="button"
                                 wire:click="downloadPdf({{ $invoice->id }})"
-                                class="inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                                icon="heroicon-m-arrow-down-tray"
                             >
-                                <x-heroicon-m-arrow-down-tray class="size-4 text-slate-500" />
                                 {{ __('tenant.actions.download_pdf') }}
-                            </button>
+                            </x-tenant.action>
                         </x-tenant.invoice-card>
                     </div>
                 @empty
@@ -112,14 +103,13 @@
         </x-tenant.main-panel>
 
         <x-tenant.aside-panel>
-            <div class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5">
-                <div class="flex items-center gap-3">
-                    <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                        <x-heroicon-m-user-circle class="size-5" />
-                    </span>
-                    <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.property.tenant_information') }}</p>
-                </div>
-                <p class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ $tenant->name }}</p>
+            <x-tenant.card>
+                <x-tenant.section-heading
+                    icon="heroicon-m-user-circle"
+                    icon-tone="white"
+                    :eyebrow="__('tenant.pages.property.tenant_information')"
+                    :title="$tenant->name"
+                />
 
                 <div class="mt-3 space-y-2 text-sm text-slate-600">
                     @if (filled($tenant->email))
@@ -130,55 +120,44 @@
                         <p>{{ $tenant->phone }}</p>
                     @endif
                 </div>
-            </div>
+            </x-tenant.card>
 
             @if (filled($paymentGuidance['content'] ?? null))
-                <div id="tenant-billing-guidance" class="scroll-mt-28 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-5">
-                    <div class="flex items-start gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 shadow-sm">
-                            <x-heroicon-m-credit-card class="size-5" />
-                        </span>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.pages.invoices.payment_guidance') }}</p>
-                            <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.how_to_pay') }}</h3>
-                        </div>
-                    </div>
+                <x-tenant.card id="tenant-billing-guidance" class="scroll-mt-28">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-credit-card"
+                        icon-tone="white"
+                        :eyebrow="__('tenant.pages.invoices.payment_guidance')"
+                        :title="__('tenant.pages.invoices.how_to_pay')"
+                    />
                     <p class="mt-3 text-sm leading-6 text-slate-600">{{ $paymentGuidance['content'] }}</p>
-                </div>
+                </x-tenant.card>
             @else
-                <div id="tenant-billing-guidance" class="scroll-mt-28 rounded-[1.25rem] border border-amber-200 bg-amber-50/70 px-5 py-5">
-                    <div class="flex items-start gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
-                            <x-heroicon-m-credit-card class="size-5" />
-                        </span>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-normal text-amber-700">{{ __('tenant.pages.invoices.payment_guidance') }}</p>
-                            <h3 class="mt-2 font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.payment_guidance_pending') }}</h3>
-                        </div>
-                    </div>
+                <x-tenant.card id="tenant-billing-guidance" tone="warning" class="scroll-mt-28">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-credit-card"
+                        icon-tone="warning"
+                        :eyebrow="__('tenant.pages.invoices.payment_guidance')"
+                        :title="__('tenant.pages.invoices.payment_guidance_pending')"
+                    />
                     <p class="mt-3 text-sm leading-6 text-slate-700">{{ __('tenant.messages.payment_guidance_unavailable') }}</p>
 
                     @if ($paymentGuidance['has_contact_details'])
-                        <a href="#tenant-billing-contact" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400/40">
-                            <x-heroicon-m-phone class="size-4 text-amber-700" />
+                        <x-tenant.action href="#tenant-billing-contact" variant="warning" icon="heroicon-m-phone" class="mt-4">
                             {{ __('tenant.pages.invoices.view_billing_contact') }}
-                        </a>
+                        </x-tenant.action>
                     @endif
-                </div>
+                </x-tenant.card>
             @endif
 
             @if ($paymentGuidance['has_contact_details'])
-                <div id="tenant-billing-contact" class="scroll-mt-28 rounded-[1.25rem] border border-slate-200 bg-white px-5 py-5">
-                    <div class="flex items-center gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                            <x-heroicon-m-phone class="size-5" />
-                        </span>
-                        <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.shell.billing_contact') }}</p>
-                    </div>
-
-                    @if ($paymentGuidance['contact_name'])
-                        <p class="mt-2 font-semibold text-slate-950">{{ $paymentGuidance['contact_name'] }}</p>
-                    @endif
+                <x-tenant.card id="tenant-billing-contact" tone="white" class="scroll-mt-28">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-phone"
+                        icon-tone="soft"
+                        :eyebrow="__('tenant.shell.billing_contact')"
+                        :title="$paymentGuidance['contact_name'] ?: __('tenant.shell.billing_contact')"
+                    />
 
                     <div class="mt-3 space-y-2 text-sm text-slate-600">
                         @if ($paymentGuidance['contact_email'])
@@ -189,7 +168,7 @@
                             <p>{{ $paymentGuidance['contact_phone'] }}</p>
                         @endif
                     </div>
-                </div>
+                </x-tenant.card>
             @endif
         </x-tenant.aside-panel>
     </x-tenant.split>

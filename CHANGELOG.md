@@ -1,6 +1,92 @@
 # Changelog
 
+> **AI agent usage:** Update this changelog only with verified changes, preserve historical entries, and read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before editing release notes.
+
 ## 2026-05-04
+
+<!-- changelog:auto:start:staged-20260504125053 -->
+### Commit updates
+
+- updated `AGENTS.md`
+- updated `CLAUDE.md`
+- updated `GEMINI.md`
+- updated `README.md`
+- updated `app/Filament/Support/Admin/ReadingValidation/ValidateReadingValue.php`
+- updated `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`
+- updated `app/Http/Requests/Tenant/StoreMeterReadingRequest.php`
+- updated `app/Livewire/Pages/Dashboard/TenantDashboard.php`
+- updated `app/Livewire/Tenant/SubmitReadingPage.php`
+- updated `app/Providers/AppServiceProvider.php`
+- added `docs/AI-AGENT-DOCS.md`
+- updated `docs/PROJECT-CONTEXT.md`
+- updated `docs/SESSION-BOOTSTRAP.md`
+- updated `docs/SKILLS-MCP-INVENTORY.md`
+- updated `docs/legacy-billing-service-method-surface.md`
+- updated `docs/operations/backup-restore.md`
+- updated `docs/operations/phase-1-guardrails-branch-protection.md`
+- updated `docs/operations/release-readiness.md`
+- updated `docs/performance/2026-03-18-query-audit.md`
+- updated `docs/performance/dashboard-query-audit-2026-03-18.md`
+- updated `docs/security/2026-03-18-csp-rate-limits-threat-model.md`
+- updated `docs/superpowers/BRANCH-PLAYBOOK.md`
+- updated `docs/superpowers/EXECUTION-ROADMAP.md`
+- updated `docs/superpowers/PHASE-GATES.md`
+- updated `docs/superpowers/README.md`
+- updated `docs/superpowers/legacy-domain-import-ledger.md`
+- updated `docs/superpowers/plans/2026-03-28-organization-single-subscription-relation.md`
+- updated `docs/superpowers/plans/2026-03-28-organization-user-admin-access.md`
+- updated `docs/superpowers/plans/2026-03-28-organizations-module-implementation.md`
+- updated `docs/superpowers/plans/2026-03-28-organizations-seeding-implementation.md`
+- updated `docs/superpowers/plans/2026-03-28-projects-module-implementation.md`
+- updated `docs/superpowers/plans/2026-03-28-tenant-phone-consistency.md`
+- updated `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- updated `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
+- updated `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
+- updated `docs/superpowers/specs/2026-03-17-legacy-domain-expansion-design.md`
+- updated `docs/superpowers/specs/2026-03-28-organization-single-subscription-relation-design.md`
+- updated `docs/superpowers/specs/2026-03-28-organizations-module-design.md`
+- updated `docs/superpowers/specs/2026-03-28-organizations-seeding-design.md`
+- updated `docs/superpowers/specs/2026-03-28-projects-module-design.md`
+- updated `docs/superpowers/specs/2026-03-28-tenant-phone-consistency-design.md`
+- updated `lang/en/admin.php`
+- added `lang/en/calendar.php`
+- updated `lang/en/tenant.php`
+- updated `lang/es/admin.php`
+- added `lang/es/calendar.php`
+- updated `lang/es/tenant.php`
+- updated `lang/lt/admin.php`
+- added `lang/lt/calendar.php`
+- updated `lang/lt/tenant.php`
+- updated `lang/ru/admin.php`
+- added `lang/ru/calendar.php`
+- updated `lang/ru/tenant.php`
+- updated `resources/js/app.js`
+- added `resources/js/calendar-modal.js`
+- added `resources/views/components/shared/calendar-modal.blade.php`
+- updated `resources/views/components/shell/user-avatar.blade.php`
+- added `resources/views/components/tenant/action.blade.php`
+- added `resources/views/components/tenant/card.blade.php`
+- added `resources/views/components/tenant/detail-card.blade.php`
+- added `resources/views/components/tenant/field-error.blade.php`
+- added `resources/views/components/tenant/reading-row.blade.php`
+- added `resources/views/components/tenant/recent-readings.blade.php`
+- added `resources/views/components/tenant/section-heading.blade.php`
+- added `resources/views/components/tenant/select-field.blade.php`
+- added `resources/views/components/tenant/text-field.blade.php`
+- updated `resources/views/filament/pages/generate-bulk-invoices.blade.php`
+- updated `resources/views/filament/pages/partials/account-profile-sections.blade.php`
+- updated `resources/views/livewire/pages/dashboard/tenant-dashboard.blade.php`
+- updated `resources/views/livewire/pages/reports/reports-page.blade.php`
+- updated `resources/views/livewire/shell/topbar.blade.php`
+- updated `resources/views/livewire/tenant/home-summary.blade.php`
+- updated `resources/views/livewire/tenant/invoice-history.blade.php`
+- updated `resources/views/livewire/tenant/property-details.blade.php`
+- updated `resources/views/livewire/tenant/submit-reading-page.blade.php`
+- added `tests/Feature/Architecture/CalendarFieldContractTest.php`
+- updated `tests/Feature/Tenant/TenantHomePageTest.php`
+- updated `tests/Feature/Tenant/TenantProfilePageTest.php`
+- updated `tests/Feature/Tenant/TenantSubmitReadingTest.php`
+<!-- changelog:auto:end:staged-20260504125053 -->
 
 <!-- changelog:auto:start:staged-20260504113042 -->
 ### Commit updates

@@ -1,10 +1,15 @@
 <?php
 
+use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
+use App\Enums\PropertyType;
 use App\Models\Invoice;
+use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\TenantPortalFactory;
 
@@ -234,6 +239,94 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
         ->assertSeeText('Naujausi rodmenys');
 });
 
+it('groups recent readings by property without repeating the full address in the readings block', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(2)
+        ->withReadings()
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    $response = $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSee('data-tenant-recent-readings-group', false);
+
+    $sectionText = tenantRecentReadingsSectionText($response->getContent());
+
+    expect($sectionText)
+        ->toContain('Naujausi rodmenys')
+        ->toContain($tenant->property->name)
+        ->toContain($tenant->building->name)
+        ->toContain('Rodmenų: 2')
+        ->not->toContain($tenant->property->address);
+
+    expect(substr_count($sectionText, 'Naujausi rodmenys'))->toBe(1);
+});
+
+it('groups recent readings for every active assigned property', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withReadings()
+        ->create();
+
+    $secondProperty = Property::factory()
+        ->for($tenant->organization)
+        ->for($tenant->building)
+        ->create([
+            'name' => 'Apartment 202',
+            'unit_number' => '202',
+            'type' => PropertyType::APARTMENT,
+        ]);
+
+    PropertyAssignment::factory()
+        ->for($tenant->organization)
+        ->for($secondProperty)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'assigned_at' => now()->subDay(),
+            'unassigned_at' => null,
+        ]);
+
+    $secondMeter = Meter::factory()
+        ->for($tenant->organization)
+        ->for($secondProperty)
+        ->create([
+            'name' => 'Second Object Meter',
+            'identifier' => 'APT-202-E',
+            'type' => MeterType::ELECTRICITY,
+            'unit' => MeterType::ELECTRICITY->defaultUnit()->value,
+        ]);
+
+    MeterReading::factory()
+        ->for($tenant->organization)
+        ->for($secondProperty)
+        ->for($secondMeter)
+        ->create([
+            'submitted_by_user_id' => $tenant->user->id,
+            'reading_value' => 222.500,
+            'reading_date' => now()->startOfMonth()->addDays(4)->toDateString(),
+            'validation_status' => MeterReadingValidationStatus::VALID,
+            'submission_method' => MeterReadingSubmissionMethod::TENANT_PORTAL,
+        ]);
+
+    $response = $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful();
+
+    $sectionText = tenantRecentReadingsSectionText($response->getContent());
+
+    expect(substr_count($response->getContent(), 'data-tenant-recent-readings-group'))->toBe(2)
+        ->and($sectionText)->toContain($tenant->property->name)
+        ->and($sectionText)->toContain('Apartment 202')
+        ->and($sectionText)->toContain('APT-202-E')
+        ->and($sectionText)->not->toContain($tenant->property->address);
+});
+
 it('localizes seeded operations demo meter names in tenant recent readings', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
@@ -278,3 +371,21 @@ it('falls back to english when a tenant has an unsupported locale', function () 
         ->assertSeeText('Submit New Reading')
         ->assertSeeText('Recent Readings');
 });
+
+function tenantRecentReadingsSectionText(string $content): string
+{
+    $document = new DOMDocument;
+
+    libxml_use_internal_errors(true);
+    $document->loadHTML($content);
+    libxml_clear_errors();
+
+    $xpath = new DOMXPath($document);
+    $nodes = $xpath->query('//*[@data-tenant-recent-readings]');
+
+    if ($nodes === false || $nodes->length === 0) {
+        return '';
+    }
+
+    return trim(preg_replace('/\s+/', ' ', html_entity_decode($nodes->item(0)?->textContent ?? '')) ?? '');
+}

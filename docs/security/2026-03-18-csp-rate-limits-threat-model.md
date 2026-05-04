@@ -1,5 +1,7 @@
 # Tenanto Security Threat Model
 
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
 Date: 2026-03-18  
 Scope: authentication routes, unified `/app` panel, CSP and security headers, browser violation reporting, superadmin security visibility
 

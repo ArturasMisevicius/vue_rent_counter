@@ -1,5 +1,7 @@
 # Tenanto Branch Playbook
 
+> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+
 This playbook translates the rollout guidance into recommended implementation branches and workstreams.
 
 Use it when you want to answer:

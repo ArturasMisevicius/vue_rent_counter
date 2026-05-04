@@ -1,5 +1,7 @@
 # Tenanto Project Context
 
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+
 This document is the verified repository snapshot for Tenanto as of 2026-05-04. When a pasted session brief or older plan document disagrees with the current workspace, prefer this file plus the live codebase.
 
 ## Stack

@@ -11,6 +11,7 @@ use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -67,16 +68,40 @@ class TenantHomePresenter
                 'currentPropertyAssignment.property.meters.latestReading' => fn ($query) => $query
                     ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
                     ->forOrganization($organizationId)
+                    ->comparable()
+                    ->latestFirst(),
+                'propertyAssignments' => fn ($query) => $query
+                    ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'unit_area_sqm', 'assigned_at', 'unassigned_at'])
+                    ->forOrganization($organizationId)
+                    ->current()
+                    ->latestAssignedFirst(),
+                'propertyAssignments.property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
+                'propertyAssignments.property.building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
+                'propertyAssignments.property.meters' => fn ($query) => $query
+                    ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
+                    ->forOrganization($organizationId)
+                    ->orderBy('name'),
+                'propertyAssignments.property.meters.latestReading' => fn ($query) => $query
+                    ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
+                    ->forOrganization($organizationId)
+                    ->comparable()
                     ->latestFirst(),
             ])
             ->findOrFail($tenantId);
 
-        $property = $tenant->currentProperty;
+        $currentProperty = $tenant->currentProperty;
 
-        if ($propertyId !== null && $property?->id !== $propertyId) {
-            $property = null;
+        if ($propertyId !== null && $currentProperty?->id !== $propertyId) {
+            $currentProperty = null;
         }
 
+        $assignedProperties = $this->assignedProperties($tenant, $organizationId);
+
+        if ($assignedProperties->isEmpty() && $currentProperty instanceof Property) {
+            $assignedProperties = Collection::make([$currentProperty]);
+        }
+
+        $property = $this->primaryProperty($assignedProperties, $propertyId) ?? $currentProperty;
         $meters = $property?->meters ?? Collection::make();
         $hasAssignment = $property !== null;
         $outstandingInvoices = $property
@@ -90,17 +115,6 @@ class TenantHomePresenter
             fn (Invoice $invoice) => $invoice->outstanding_balance
         );
         $outstandingCurrency = (string) ($outstandingInvoices->first()?->currency ?? '');
-        $recentReadings = $property
-            ? MeterReading::query()
-                ->select(['id', 'meter_id', 'reading_value', 'reading_date'])
-                ->forOrganization($organizationId)
-                ->forProperty($property->id)
-                ->comparable()
-                ->with('meter:id,identifier,name,unit,type')
-                ->latestFirst()
-                ->limit(3)
-                ->get()
-            : Collection::make();
 
         $consumptionByType = $property
             ? $this->buildConsumptionByType($organizationId, $property->id, $meters)
@@ -115,6 +129,13 @@ class TenantHomePresenter
 
             return $readingDate->format('Y-m') !== now()->format('Y-m');
         })->count();
+
+        $recentReadingGroups = $this->buildRecentReadingGroups($assignedProperties);
+        $formattedRecentReadings = collect($recentReadingGroups)
+            ->flatMap(fn (array $group): array => $group['readings'])
+            ->take(3)
+            ->values()
+            ->all();
 
         return [
             'tenant_name' => $tenant->name,
@@ -150,16 +171,108 @@ class TenantHomePresenter
             'consumption_by_type' => $consumptionByType,
             'empty_state_title' => __('tenant.pages.home.unassigned_title'),
             'empty_state_description' => __('tenant.pages.home.unassigned_description'),
-            'recent_readings' => $recentReadings->map(fn (MeterReading $reading) => [
-                'id' => $reading->id,
-                'meter_identifier' => $reading->meter?->identifier,
-                'meter_name' => $this->meterNameLocalizer->displayName($reading->meter),
-                'meter_type' => $reading->meter?->type?->label(),
-                'unit' => $reading->meter?->unit,
-                'value' => LocalizedNumberFormatter::decimal((float) $reading->reading_value, 3),
-                'date' => LocalizedDateFormatter::date($reading->reading_date),
-            ])->all(),
+            'recent_readings' => $formattedRecentReadings,
+            'recent_reading_groups' => $recentReadingGroups,
         ];
+    }
+
+    /**
+     * @param  Collection<int, Meter>  $meters
+     * @return list<array{
+     *     id: int,
+     *     meter_identifier: string|null,
+     *     meter_name: string,
+     *     meter_type: string|null,
+     *     unit: string|null,
+     *     value: string,
+     *     date: string,
+     * }>
+     */
+    private function formatLatestMeterReadings(Collection $meters): array
+    {
+        return $meters
+            ->filter(fn (Meter $meter): bool => $meter->latestReading instanceof MeterReading)
+            ->sortByDesc(fn (Meter $meter): string => sprintf(
+                '%s-%010d',
+                $meter->latestReading?->reading_date?->format('Y-m-d') ?? '',
+                (int) ($meter->latestReading?->id ?? 0),
+            ))
+            ->take(3)
+            ->map(function (Meter $meter): array {
+                /** @var MeterReading $reading */
+                $reading = $meter->latestReading;
+
+                return [
+                    'id' => $reading->id,
+                    'meter_identifier' => $meter->identifier,
+                    'meter_name' => $this->meterNameLocalizer->displayName($meter),
+                    'meter_type' => $meter->type?->label(),
+                    'unit' => $meter->unit,
+                    'value' => LocalizedNumberFormatter::decimal((float) $reading->reading_value, 3),
+                    'date' => LocalizedDateFormatter::date($reading->reading_date),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, Property>  $properties
+     * @return list<array<string, mixed>>
+     */
+    private function buildRecentReadingGroups(Collection $properties): array
+    {
+        return $properties
+            ->map(function (Property $property): ?array {
+                $meters = $property->relationLoaded('meters') ? $property->meters : Collection::make();
+                $readings = $this->formatLatestMeterReadings($meters);
+
+                if ($readings === []) {
+                    return null;
+                }
+
+                return [
+                    'id' => $property->id,
+                    'property_name' => $property->name ?: __('tenant.shell.assigned_property'),
+                    'building_name' => $property->building?->name,
+                    'unit_number' => $property->unit_number,
+                    'property_type' => $property->type?->label(),
+                    'reading_count' => count($readings),
+                    'url' => route('filament.admin.pages.tenant-property-details'),
+                    'readings' => $readings,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return Collection<int, Property>
+     */
+    private function assignedProperties(User $tenant, int $organizationId): Collection
+    {
+        if (! $tenant->relationLoaded('propertyAssignments')) {
+            return Collection::make();
+        }
+
+        return $tenant->propertyAssignments
+            ->map(fn ($assignment): mixed => $assignment->property)
+            ->filter(fn (mixed $property): bool => $property instanceof Property && $property->organization_id === $organizationId)
+            ->unique('id')
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, Property>  $properties
+     */
+    private function primaryProperty(Collection $properties, ?int $propertyId): ?Property
+    {
+        if ($propertyId === null) {
+            return $properties->first();
+        }
+
+        return $properties->first(fn (Property $property): bool => $property->id === $propertyId);
     }
 
     /**

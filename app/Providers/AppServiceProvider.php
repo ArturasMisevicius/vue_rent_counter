@@ -41,6 +41,9 @@ use App\Services\TranslationCacheService;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -123,6 +126,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureAuthRateLimiters();
         $this->configureSecurityRateLimiters();
+        $this->configureCalendarFields();
         $this->configureDestructiveActionConfirmations();
 
         Organization::observe(OrganizationObserver::class);
@@ -175,6 +179,43 @@ class AppServiceProvider extends ServiceProvider
     private function throttleKey(Request $request): string
     {
         return Str::transliterate(Str::lower((string) $request->input('email'))).'|'.$request->ip();
+    }
+
+    private function configureCalendarFields(): void
+    {
+        if (! class_exists(DateTimePicker::class)) {
+            return;
+        }
+
+        DateTimePicker::configureUsing(function (DateTimePicker $field): void {
+            $field
+                ->native(false)
+                ->seconds(false)
+                ->minutesStep(5)
+                ->locale(fn (): string => app()->getLocale())
+                ->firstDayOfWeek($this->calendarWeekStartsOn())
+                ->displayFormat('Y-m-d H:i')
+                ->suffixIcon(Heroicon::Calendar, isInline: true);
+        });
+
+        if (! class_exists(DatePicker::class)) {
+            return;
+        }
+
+        DatePicker::configureUsing(function (DatePicker $field): void {
+            $field
+                ->native(false)
+                ->closeOnDateSelection()
+                ->locale(fn (): string => app()->getLocale())
+                ->firstDayOfWeek($this->calendarWeekStartsOn())
+                ->displayFormat('Y-m-d')
+                ->suffixIcon(Heroicon::Calendar, isInline: true);
+        });
+    }
+
+    private function calendarWeekStartsOn(): int
+    {
+        return in_array(app()->getLocale(), ['lt', 'ru', 'es'], true) ? 1 : 7;
     }
 
     private function configureDestructiveActionConfirmations(): void

@@ -1,5 +1,7 @@
 # Tenanto
 
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+
 Tenanto is a multi-tenant utility billing and property management application built on Laravel, Filament, and Livewire. The repository is Filament-first for the authenticated workspace and uses Livewire pages/components for public entrypoints, authentication, shared shell behavior, preferences, and tenant self-service flows.
 
 ## What The App Covers

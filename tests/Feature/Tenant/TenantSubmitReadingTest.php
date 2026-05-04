@@ -134,6 +134,29 @@ it('shows full lithuanian month names in previous reading dates', function () {
         ->assertDontSeeText('kov 2, 2026');
 });
 
+it('renders a localized modal calendar selector for the tenant reading date', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
+        ->assertSuccessful()
+        ->assertSee('data-calendar-picker', false)
+        ->assertSee('data-calendar-dialog', false)
+        ->assertSeeText('Pasirinkite datą')
+        ->assertSeeText('Atidaryti kalendorių')
+        ->assertSeeText('Šiandien')
+        ->assertDontSee('type="date"', false);
+});
+
 it('localizes seeded operations demo meter names on the tenant reading page', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
@@ -201,7 +224,56 @@ it('shows a validation error when the submitted reading decreases', function () 
         ->assertHasErrors(['readingValue']);
 });
 
-it('rejects future-dated tenant readings through the shared validation rules', function () {
+it('shows localized tenant validation reasons for invalid reading values', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    Livewire::actingAs($tenant->user->fresh())
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '0')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasErrors(["readings.{$meter->id}.value"])
+        ->assertSeeText('Rodmuo turi būti didesnis už 0');
+});
+
+it('explains why a tenant reading below the previous value is rejected', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withReadings()
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    app()->setLocale('lt');
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    Livewire::actingAs($tenant->user->fresh())
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '120.000')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasErrors(["readings.{$meter->id}.value"])
+        ->assertSeeText('neigiamą sunaudojimą');
+});
+
+it('rejects future-dated tenant readings with a plain language reason', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
         ->withMeters(1)
@@ -212,11 +284,35 @@ it('rejects future-dated tenant readings through the shared validation rules', f
 
     Livewire::actingAs($tenant->user)
         ->test(SubmitReadingPage::class)
-        ->set('meterId', (string) $meter->id)
-        ->set('readingValue', '245.125')
+        ->set("readings.{$meter->id}.value", '245.125')
         ->set('readingDate', now()->addDay()->toDateString())
         ->call('submit')
-        ->assertHasErrors(['readingDate']);
+        ->assertHasErrors(['readingDate'])
+        ->assertSeeText('The reading date cannot be in the future');
+});
+
+it('provides tenant reading validation messages for every supported locale', function () {
+    $keys = [
+        'tenant.pages.readings.validation.meter_required',
+        'tenant.pages.readings.validation.meter_invalid',
+        'tenant.pages.readings.validation.reading_value_required',
+        'tenant.pages.readings.validation.reading_value_numeric',
+        'tenant.pages.readings.validation.reading_value_positive',
+        'tenant.pages.readings.validation.reading_date_required',
+        'tenant.pages.readings.validation.reading_date_invalid',
+        'tenant.pages.readings.validation.reading_date_not_future',
+        'tenant.pages.readings.validation.notes_too_long',
+    ];
+
+    foreach (['en', 'lt', 'es', 'ru'] as $locale) {
+        foreach ($keys as $key) {
+            $message = __($key, [], $locale);
+
+            expect($message)
+                ->not->toBe($key)
+                ->not->toBe('');
+        }
+    }
 });
 
 it('preselects and locks the meter picker for single-meter tenant accounts', function () {

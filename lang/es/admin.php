@@ -572,7 +572,7 @@ return [
             'updated' => 'Meter reading updated.',
         ],
         'validation' => [
-            'previous_reading_higher' => 'The reading value must be higher than the previous reading.',
+            'previous_reading_higher' => 'El valor de lectura debe ser mayor que la lectura anterior (:previous :unit el :date). Este valor generaría consumo negativo.',
             'potential_gap_detected' => 'Potential 60-day gap detected since the previous reading.',
             'potential_anomalous_spike' => 'Potential anomalous spike detected compared with the previous reading.',
         ],

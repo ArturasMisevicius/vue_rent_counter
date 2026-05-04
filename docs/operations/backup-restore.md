@@ -1,5 +1,7 @@
 # Backup And Restore Readiness
 
+> **AI agent usage:** This is an operations runbook. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` first; do not run destructive, external, release, backup, or secret-bearing commands unless the user explicitly asks.
+
 ## Purpose
 
 Use the readiness command before a release or any maintenance window that depends on a recoverable application state.

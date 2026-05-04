@@ -1,5 +1,7 @@
 # Organizations Seeding Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Upgrade the Organizations demo data so superadmins see a richly populated control plane backed by realistic seeded organizations, users, subscriptions, buildings, properties, meters, invoices, integrations, and support signals.

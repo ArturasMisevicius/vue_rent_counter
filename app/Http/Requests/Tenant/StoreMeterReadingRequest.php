@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenant;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -34,17 +35,19 @@ class StoreMeterReadingRequest extends FormRequest
      */
     public function messages(): array
     {
-        return $this->translatedMessages([
-            'meterId.required' => ['required', 'meter'],
-            'meterId.integer' => ['integer', 'meter'],
-            'readingValue.required' => ['required', 'reading_value'],
-            'readingValue.numeric' => ['numeric', 'reading_value'],
-            'readingValue.gt' => ['gt.numeric', 'reading_value', ['value' => 0]],
-            'readingDate.required' => ['required', 'reading_date'],
-            'readingDate.date' => ['date', 'reading_date'],
-            'readingDate.before_or_equal' => ['before_or_equal', 'reading_date', ['date' => now()->toDateString()]],
-            'notes.max' => ['max.string', 'notes', ['max' => 1000]],
-        ]);
+        return [
+            'meterId.required' => (string) __('tenant.pages.readings.validation.meter_required'),
+            'meterId.integer' => (string) __('tenant.pages.readings.validation.meter_invalid'),
+            'readingValue.required' => (string) __('tenant.pages.readings.validation.reading_value_required'),
+            'readingValue.numeric' => (string) __('tenant.pages.readings.validation.reading_value_numeric'),
+            'readingValue.gt' => (string) __('tenant.pages.readings.validation.reading_value_positive'),
+            'readingDate.required' => (string) __('tenant.pages.readings.validation.reading_date_required'),
+            'readingDate.date' => (string) __('tenant.pages.readings.validation.reading_date_invalid'),
+            'readingDate.before_or_equal' => (string) __('tenant.pages.readings.validation.reading_date_not_future', [
+                'date' => LocalizedDateFormatter::date(now()->toDateString()),
+            ]),
+            'notes.max' => (string) __('tenant.pages.readings.validation.notes_too_long', ['max' => 1000]),
+        ];
     }
 
     /**

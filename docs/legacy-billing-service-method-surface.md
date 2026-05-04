@@ -1,5 +1,7 @@
 # BillingService Legacy Merge Surface (Executed on 2026-03-19)
 
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+
 ## Sources reviewed
 - `_old/app/Services/BillingService.php`
 - `_old/app/Services/BillingServiceSecure.php`

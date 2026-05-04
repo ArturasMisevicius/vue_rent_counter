@@ -1,5 +1,7 @@
 # Organization Single Subscription Relation Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Turn the organization `Subscriptions` relation tab into a single current-subscription management surface:

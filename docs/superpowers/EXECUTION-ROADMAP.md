@@ -1,5 +1,7 @@
 # Tenanto Execution Roadmap
 
+> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+
 This roadmap turns the 2026-03-17 design-and-plan set into a recommended execution sequence.
 
 Use this file when you want one place that answers:

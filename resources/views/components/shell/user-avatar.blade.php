@@ -1,5 +1,6 @@
 @props([
     'user',
+    'compact' => false,
 ])
 
 @php
@@ -14,6 +15,22 @@
         : null;
 @endphp
 
+@if ($compact)
+    <span class="inline-flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-sm font-semibold text-white" data-shell-user-avatar-compact>
+        @if ($avatarUrl)
+            <img
+                src="{{ $avatarUrl }}"
+                alt=""
+                class="size-full object-cover"
+                data-shell-user-avatar-image
+            >
+        @else
+            <span class="inline-flex size-full items-center justify-center {{ $palette['background'] }} {{ $palette['text'] }}">
+                {{ $initials }}
+            </span>
+        @endif
+    </span>
+@else
 <span class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm" data-shell-user-avatar>
     @if ($avatarUrl)
         <img
@@ -32,3 +49,4 @@
         <span class="text-sm font-semibold text-slate-900">{{ $user->name }}</span>
     </span>
 </span>
+@endif

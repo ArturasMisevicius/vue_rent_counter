@@ -1,5 +1,7 @@
 # Tenanto Phase Gates
 
+> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+
 This file defines the recommended entry and exit criteria for each phase in the 2026-03-17 rollout.
 
 Use it together with:

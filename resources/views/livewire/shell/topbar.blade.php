@@ -134,14 +134,20 @@
                 >
                     <div class="mx-auto flex max-h-[calc(100dvh-4.75rem)] w-full max-w-xl flex-col gap-3 overflow-y-auto overscroll-contain">
                         <div class="flex items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                            <div class="min-w-0">
-                                <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                                    {{ __('shell.navigation.groups.my_home') }}
-                                </p>
-
+                            <div class="flex min-w-0 items-center gap-3">
                                 @if ($user)
-                                    <p class="truncate text-sm font-semibold text-slate-950">{{ $user->name }}</p>
+                                    <x-shell.user-avatar :user="$user" compact />
                                 @endif
+
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                        {{ __('shell.navigation.groups.my_home') }}
+                                    </p>
+
+                                    @if ($user)
+                                        <p class="truncate text-sm font-semibold text-slate-950">{{ $user->name }}</p>
+                                    @endif
+                                </div>
                             </div>
 
                             <button
@@ -220,9 +226,7 @@
                                     class="flex min-h-12 min-w-0 flex-1 touch-manipulation items-center gap-3 rounded-2xl bg-white px-3 py-2.5 text-slate-700 shadow-sm transition hover:bg-slate-100"
                                     data-shell-mobile-profile-link
                                 >
-                                    <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-white">
-                                        <x-heroicon-m-user-circle class="size-5" />
-                                    </span>
+                                    <x-shell.user-avatar :user="$user" compact />
 
                                     <span class="min-w-0">
                                         <span class="block truncate text-sm font-semibold text-slate-950">{{ $user->name }}</span>

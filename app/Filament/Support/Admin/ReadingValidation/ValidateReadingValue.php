@@ -3,6 +3,8 @@
 namespace App\Filament\Support\Admin\ReadingValidation;
 
 use App\Enums\MeterReadingValidationStatus;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Formatting\LocalizedNumberFormatter;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use Carbon\Carbon;
@@ -48,7 +50,11 @@ class ValidateReadingValue
             ->first();
 
         if ($previousReading && $normalizedValue < (float) $previousReading->reading_value) {
-            $messages['reading_value'][] = __('admin.meter_readings.validation.previous_reading_higher');
+            $messages['reading_value'][] = __('admin.meter_readings.validation.previous_reading_higher', [
+                'previous' => LocalizedNumberFormatter::decimal($previousReading->reading_value, 3),
+                'unit' => $meter->unit ?? '',
+                'date' => LocalizedDateFormatter::date($previousReading->reading_date),
+            ]);
         }
 
         $consumptionDelta = null;

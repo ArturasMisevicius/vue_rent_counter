@@ -1,5 +1,7 @@
 # Release Readiness Evidence
 
+> **AI agent usage:** This is an operations runbook. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` first; do not run destructive, external, release, backup, or secret-bearing commands unless the user explicitly asks.
+
 ## Generate The Evidence
 
 Run the release evidence command before tagging or deploying the milestone:

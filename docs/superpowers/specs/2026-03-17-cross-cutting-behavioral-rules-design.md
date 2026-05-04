@@ -1,5 +1,7 @@
 # Tenanto Cross-Cutting Behavioral Rules Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Enforce Tenanto's shared behavioral rules across the already-planned admin, manager, superadmin, and tenant experiences so the application behaves consistently no matter where a mutation originates.

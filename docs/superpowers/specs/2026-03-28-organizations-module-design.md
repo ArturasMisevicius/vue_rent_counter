@@ -1,5 +1,7 @@
 # Organizations Module Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Define the Organization control-plane model for Tenanto so superadmins can manage the platform tenant lifecycle, billing state, support operations, compliance exports, audit/security visibility, and org-scoped operational health from one consistent module.

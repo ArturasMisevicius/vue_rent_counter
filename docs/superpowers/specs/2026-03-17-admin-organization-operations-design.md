@@ -1,5 +1,7 @@
 # Admin Organization Operations Design
 
+> **AI agent usage:** This is a design/spec artifact. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify live code and tests before assuming the behavior still matches this document.
+
 ## Goal
 
 Build the shared organization-scoped operational workspace for Admin and Manager users so they can manage buildings, properties, tenants, meters, meter readings, billing configuration, invoices, reports, profile, and settings end to end inside the Tenanto authenticated shell.

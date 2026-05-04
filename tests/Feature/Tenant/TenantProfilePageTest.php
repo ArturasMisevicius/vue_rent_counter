@@ -65,6 +65,37 @@ it('stores a cropped tenant avatar and serves it through the authenticated avata
         ->assertSee(route('profile.avatar.show'), false);
 });
 
+it('shows the tenant avatar inside the mobile profile menu link', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $tenant->user->forceFill([
+        'avatar_disk' => 'local',
+        'avatar_path' => 'avatars/users/'.$tenant->user->id.'/avatar.png',
+        'avatar_mime_type' => 'image/png',
+        'avatar_updated_at' => now(),
+    ])->save();
+
+    $response = $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.profile'))
+        ->assertSuccessful()
+        ->assertSee('data-shell-mobile-profile-link', false)
+        ->assertSee('data-shell-user-avatar-compact', false)
+        ->assertSee('data-shell-user-avatar-image', false)
+        ->assertSee(route('profile.avatar.show'), false);
+
+    $document = new DOMDocument;
+
+    libxml_use_internal_errors(true);
+    $document->loadHTML($response->getContent());
+    libxml_clear_errors();
+
+    $xpath = new DOMXPath($document);
+    $mobileAvatar = $xpath->query('//*[@data-shell-mobile-profile-link]//*[@data-shell-user-avatar-image]');
+
+    expect($mobileAvatar)->not->toBeFalse()
+        ->and($mobileAvatar?->length)->toBe(1);
+});
+
 it('updates the tenant profile and locale', function () {
     $tenant = TenantPortalFactory::new()->create();
 

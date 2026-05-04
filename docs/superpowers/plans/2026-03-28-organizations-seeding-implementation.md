@@ -1,5 +1,7 @@
 # Organizations Seeding Implementation Plan
 
+> **AI agent usage:** This is an execution plan, not proof of current implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify every referenced file, command, route, schema, and test before acting.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Enrich the Organizations seed and factory layer so Tenanto ships with one richly populated showcase organization per subscription plan plus a fully aligned login-demo organization.

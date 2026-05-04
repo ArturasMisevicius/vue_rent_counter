@@ -1,5 +1,7 @@
 # Tenanto Superpowers Docs Map
 
+> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+
 Before using this folder as current-state guidance, read `../PROJECT-CONTEXT.md` and `../SESSION-BOOTSTRAP.md`. The files here are planning and delivery artifacts; they may describe earlier target shapes, startup assumptions, or counts than the live repository now has.
 
 This folder contains the 2026-03-17 Tenanto delivery set in two layers:
