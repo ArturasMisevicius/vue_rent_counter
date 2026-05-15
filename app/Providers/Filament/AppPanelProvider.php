@@ -66,7 +66,7 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
-            ->renderHook(PanelsRenderHook::BODY_END, fn () => view('components.shell.session-expiry-monitor'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => view('components.shell.body-end'))
             ->navigation(fn (NavigationBuilder $builder): NavigationBuilder => $this->buildNavigation($builder))
             ->navigationGroups([
                 NavigationGroup::make(__('shell.navigation.groups.platform')),

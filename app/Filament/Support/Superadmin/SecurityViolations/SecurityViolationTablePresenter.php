@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Superadmin\SecurityViolations;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\SecurityViolation;
 use Illuminate\Support\Str;
 
@@ -100,7 +101,7 @@ class SecurityViolationTablePresenter
         }
 
         return __('superadmin.security_violations.presenter.blocked_until', [
-            'date' => $blockedUntil->locale(app()->getLocale())->isoFormat('LLL'),
+            'date' => $blockedUntil->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()),
         ]);
     }
 

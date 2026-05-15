@@ -41,6 +41,16 @@ class SubscriptionRenewalResource extends Resource
         return SubscriptionRenewalsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.subscription_renewals.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.subscription_renewals.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InvoiceReminderLogs\Tables;
 
+use App\Models\InvoiceReminderLog;
 use App\Models\Organization;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -23,19 +24,26 @@ class InvoiceReminderLogsTable
                 TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('sentBy.name')
+                    ->label(__('superadmin.relation_resources.invoice_reminder_logs.fields.sent_by'))
                     ->sortable(),
                 TextColumn::make('recipient_email')
+                    ->label(__('superadmin.relation_resources.invoice_reminder_logs.fields.recipient_email'))
                     ->searchable(),
                 TextColumn::make('channel')
+                    ->label(__('superadmin.relation_resources.invoice_reminder_logs.fields.channel'))
+                    ->state(fn (InvoiceReminderLog $record): string => $record->channelLabel())
                     ->searchable(),
                 TextColumn::make('sent_at')
+                    ->label(__('superadmin.relation_resources.invoice_reminder_logs.fields.sent_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

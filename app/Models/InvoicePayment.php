@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PaymentMethod;
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\InvoicePaymentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,6 +62,17 @@ class InvoicePayment extends Model
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by_user_id');
+    }
+
+    public function methodLabel(): string
+    {
+        $method = $this->method;
+
+        if ($method instanceof PaymentMethod) {
+            return $method->label();
+        }
+
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.invoice_payments.methods', $method);
     }
 
     public function scopeLatestFirst(Builder $query): Builder

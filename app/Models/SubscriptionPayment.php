@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\SubscriptionDuration;
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\SubscriptionPaymentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,6 +55,17 @@ class SubscriptionPayment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    public function durationLabel(): string
+    {
+        $duration = $this->duration;
+
+        if ($duration instanceof SubscriptionDuration) {
+            return $duration->label();
+        }
+
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.subscription_payments.durations', $duration);
     }
 
     public function scopeLatestFirst(Builder $query): Builder

@@ -58,6 +58,11 @@ class Attachment extends Model
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
     }
 
+    public function attachableTypeLabel(): string
+    {
+        return AuditLog::subjectTypeLabel($this->attachable_type);
+    }
+
     public function scopeForOrganization(Builder $query, int $organizationId): Builder
     {
         return $query->where('organization_id', $organizationId);

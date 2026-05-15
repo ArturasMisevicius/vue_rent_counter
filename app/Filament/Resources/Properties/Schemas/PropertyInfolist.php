@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Property;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -54,7 +55,7 @@ class PropertyInfolist
                             ->default('—'),
                         TextEntry::make('currentAssignment.assigned_at')
                             ->label(__('admin.properties.fields.date_assigned'))
-                            ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
+                            ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                     ])
                     ->columns(2)
                     ->visible(fn (Property $record): bool => $record->currentAssignment !== null),

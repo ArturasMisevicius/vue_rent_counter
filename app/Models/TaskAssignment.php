@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\TaskAssignmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,5 +44,19 @@ class TaskAssignment extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class, 'assignment_id');
+    }
+
+    public function roleLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.task_assignments.roles', $this->role);
+    }
+
+    public function roleBadgeColor(): string
+    {
+        return match ($this->role) {
+            'reviewer' => 'warning',
+            'observer' => 'gray',
+            default => 'info',
+        };
     }
 }

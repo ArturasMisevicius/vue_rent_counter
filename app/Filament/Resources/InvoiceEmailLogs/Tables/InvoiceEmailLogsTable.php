@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InvoiceEmailLogs\Tables;
 
+use App\Models\InvoiceEmailLog;
 use App\Models\Organization;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -23,21 +24,29 @@ class InvoiceEmailLogsTable
                 TextColumn::make('organization.name')->label(__('superadmin.organizations.singular'))
                     ->searchable(),
                 TextColumn::make('sentBy.name')
+                    ->label(__('superadmin.relation_resources.invoice_email_logs.fields.sent_by'))
                     ->sortable(),
                 TextColumn::make('recipient_email')
+                    ->label(__('superadmin.relation_resources.invoice_email_logs.fields.recipient_email'))
                     ->searchable(),
                 TextColumn::make('subject')
+                    ->label(__('superadmin.relation_resources.invoice_email_logs.fields.subject'))
                     ->searchable(),
                 TextColumn::make('status')
+                    ->label(__('superadmin.relation_resources.invoice_email_logs.fields.status'))
+                    ->state(fn (InvoiceEmailLog $record): string => $record->statusLabel())
                     ->searchable(),
                 TextColumn::make('sent_at')
+                    ->label(__('superadmin.relation_resources.invoice_email_logs.fields.sent_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

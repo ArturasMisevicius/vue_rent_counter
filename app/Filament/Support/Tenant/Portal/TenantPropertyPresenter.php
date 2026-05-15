@@ -164,10 +164,10 @@ class TenantPropertyPresenter
             'tenant_name' => $tenant->name,
             'tenant_email' => $tenant->email,
             'tenant_phone' => $tenant->phone,
-            'property_name' => $property->name,
+            'property_name' => $property->displayName(),
             'property_display_name' => $this->displayPropertyName($property),
             'property_address' => $property->address,
-            'property_building_name' => $property->building?->name,
+            'property_building_name' => $property->building?->displayName(),
             'property_unit_number' => $property->unit_number,
             'property_floor_area' => $property->areaDisplay(),
             'assigned_since' => LocalizedDateFormatter::date($tenant->currentPropertyAssignment?->assigned_at),
@@ -208,16 +208,17 @@ class TenantPropertyPresenter
     private function displayPropertyName(Property $property): string
     {
         $name = trim((string) $property->name);
+        $localizedName = $property->displayName();
         $unitNumber = trim((string) $property->unit_number);
 
         if ($unitNumber === '') {
-            return $name !== '' ? $name : __('dashboard.not_available');
+            return $localizedName !== '' ? $localizedName : __('dashboard.not_available');
         }
 
         $generatedTypeLabel = $this->generatedPropertyTypeLabel($name, $unitNumber);
 
         if ($name !== '' && $generatedTypeLabel === null) {
-            return $name;
+            return $localizedName;
         }
 
         $typeLabel = $generatedTypeLabel ?? $property->type?->label();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Superadmin\Projects;
 
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Project;
 use Illuminate\Support\Collection;
 
@@ -48,13 +49,15 @@ final class ExportProjectsCsvAction
             'Created at',
         ]);
 
+        $databaseContentLocalizer = app(DatabaseContentLocalizer::class);
+
         foreach ($hydratedProjects as $project) {
             fputcsv($handle, [
-                $project->name,
+                $databaseContentLocalizer->projectName($project->name),
                 $project->reference_number,
                 $project->organization?->name,
-                $project->building?->name,
-                $project->property?->name,
+                $project->building?->displayName(),
+                $project->property?->displayName(),
                 $project->status?->getLabel(),
                 $project->priority?->getLabel(),
                 $project->type?->getLabel(),

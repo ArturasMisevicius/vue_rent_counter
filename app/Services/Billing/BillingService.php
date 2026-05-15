@@ -54,7 +54,7 @@ final class BillingService implements BillingServiceInterface
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
                 'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
-                'property_name' => (string) ($assignment->property?->name ?? ''),
+                'property_name' => (string) ($assignment->property?->displayName() ?? ''),
                 'unit_area_sqm' => $assignment->unit_area_sqm,
                 'items' => $lineItems['items'],
                 'total' => $lineItems['total_amount'],
@@ -84,7 +84,7 @@ final class BillingService implements BillingServiceInterface
 
         return [
             'property_id' => $assignment->property_id,
-            'property_name' => (string) ($assignment->property?->name ?? ''),
+            'property_name' => (string) ($assignment->property?->displayName() ?? ''),
             'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
             'items' => $lineItems['items'],
             'total_amount' => $lineItems['total_amount'],
@@ -281,7 +281,7 @@ final class BillingService implements BillingServiceInterface
                     'tenant_id' => $assignment->tenant_user_id,
                     'property_id' => $assignment->property_id,
                     'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
-                    'property_name' => (string) ($assignment->property?->name ?? ''),
+                    'property_name' => (string) ($assignment->property?->displayName() ?? ''),
                     'unit_area_sqm' => $assignment->unit_area_sqm,
                     'reason' => 'already_billed',
                 ];
@@ -297,7 +297,7 @@ final class BillingService implements BillingServiceInterface
                     'tenant_id' => $assignment->tenant_user_id,
                     'property_id' => $assignment->property_id,
                     'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
-                    'property_name' => (string) ($assignment->property?->name ?? ''),
+                    'property_name' => (string) ($assignment->property?->displayName() ?? ''),
                     'unit_area_sqm' => $assignment->unit_area_sqm,
                     'reason' => 'ineligible_meter_readings',
                 ];
@@ -952,7 +952,7 @@ final class BillingService implements BillingServiceInterface
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
     ): array {
-        $propertyName = $assignment->property?->name ?? __('admin.invoices.empty.property');
+        $propertyName = $assignment->property?->displayName() ?? __('admin.invoices.empty.property');
         $item = [
             'description' => __('admin.invoices.generated.default_line_item', [
                 'property' => $propertyName,

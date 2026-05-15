@@ -278,7 +278,10 @@ class InvoicesTable
             $query->whereKey(-1);
         }
 
-        return $query->pluck('name', 'id')->all();
+        return $query
+            ->get()
+            ->mapWithKeys(fn (Property $property): array => [$property->id => $property->displayName()])
+            ->all();
     }
 
     private static function currentUser(): ?User

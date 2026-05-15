@@ -60,8 +60,10 @@ class InvoiceForm
                             ->label(__('admin.invoices.fields.items'))
                             ->schema([
                                 TextInput::make('description')
+                                    ->label(__('admin.invoices.fields.description'))
                                     ->required(),
                                 TextInput::make('amount')
+                                    ->label(__('admin.invoices.columns.amount'))
                                     ->numeric()
                                     ->required(),
                             ])

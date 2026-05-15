@@ -30,7 +30,7 @@ return [
         'draft_invoices_trend' => 'Facturas que todavía están pendientes de finalizar.',
         'revenue_this_month' => 'Ingresos de este mes',
         'revenue_this_month_trend' => 'Valor de facturas pagadas registrado durante el mes actual.',
-        'pending_invoices_trend' => 'Draft invoices that have not been finalized yet.',
+        'pending_invoices_trend' => 'Borradores de factura que aún no se han finalizado.',
     ],
     'organization_usage' => [
         'heading' => 'Uso de la suscripción',
@@ -39,9 +39,9 @@ return [
         'tenants' => 'Inquilinos',
         'meters' => 'Contadores',
         'invoices' => 'Facturas',
-        'usage_summary' => ':used of :limit :label used',
-        'limit_reached' => 'The :label limit has been reached.',
-        'upgrade_action' => 'Upgrade Plan',
+        'usage_summary' => ':used de :limit :label usados',
+        'limit_reached' => 'Se alcanzó el límite de :label.',
+        'upgrade_action' => 'Mejorar plan',
     ],
     'platform_sections' => [
         'revenue_by_plan' => 'Ingresos por plan durante los últimos 12 meses',
@@ -104,8 +104,8 @@ return [
         'upcoming_reading_deadlines_description' => 'Contadores que requerirán atención en los próximos 14 días.',
         'no_recent_invoices' => 'Todavía no hay facturas.',
         'no_upcoming_deadlines' => 'No hay plazos próximos.',
-        'view_all' => 'View All',
-        'process_payment' => 'Process Payment',
+        'view_all' => 'Ver todo',
+        'process_payment' => 'Procesar pago',
     ],
     'organization_deadlines' => [
         'due_today' => 'Vence hoy',
@@ -119,5 +119,5 @@ return [
     'tenant_body' => 'El historial de facturas, el envío de lecturas y las acciones del perfil crecerán desde esta página principal pensada para inquilinos.',
     'menu' => 'Menú',
     'logout_button' => 'Cerrar sesión',
-    'organization_invoice_period' => ':from to :to',
+    'organization_invoice_period' => 'de :from a :to',
 ];

@@ -76,6 +76,50 @@ it('rejects malformed data for every form request', function (array $scenario): 
     }
 })->with(fn (): array => scenarioDatasets());
 
+it('renders Lithuanian validation messages for every form request', function (array $scenario): void {
+    app()->setLocale('lt');
+
+    $context = FormRequestScenarioFactory::context();
+    $request = buildRequestFromScenario($scenario, $context);
+    $payload = payloadFromScenario($scenario, $context);
+    $user = authorizedUserForScenario($scenario, $context);
+    $requiredFields = $scenario['required'];
+
+    syncAuthenticatedUser($user);
+
+    foreach ($requiredFields as $field) {
+        $validator = FormRequestScenarioFactory::validatorFor(
+            $request,
+            $context,
+            FormRequestScenarioFactory::withoutField($payload, $field),
+            $user,
+        );
+
+        expect($validator->fails(), $field)->toBeTrue();
+
+        assertLithuanianValidationMessage(
+            $validator->errors()->first($field),
+            class_basename($request).' '.$field,
+        );
+    }
+
+    foreach (FormRequestScenarioFactory::invalidCases($scenario, $context) as $name => $case) {
+        $validator = FormRequestScenarioFactory::validatorFor(
+            $request,
+            $context,
+            $case['input'],
+            $user,
+        );
+
+        expect($validator->fails(), $name)->toBeTrue();
+
+        assertLithuanianValidationMessage(
+            $validator->errors()->first($case['field']),
+            class_basename($request).' '.$name,
+        );
+    }
+})->with(fn (): array => scenarioDatasets());
+
 it('authorizes the expected roles for every form request', function (array $scenario): void {
     $context = FormRequestScenarioFactory::context();
     $request = buildRequestFromScenario($scenario, $context);
@@ -141,6 +185,34 @@ function syncAuthenticatedUser(?User $user): void
     }
 
     Auth::login($user);
+}
+
+function assertLithuanianValidationMessage(string $message, string $context): void
+{
+    $englishFragments = [
+        'The ',
+        ' field',
+        ' must ',
+        ' required',
+        ' valid',
+        ' selected',
+        ' confirmation',
+        ' does not match',
+        ' may not ',
+        ' invalid',
+        ' incorrect',
+        ' greater than',
+        ' less than',
+        ' at least',
+        ' already been taken',
+        'validation.',
+        'requests.',
+        'tenant.',
+    ];
+
+    expect($message, $context)
+        ->not->toBe('')
+        ->and($message, $context)->not->toContain(...$englishFragments);
 }
 
 /**

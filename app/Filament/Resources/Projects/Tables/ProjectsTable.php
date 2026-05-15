@@ -10,6 +10,7 @@ use App\Enums\ProjectType;
 use App\Filament\Actions\Superadmin\Projects\ExportProjectsCsvAction;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Project;
@@ -43,6 +44,7 @@ class ProjectsTable
             ->columns([
                 TextColumn::make('name')
                     ->label(__('admin.projects.columns.project'))
+                    ->state(fn (Project $record): string => app(DatabaseContentLocalizer::class)->projectName($record->name))
                     ->url(fn (Project $record): string => ProjectResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
@@ -55,24 +57,34 @@ class ProjectsTable
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('building.name')
+                    ->label(__('admin.projects.columns.building'))
+                    ->state(fn (Project $record): string => $record->building?->displayName() ?? '—')
                     ->placeholder('—')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('property.name')
+                    ->label(__('admin.projects.columns.property'))
+                    ->state(fn (Project $record): string => $record->property?->displayName() ?? '—')
                     ->placeholder('—')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('status')
+                    ->label(__('admin.projects.columns.status'))
                     ->badge()
+                    ->formatStateUsing(fn (ProjectStatus|string|null $state): string => self::projectStatusLabel($state))
                     ->sortable()
                     ->toggleable()
-                    ->color(fn (ProjectStatus|string|null $state): string => $state instanceof ProjectStatus ? $state->badgeColor() : 'gray'),
+                    ->color(fn (ProjectStatus|string|null $state): string => self::projectStatus($state)?->badgeColor() ?? 'gray'),
                 TextColumn::make('priority')
+                    ->label(__('admin.projects.columns.priority'))
                     ->badge()
+                    ->formatStateUsing(fn (ProjectPriority|string|null $state): string => self::projectPriorityLabel($state))
                     ->sortable()
                     ->toggleable()
-                    ->color(fn (ProjectPriority|string|null $state): string => $state instanceof ProjectPriority ? $state->badgeColor() : 'gray'),
+                    ->color(fn (ProjectPriority|string|null $state): string => self::projectPriority($state)?->badgeColor() ?? 'gray'),
                 TextColumn::make('type')
+                    ->label(__('admin.projects.columns.type'))
+                    ->formatStateUsing(fn (ProjectType|string|null $state): string => self::projectTypeLabel($state))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('manager.name')
@@ -82,10 +94,12 @@ class ProjectsTable
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('budget_amount')
+                    ->label(__('admin.projects.columns.budget_amount'))
                     ->formatStateUsing(fn (mixed $state): string => EuMoneyFormatter::format($state))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('actual_cost')
+                    ->label(__('admin.projects.columns.actual_cost'))
                     ->formatStateUsing(fn (mixed $state): string => EuMoneyFormatter::format($state))
                     ->sortable()
                     ->toggleable(),
@@ -110,6 +124,7 @@ class ProjectsTable
                     ->color(fn (Project $record): string => ($record->scheduleVarianceDays() ?? 0) > 0 ? 'danger' : 'success')
                     ->toggleable(),
                 TextColumn::make('created_at')
+                    ->label(__('admin.projects.columns.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -154,7 +169,8 @@ class ProjectsTable
                             fn (Builder $query): Builder => $query->where('organization_id', self::selectedOrganizationFilterValue($livewire)),
                         )
                         ->ordered()
-                        ->pluck('name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                         ->all())
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => blank($data['value'] ?? null)
@@ -444,6 +460,36 @@ class ProjectsTable
         return collect(ProjectType::cases())->mapWithKeys(
             fn (ProjectType $type): array => [$type->value => $type->getLabel()],
         )->all();
+    }
+
+    private static function projectStatus(ProjectStatus|string|null $state): ?ProjectStatus
+    {
+        return $state instanceof ProjectStatus ? $state : ProjectStatus::tryFrom((string) $state);
+    }
+
+    private static function projectPriority(ProjectPriority|string|null $state): ?ProjectPriority
+    {
+        return $state instanceof ProjectPriority ? $state : ProjectPriority::tryFrom((string) $state);
+    }
+
+    private static function projectType(ProjectType|string|null $state): ?ProjectType
+    {
+        return $state instanceof ProjectType ? $state : ProjectType::tryFrom((string) $state);
+    }
+
+    private static function projectStatusLabel(ProjectStatus|string|null $state): string
+    {
+        return self::projectStatus($state)?->label() ?? '—';
+    }
+
+    private static function projectPriorityLabel(ProjectPriority|string|null $state): string
+    {
+        return self::projectPriority($state)?->label() ?? '—';
+    }
+
+    private static function projectTypeLabel(ProjectType|string|null $state): string
+    {
+        return self::projectType($state)?->label() ?? '—';
     }
 
     private static function selectedOrganizationFilterValue(mixed $livewire): ?int

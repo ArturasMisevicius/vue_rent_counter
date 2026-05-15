@@ -198,13 +198,13 @@ return [
                 'billing_contact_phone' => 'Телефон платежного контакта',
                 'payment_instructions' => 'Инструкции по оплате',
                 'invoice_footer' => 'Подвал счета',
-                'organization_name' => 'Organization Name',
+                'organization_name' => 'Название организации',
             ],
             'actions' => [
                 'save' => 'Сохранить настройки организации',
             ],
             'help' => [
-                'billing_contact_email' => 'This email receives billing-related notifications.',
+                'billing_contact_email' => 'На этот email отправляются уведомления по оплате.',
             ],
         ],
         'notifications' => [
@@ -232,9 +232,9 @@ return [
             'fields' => [
                 'plan' => 'План',
                 'duration' => 'Срок',
-                'current_plan' => 'Current Plan',
-                'status' => 'Subscription Status',
-                'expiry_date' => 'Subscription Expiry Date',
+                'current_plan' => 'Текущий план',
+                'status' => 'Статус подписки',
+                'expiry_date' => 'Дата окончания подписки',
             ],
             'plans' => [
                 'basic' => 'Basic',
@@ -248,15 +248,15 @@ return [
             ],
             'actions' => [
                 'renew' => 'Продлить подписку',
-                'renew_upgrade' => 'Renew or Upgrade Plan',
-                'cancel' => 'Cancel',
-                'confirm' => 'Renew or Upgrade Plan',
+                'renew_upgrade' => 'Продлить или улучшить план',
+                'cancel' => 'Отмена',
+                'confirm' => 'Продлить или улучшить план',
             ],
-            'usage_summary' => ':used of :limit :label used',
-            'limit_reached' => 'The :label limit has been reached.',
+            'usage_summary' => 'Использовано :used из :limit: :label',
+            'limit_reached' => 'Достигнут лимит :label.',
             'panel' => [
-                'heading' => 'Renew or Upgrade Plan',
-                'description' => 'Select a new plan and duration to continue with updated limits.',
+                'heading' => 'Продлить или улучшить план',
+                'description' => 'Выберите новый план и срок, чтобы продолжить с обновленными лимитами.',
             ],
         ],
         'messages' => [
@@ -265,7 +265,7 @@ return [
             'subscription_renewed' => 'Подписка продлена.',
         ],
         'actions' => [
-            'save' => 'Save Changes',
+            'save' => 'Сохранить изменения',
         ],
     ],
     'actions' => [

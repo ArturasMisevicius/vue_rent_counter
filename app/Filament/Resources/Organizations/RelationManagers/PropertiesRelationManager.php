@@ -53,12 +53,14 @@ class PropertiesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->label(__('admin.properties.fields.name'))
+                    ->state(fn (Property $record): string => $record->displayName())
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('unit_number')
                     ->label(__('admin.properties.fields.unit_number'))
                     ->sortable(),
                 TextColumn::make('building.name')->label(__('admin.buildings.singular'))
+                    ->state(fn (Property $record): string => $record->building?->displayName() ?? '—')
                     ->searchable(),
                 TextColumn::make('currentAssignment.tenant.name')
                     ->label(__('admin.properties.fields.current_tenant'))
@@ -82,7 +84,8 @@ class PropertiesRelationManager extends RelationManager
                             ->options(fn (): array => Building::query()
                                 ->forOrganization($this->getOwnerRecord()->getKey())
                                 ->ordered()
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                                 ->all())
                             ->required()
                             ->searchable()
@@ -119,7 +122,8 @@ class PropertiesRelationManager extends RelationManager
                             ->options(fn (): array => Building::query()
                                 ->forOrganization($this->getOwnerRecord()->getKey())
                                 ->ordered()
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                                 ->all())
                             ->required()
                             ->searchable()

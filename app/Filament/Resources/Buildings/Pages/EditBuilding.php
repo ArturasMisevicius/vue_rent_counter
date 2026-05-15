@@ -17,7 +17,7 @@ class EditBuilding extends EditRecord
     public function getTitle(): string
     {
         return __('admin.buildings.titles.edit', [
-            'name' => $this->record->name,
+            'name' => $this->record->displayName(),
         ]);
     }
 

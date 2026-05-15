@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -113,6 +114,37 @@ class Task extends Model
             'cancellation_note' => $reason,
             'completed_at' => $this->completed_at ?? now(),
         ])->save();
+    }
+
+    public function statusLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.tasks.statuses', $this->status);
+    }
+
+    public function priorityLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.tasks.priorities', $this->priority);
+    }
+
+    public function statusBadgeColor(): string
+    {
+        return match ($this->status) {
+            'completed' => 'success',
+            'in_progress' => 'info',
+            'review' => 'warning',
+            'cancelled' => 'danger',
+            default => 'gray',
+        };
+    }
+
+    public function priorityBadgeColor(): string
+    {
+        return match ($this->priority) {
+            'urgent' => 'danger',
+            'high' => 'warning',
+            'medium' => 'info',
+            default => 'gray',
+        };
     }
 
     public function scopeForOrganization(Builder $query, int $organizationId): Builder

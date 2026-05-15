@@ -42,6 +42,16 @@ class CommentResource extends Resource
         return CommentsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.comments_resource.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.comments_resource.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

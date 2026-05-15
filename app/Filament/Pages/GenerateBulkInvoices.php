@@ -56,6 +56,8 @@ class GenerateBulkInvoices extends Page
 
     public function mount(): void
     {
+        abort_unless(static::canAccess(), 403);
+
         $this->form = [
             'billing_period_start' => now()->startOfMonth()->toDateString(),
             'billing_period_end' => now()->endOfMonth()->toDateString(),
@@ -69,7 +71,9 @@ class GenerateBulkInvoices extends Page
     {
         $user = auth()->user();
 
-        return $user?->isAdmin() || $user?->isManager();
+        return $user instanceof User
+            && ($user->isAdmin() || $user->isManager())
+            && $user->organization_id !== null;
     }
 
     public function getTitle(): string
@@ -239,8 +243,9 @@ class GenerateBulkInvoices extends Page
 
     private function organization(): Organization
     {
-        /** @var Organization $organization */
         $organization = $this->user()->organization;
+
+        abort_unless($organization instanceof Organization, 403);
 
         return $organization;
     }

@@ -68,6 +68,8 @@ it('lets superadmins see projects across organizations and admins only see their
 });
 
 it('renders the projects list table columns and filters required for the superadmin view', function (): void {
+    app()->setLocale('lt');
+
     $superadmin = User::factory()->superadmin()->create();
 
     actingAs($superadmin);
@@ -76,10 +78,14 @@ it('renders the projects list table columns and filters required for the superad
         ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getLabel() !== '')
         ->assertTableColumnExists('organization.name')
         ->assertTableColumnExists('reference_number')
-        ->assertTableColumnExists('status')
-        ->assertTableColumnExists('priority')
-        ->assertTableColumnExists('building.name')
-        ->assertTableColumnExists('property.name')
+        ->assertTableColumnExists('status', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.status'))
+        ->assertTableColumnExists('priority', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.priority'))
+        ->assertTableColumnExists('building.name', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.building'))
+        ->assertTableColumnExists('property.name', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.property'))
+        ->assertTableColumnExists('type', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.type'))
+        ->assertTableColumnExists('budget_amount', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.budget_amount'))
+        ->assertTableColumnExists('actual_cost', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.actual_cost'))
+        ->assertTableColumnExists('created_at', fn (TextColumn $column): bool => $column->getLabel() === __('admin.projects.columns.created_at'))
         ->assertTableColumnExists('estimated_end_date')
         ->assertTableColumnExists('completion_percentage', fn (ViewColumn $column): bool => $column->getName() === 'completion_percentage')
         ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() !== '')

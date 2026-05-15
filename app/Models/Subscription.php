@@ -224,22 +224,30 @@ class Subscription extends Model
 
     public function propertiesUsedSummary(): string
     {
-        return sprintf('%d of %d', $this->propertiesUsedCount(), $this->propertyLimit());
+        return $this->usageSummary($this->propertiesUsedCount(), $this->propertyLimit());
     }
 
     public function tenantsUsedSummary(): string
     {
-        return sprintf('%d of %d', $this->tenantsUsedCount(), $this->tenantLimit());
+        return $this->usageSummary($this->tenantsUsedCount(), $this->tenantLimit());
     }
 
     public function metersUsedSummary(): string
     {
-        return sprintf('%d of %d', $this->metersUsedCount(), $this->meterLimit());
+        return $this->usageSummary($this->metersUsedCount(), $this->meterLimit());
     }
 
     public function invoicesUsedSummary(): string
     {
-        return sprintf('%d of %d', $this->invoicesUsedCount(), $this->invoiceLimit());
+        return $this->usageSummary($this->invoicesUsedCount(), $this->invoiceLimit());
+    }
+
+    private function usageSummary(int $current, int $limit): string
+    {
+        return __('superadmin.subscriptions_resource.usage_summary', [
+            'current' => $current,
+            'limit' => $limit,
+        ]);
     }
 
     public function hasReachedPropertyLimit(): bool

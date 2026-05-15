@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Superadmin\Exports;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use ZipArchive;
 
@@ -89,12 +90,12 @@ class OrganizationDataExportBuilder
                 ->map(fn ($invoice): array => [
                     $invoice->invoice_number,
                     $invoice->tenant?->email,
-                    trim(implode(' ', array_filter([$invoice->property?->name, $invoice->property?->unit_number]))),
+                    trim(implode(' ', array_filter([$invoice->property?->displayName(), $invoice->property?->unit_number]))),
                     $invoice->status?->label() ?? $invoice->status,
                     $invoice->currency,
                     $this->formatDecimal((float) $invoice->total_amount, 2),
-                    $invoice->due_date?->locale(app()->getLocale())->isoFormat('ll'),
-                    $invoice->created_at?->locale(app()->getLocale())->isoFormat('ll'),
+                    $invoice->due_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
+                    $invoice->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
                 ])
                 ->all(),
         );
@@ -119,8 +120,8 @@ class OrganizationDataExportBuilder
                     $tenant->name,
                     $tenant->email,
                     $tenant->status?->label() ?? $tenant->status,
-                    $tenant->last_login_at?->locale(app()->getLocale())->isoFormat('LLL'),
-                    $tenant->created_at?->locale(app()->getLocale())->isoFormat('ll'),
+                    $tenant->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()),
+                    $tenant->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
                 ])
                 ->all(),
         );
@@ -151,20 +152,20 @@ class OrganizationDataExportBuilder
                     'created_at',
                 ])
                 ->with([
-                    'meter:id,organization_id,property_id,name',
+                    'meter:id,organization_id,property_id,name,type',
                     'property:id,organization_id,name',
                     'submittedBy:id,name',
                 ])
                 ->latestFirst()
                 ->get()
                 ->map(fn ($reading): array => [
-                    $reading->meter?->name,
-                    $reading->property?->name,
+                    $reading->meter?->displayName(),
+                    $reading->property?->displayName(),
                     $reading->submittedBy?->name,
                     $this->formatDecimal((float) $reading->reading_value, 3),
-                    $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'),
+                    $reading->reading_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
                     $reading->validation_status?->label() ?? $reading->validation_status,
-                    $reading->created_at?->locale(app()->getLocale())->isoFormat('LLL'),
+                    $reading->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()),
                 ])
                 ->all(),
         );

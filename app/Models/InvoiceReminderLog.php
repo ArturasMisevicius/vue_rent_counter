@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\InvoiceReminderLogFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -56,6 +57,11 @@ class InvoiceReminderLog extends Model
     public function sentBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by_user_id');
+    }
+
+    public function channelLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.invoice_reminder_logs.channels', $this->channel);
     }
 
     public function scopeLatestFirst(Builder $query): Builder

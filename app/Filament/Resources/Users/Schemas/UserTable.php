@@ -10,6 +10,7 @@ use App\Filament\Actions\Superadmin\Users\StartUserImpersonationAction;
 use App\Filament\Actions\Superadmin\Users\UpdateUserStatusAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -55,7 +56,7 @@ class UserTable
                         : null),
                 TextColumn::make('last_login_at')
                     ->label(__('superadmin.users.columns.last_login'))
-                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.users.placeholders.never'))
+                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('superadmin.users.placeholders.never'))
                     ->placeholder(__('superadmin.users.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('status')

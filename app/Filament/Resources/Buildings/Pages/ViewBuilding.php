@@ -25,13 +25,13 @@ class ViewBuilding extends ViewRecord
     {
         return [
             BuildingResource::getUrl('index') => BuildingResource::getPluralModelLabel(),
-            $this->record->name,
+            $this->record->displayName(),
         ];
     }
 
     public function getTitle(): string
     {
-        return $this->record->name;
+        return $this->record->displayName();
     }
 
     public function getSubheading(): ?string

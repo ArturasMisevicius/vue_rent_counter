@@ -36,6 +36,7 @@ class UserFactory extends Factory
             'locale' => 'en',
             'organization_id' => null,
             'last_login_at' => null,
+            'onboarding_tour_completed_at' => null,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];

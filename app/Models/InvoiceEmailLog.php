@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\InvoiceEmailLogFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,6 +59,11 @@ class InvoiceEmailLog extends Model
     public function sentBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by_user_id');
+    }
+
+    public function statusLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.invoice_email_logs.statuses', $this->status);
     }
 
     public function scopeLatestFirst(Builder $query): Builder

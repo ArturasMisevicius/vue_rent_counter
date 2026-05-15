@@ -40,6 +40,16 @@ class TaskAssignmentResource extends Resource
         return TaskAssignmentsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.task_assignments.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.task_assignments.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

@@ -29,11 +29,11 @@ return [
                 'description' => 'Konfigūruoja organizaciją, nustato operacinius standartus ir prižiūri atsiskaitymo parengtį.',
             ],
             2 => [
-                'name' => 'Manager',
+                'name' => 'Vadybininkas',
                 'description' => 'Vykdo kasdienes pastatų operacijas, rodmenų procesus ir nuomininkų aptarnavimo užduotis.',
             ],
             3 => [
-                'name' => 'Tenant',
+                'name' => 'Nuomininkas',
                 'description' => 'Naudojasi aiškiu portalu sąskaitoms, rodmenų pateikimui ir profilio atnaujinimui.',
             ],
         ],
@@ -87,7 +87,7 @@ return [
     'cta' => [
         'heading' => 'Pasirinkite tinkamą įėjimo tašką',
         'description' => 'Prisijunkite, jei jau dirbate sistemoje, arba užregistruokite Admin paskyrą naujos organizacijos paleidimui.',
-        'note' => 'Manager ir Tenant prieiga išlieka kvietimų pagrindu, kad būtų užtikrintas valdomas įvedimas ir izoliacija.',
+        'note' => 'Vadybininko ir nuomininko prieiga išlieka kvietimų pagrindu, kad būtų užtikrintas valdomas įvedimas ir izoliacija.',
         'login' => 'Prisijungti',
         'register' => 'Registruotis',
     ],

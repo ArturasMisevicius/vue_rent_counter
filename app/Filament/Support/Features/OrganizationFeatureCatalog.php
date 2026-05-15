@@ -26,11 +26,10 @@ final class OrganizationFeatureCatalog
     public const PRIORITY_SUPPORT = 'priority_support';
 
     /**
-     * @var array<string, array{label: string, plans: list<string>, default: bool}>
+     * @var array<string, array{plans: list<string>, default: bool}>
      */
     private const FEATURES = [
         self::ADVANCED_REPORTING => [
-            'label' => 'Advanced reporting',
             'plans' => [
                 SubscriptionPlan::PROFESSIONAL->value,
                 SubscriptionPlan::ENTERPRISE->value,
@@ -39,7 +38,6 @@ final class OrganizationFeatureCatalog
             'default' => false,
         ],
         self::BULK_INVOICING => [
-            'label' => 'Bulk invoicing',
             'plans' => [
                 SubscriptionPlan::PROFESSIONAL->value,
                 SubscriptionPlan::ENTERPRISE->value,
@@ -48,7 +46,6 @@ final class OrganizationFeatureCatalog
             'default' => false,
         ],
         self::RESIDENT_APP => [
-            'label' => 'Resident app',
             'plans' => [
                 SubscriptionPlan::BASIC->value,
                 SubscriptionPlan::PROFESSIONAL->value,
@@ -58,7 +55,6 @@ final class OrganizationFeatureCatalog
             'default' => false,
         ],
         self::UTILITY_BILLING => [
-            'label' => 'Utility billing',
             'plans' => [
                 SubscriptionPlan::BASIC->value,
                 SubscriptionPlan::PROFESSIONAL->value,
@@ -68,7 +64,6 @@ final class OrganizationFeatureCatalog
             'default' => false,
         ],
         self::API_ACCESS => [
-            'label' => 'API access',
             'plans' => [
                 SubscriptionPlan::ENTERPRISE->value,
                 SubscriptionPlan::CUSTOM->value,
@@ -76,7 +71,6 @@ final class OrganizationFeatureCatalog
             'default' => false,
         ],
         self::PRIORITY_SUPPORT => [
-            'label' => 'Priority support',
             'plans' => [
                 SubscriptionPlan::ENTERPRISE->value,
                 SubscriptionPlan::CUSTOM->value,
@@ -99,7 +93,7 @@ final class OrganizationFeatureCatalog
     public static function options(): array
     {
         return collect(self::FEATURES)
-            ->mapWithKeys(fn (array $definition, string $feature): array => [$feature => $definition['label']])
+            ->mapWithKeys(fn (array $definition, string $feature): array => [$feature => self::label($feature)])
             ->all();
     }
 
@@ -117,7 +111,11 @@ final class OrganizationFeatureCatalog
     {
         $feature = self::normalize($feature);
 
-        return self::FEATURES[$feature]['label'] ?? Str::headline(str_replace('_', ' ', $feature));
+        if (! array_key_exists($feature, self::FEATURES)) {
+            return Str::headline(str_replace('_', ' ', $feature));
+        }
+
+        return (string) __("superadmin.organizations.features.{$feature}");
     }
 
     public static function defaultEnabled(string $feature, Organization|User|null $scope, bool $fallback = false): bool

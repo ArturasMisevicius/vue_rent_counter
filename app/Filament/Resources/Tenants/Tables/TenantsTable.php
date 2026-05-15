@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
@@ -54,7 +55,7 @@ class TenantsTable
                     ->toggleable(),
                 TextColumn::make('currentPropertyAssignment.property.name')
                     ->label(__('admin.tenants.columns.property'))
-                    ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
+                    ->state(fn (User $record): string => $record->currentProperty?->displayName() ?? __('admin.tenants.empty.unassigned'))
                     ->url(fn (User $record): ?string => $record->currentProperty !== null
                         ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
                         : null)
@@ -72,12 +73,12 @@ class TenantsTable
                     ->sortable(),
                 TextColumn::make('last_login_at')
                     ->label(__('admin.tenants.fields.last_login'))
-                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('admin.tenants.empty.never'))
+                    ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('admin.tenants.empty.never'))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.columns.date_added'))
-                    ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
             ])
             ->filters([
@@ -238,7 +239,10 @@ class TenantsTable
             $query->whereKey(-1);
         }
 
-        return $query->pluck('name', 'id')->all();
+        return $query
+            ->get()
+            ->mapWithKeys(fn (Property $property): array => [$property->id => $property->displayName()])
+            ->all();
     }
 
     private static function currentUser(): ?User

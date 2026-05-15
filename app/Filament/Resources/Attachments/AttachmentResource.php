@@ -42,6 +42,16 @@ class AttachmentResource extends Resource
         return AttachmentsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.attachments.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.attachments.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

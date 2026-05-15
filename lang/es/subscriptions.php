@@ -2,8 +2,8 @@
 
 return [
     'actions' => [
-        'upgrade_plan' => 'Upgrade Plan',
+        'upgrade_plan' => 'Mejorar plan',
     ],
-    'property_limit_reached' => 'Your organización has reached the propiedad limit for the current plan.',
-    'tenant_limit_reached' => 'Your organización has reached the inquilino limit for the current plan.',
+    'property_limit_reached' => 'Tu organización alcanzó el límite de propiedades del plan actual.',
+    'tenant_limit_reached' => 'Tu organización alcanzó el límite de inquilinos del plan actual.',
 ];

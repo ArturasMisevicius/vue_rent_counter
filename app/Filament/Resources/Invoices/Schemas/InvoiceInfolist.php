@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Invoice;
 use App\Services\Billing\InvoicePresentationService;
 use Filament\Infolists\Components\TextEntry;
@@ -24,9 +25,11 @@ class InvoiceInfolist
                         TextEntry::make('tenant.name')
                             ->label(__('admin.invoices.fields.tenant')),
                         TextEntry::make('property.name')
-                            ->label(__('admin.invoices.fields.property')),
+                            ->label(__('admin.invoices.fields.property'))
+                            ->state(fn (Invoice $record): string => $record->property?->displayName() ?? '—'),
                         TextEntry::make('property.building.name')
-                            ->label(__('admin.invoices.fields.building')),
+                            ->label(__('admin.invoices.fields.building'))
+                            ->state(fn (Invoice $record): string => $record->property?->building?->displayName() ?? '—'),
                         TextEntry::make('billing_period_start')
                             ->label(__('admin.invoices.fields.billing_period_start'))
                             ->date(),
@@ -39,6 +42,10 @@ class InvoiceInfolist
                         TextEntry::make('due_date')
                             ->label(__('admin.invoices.fields.due_date'))
                             ->date(),
+                        TextEntry::make('notes')
+                            ->label(__('admin.invoices.fields.notes'))
+                            ->state(fn (Invoice $record): string => app(DatabaseContentLocalizer::class)->invoiceNotes($record->notes) ?? '—')
+                            ->placeholder('—'),
                     ])
                     ->columns(2),
                 Section::make(__('admin.invoices.sections.amounts'))

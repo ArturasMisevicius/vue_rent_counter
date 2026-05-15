@@ -66,6 +66,7 @@ it('keeps the panel provider delegated to the shell navigation builder instead o
 
 it('keeps every configured role navigation route reachable for authorized roles', function (): void {
     ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+    ['tenant' => $tenant] = createTenantInOrg($admin);
 
     $superadmin = User::factory()->superadmin()->create();
     $manager = User::factory()->manager()->create([
@@ -78,13 +79,55 @@ it('keeps every configured role navigation route reachable for authorized roles'
         ManagerPermissionCatalog::presets()['full_access']['matrix'],
     );
 
-    foreach ([$superadmin, $admin, $manager] as $user) {
+    foreach ([$superadmin, $admin, $manager, $tenant] as $user) {
         $this->actingAs($user);
 
         foreach (navigationRouteNamesFor($user) as $routeName) {
             $this->followingRedirects()
                 ->get(route($routeName))
                 ->assertSuccessful();
+        }
+    }
+});
+
+it('renders configured role navigation labels in Lithuanian without unresolved keys', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+    ['tenant' => $tenant] = createTenantInOrg($admin);
+
+    $superadmin = User::factory()->superadmin()->create([
+        'locale' => 'lt',
+    ]);
+    $admin->forceFill(['locale' => 'lt'])->save();
+    $tenant->forceFill(['locale' => 'lt'])->save();
+
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'lt',
+    ]);
+
+    ManagerPermission::syncForManager(
+        $manager,
+        $organization,
+        ManagerPermissionCatalog::presets()['full_access']['matrix'],
+    );
+
+    app()->setLocale('lt');
+
+    foreach ([$superadmin, $admin->fresh(), $manager, $tenant->fresh()] as $user) {
+        $request = Request::create(route('filament.admin.pages.dashboard'));
+        $groups = app(NavigationBuilder::class)->forUser($user, $request);
+
+        expect($groups)->not->toBeEmpty();
+
+        foreach ($groups as $group) {
+            expect($group->label)->not->toContain('shell.navigation');
+
+            foreach ($group->items as $item) {
+                expect($item->label)->not->toContain('shell.navigation')
+                    ->and($item->label)->not->toContain('admin.')
+                    ->and($item->label)->not->toContain('tenant.')
+                    ->and($item->label)->not->toContain('superadmin.');
+            }
         }
     }
 });

@@ -50,7 +50,7 @@
         <div class="mt-4 grid gap-3 md:grid-cols-3 xl:grid-cols-4">
             @foreach ($readings as $reading)
                 <article class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll') }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $reading->reading_date?->locale(app()->getLocale())->translatedFormat(\App\Filament\Support\Formatting\LocalizedDateFormatter::dateFormat()) }}</p>
                     <p class="mt-2 text-lg font-semibold tracking-tight text-slate-950">
                         {{ (new \NumberFormatter(app()->getLocale(), \NumberFormatter::DECIMAL))->format((float) $reading->reading_value) }} {{ $unit }}
                     </p>

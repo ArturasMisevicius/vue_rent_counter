@@ -94,3 +94,14 @@ it('resolves catalog feature defaults through pennant by active subscription pla
         ->and($professionalOrganization->fresh()->featureEnabled(OrganizationFeatureCatalog::ADVANCED_REPORTING))->toBeTrue()
         ->and(Feature::for($professionalOrganization->fresh())->active(OrganizationFeatureCatalog::ADVANCED_REPORTING))->toBeTrue();
 });
+
+it('localizes organization feature option labels for Filament actions', function () {
+    app()->setLocale('lt');
+
+    expect(OrganizationFeatureCatalog::label(OrganizationFeatureCatalog::ADVANCED_REPORTING))
+        ->toBe(__('superadmin.organizations.features.advanced_reporting', [], 'lt'))
+        ->not->toBe('Advanced reporting')
+        ->and(OrganizationFeatureCatalog::options()[OrganizationFeatureCatalog::BULK_INVOICING])
+        ->toBe(__('superadmin.organizations.features.bulk_invoicing', [], 'lt'))
+        ->not->toBe('Bulk invoicing');
+});

@@ -4,9 +4,44 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Superadmin\Users;
 
+use App\Enums\AuditLogAction;
+use App\Enums\DistributionMethod;
+use App\Enums\IntegrationHealthStatus;
+use App\Enums\InvoiceStatus;
+use App\Enums\KycVerificationStatus;
+use App\Enums\LanguageStatus;
+use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingValidationStatus;
+use App\Enums\MeterStatus;
+use App\Enums\MeterType;
+use App\Enums\OrganizationStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PricingModel;
+use App\Enums\ProjectCostRecordType;
+use App\Enums\ProjectPriority;
+use App\Enums\ProjectStatus;
+use App\Enums\ProjectTeamRole;
+use App\Enums\ProjectType;
+use App\Enums\PropertyType;
+use App\Enums\SecurityViolationSeverity;
+use App\Enums\SecurityViolationType;
+use App\Enums\ServiceType;
+use App\Enums\SubscriptionAccessMode;
+use App\Enums\SubscriptionDuration;
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
+use App\Enums\SystemSettingCategory;
+use App\Enums\TariffType;
+use App\Enums\TariffZone;
+use App\Enums\TenantStatus;
+use App\Enums\UnitOfMeasurement;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Enums\WeekendLogic;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use App\Models\Attachment;
 use App\Models\AuditLog;
 use App\Models\BlockedIpAddress;
@@ -32,6 +67,8 @@ use App\Models\SystemConfiguration;
 use App\Models\SystemTenant;
 use App\Models\User;
 use App\Models\UserKycProfile;
+use BackedEnum;
+use Filament\Support\Contracts\HasLabel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -76,6 +113,75 @@ class UserDossierData
         'organizationActivityLogs',
         'superAdminAuditLogs',
     ];
+
+    private const ENUM_CLASSES_BY_FIELD = [
+        'access_mode' => [SubscriptionAccessMode::class],
+        'action' => [AuditLogAction::class],
+        'approval_status' => [KycVerificationStatus::class, MeterReadingValidationStatus::class],
+        'category' => [SystemSettingCategory::class],
+        'distribution_method' => [DistributionMethod::class],
+        'duration' => [SubscriptionDuration::class],
+        'health_status' => [IntegrationHealthStatus::class],
+        'method' => [PaymentMethod::class],
+        'payment_method' => [PaymentMethod::class],
+        'period' => [SubscriptionDuration::class],
+        'plan' => [SubscriptionPlan::class],
+        'pricing_model' => [PricingModel::class],
+        'priority' => [ProjectPriority::class],
+        'role' => [ProjectTeamRole::class, UserRole::class],
+        'severity' => [SecurityViolationSeverity::class],
+        'status' => [
+            UserStatus::class,
+            OrganizationStatus::class,
+            SubscriptionStatus::class,
+            InvoiceStatus::class,
+            ProjectStatus::class,
+            MeterStatus::class,
+            TenantStatus::class,
+            LanguageStatus::class,
+            KycVerificationStatus::class,
+            MeterReadingValidationStatus::class,
+            IntegrationHealthStatus::class,
+        ],
+        'submission_method' => [MeterReadingSubmissionMethod::class],
+        'subscription_status' => [SubscriptionStatus::class],
+        'tariff_type' => [TariffType::class],
+        'type' => [
+            ProjectType::class,
+            MeterType::class,
+            PropertyType::class,
+            ServiceType::class,
+            SecurityViolationType::class,
+            ProjectCostRecordType::class,
+            TariffType::class,
+        ],
+        'unit' => [UnitOfMeasurement::class],
+        'unit_of_measurement' => [UnitOfMeasurement::class],
+        'validation_status' => [MeterReadingValidationStatus::class],
+        'verification_status' => [KycVerificationStatus::class],
+        'weekend_logic' => [WeekendLogic::class],
+        'zone' => [TariffZone::class],
+    ];
+
+    private const CODE_LABEL_PREFIXES_BY_FIELD = [
+        'action' => [
+            'superadmin.audit_logs.actions',
+        ],
+        'method' => [
+            'superadmin.relation_resources.subscription_renewals.methods',
+            'superadmin.relation_resources.invoice_payments.methods',
+        ],
+        'automation_level' => [
+            'superadmin.relation_resources.subscription_renewals.methods',
+        ],
+        'status' => [
+            'superadmin.relation_resources.invoice_email_logs.statuses',
+        ],
+    ];
+
+    public function __construct(
+        private readonly DatabaseContentLocalizer $databaseContentLocalizer,
+    ) {}
 
     public function resolve(int|string $key): User
     {
@@ -374,7 +480,7 @@ class UserDossierData
             'status' => $user->status instanceof UserStatus ? $user->status->label() : $user->status,
             'organization_id' => $user->organization_id,
             'system_tenant_id' => $user->system_tenant_id,
-            'locale' => $user->locale,
+            'locale' => $this->localizedScalarValue('locale', $user->locale) ?? $user->locale,
             'currency' => $user->currency,
             'email_verified_at' => $this->dateTime($user->email_verified_at),
             'last_login_at' => $this->dateTime($user->last_login_at),
@@ -395,6 +501,14 @@ class UserDossierData
             return null;
         }
 
+        return $this->normalizeModel($model);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function normalizeModel(Model $model): array
+    {
         return $this->normalizeState($model->toArray());
     }
 
@@ -406,7 +520,7 @@ class UserDossierData
     {
         return $this->section(
             $title,
-            $records->map(fn (Model $record): array => $this->normalizeState($record->toArray()))->all(),
+            $records->map(fn (Model $record): array => $this->normalizeModel($record))->all(),
             $empty,
             $records->count(),
         );
@@ -432,7 +546,7 @@ class UserDossierData
      */
     private function normalizeState(array $state): array
     {
-        $state = Arr::except($state, ['password', 'remember_token']);
+        $state = $this->normalizeKnownContent(Arr::except($state, ['password', 'remember_token']));
 
         foreach ($state as $key => $value) {
             if (is_array($value)) {
@@ -457,10 +571,339 @@ class UserDossierData
 
             if (is_bool($value)) {
                 $state[$key] = $this->bool($value);
+
+                continue;
+            }
+
+            if (is_scalar($value) && $this->isDateField($key) && filled((string) $value)) {
+                $state[$key] = $this->dateTime($value);
+
+                continue;
+            }
+
+            $localizedValue = $this->localizedScalarValue($key, $value);
+
+            if ($localizedValue !== null) {
+                $state[$key] = $localizedValue;
+
+                continue;
+            }
+
+            $enumLabel = $this->enumLabel($key, $value);
+
+            if ($enumLabel !== null) {
+                $state[$key] = $enumLabel;
             }
         }
 
         return $state;
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     * @return array<string, mixed>|array<int, mixed>
+     */
+    private function normalizeKnownContent(array $state): array
+    {
+        if ($this->looksLikeMeter($state) && is_scalar($state['name'] ?? null)) {
+            $state['name'] = $this->databaseContentLocalizer->meterName(
+                (string) $state['name'],
+                is_scalar($state['type'] ?? null) ? (string) $state['type'] : null,
+            );
+        }
+
+        if (
+            $this->looksLikeMeterReading($state)
+            && (is_string($state['notes'] ?? null) || ($state['notes'] ?? null) === null)
+        ) {
+            $state['notes'] = $this->databaseContentLocalizer->meterReadingNotes($state['notes'] ?? null);
+        }
+
+        if ($this->looksLikeBuilding($state) && is_scalar($state['name'] ?? null)) {
+            $state['name'] = $this->databaseContentLocalizer->buildingName((string) $state['name']);
+        }
+
+        if ($this->looksLikeProperty($state) && is_scalar($state['name'] ?? null)) {
+            $state['name'] = $this->databaseContentLocalizer->propertyName(
+                (string) $state['name'],
+                is_scalar($state['type'] ?? null) ? (string) $state['type'] : null,
+                is_scalar($state['unit_number'] ?? null) ? (string) $state['unit_number'] : null,
+            );
+        }
+
+        if ($this->looksLikeInvoice($state) && (is_string($state['notes'] ?? null) || ($state['notes'] ?? null) === null)) {
+            $state['notes'] = $this->databaseContentLocalizer->invoiceNotes($state['notes'] ?? null);
+        }
+
+        if ($this->looksLikeBillingRecord($state) && (is_string($state['notes'] ?? null) || ($state['notes'] ?? null) === null)) {
+            $state['notes'] = $this->databaseContentLocalizer->billingRecordNotes($state['notes'] ?? null);
+        }
+
+        if ($this->looksLikeProject($state)) {
+            if (is_scalar($state['name'] ?? null)) {
+                $state['name'] = $this->databaseContentLocalizer->projectName((string) $state['name']);
+            }
+
+            if (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null) {
+                $state['description'] = $this->databaseContentLocalizer->projectDescription($state['description'] ?? null);
+            }
+        }
+
+        if ($this->looksLikeTask($state)) {
+            if (is_scalar($state['title'] ?? null)) {
+                $state['title'] = $this->databaseContentLocalizer->taskTitle((string) $state['title']);
+            }
+
+            if (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null) {
+                $state['description'] = $this->databaseContentLocalizer->taskDescription($state['description'] ?? null);
+            }
+        }
+
+        if ($this->looksLikeTaskAssignment($state) && (is_string($state['notes'] ?? null) || ($state['notes'] ?? null) === null)) {
+            $state['notes'] = $this->databaseContentLocalizer->taskAssignmentNotes($state['notes'] ?? null);
+        }
+
+        if ($this->looksLikeTimeEntry($state) && (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null)) {
+            $state['description'] = $this->databaseContentLocalizer->timeEntryDescription($state['description'] ?? null);
+        }
+
+        if ($this->looksLikeAttachment($state) && (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null)) {
+            $state['description'] = $this->databaseContentLocalizer->attachmentDescription($state['description'] ?? null);
+        }
+
+        if ($this->looksLikeComment($state) && (is_string($state['body'] ?? null) || ($state['body'] ?? null) === null)) {
+            $state['body'] = $this->databaseContentLocalizer->commentBody($state['body'] ?? null);
+        }
+
+        if ($this->looksLikeSubscriptionRenewal($state) && (is_string($state['notes'] ?? null) || ($state['notes'] ?? null) === null)) {
+            $state['notes'] = $this->databaseContentLocalizer->subscriptionRenewalNotes($state['notes'] ?? null);
+        }
+
+        if ($this->looksLikeAuditLog($state) && (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null)) {
+            $state['description'] = $this->databaseContentLocalizer->activityDescription($state['description'] ?? null);
+        }
+
+        if ($this->looksLikeUtilityService($state)) {
+            if (is_scalar($state['name'] ?? null)) {
+                $state['name'] = $this->databaseContentLocalizer->utilityServiceName(
+                    (string) $state['name'],
+                    is_scalar($state['service_type_bridge'] ?? null) ? (string) $state['service_type_bridge'] : null,
+                );
+            }
+
+            if (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null) {
+                $state['description'] = $this->databaseContentLocalizer->utilityServiceDescription($state['description'] ?? null);
+            }
+        }
+
+        if ($this->looksLikeSystemConfiguration($state) && (is_string($state['description'] ?? null) || ($state['description'] ?? null) === null)) {
+            $state['description'] = $this->databaseContentLocalizer->systemConfigurationDescription($state['description'] ?? null);
+        }
+
+        return $state;
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeMeter(array $state): bool
+    {
+        return array_key_exists('identifier', $state)
+            && array_key_exists('type', $state)
+            && array_key_exists('unit', $state)
+            && array_key_exists('installed_at', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeMeterReading(array $state): bool
+    {
+        return array_key_exists('reading_value', $state)
+            && array_key_exists('reading_date', $state)
+            && array_key_exists('validation_status', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeBuilding(array $state): bool
+    {
+        return array_key_exists('address_line_1', $state)
+            && array_key_exists('city', $state)
+            && array_key_exists('country_code', $state)
+            && array_key_exists('organization_id', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeProperty(array $state): bool
+    {
+        return array_key_exists('building_id', $state)
+            && array_key_exists('unit_number', $state)
+            && array_key_exists('floor_area_sqm', $state)
+            && array_key_exists('type', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeInvoice(array $state): bool
+    {
+        return array_key_exists('invoice_number', $state)
+            && array_key_exists('billing_period_start', $state)
+            && array_key_exists('total_amount', $state)
+            && array_key_exists('due_date', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeBillingRecord(array $state): bool
+    {
+        return array_key_exists('utility_service_id', $state)
+            && array_key_exists('invoice_id', $state)
+            && array_key_exists('consumption', $state)
+            && array_key_exists('rate', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeProject(array $state): bool
+    {
+        return array_key_exists('name', $state)
+            && array_key_exists('reference_number', $state)
+            && array_key_exists('completion_percentage', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeTask(array $state): bool
+    {
+        return array_key_exists('title', $state)
+            && array_key_exists('project_id', $state)
+            && array_key_exists('estimated_hours', $state)
+            && array_key_exists('actual_hours', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeTaskAssignment(array $state): bool
+    {
+        return array_key_exists('task_id', $state)
+            && array_key_exists('user_id', $state)
+            && array_key_exists('role', $state)
+            && array_key_exists('assigned_at', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeTimeEntry(array $state): bool
+    {
+        return array_key_exists('task_id', $state)
+            && array_key_exists('assignment_id', $state)
+            && array_key_exists('hours', $state)
+            && array_key_exists('logged_at', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeAttachment(array $state): bool
+    {
+        return array_key_exists('attachable_type', $state)
+            && array_key_exists('attachable_id', $state)
+            && array_key_exists('filename', $state)
+            && array_key_exists('path', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeComment(array $state): bool
+    {
+        return array_key_exists('commentable_type', $state)
+            && array_key_exists('commentable_id', $state)
+            && array_key_exists('body', $state)
+            && array_key_exists('user_id', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeSubscriptionRenewal(array $state): bool
+    {
+        return array_key_exists('subscription_id', $state)
+            && array_key_exists('old_expires_at', $state)
+            && array_key_exists('new_expires_at', $state)
+            && array_key_exists('duration_days', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeAuditLog(array $state): bool
+    {
+        return array_key_exists('subject_type', $state)
+            && array_key_exists('subject_id', $state)
+            && array_key_exists('action', $state)
+            && array_key_exists('occurred_at', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeUtilityService(array $state): bool
+    {
+        return array_key_exists('unit_of_measurement', $state)
+            && array_key_exists('default_pricing_model', $state)
+            && array_key_exists('service_type_bridge', $state)
+            && array_key_exists('is_global_template', $state);
+    }
+
+    /**
+     * @param  array<string, mixed>|array<int, mixed>  $state
+     */
+    private function looksLikeSystemConfiguration(array $state): bool
+    {
+        return array_key_exists('key', $state)
+            && array_key_exists('value', $state)
+            && array_key_exists('type', $state)
+            && array_key_exists('category', $state)
+            && array_key_exists('default_value', $state);
+    }
+
+    private function localizedScalarValue(string $key, mixed $value): ?string
+    {
+        if (! is_scalar($value) || $value === '') {
+            return null;
+        }
+
+        $field = LocalizedCodeLabel::segment($key);
+        $rawValue = (string) $value;
+
+        if ($field !== 'locale') {
+            return null;
+        }
+
+        $locales = config('tenanto.locales', []);
+
+        if (is_array($locales) && filled($locales[$rawValue] ?? null)) {
+            return (string) $locales[$rawValue];
+        }
+
+        $supportedLocales = config('app.supported_locales', []);
+
+        if (is_array($supportedLocales) && filled($supportedLocales[$rawValue] ?? null)) {
+            return (string) $supportedLocales[$rawValue];
+        }
+
+        return null;
     }
 
     private function bool(bool $value): string
@@ -475,12 +918,50 @@ class UserDossierData
         }
 
         if ($value instanceof Carbon) {
-            return $value->locale(app()->getLocale())->isoFormat('LLL');
+            return $value->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat());
         }
 
         return Carbon::parse((string) $value)
             ->locale(app()->getLocale())
-            ->isoFormat('LLL');
+            ->translatedFormat(LocalizedDateFormatter::dateTimeFormat());
+    }
+
+    private function isDateField(string $key): bool
+    {
+        return Str::endsWith($key, ['_at', '_date', '_on', 'period_start', 'period_end']);
+    }
+
+    private function enumLabel(string $key, mixed $value): ?string
+    {
+        if (! is_scalar($value) || $value === '') {
+            return null;
+        }
+
+        $field = LocalizedCodeLabel::segment($key);
+        $rawValue = (string) $value;
+
+        foreach (self::ENUM_CLASSES_BY_FIELD[$field] ?? [] as $enumClass) {
+            if (! is_a($enumClass, BackedEnum::class, true)) {
+                continue;
+            }
+
+            /** @var class-string<BackedEnum> $enumClass */
+            $case = $enumClass::tryFrom($rawValue);
+
+            if ($case instanceof HasLabel) {
+                return (string) $case->getLabel();
+            }
+        }
+
+        foreach (self::CODE_LABEL_PREFIXES_BY_FIELD[$field] ?? [] as $prefix) {
+            $translationKey = $prefix.'.'.LocalizedCodeLabel::segment($rawValue);
+
+            if (trans()->has($translationKey)) {
+                return __($translationKey);
+            }
+        }
+
+        return null;
     }
 
     /**

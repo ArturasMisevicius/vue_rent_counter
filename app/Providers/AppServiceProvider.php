@@ -8,6 +8,8 @@ use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
 use App\Filament\Support\Shell\Search\Providers\BuildingSearchProvider;
 use App\Filament\Support\Shell\Search\Providers\InvoiceSearchProvider;
@@ -43,10 +45,14 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -70,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LaravelMissingTranslationsCommand::class, LaravelMissingTranslationsPhpFilesCommand::class);
         $this->app->singleton(ImpersonationManager::class);
         $this->app->singleton(ManagerPermissionService::class);
+        $this->app->scoped(DatabaseContentLocalizer::class);
         $this->app->scoped(DashboardCacheService::class);
         $this->app->singleton(TranslationCacheService::class, function (): TranslationCacheService {
             return new TranslationCacheService(
@@ -124,8 +131,11 @@ class AppServiceProvider extends ServiceProvider
             SetAuthenticatedUserLocale::class,
         ]);
 
+        $this->warmFilamentTableTranslationGroups();
         $this->configureAuthRateLimiters();
         $this->configureSecurityRateLimiters();
+        $this->configureFilamentDisplayFormats();
+        $this->configureFilamentLocalizedLabels();
         $this->configureCalendarFields();
         $this->configureDestructiveActionConfirmations();
 
@@ -136,6 +146,17 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);
         PropertyAssignment::observe(PropertyAssignmentObserver::class);
+    }
+
+    private function warmFilamentTableTranslationGroups(): void
+    {
+        foreach (array_keys((array) config('app.supported_locales', ['en' => 'EN'])) as $locale) {
+            if (! is_string($locale) || $locale === '') {
+                continue;
+            }
+
+            Lang::get('filament-tables::table.fields.search.label', [], $locale);
+        }
     }
 
     private function configureAuthRateLimiters(): void
@@ -174,6 +195,26 @@ class AppServiceProvider extends ServiceProvider
                 'security-csp-report|'.$request->ip(),
             );
         });
+    }
+
+    private function configureFilamentDisplayFormats(): void
+    {
+        Table::configureUsing(function (Table $table): void {
+            $table
+                ->defaultDateDisplayFormat(fn (): string => LocalizedDateFormatter::dateFormat())
+                ->defaultDateTimeDisplayFormat(fn (): string => LocalizedDateFormatter::dateTimeFormat());
+        });
+
+        Schema::configureUsing(function (Schema $schema): void {
+            $schema
+                ->defaultDateDisplayFormat(fn (): string => LocalizedDateFormatter::dateFormat())
+                ->defaultDateTimeDisplayFormat(fn (): string => LocalizedDateFormatter::dateTimeFormat());
+        });
+    }
+
+    private function configureFilamentLocalizedLabels(): void
+    {
+        Resource::titleCaseModelLabel(false);
     }
 
     private function throttleKey(Request $request): string

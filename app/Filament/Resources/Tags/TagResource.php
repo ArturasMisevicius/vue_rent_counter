@@ -41,6 +41,16 @@ class TagResource extends Resource
         return TagsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.tags.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.tags.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();

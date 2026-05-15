@@ -26,25 +26,34 @@ class OrganizationUsersTable
                     ->visible(fn (): bool => static::currentUser()?->isSuperadmin() ?? false)
                     ->searchable(),
                 TextColumn::make('user.name')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.user'))
                     ->searchable(),
                 TextColumn::make('role')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.role'))
+                    ->state(fn (OrganizationUser $record): string => $record->roleLabel())
                     ->badge()
                     ->searchable(),
                 TextColumn::make('joined_at')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.joined_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('left_at')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.left_at'))
                     ->dateTime()
                     ->sortable(),
                 IconColumn::make('is_active')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.is_active'))
                     ->boolean(),
                 TextColumn::make('inviter.name')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.inviter'))
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

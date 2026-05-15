@@ -86,9 +86,9 @@ final class OutstandingBalancesReportBuilder extends AbstractReportBuilder
             ->map(function (Invoice $invoice): array {
                 $daysOverdue = $invoice->overdueDays();
                 $propertyLabel = trim(implode(' · ', array_filter([
-                    (string) ($invoice->property?->name ?? ''),
+                    (string) ($invoice->property?->displayName() ?? ''),
                     (string) ($invoice->property?->unit_number ?? ''),
-                    (string) ($invoice->property?->building?->name ?? ''),
+                    (string) ($invoice->property?->building?->displayName() ?? ''),
                 ])));
 
                 return [

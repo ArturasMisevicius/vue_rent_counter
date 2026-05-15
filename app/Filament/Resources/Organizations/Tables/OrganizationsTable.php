@@ -18,6 +18,7 @@ use App\Filament\Actions\Superadmin\Organizations\ToggleOrganizationFeatureActio
 use App\Filament\Actions\Superadmin\Organizations\TransferOrganizationOwnershipAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Support\Features\OrganizationFeatureCatalog;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Models\Organization;
@@ -125,7 +126,7 @@ class OrganizationsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.organizations.columns.created_at'))
-                    ->state(fn (Organization $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (Organization $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable()
                     ->toggleable(),
             ])
@@ -530,7 +531,7 @@ class OrganizationsTable
             return '—';
         }
 
-        return $subscription->expires_at->locale(app()->getLocale())->isoFormat('ll');
+        return $subscription->expires_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat());
     }
 
     /**

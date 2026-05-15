@@ -8,6 +8,7 @@ use App\Enums\UnitOfMeasurement;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Organization;
+use App\Models\Property;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -81,6 +82,7 @@ class MeterForm
                                     return $query;
                                 },
                             )
+                            ->getOptionLabelFromRecordUsing(fn (Property $record): string => $record->displayName())
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -139,7 +141,9 @@ class MeterForm
             ->select(['id', 'organization_id', 'name'])
             ->where('organization_id', $organizationId)
             ->orderBy('name')
-            ->pluck('name', 'id')
+            ->orderBy('id')
+            ->get()
+            ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
             ->all();
     }
 

@@ -6,6 +6,7 @@ namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Invoice;
 use App\Models\InvoiceEmailLog;
 use App\Models\InvoicePayment;
@@ -208,7 +209,7 @@ final class InvoiceViewPresenter
             return '—';
         }
 
-        return $value->locale(app()->getLocale())->isoFormat('LLL');
+        return $value->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat());
     }
 
     private function formatCurrency(string $currency, float $amount): string

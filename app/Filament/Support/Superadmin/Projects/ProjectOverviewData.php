@@ -4,16 +4,25 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Superadmin\Projects;
 
+use App\Enums\AuditLogAction;
+use App\Enums\ProjectTeamRole;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\AuditLog;
 use App\Models\Project;
 use App\Models\ProjectUser;
 use App\Models\PropertyAssignment;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 final class ProjectOverviewData
 {
+    public function __construct(
+        private readonly DatabaseContentLocalizer $databaseContentLocalizer,
+    ) {}
+
     public function for(Project $project): array
     {
         $project->loadMissing([
@@ -53,11 +62,11 @@ final class ProjectOverviewData
             ->get()
             ->map(fn (AuditLog $entry): array => [
                 'actor' => $entry->actor?->name ?? __('admin.projects.overview.system'),
-                'action' => $entry->action?->value !== null
-                    ? Str::of($entry->action->value)->replace('_', ' ')->title()->toString()
-                    : __('admin.projects.overview.activity'),
-                'description' => $entry->description ?: (string) data_get($entry->metadata, 'context.mutation', __('admin.projects.overview.no_description_recorded')),
-                'occurred_at' => $entry->occurred_at?->toDateTimeString() ?? '—',
+                'action' => $entry->action instanceof AuditLogAction ? $entry->action->label() : __('admin.projects.overview.activity'),
+                'description' => $this->databaseContentLocalizer->activityDescription(
+                    $entry->description ?: (string) data_get($entry->metadata, 'context.mutation', __('admin.projects.overview.no_description_recorded')),
+                ),
+                'occurred_at' => $this->dateTime($entry->occurred_at),
             ])
             ->all();
     }
@@ -65,20 +74,20 @@ final class ProjectOverviewData
     private function identity(Project $project): array
     {
         return [
-            ['label' => __('admin.projects.overview.project_name'), 'value' => $project->name],
+            ['label' => __('admin.projects.overview.project_name'), 'value' => $this->databaseContentLocalizer->projectName($project->name)],
             ['label' => __('admin.projects.overview.reference_number'), 'value' => $project->reference_number ?: '—'],
             ['label' => __('admin.projects.overview.organization'), 'value' => $project->organization?->name ?? '—'],
-            ['label' => __('admin.projects.overview.building'), 'value' => $project->building?->name ?? '—'],
-            ['label' => __('admin.projects.overview.property'), 'value' => $project->property?->name ?? '—'],
+            ['label' => __('admin.projects.overview.building'), 'value' => $project->building?->displayName() ?? '—'],
+            ['label' => __('admin.projects.overview.property'), 'value' => $project->property?->displayName() ?? '—'],
             ['label' => __('admin.projects.overview.status'), 'value' => $project->status?->getLabel() ?? '—'],
             ['label' => __('admin.projects.overview.priority'), 'value' => $project->priority?->getLabel() ?? '—'],
             ['label' => __('admin.projects.overview.type'), 'value' => $project->type?->getLabel() ?? '—'],
             ['label' => __('admin.projects.overview.manager'), 'value' => $project->manager?->name ?? __('admin.projects.overview.unassigned')],
             ['label' => __('admin.projects.overview.requires_approval'), 'value' => $project->requires_approval ? __('admin.projects.overview.yes') : __('admin.projects.overview.no')],
-            ['label' => __('admin.projects.overview.approved_at'), 'value' => $project->approved_at?->toDateTimeString() ?? '—'],
+            ['label' => __('admin.projects.overview.approved_at'), 'value' => $this->dateTime($project->approved_at)],
             ['label' => __('admin.projects.overview.approved_by'), 'value' => $project->approver?->name ?? '—'],
-            ['label' => __('admin.projects.overview.created_at'), 'value' => $project->created_at?->toDateTimeString() ?? '—'],
-            ['label' => __('admin.projects.overview.updated_at'), 'value' => $project->updated_at?->toDateTimeString() ?? '—'],
+            ['label' => __('admin.projects.overview.created_at'), 'value' => $this->dateTime($project->created_at)],
+            ['label' => __('admin.projects.overview.updated_at'), 'value' => $this->dateTime($project->updated_at)],
         ];
     }
 
@@ -102,7 +111,7 @@ final class ProjectOverviewData
     private function details(Project $project): array
     {
         return [
-            'description' => filled($project->description) ? (string) $project->description : '—',
+            'description' => filled($project->description) ? $this->databaseContentLocalizer->projectDescription($project->description) : '—',
             'notes' => filled($project->notes) ? (string) $project->notes : '—',
             'external_contractor' => $project->external_contractor ?: '—',
             'contractor_contact' => $project->contractor_contact ?: '—',
@@ -116,10 +125,10 @@ final class ProjectOverviewData
         $varianceDays = $project->scheduleVarianceDays();
 
         return [
-            'estimated_start_date' => $project->estimated_start_date?->toDateString() ?? '—',
-            'actual_start_date' => $project->actual_start_date?->toDateString() ?? '—',
-            'estimated_end_date' => $project->estimated_end_date?->toDateString() ?? '—',
-            'actual_end_date' => $project->actual_end_date?->toDateString() ?? '—',
+            'estimated_start_date' => $this->date($project->estimated_start_date),
+            'actual_start_date' => $this->date($project->actual_start_date),
+            'estimated_end_date' => $this->date($project->estimated_end_date),
+            'actual_end_date' => $this->date($project->actual_end_date),
             'completion_percentage' => max(0, min(100, (int) $project->completion_percentage)),
             'variance_label' => match (true) {
                 $varianceDays === null => __('admin.projects.overview.no_estimated_end_date'),
@@ -184,7 +193,7 @@ final class ProjectOverviewData
             ->map(fn (ProjectUser $membership): array => [
                 'name' => $membership->user?->name ?? __('admin.projects.overview.unknown_user'),
                 'email' => $membership->user?->email ?? '—',
-                'role' => Str::of((string) $membership->role)->replace('_', ' ')->title()->toString(),
+                'role' => $this->projectTeamRoleLabel($membership->role),
             ]);
 
         return $rows
@@ -244,8 +253,8 @@ final class ProjectOverviewData
             'rows' => $assignments
                 ->map(fn (PropertyAssignment $assignment): array => [
                     'tenant' => $assignment->tenant?->name ?? __('admin.projects.overview.unknown_tenant'),
-                    'property' => $assignment->property?->name ?? '—',
-                    'building' => $assignment->property?->building?->name ?? '—',
+                    'property' => $assignment->property?->displayName() ?? '—',
+                    'building' => $assignment->property?->building?->displayName() ?? '—',
                     'share' => $this->money($share),
                 ])
                 ->all(),
@@ -259,5 +268,38 @@ final class ProjectOverviewData
         }
 
         return EuMoneyFormatter::format($amount);
+    }
+
+    private function date(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        return Carbon::parse($value)
+            ->locale(app()->getLocale())
+            ->translatedFormat(LocalizedDateFormatter::dateFormat());
+    }
+
+    private function dateTime(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        return Carbon::parse($value)
+            ->locale(app()->getLocale())
+            ->translatedFormat(LocalizedDateFormatter::dateTimeFormat());
+    }
+
+    private function projectTeamRoleLabel(mixed $value): string
+    {
+        if ($value instanceof ProjectTeamRole) {
+            return $value->label();
+        }
+
+        $role = is_scalar($value) ? ProjectTeamRole::tryFrom((string) $value) : null;
+
+        return $role?->label() ?? '—';
     }
 }

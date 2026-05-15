@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PropertyType;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use Database\Factories\PropertyFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -252,12 +253,19 @@ class Property extends Model
         return (string) $formatter->format($value);
     }
 
+    public function displayName(): string
+    {
+        $name = app(DatabaseContentLocalizer::class)->propertyName($this->name, $this->type, $this->unit_number);
+
+        return $name !== '' ? $name : __('dashboard.not_available');
+    }
+
     public function tenantAssignmentLabel(): string
     {
         $parts = array_filter([
-            $this->name,
+            $this->displayName(),
             $this->unit_number,
-            $this->building?->name,
+            $this->building?->displayName(),
         ]);
 
         return implode(' · ', $parts);
@@ -291,7 +299,7 @@ class Property extends Model
     {
         $building = $this->building;
         $parts = array_filter([
-            $building?->name,
+            $building?->displayName(),
             $building?->address,
         ]);
 

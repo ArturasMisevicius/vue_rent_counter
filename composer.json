@@ -13,11 +13,12 @@
         "laravel/framework": "^13.0",
         "laravel/pennant": "^1.23",
         "laravel/tinker": "^3.0",
-        "symfony/intl": "^8.0"
+        "symfony/intl": "^7.4"
     },
     "require-dev": {
         "eg-mohamed/laravel-missing-translations": "^2.0",
         "fakerphp/faker": "^1.23",
+        "laravel-lang/lang": "^15.29",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
@@ -88,6 +89,9 @@
     },
     "config": {
         "optimize-autoloader": true,
+        "platform": {
+            "php": "8.3.24"
+        },
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {

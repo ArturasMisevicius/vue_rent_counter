@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Buildings\Tables;
 
 use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\User;
@@ -38,6 +39,7 @@ class BuildingsTable
                     ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.buildings.columns.building_name'))
+                    ->state(fn (Building $record): string => $record->displayName())
                     ->url(fn (Building $record): string => BuildingResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
@@ -68,7 +70,7 @@ class BuildingsTable
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.buildings.columns.date_created'))
-                    ->state(fn (Building $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (Building $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
             ])
             ->filters([

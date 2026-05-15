@@ -8,7 +8,7 @@ return [
     'cta' => [
         'heading' => 'Elige el punto de entrada correcto',
         'description' => 'Inicia sesión para continuar operaciones activas, o registra una cuenta Admin para lanzar una nueva organización.',
-        'note' => 'El acceso de Manager y Tenant se mantiene por invitación para preservar onboarding controlado y aislamiento de inquilinos.',
+        'note' => 'El acceso de gestor e inquilino se mantiene por invitación para preservar una incorporación controlada y el aislamiento de inquilinos.',
         'login' => 'Iniciar sesión',
         'register' => 'Registrarse',
     ],
@@ -72,11 +72,11 @@ return [
                 'description' => 'Configura organizaciones, define estándares operativos y supervisa preparación de facturación.',
             ],
             2 => [
-                'name' => 'Manager',
+                'name' => 'Gestor',
                 'description' => 'Ejecuta operaciones diarias en edificios, lecturas, tareas de campo y trabajo con inquilinos.',
             ],
             3 => [
-                'name' => 'Tenant',
+                'name' => 'Inquilino',
                 'description' => 'Usa un portal directo para facturas, envío de lecturas y mantenimiento de perfil.',
             ],
         ],

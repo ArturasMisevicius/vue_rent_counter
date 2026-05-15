@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\MeterReading;
 use App\Models\MeterReading as MeterReadingModel;
 use Filament\Actions\ViewAction;
@@ -83,12 +84,12 @@ class ReadingsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('meter.identifier')
                     ->label(__('admin.tenants.readings.columns.meter'))
-                    ->state(fn (MeterReading $record): string => (string) ($record->meter?->identifier ?: $record->meter?->name ?: '—'))
+                    ->state(fn (MeterReading $record): string => (string) ($record->meter?->identifier ?: $record->meter?->displayName() ?: '—'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('reading_date')
                     ->label(__('admin.tenants.readings.columns.reading_date'))
-                    ->state(fn (MeterReading $record): string => $record->reading_date?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (MeterReading $record): string => $record->reading_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
                 TextColumn::make('reading_value')
                     ->label(__('admin.tenants.readings.columns.value'))

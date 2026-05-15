@@ -8,24 +8,24 @@ return [
         'limit_blocked' => [
             'properties' => [
                 'title' => 'Propiedad limit reached',
-                'body' => 'This workspace is using :used of :limit properties on the current plan. Upgrade the suscripción before creating another propiedad.',
+                'body' => 'Este espacio usa :used de :limit propiedades del plan actual. Mejora la suscripción antes de crear otra propiedad.',
             ],
             'tenants' => [
                 'title' => 'Inquilino limit reached',
-                'body' => 'This workspace is using :used of :limit inquilinos on the current plan. Upgrade the suscripción before creating another inquilino.',
+                'body' => 'Este espacio usa :used de :limit inquilinos del plan actual. Mejora la suscripción antes de crear otro inquilino.',
             ],
         ],
         'grace_read_only' => [
             'title' => 'Suscripción renewal required',
-            'body' => 'This organización is inside its renewal grace period until :grace_ends_at. Data remains visible, but new writes are blocked until the suscripción is renewed.',
+            'body' => 'Esta organización está en periodo de gracia de renovación hasta :grace_ends_at. Los datos siguen visibles, pero las nuevas escrituras están bloqueadas hasta renovar la suscripción.',
         ],
         'post_grace_read_only' => [
-            'title' => 'Suscripción vencido',
-            'body' => 'The renewal grace period has ended. Organización data is still visible, but write actions stay unavailable until the suscripción is renewed.',
+            'title' => 'Suscripción vencida',
+            'body' => 'El periodo de gracia de renovación terminó. Los datos de la organización siguen visibles, pero las acciones de escritura no estarán disponibles hasta renovar la suscripción.',
         ],
         'suspended' => [
-            'title' => 'Suscripción suspendido',
-            'body' => 'This organización suscripción is suspendido. Workspace access remains blocked until the suscripción is reinstated.',
+            'title' => 'Suscripción suspendida',
+            'body' => 'La suscripción de esta organización está suspendida. El acceso al espacio sigue bloqueado hasta restablecer la suscripción.',
         ],
     ],
 ];

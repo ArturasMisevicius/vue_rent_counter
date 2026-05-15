@@ -10,6 +10,8 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Organization;
 use App\Models\Project;
 use App\Models\SecurityViolation;
@@ -31,6 +33,7 @@ class PlatformDashboardData
 
     public function __construct(
         protected DashboardCacheService $dashboardCacheService,
+        protected DatabaseContentLocalizer $databaseContentLocalizer,
     ) {}
 
     /**
@@ -240,7 +243,7 @@ class PlatformDashboardData
         $labels = collect($monthKeys)
             ->map(fn (string $monthKey): string => Carbon::createFromFormat('Y-m', $monthKey)
                 ->locale(app()->getLocale())
-                ->translatedFormat('M'))
+                ->translatedFormat(LocalizedDateFormatter::monthFormat()))
             ->all();
 
         $payments = SubscriptionPayment::query()
@@ -344,7 +347,7 @@ class PlatformDashboardData
                     $updatedAt = Carbon::parse((string) data_get($project->metadata, 'on_hold_reason_updated_at'));
 
                     return [
-                        'name' => $project->name,
+                        'name' => $this->databaseContentLocalizer->projectName($project->name),
                         'organization' => $project->organization?->name ?? $this->notAvailable(),
                         'stale_age' => $updatedAt->locale(app()->getLocale())->diffForHumans(),
                     ];

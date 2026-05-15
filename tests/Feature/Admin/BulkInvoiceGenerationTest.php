@@ -148,6 +148,16 @@ it('renders the bulk invoice generation page contract with live preview warnings
     expect(Invoice::query()->where('organization_id', $organization->id)->count())->toBe(1);
 });
 
+it('blocks bulk invoice generation without an admin organization context', function () {
+    $superadmin = User::factory()->superadmin()->create([
+        'organization_id' => null,
+    ]);
+
+    actingAs($superadmin)
+        ->get(route('filament.admin.pages.generate-bulk-invoices'))
+        ->assertForbidden();
+});
+
 it('generates selected bulk invoices and exposes a filtered view of the created invoices', function () {
     [
         'organization' => $organization,

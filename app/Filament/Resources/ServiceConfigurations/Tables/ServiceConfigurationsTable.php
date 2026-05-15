@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ServiceConfigurations\Tables;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\ServiceConfiguration;
@@ -29,6 +30,7 @@ class ServiceConfigurationsTable
                     ->toggleable(),
                 TextColumn::make('property.name')
                     ->label(__('admin.service_configurations.columns.property'))
+                    ->state(fn (ServiceConfiguration $record): string => $record->property?->displayName() ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('utilityService.name')
@@ -53,12 +55,12 @@ class ServiceConfigurationsTable
                     ->toggleable(),
                 TextColumn::make('effective_from')
                     ->label(__('admin.service_configurations.fields.effective_from'))
-                    ->state(fn (ServiceConfiguration $record): string => $record->effective_from?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (ServiceConfiguration $record): string => $record->effective_from?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('effective_until')
                     ->label(__('admin.service_configurations.fields.effective_until'))
-                    ->state(fn (ServiceConfiguration $record): string => $record->effective_until?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (ServiceConfiguration $record): string => $record->effective_until?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->placeholder('—')
                     ->toggleable(),
                 IconColumn::make('is_active')
@@ -85,7 +87,8 @@ class ServiceConfigurationsTable
                         )
                         ->orderBy('name')
                         ->orderBy('id')
-                        ->pluck('name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Property $property): array => [$property->id => $property->displayName()])
                         ->all())
                     ->query(fn (Builder $query, array $data): Builder => $query->forPropertyValue($data['value'] ?? null)),
                 TernaryFilter::make('is_active')

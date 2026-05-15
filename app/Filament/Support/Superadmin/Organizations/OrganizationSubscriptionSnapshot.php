@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Superadmin\Organizations;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\Subscription;
 use App\Models\SubscriptionRenewal;
@@ -65,13 +66,13 @@ final readonly class OrganizationSubscriptionSnapshot
             statusLabel: $subscription->status?->label() ?? __('superadmin.organizations.overview.placeholders.no_subscription'),
             billingCycleLabel: $subscription->latestPayment?->duration?->label()
                 ?? __('superadmin.organizations.overview.placeholders.not_available'),
-            nextBillingDateLabel: $subscription->expires_at?->locale(app()->getLocale())->isoFormat('ll')
+            nextBillingDateLabel: $subscription->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
                 ?? __('superadmin.organizations.overview.placeholders.not_available'),
             paymentMethodLabel: $subscription->latestPayment !== null
                 ? __('superadmin.organizations.overview.payment_method_available')
                 : __('superadmin.organizations.overview.payment_method_not_available'),
             trialEndsAtLabel: $subscription->is_trial
-                ? $subscription->expires_at?->locale(app()->getLocale())->isoFormat('ll')
+                ? $subscription->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
                 : null,
             renewalHistory: $subscription->renewals
                 ->take(5)
@@ -84,7 +85,7 @@ final readonly class OrganizationSubscriptionSnapshot
     {
         $method = mb_convert_case($renewal->method, MB_CASE_TITLE);
         $period = mb_convert_case((string) $renewal->period, MB_CASE_TITLE);
-        $date = $renewal->new_expires_at?->locale(app()->getLocale())->isoFormat('ll')
+        $date = $renewal->new_expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
             ?? __('superadmin.organizations.overview.placeholders.not_available');
 
         return "{$method} · {$period} · {$date}";

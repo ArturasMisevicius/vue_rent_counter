@@ -20,8 +20,10 @@ class OrganizationUserInfolist
         return $schema
             ->components([
                 TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
-                TextEntry::make('user.name')->label(__('superadmin.users.singular')),
-                TextEntry::make('role'),
+                TextEntry::make('user.name')->label(__('superadmin.relation_resources.organization_users.fields.user')),
+                TextEntry::make('role')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.role'))
+                    ->state(fn (OrganizationUser $record): string => $record->roleLabel()),
                 Section::make(__('admin.manager_permissions.section'))
                     ->description(__('admin.manager_permissions.description'))
                     ->schema([
@@ -35,23 +37,29 @@ class OrganizationUserInfolist
                     ->columnSpanFull()
                     ->visible(fn (OrganizationUser $record): bool => $record->role === UserRole::MANAGER->value),
                 TextEntry::make('permissions')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.permissions'))
                     ->placeholder('-')
                     ->columnSpanFull()
                     ->visible(fn (OrganizationUser $record): bool => $record->role !== UserRole::MANAGER->value),
                 TextEntry::make('joined_at')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.joined_at'))
                     ->dateTime(),
                 TextEntry::make('left_at')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.left_at'))
                     ->dateTime()
                     ->placeholder('-'),
                 IconEntry::make('is_active')
+                    ->label(__('superadmin.relation_resources.organization_users.fields.is_active'))
                     ->boolean(),
                 TextEntry::make('inviter.name')
-                    ->label(__('admin.organization_users.invited_by'))
+                    ->label(__('superadmin.relation_resources.organization_users.fields.inviter'))
                     ->placeholder('-'),
                 TextEntry::make('created_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.created_at'))
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label(__('superadmin.relation_resources.shared.fields.updated_at'))
                     ->dateTime()
                     ->placeholder('-'),
             ]);

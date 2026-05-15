@@ -40,6 +40,16 @@ class CommentReactionResource extends Resource
         return CommentReactionsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.comment_reactions.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.comment_reactions.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

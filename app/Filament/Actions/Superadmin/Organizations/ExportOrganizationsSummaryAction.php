@@ -3,6 +3,7 @@
 namespace App\Filament\Actions\Superadmin\Organizations;
 
 use App\Enums\SubscriptionStatus;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\Organizations\OrganizationListQuery;
 use App\Filament\Support\Superadmin\Organizations\OrganizationMrrResolver;
 use App\Models\Organization;
@@ -147,7 +148,7 @@ class ExportOrganizationsSummaryAction
             ],
             'created_at' => [
                 'label' => __('superadmin.organizations.columns.created_at'),
-                'value' => fn (Organization $organization): string => $organization->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '',
+                'value' => fn (Organization $organization): string => $organization->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '',
             ],
         ];
     }
@@ -164,6 +165,6 @@ class ExportOrganizationsSummaryAction
             return '';
         }
 
-        return $subscription->expires_at->locale(app()->getLocale())->isoFormat('ll');
+        return $subscription->expires_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat());
     }
 }

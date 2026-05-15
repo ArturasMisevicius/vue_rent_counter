@@ -41,6 +41,16 @@ class TaskResource extends Resource
         return TasksTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.tasks.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.tasks.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();

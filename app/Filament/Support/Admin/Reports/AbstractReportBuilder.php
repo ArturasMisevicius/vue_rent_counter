@@ -32,9 +32,9 @@ abstract class AbstractReportBuilder
         }
 
         $parts = array_filter([
-            $property->name,
+            $property->displayName(),
             $property->unit_number,
-            $property->building?->name,
+            $property->building?->displayName(),
         ]);
 
         return implode(' · ', $parts);

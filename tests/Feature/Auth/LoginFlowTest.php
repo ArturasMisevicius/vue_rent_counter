@@ -83,6 +83,63 @@ it('keeps the email and shows a generic message when login fails', function () {
     $this->assertGuest();
 });
 
+it('shows Lithuanian login validation and failure messages after selecting Lithuanian', function () {
+    registerLoginDestinationFixtures();
+
+    User::factory()->create([
+        'email' => 'asta@example.com',
+    ]);
+
+    $this->withSession([
+        config('app.guest_locale_session_key', 'guest_locale') => 'lt',
+    ])->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => '',
+            'password' => '',
+        ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors([
+            'email' => __('validation.required', ['attribute' => __('requests.attributes.email', [], 'lt')], 'lt'),
+            'password' => __('validation.required', ['attribute' => __('requests.attributes.password', [], 'lt')], 'lt'),
+        ]);
+
+    $this->withSession([
+        config('app.guest_locale_session_key', 'guest_locale') => 'lt',
+    ])->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => 'asta@example.com',
+            'password' => 'wrong-password',
+        ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors([
+            'email' => __('auth.invalid_credentials', [], 'lt'),
+        ]);
+
+    $this->assertGuest();
+});
+
+it('keeps the authenticated locale for the guest login page after logout', function () {
+    registerLoginDestinationFixtures();
+
+    $user = User::factory()->create([
+        'locale' => 'lt',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('logout'))
+        ->assertRedirect(route('login'))
+        ->assertSessionHas(config('app.guest_locale_session_key', 'guest_locale'), 'lt');
+
+    $this->assertGuest();
+
+    $this->withSession([
+        config('app.guest_locale_session_key', 'guest_locale') => 'lt',
+    ])->get(route('login'))
+        ->assertSuccessful()
+        ->assertSeeText(__('auth.login_title', [], 'lt'))
+        ->assertDontSeeText(__('auth.login_title', [], 'en'));
+});
+
 it('rate limits login after five failed attempts', function () {
     registerLoginDestinationFixtures();
 

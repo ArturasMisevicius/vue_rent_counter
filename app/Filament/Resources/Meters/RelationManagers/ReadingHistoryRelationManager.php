@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Meters\RelationManagers;
 
 use App\Filament\Resources\Meters\MeterResource;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Meter;
+use App\Models\MeterReading;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -79,6 +81,7 @@ class ReadingHistoryRelationManager extends RelationManager
                     ->default(__('admin.meter_readings.empty.submitted_by')),
                 TextColumn::make('notes')
                     ->label(__('admin.meter_readings.fields.notes'))
+                    ->state(fn (MeterReading $record): string => app(DatabaseContentLocalizer::class)->meterReadingNotes($record->notes) ?? __('admin.meter_readings.empty.notes'))
                     ->default(__('admin.meter_readings.empty.notes'))
                     ->wrap(),
             ])

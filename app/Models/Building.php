@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use Database\Factories\BuildingFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -107,6 +108,13 @@ class Building extends Model
             $this->postal_code,
             $this->country_code,
         ])->filter(fn (?string $part): bool => filled($part))->implode(', ');
+    }
+
+    public function displayName(): string
+    {
+        $name = app(DatabaseContentLocalizer::class)->buildingName($this->name);
+
+        return $name !== '' ? $name : __('dashboard.not_available');
     }
 
     public function canBeDeletedFromAdminWorkspace(): bool

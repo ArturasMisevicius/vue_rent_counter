@@ -6,6 +6,7 @@ use App\Enums\TariffType;
 use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\Provider;
 use App\Models\Tariff;
@@ -46,12 +47,12 @@ class TariffsTable
                     ->weight('medium'),
                 TextColumn::make('active_from')
                     ->label(__('admin.tariffs.columns.active_from'))
-                    ->state(fn (Tariff $record): string => $record->active_from?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (Tariff $record): string => $record->active_from?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
                 TextColumn::make('active_until')
                     ->label(__('admin.tariffs.columns.active_until'))
                     ->state(
-                        fn (Tariff $record): string => $record->active_until?->locale(app()->getLocale())->isoFormat('ll') ?? __('admin.tariffs.empty.ongoing'),
+                        fn (Tariff $record): string => $record->active_until?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('admin.tariffs.empty.ongoing'),
                     )
                     ->color(fn (Tariff $record): ?string => $record->active_until === null ? 'gray' : null)
                     ->sortable(),

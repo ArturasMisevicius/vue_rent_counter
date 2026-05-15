@@ -6,6 +6,7 @@ use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Organization;
+use App\Models\Property;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -70,6 +71,7 @@ class ServiceConfigurationForm
                                     return $query->where('organization_id', $organizationId);
                                 },
                             )
+                            ->getOptionLabelFromRecordUsing(fn (Property $record): string => $record->displayName())
                             ->searchable()
                             ->preload()
                             ->required(),

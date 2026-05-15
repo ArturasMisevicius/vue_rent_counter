@@ -146,6 +146,15 @@ class OrganizationActivityLogPresenter
 
     private static function translatedActionLabel(string $action): string
     {
+        $activityTranslationKey = 'superadmin.audit_logs.actions.'.Str::of($action)
+            ->replace(['.', '-'], '_')
+            ->snake()
+            ->toString();
+
+        if (__($activityTranslationKey) !== $activityTranslationKey) {
+            return __($activityTranslationKey);
+        }
+
         $translationKey = "enums.audit_log_action.{$action}";
 
         if (__($translationKey) !== $translationKey) {

@@ -46,6 +46,16 @@ class OrganizationUserResource extends Resource
         return OrganizationUsersTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.organization_users.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.organization_users.plural');
+    }
+
     public static function canAccess(): bool
     {
         return static::canViewAny();

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Enums\PropertyType;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\Building;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -67,6 +68,7 @@ class PropertyForm
                                     return $query->where('organization_id', app(OrganizationContext::class)->currentOrganizationId());
                                 },
                             )
+                            ->getOptionLabelFromRecordUsing(fn (Building $record): string => $record->displayName())
                             ->searchable()
                             ->preload()
                             ->required(),

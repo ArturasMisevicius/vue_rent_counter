@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ProjectTeamRole;
 use Database\Factories\ProjectUserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,7 @@ final class ProjectUser extends Model
     {
         return [
             'invited_at' => 'datetime',
+            'role' => ProjectTeamRole::class,
         ];
     }
 

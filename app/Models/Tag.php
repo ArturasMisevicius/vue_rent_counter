@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use App\Models\Concerns\HasGeneratedSlug;
 use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -72,6 +73,27 @@ class Tag extends Model
         return $this->morphedByMany(Project::class, 'taggable')
             ->withPivot(['tagged_by_user_id'])
             ->withTimestamps();
+    }
+
+    public function displayName(): string
+    {
+        if (! $this->is_system) {
+            return $this->name;
+        }
+
+        $translationKey = 'superadmin.relation_resources.tags.system_names.'.
+            LocalizedCodeLabel::segment((string) ($this->slug ?: $this->name));
+
+        if (trans()->has($translationKey)) {
+            return __($translationKey);
+        }
+
+        return $this->name;
+    }
+
+    public function typeLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.tags.types', $this->type);
     }
 
     public function scopeOrdered(Builder $query): Builder

@@ -35,6 +35,7 @@ class MetersTable
                     ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.meters.columns.name'))
+                    ->state(fn (Meter $record): string => $record->displayName())
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('identifier')
@@ -43,10 +44,12 @@ class MetersTable
                     ->sortable(),
                 TextColumn::make('property.name')
                     ->label(__('admin.meters.columns.property'))
+                    ->state(fn (Meter $record): string => $record->property?->displayName() ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('property.building.name')
                     ->label(__('admin.meters.columns.building'))
+                    ->state(fn (Meter $record): string => $record->property?->building?->displayName() ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
@@ -92,7 +95,8 @@ class MetersTable
                         return $query
                             ->orderBy('name')
                             ->orderBy('id')
-                            ->pluck('name', 'id')
+                            ->get()
+                            ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                             ->all();
                     })
                     ->query(fn (Builder $query, array $data): Builder => $query->forBuildingValue($data['value'] ?? null)),
@@ -113,7 +117,8 @@ class MetersTable
                         return $query
                             ->orderBy('name')
                             ->orderBy('id')
-                            ->pluck('name', 'id')
+                            ->get()
+                            ->mapWithKeys(fn (Property $property): array => [$property->id => $property->displayName()])
                             ->all();
                     })
                     ->query(fn (Builder $query, array $data): Builder => $query->forPropertyValue($data['value'] ?? null)),

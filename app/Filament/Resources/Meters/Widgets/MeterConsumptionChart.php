@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Meters\Widgets;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use Filament\Widgets\ChartWidget;
@@ -49,7 +50,7 @@ class MeterConsumptionChart extends ChartWidget
             ->get();
 
         $labels = $readings
-            ->map(fn (MeterReading $reading): string => (string) $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'))
+            ->map(fn (MeterReading $reading): string => (string) $reading->reading_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()))
             ->all();
         $values = $readings
             ->map(fn (MeterReading $reading): float => (float) $reading->reading_value)

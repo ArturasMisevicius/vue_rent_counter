@@ -57,7 +57,7 @@ final class BuildingSearchProvider implements GlobalSearchProvider
             ->get()
             ->map(fn (Building $building): GlobalSearchResultData => new GlobalSearchResultData(
                 group: $this->group(),
-                title: $building->name,
+                title: $building->displayName(),
                 subtitle: $this->subtitleFor($user, $building),
                 url: $this->urlFor($user, $building),
             ))

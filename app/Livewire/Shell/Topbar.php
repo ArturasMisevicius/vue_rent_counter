@@ -51,6 +51,7 @@ class Topbar extends Component
             'profileUrl' => $this->resolveProfileUrl($user),
             'roleLabel' => $user?->role?->label(),
             'showLanguageSwitcher' => ! $user?->isTenant(),
+            'showOnboardingTourButton' => $user instanceof User && ! $user->isSuperadmin(),
             'user' => $user,
         ]);
     }

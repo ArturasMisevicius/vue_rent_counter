@@ -41,6 +41,16 @@ class InvoiceEmailLogResource extends Resource
         return InvoiceEmailLogsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_email_logs.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_email_logs.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();

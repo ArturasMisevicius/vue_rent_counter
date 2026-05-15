@@ -2,36 +2,36 @@
 
 return [
     'empty' => [
-        'action' => 'Action',
-        'description' => 'Description',
-        'heading' => 'Heading',
+        'action' => 'Acción',
+        'description' => 'Descripción',
+        'heading' => 'Encabezado',
     ],
     'helper_text' => [
-        'default_language' => 'Default Language',
+        'default_language' => 'Idioma predeterminado',
         'group' => 'Group',
-        'key' => 'Key',
+        'key' => 'Clave',
         'key_full' => 'Key Full',
         'values' => 'Values',
     ],
     'labels' => [
         'group' => 'Group',
-        'key' => 'Key',
-        'last_updated' => 'Last Updated',
+        'key' => 'Clave',
+        'last_updated' => 'Última actualización',
     ],
     'modals' => [
         'delete' => [
-            'description' => 'Description',
-            'heading' => 'Heading',
+            'description' => 'Descripción',
+            'heading' => 'Encabezado',
         ],
     ],
-    'navigation' => 'Translations',
+    'navigation' => 'Traducciones',
     'placeholders' => [
         'group' => 'Group',
-        'key' => 'Key',
-        'value' => 'Value',
+        'key' => 'Clave',
+        'value' => 'Valor',
     ],
     'sections' => [
-        'key' => 'Key',
+        'key' => 'Clave',
         'values' => 'Values',
     ],
     'table' => [

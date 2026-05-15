@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Shell\Search\Providers;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Shell\Search\Contracts\GlobalSearchProvider;
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\SearchQueryPattern;
@@ -97,8 +98,8 @@ final class InvoiceSearchProvider implements GlobalSearchProvider
     protected function subtitleFor(User $user, Invoice $invoice): string
     {
         $period = implode(' → ', array_filter([
-            $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll'),
-            $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll'),
+            $invoice->billing_period_start?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
+            $invoice->billing_period_end?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
         ]));
 
         if ($user->isTenant()) {

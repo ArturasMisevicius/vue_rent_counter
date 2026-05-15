@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\SubscriptionRenewalFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -60,6 +61,16 @@ class SubscriptionRenewal extends Model
     public function isAutomatic(): bool
     {
         return $this->method === 'automatic';
+    }
+
+    public function methodLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.subscription_renewals.methods', $this->method);
+    }
+
+    public function periodLabel(): string
+    {
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.subscription_renewals.periods', $this->period);
     }
 
     public function scopeLatestFirst(Builder $query): Builder

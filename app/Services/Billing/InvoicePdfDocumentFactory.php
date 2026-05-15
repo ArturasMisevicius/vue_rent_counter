@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
@@ -61,19 +62,19 @@ final class InvoicePdfDocumentFactory
             'subtitle' => __('tenant.pages.invoices.page_heading'),
             'locale' => app()->getLocale(),
             'direction' => in_array(app()->getLocale(), ['ar', 'fa', 'he', 'ur'], true) ? 'rtl' : 'ltr',
-            'issued_on' => $invoice->finalized_at?->locale(app()->getLocale())->isoFormat('ll')
-                ?? $invoice->created_at?->locale(app()->getLocale())->isoFormat('ll')
-                ?? now()->locale(app()->getLocale())->isoFormat('ll'),
+            'issued_on' => $invoice->finalized_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
+                ?? $invoice->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
+                ?? now()->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
             'summary' => [
                 ['label' => __('admin.invoices.fields.invoice_number'), 'value' => $presentation['invoice_number']],
                 ['label' => __('admin.invoices.fields.tenant'), 'value' => (string) ($invoice->tenant?->name ?? '—')],
-                ['label' => __('admin.invoices.fields.property'), 'value' => (string) ($invoice->property?->name ?? '—')],
-                ['label' => __('admin.invoices.fields.building'), 'value' => (string) ($invoice->property?->building?->name ?? '—')],
+                ['label' => __('admin.invoices.fields.property'), 'value' => (string) ($invoice->property?->displayName() ?? '—')],
+                ['label' => __('admin.invoices.fields.building'), 'value' => (string) ($invoice->property?->building?->displayName() ?? '—')],
                 ['label' => __('admin.invoices.fields.status'), 'value' => $presentation['status_label']],
                 ['label' => __('admin.invoices.fields.due_date'), 'value' => $presentation['due_date_display']],
             ],
             'property_lines' => array_values(array_filter([
-                (string) ($invoice->property?->name ?? '—'),
+                (string) ($invoice->property?->displayName() ?? '—'),
                 filled($invoice->property?->unit_number) ? __('admin.invoices.fields.property').': '.$invoice->property->unit_number : null,
                 $this->buildingAddress($invoice),
             ])),
@@ -97,7 +98,7 @@ final class InvoicePdfDocumentFactory
                 fn (InvoicePayment $payment): array => [
                     'label' => (string) ($payment->method?->label() ?? __('dashboard.not_available')),
                     'meta' => trim(implode(' · ', array_filter([
-                        $payment->paid_at?->locale(app()->getLocale())->isoFormat('ll'),
+                        $payment->paid_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
                         $payment->reference,
                     ]))),
                     'amount' => EuMoneyFormatter::format($payment->amount ?? '0.00', (string) $presentation['currency']),

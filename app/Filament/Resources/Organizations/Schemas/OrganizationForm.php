@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Organizations\Schemas;
 
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
@@ -120,7 +121,7 @@ class OrganizationForm
                 ->startOfDay()
                 ->addMonths($selectedDuration->months())
                 ->locale(app()->getLocale())
-                ->isoFormat('ll'),
+                ->translatedFormat(LocalizedDateFormatter::dateFormat()),
         ]);
     }
 

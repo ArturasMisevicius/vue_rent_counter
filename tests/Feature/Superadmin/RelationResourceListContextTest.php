@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Comments\Pages\CreateComment;
 use App\Filament\Resources\Comments\Pages\ListComments;
 use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Resources\Tags\Pages\ListTags;
@@ -10,6 +11,11 @@ use App\Models\Project;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\User;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select as FormSelect;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -142,6 +148,8 @@ it('shows organization context on the tags list for superadmins', function () {
 });
 
 it('shows organization context on the comments list for superadmins', function () {
+    app()->setLocale('lt');
+
     $organizationA = Organization::factory()->create(['name' => 'Granite Place']);
     $organizationB = Organization::factory()->create(['name' => 'Harbor Lofts']);
 
@@ -173,10 +181,35 @@ it('shows organization context on the comments list for superadmins', function (
     $this->actingAs($superadmin);
 
     Livewire::test(ListComments::class)
-        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
-        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === 'Organization')
+        ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.organization'))
+        ->assertTableColumnExists('commentable_type', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.commentable_type'))
+        ->assertTableColumnExists('commentable_id', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.commentable_id'))
+        ->assertTableColumnExists('user.name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.user'))
+        ->assertTableColumnExists('parent.body', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.parent_comment'))
+        ->assertTableColumnExists('body', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.body'))
+        ->assertTableColumnExists('is_internal', fn (IconColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.is_internal'))
+        ->assertTableColumnExists('is_pinned', fn (IconColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.is_pinned'))
+        ->assertTableColumnExists('edited_at', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.comments_resource.fields.edited_at'))
+        ->assertTableFilterExists('organization', fn (SelectFilter $filter): bool => $filter->getLabel() === __('superadmin.comments_resource.fields.organization'))
         ->assertCanSeeTableRecords([$commentA, $commentB])
         ->filterTable('organization', (string) $organizationA->getKey())
         ->assertCanSeeTableRecords([$commentA])
         ->assertCanNotSeeTableRecords([$commentB]);
+});
+
+it('uses translated labels on the comments create form', function () {
+    app()->setLocale('lt');
+
+    $this->actingAs(User::factory()->superadmin()->create());
+
+    Livewire::test(CreateComment::class)
+        ->assertFormFieldExists('organization_id', fn (FormSelect $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.organization'))
+        ->assertFormFieldExists('commentable_type', fn (FormSelect $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.commentable_type'))
+        ->assertFormFieldExists('commentable_id', fn (FormSelect $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.commentable_id'))
+        ->assertFormFieldExists('user_id', fn (FormSelect $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.user'))
+        ->assertFormFieldExists('parent_id', fn (FormSelect $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.parent'))
+        ->assertFormFieldExists('body', fn (Textarea $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.body'))
+        ->assertFormFieldExists('is_internal', fn (Toggle $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.is_internal'))
+        ->assertFormFieldExists('is_pinned', fn (Toggle $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.is_pinned'))
+        ->assertFormFieldExists('edited_at', fn (DateTimePicker $field): bool => $field->getLabel() === __('superadmin.comments_resource.fields.edited_at'));
 });

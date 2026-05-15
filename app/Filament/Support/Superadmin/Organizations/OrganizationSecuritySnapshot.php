@@ -3,6 +3,7 @@
 namespace App\Filament\Support\Superadmin\Organizations;
 
 use App\Enums\SecurityViolationSeverity;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\User;
@@ -47,7 +48,7 @@ final readonly class OrganizationSecuritySnapshot
             ->get()
             ->map(fn (User $user): array => [
                 'name' => $user->name,
-                'last_login_at' => $user->last_login_at?->locale(app()->getLocale())->isoFormat('ll')
+                'last_login_at' => $user->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat())
                     ?? __('superadmin.organizations.overview.placeholders.not_available'),
             ])
             ->all();

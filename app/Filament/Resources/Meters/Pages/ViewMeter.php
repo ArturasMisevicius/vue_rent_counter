@@ -22,7 +22,7 @@ class ViewMeter extends ViewRecord
     {
         return [
             MeterResource::getUrl('index') => MeterResource::getPluralModelLabel(),
-            $this->record->name,
+            $this->record->displayName(),
         ];
     }
 

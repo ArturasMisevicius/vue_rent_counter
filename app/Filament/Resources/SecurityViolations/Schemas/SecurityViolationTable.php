@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SecurityViolations\Schemas;
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Filament\Actions\Superadmin\Security\BlockIpAddressAction;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\SecurityViolations\SecurityViolationTablePresenter;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
@@ -53,7 +54,7 @@ class SecurityViolationTable
                     ->wrap(),
                 TextColumn::make('occurred_at')
                     ->label(__('superadmin.security_violations.columns.timestamp'))
-                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.security_violations.placeholders.empty'))
+                    ->state(fn (SecurityViolation $record): string => $record->occurred_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('superadmin.security_violations.placeholders.empty'))
                     ->sortable(),
             ])
             ->filters([

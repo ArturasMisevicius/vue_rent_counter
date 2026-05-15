@@ -85,6 +85,11 @@ class Comment extends Model
         return $this->hasMany(CommentReaction::class);
     }
 
+    public function commentableTypeLabel(): string
+    {
+        return AuditLog::subjectTypeLabel($this->commentable_type);
+    }
+
     public function scopeForOrganization(Builder $query, int $organizationId): Builder
     {
         return $query->where('organization_id', $organizationId);

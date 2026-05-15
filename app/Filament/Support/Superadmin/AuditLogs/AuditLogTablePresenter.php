@@ -3,6 +3,7 @@
 namespace App\Filament\Support\Superadmin\AuditLogs;
 
 use App\Enums\AuditLogAction;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\AuditLog;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -101,7 +102,7 @@ class AuditLogTablePresenter
         ));
 
         if ($description !== '' && $description !== $defaultDescription) {
-            return $description;
+            return app(DatabaseContentLocalizer::class)->activityDescription($description) ?? $description;
         }
 
         return self::actionLabel($record);

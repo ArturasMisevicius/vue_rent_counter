@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Invoice;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -32,7 +33,9 @@ class ListInvoices extends ListRecords
                 ->button();
         }
 
-        if (auth()->user()?->isAdminLike()) {
+        $user = auth()->user();
+
+        if ($user instanceof User && ($user->isAdmin() || $user->isManager()) && $user->organization_id !== null) {
             $actions[] = Action::make('generateBulk')
                 ->label(__('admin.invoices.actions.generate_bulk'))
                 ->url(route('filament.admin.pages.generate-bulk-invoices'))

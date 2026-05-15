@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Meters\Schemas;
 
 use App\Enums\MeterStatus;
 use App\Enums\UnitOfMeasurement;
+use App\Models\Meter;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,11 +18,14 @@ class MeterInfolist
                 Section::make(__('admin.meters.sections.details'))
                     ->schema([
                         TextEntry::make('property.name')
-                            ->label(__('admin.meters.fields.property')),
+                            ->label(__('admin.meters.fields.property'))
+                            ->state(fn (Meter $record): string => $record->property?->displayName() ?? '—'),
                         TextEntry::make('property.building.name')
-                            ->label(__('admin.meters.fields.building')),
+                            ->label(__('admin.meters.fields.building'))
+                            ->state(fn (Meter $record): string => $record->property?->building?->displayName() ?? '—'),
                         TextEntry::make('name')
-                            ->label(__('admin.meters.fields.name')),
+                            ->label(__('admin.meters.fields.name'))
+                            ->state(fn (Meter $record): string => $record->displayName()),
                         TextEntry::make('identifier')
                             ->label(__('admin.meters.fields.identifier')),
                         TextEntry::make('type')

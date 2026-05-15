@@ -10,6 +10,7 @@ use App\Filament\Actions\Superadmin\Subscriptions\CreateOrganizationSubscription
 use App\Filament\Actions\Superadmin\Subscriptions\UpdateOrganizationSubscriptionAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Subscription;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -73,11 +74,11 @@ class SubscriptionsRelationManager extends RelationManager
                     ->formatStateUsing(fn ($state): string => $state->label()),
                 TextColumn::make('starts_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.start_date'))
-                    ->state(fn ($record): string => $record->starts_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn ($record): string => $record->starts_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.expiry_date'))
-                    ->state(fn ($record): string => $record->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn ($record): string => $record->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
                 TextColumn::make('property_limit_snapshot')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.property_limit'))
@@ -87,7 +88,7 @@ class SubscriptionsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.organizations.relations.subscriptions.columns.date_created'))
-                    ->state(fn ($record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn ($record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
             ])
             ->headerActions([

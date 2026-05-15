@@ -17,7 +17,7 @@ class EditProperty extends EditRecord
     public function getTitle(): string
     {
         return __('admin.properties.titles.edit', [
-            'name' => $this->record->name,
+            'name' => $this->record->displayName(),
         ]);
     }
 

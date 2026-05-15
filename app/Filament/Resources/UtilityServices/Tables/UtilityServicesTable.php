@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UtilityServices\Tables;
 
 use App\Enums\ServiceType;
 use App\Enums\UnitOfMeasurement;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\UtilityService;
@@ -31,6 +32,10 @@ class UtilityServicesTable
                     ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.utility_services.columns.name'))
+                    ->state(fn (UtilityService $record): string => app(DatabaseContentLocalizer::class)->utilityServiceName(
+                        $record->name,
+                        $record->service_type_bridge,
+                    ))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('unit_of_measurement')

@@ -40,6 +40,16 @@ class InvoiceItemResource extends Resource
         return InvoiceItemsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_items.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_items.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

@@ -16,17 +16,20 @@ class CommentForm
         return $schema
             ->components([
                 Select::make('organization_id')
+                    ->label(__('superadmin.comments_resource.fields.organization'))
                     ->relationship('organization', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Select::make('commentable_type')
+                    ->label(__('superadmin.comments_resource.fields.commentable_type'))
                     ->options([
                         Project::class => __('superadmin.audit_logs.record_types.project'),
                     ])
                     ->default(Project::class)
                     ->required(),
                 Select::make('commentable_id')
+                    ->label(__('superadmin.comments_resource.fields.commentable_id'))
                     ->options(fn (): array => Project::query()
                         ->select(['id', 'name'])
                         ->orderBy('name')
@@ -36,22 +39,28 @@ class CommentForm
                     ->preload()
                     ->required(),
                 Select::make('user_id')
+                    ->label(__('superadmin.comments_resource.fields.user'))
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Select::make('parent_id')
+                    ->label(__('superadmin.comments_resource.fields.parent'))
                     ->relationship('parent', 'id')
                     ->searchable()
                     ->preload(),
                 Textarea::make('body')
+                    ->label(__('superadmin.comments_resource.fields.body'))
                     ->required()
                     ->columnSpanFull(),
                 Toggle::make('is_internal')
+                    ->label(__('superadmin.comments_resource.fields.is_internal'))
                     ->required(),
                 Toggle::make('is_pinned')
+                    ->label(__('superadmin.comments_resource.fields.is_pinned'))
                     ->required(),
-                DateTimePicker::make('edited_at'),
+                DateTimePicker::make('edited_at')
+                    ->label(__('superadmin.comments_resource.fields.edited_at')),
             ]);
     }
 }

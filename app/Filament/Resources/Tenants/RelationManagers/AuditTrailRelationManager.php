@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\Tenants\OrganizationActivityLogPresenter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\OrganizationActivityLog;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Layout\Panel;
@@ -58,7 +59,7 @@ class AuditTrailRelationManager extends RelationManager
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.audit.columns.date_and_time'))
-                    ->state(fn (OrganizationActivityLog $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.audit_logs.placeholders.empty'))
+                    ->state(fn (OrganizationActivityLog $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('superadmin.audit_logs.placeholders.empty'))
                     ->sortable()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 Panel::make([

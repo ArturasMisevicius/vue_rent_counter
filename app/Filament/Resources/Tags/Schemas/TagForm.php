@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tags\Schemas;
 
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -15,15 +16,28 @@ class TagForm
         return $schema
             ->components([
                 Select::make('organization_id')
+                    ->label(__('superadmin.relation_resources.tags.fields.organization'))
                     ->relationship('organization', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 TextInput::make('name')
+                    ->label(__('superadmin.relation_resources.tags.fields.name'))
                     ->required(),
-                TextInput::make('color'),
+                TextInput::make('color')
+                    ->label(__('superadmin.relation_resources.tags.fields.color')),
                 Textarea::make('description')
+                    ->label(__('superadmin.relation_resources.tags.fields.description'))
                     ->columnSpanFull(),
-                TextInput::make('type'),
+                Select::make('type')
+                    ->label(__('superadmin.relation_resources.tags.fields.type'))
+                    ->options(LocalizedCodeLabel::options('superadmin.relation_resources.tags.types', [
+                        'maintenance',
+                        'project',
+                        'priority',
+                    ])),
                 Toggle::make('is_system')
+                    ->label(__('superadmin.relation_resources.tags.fields.is_system'))
                     ->required(),
             ]);
     }

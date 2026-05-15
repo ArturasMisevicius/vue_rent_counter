@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Shell\Search\Providers;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Shell\Search\Contracts\GlobalSearchProvider;
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\SearchQueryPattern;
@@ -81,7 +82,7 @@ final class MeterReadingSearchProvider implements GlobalSearchProvider
             ->get()
             ->map(fn (MeterReading $reading): GlobalSearchResultData => new GlobalSearchResultData(
                 group: $this->group(),
-                title: (string) ($reading->meter?->name ?? $reading->meter?->identifier ?? __('admin.meter_readings.singular')),
+                title: (string) ($reading->meter?->displayName() ?? $reading->meter?->identifier ?? __('admin.meter_readings.singular')),
                 subtitle: $this->subtitleFor($user, $reading),
                 url: $this->urlFor($user, $reading),
             ))
@@ -94,7 +95,7 @@ final class MeterReadingSearchProvider implements GlobalSearchProvider
     {
         $summary = trim(implode(' · ', array_filter([
             $reading->meter?->identifier,
-            $reading->reading_date?->locale(app()->getLocale())->isoFormat('ll'),
+            $reading->reading_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
             $this->formatDecimal((float) $reading->reading_value, 3)
                 .' '
                 .($reading->meter?->unit ?? ''),

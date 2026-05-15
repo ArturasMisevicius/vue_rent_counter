@@ -32,10 +32,12 @@ class MeterReadingsTable
                     ->toggleable(),
                 TextColumn::make('meter.name')
                     ->label(__('admin.meter_readings.columns.meter'))
+                    ->state(fn (MeterReading $record): string => $record->meter?->displayName() ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('property.name')
                     ->label(__('admin.meter_readings.columns.property'))
+                    ->state(fn (MeterReading $record): string => $record->property?->displayName() ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('reading_value')

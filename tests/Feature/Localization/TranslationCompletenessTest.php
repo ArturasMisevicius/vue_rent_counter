@@ -50,6 +50,75 @@ it('returns Spanish strings from locale-specific files', function (): void {
         ->toBe('Facturas');
 });
 
+it('does not leave exact English application strings in localized files', function (): void {
+    $english = flattenLocaleFiles('en');
+    $allowedExactValues = [
+        ':currency :amount',
+        ':type :unit',
+        ':value ms',
+        'Admin',
+        'Android',
+        'API',
+        'Chrome',
+        'Color',
+        'CSV',
+        'curl',
+        'Edge',
+        'Email',
+        'Firefox',
+        'Gas',
+        'IBAN',
+        'ID',
+        'Internet',
+        'iOS',
+        'KYC Profile',
+        'KYC Profiles',
+        'kWh',
+        'Linux',
+        'Mac',
+        'Manual',
+        'MRR',
+        'MWh',
+        'name',
+        'OAuth',
+        'PDF',
+        'Plan',
+        'reference',
+        'Safari',
+        'Slug',
+        'SMS',
+        'Superadmin',
+        'SWIFT / BIC',
+        'Token',
+        'Total',
+        'true',
+        'false',
+        'URL',
+        'Windows',
+    ];
+
+    foreach (['lt', 'ru', 'es'] as $locale) {
+        $localized = flattenLocaleFiles($locale);
+        $untranslated = [];
+
+        foreach ($english as $key => $englishValue) {
+            $localizedValue = $localized[$key] ?? null;
+
+            if (
+                is_string($localizedValue)
+                && $localizedValue === $englishValue
+                && preg_match('/[A-Za-z]{3,}/', $englishValue) === 1
+                && ! in_array($englishValue, $allowedExactValues, true)
+            ) {
+                $untranslated[$key] = $englishValue;
+            }
+        }
+
+        expect($untranslated)
+            ->toBe([], 'Untranslated exact English values in '.$locale.': '.json_encode($untranslated, JSON_UNESCAPED_UNICODE));
+    }
+});
+
 /**
  * @return array<string, string>
  */

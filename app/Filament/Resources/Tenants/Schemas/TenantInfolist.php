@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -18,7 +19,7 @@ class TenantInfolist
                     ->schema([
                         TextEntry::make('currentPropertyAssignment.property.name')
                             ->label(__('admin.tenants.fields.property'))
-                            ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
+                            ->state(fn (User $record): string => $record->currentProperty?->displayName() ?? __('admin.tenants.empty.unassigned'))
                             ->url(fn (User $record): ?string => $record->currentProperty !== null
                                 ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
                                 : null),
@@ -54,19 +55,19 @@ class TenantInfolist
                     ->schema([
                         TextEntry::make('email_verified_at')
                             ->label(__('admin.tenants.fields.email_verified_at'))
-                            ->state(fn (User $record): string => $record->email_verified_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('admin.tenants.empty.not_verified')),
+                            ->state(fn (User $record): string => $record->email_verified_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('admin.tenants.empty.not_verified')),
                         TextEntry::make('created_at')
                             ->label(__('admin.tenants.fields.account_created'))
-                            ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—'),
+                            ->state(fn (User $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? '—'),
                         TextEntry::make('updated_at')
                             ->label(__('admin.tenants.fields.updated_at'))
-                            ->state(fn (User $record): string => $record->updated_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—'),
+                            ->state(fn (User $record): string => $record->updated_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? '—'),
                         TextEntry::make('last_login_at')
                             ->label(__('admin.tenants.fields.last_login'))
-                            ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('admin.tenants.empty.never')),
+                            ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('admin.tenants.empty.never')),
                         TextEntry::make('suspended_at')
                             ->label(__('admin.tenants.fields.suspended_at'))
-                            ->state(fn (User $record): string => $record->suspended_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—')
+                            ->state(fn (User $record): string => $record->suspended_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? '—')
                             ->visible(fn (User $record): bool => $record->suspended_at !== null),
                         TextEntry::make('suspension_reason')
                             ->label(__('admin.tenants.fields.suspension_reason'))
@@ -78,19 +79,20 @@ class TenantInfolist
                     ->schema([
                         TextEntry::make('currentPropertyAssignment.property.name')
                             ->label(__('admin.tenants.fields.current_property'))
-                            ->state(fn (User $record): string => $record->currentProperty?->name ?? __('admin.tenants.empty.unassigned'))
+                            ->state(fn (User $record): string => $record->currentProperty?->displayName() ?? __('admin.tenants.empty.unassigned'))
                             ->url(fn (User $record): ?string => $record->currentProperty !== null
                                 ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
                                 : null),
                         TextEntry::make('currentPropertyAssignment.property.building.name')
                             ->label(__('admin.tenants.fields.building'))
+                            ->state(fn (User $record): string => $record->currentProperty?->building?->displayName() ?? '—')
                             ->default('—'),
                         TextEntry::make('currentPropertyAssignment.property.floor')
                             ->label(__('admin.tenants.fields.floor'))
                             ->state(fn (User $record): string => $record->currentProperty?->floorDisplay() ?? '—'),
                         TextEntry::make('currentPropertyAssignment.assigned_at')
                             ->label(__('admin.tenants.fields.assigned_since'))
-                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
+                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                     ])
                     ->columns(2),
             ]);

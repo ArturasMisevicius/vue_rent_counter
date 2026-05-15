@@ -218,8 +218,8 @@ it('shows organization context on the subscription renewals list for superadmins
         ->assertSuccessful()
         ->assertSeeText($organizationA->name)
         ->assertSeeText($organizationB->name)
-        ->assertSeeText($renewalA->period)
-        ->assertSeeText($renewalB->period);
+        ->assertSeeText($renewalA->periodLabel())
+        ->assertSeeText($renewalB->periodLabel());
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.subscription-renewals.index'))

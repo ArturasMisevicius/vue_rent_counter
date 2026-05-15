@@ -6,6 +6,7 @@ use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Billing\InvoicePdfService;
@@ -55,8 +56,8 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('billing_period')
                     ->label(__('admin.tenants.invoices.columns.billing_period'))
                     ->state(fn (Invoice $record): string => collect([
-                        $record->billing_period_start?->locale(app()->getLocale())->isoFormat('ll'),
-                        $record->billing_period_end?->locale(app()->getLocale())->isoFormat('ll'),
+                        $record->billing_period_start?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
+                        $record->billing_period_end?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()),
                     ])->filter()->implode(' - ')),
                 TextColumn::make('total_amount')
                     ->label(__('admin.tenants.invoices.columns.total_amount'))
@@ -66,10 +67,10 @@ class InvoicesRelationManager extends RelationManager
                     ->badge(),
                 TextColumn::make('created_at')
                     ->label(__('admin.tenants.invoices.columns.issued_date'))
-                    ->state(fn (Invoice $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
+                    ->state(fn (Invoice $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                 TextColumn::make('paid_at')
                     ->label(__('admin.tenants.invoices.columns.paid_date'))
-                    ->state(fn (Invoice $record): string => $record->paid_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—'),
+                    ->state(fn (Invoice $record): string => $record->paid_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
             ])
             ->recordActions([
                 ViewAction::make()

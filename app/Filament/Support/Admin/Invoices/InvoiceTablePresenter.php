@@ -4,14 +4,15 @@ namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Invoice;
 
 class InvoiceTablePresenter
 {
     public static function billingPeriod(Invoice $invoice): string
     {
-        $start = $invoice->billing_period_start?->locale(app()->getLocale())->isoFormat('ll');
-        $end = $invoice->billing_period_end?->locale(app()->getLocale())->isoFormat('ll');
+        $start = $invoice->billing_period_start?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat());
+        $end = $invoice->billing_period_end?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat());
 
         if ($start === null && $end === null) {
             return '—';
@@ -35,13 +36,13 @@ class InvoiceTablePresenter
 
     public static function issuedDate(Invoice $invoice): string
     {
-        return $invoice->finalized_at?->locale(app()->getLocale())->isoFormat('LLL')
+        return $invoice->finalized_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat())
             ?? __('admin.invoices.empty.issued_date');
     }
 
     public static function paidDate(Invoice $invoice): string
     {
-        return $invoice->paid_at?->locale(app()->getLocale())->isoFormat('LLL') ?? '—';
+        return $invoice->paid_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? '—';
     }
 
     public static function status(Invoice $invoice): InvoiceStatus
@@ -63,6 +64,6 @@ class InvoiceTablePresenter
 
     public static function tenantDescription(Invoice $invoice): string
     {
-        return $invoice->property?->name ?? '—';
+        return $invoice->property?->displayName() ?? '—';
     }
 }

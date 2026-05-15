@@ -9,6 +9,7 @@ use App\Filament\Actions\Superadmin\Subscriptions\SuspendSubscriptionAction;
 use App\Filament\Actions\Superadmin\Subscriptions\UpdateSubscriptionExpiryAction;
 use App\Filament\Actions\Superadmin\Subscriptions\UpgradeSubscriptionPlanAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Models\Subscription;
 use App\Models\User;
@@ -58,11 +59,11 @@ class SubscriptionTable
                     }),
                 TextColumn::make('starts_at')
                     ->label(__('superadmin.subscriptions_resource.columns.start_date'))
-                    ->state(fn (Subscription $record): string => $record->starts_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.subscriptions_resource.placeholders.never'))
+                    ->state(fn (Subscription $record): string => $record->starts_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label(__('superadmin.subscriptions_resource.columns.expiry_date'))
-                    ->state(fn (Subscription $record): string => $record->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.subscriptions_resource.placeholders.never'))
+                    ->state(fn (Subscription $record): string => $record->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
                 TextColumn::make('properties_used')
                     ->label(__('superadmin.subscriptions_resource.columns.properties_used'))
@@ -74,7 +75,7 @@ class SubscriptionTable
                     ->color(fn (Subscription $record): string => $record->hasReachedTenantLimit() ? 'danger' : 'gray'),
                 TextColumn::make('created_at')
                     ->label(__('superadmin.subscriptions_resource.columns.date_created'))
-                    ->state(fn (Subscription $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.subscriptions_resource.placeholders.never'))
+                    ->state(fn (Subscription $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('superadmin.subscriptions_resource.placeholders.never'))
                     ->sortable(),
             ])
             ->filters([

@@ -36,7 +36,8 @@
         @foreach ($data as $key => $value)
             <div class="rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-4">
                 <dt class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    {{ \Illuminate\Support\Str::headline((string) $key) }}
+                    @php($fieldTranslationKey = 'superadmin.users.dossier.fields.'.\App\Filament\Support\Localization\LocalizedCodeLabel::segment((string) $key))
+                    {{ trans()->has($fieldTranslationKey) ? __($fieldTranslationKey) : \Illuminate\Support\Str::headline((string) $key) }}
                 </dt>
                 <dd class="mt-3 text-sm text-slate-900">
                     @if (is_array($value))

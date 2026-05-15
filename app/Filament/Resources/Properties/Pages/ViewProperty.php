@@ -32,18 +32,18 @@ class ViewProperty extends ViewRecord
     {
         return [
             PropertyResource::getUrl('index') => PropertyResource::getPluralModelLabel(),
-            $this->record->name,
+            $this->record->displayName(),
         ];
     }
 
     public function getTitle(): string
     {
-        return $this->record->name;
+        return $this->record->displayName();
     }
 
     public function getSubheading(): ?string
     {
-        $buildingName = $this->record->building?->name;
+        $buildingName = $this->record->building?->displayName();
         $buildingAddress = $this->record->building?->address;
 
         return collect([$buildingName, $buildingAddress])->filter()->implode(' · ');

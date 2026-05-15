@@ -40,6 +40,16 @@ class TimeEntryResource extends Resource
         return TimeEntriesTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.time_entries.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.time_entries.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

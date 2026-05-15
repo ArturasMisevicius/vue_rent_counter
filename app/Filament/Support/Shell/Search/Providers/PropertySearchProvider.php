@@ -63,7 +63,7 @@ final class PropertySearchProvider implements GlobalSearchProvider
             ->get()
             ->map(fn (Property $property): GlobalSearchResultData => new GlobalSearchResultData(
                 group: $this->group(),
-                title: $property->name,
+                title: $property->displayName(),
                 subtitle: $this->subtitleFor($user, $property),
                 url: $this->urlFor($user, $property),
             ))

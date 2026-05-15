@@ -142,12 +142,12 @@ class TenantHomePresenter
             'tenant_email' => $tenant->email,
             'tenant_phone' => $tenant->phone,
             'has_assignment' => $hasAssignment,
-            'property_name' => $property?->name,
-            'property_building_name' => $property?->building?->name,
+            'property_name' => $property?->displayName(),
+            'property_building_name' => $property?->building?->displayName(),
             'property_address' => $property?->address,
             'assigned_property' => [
-                'name' => $property?->name,
-                'building' => $property?->building?->name,
+                'name' => $property?->displayName(),
+                'building' => $property?->building?->displayName(),
                 'address' => $property?->address,
             ],
             'property_url' => route('filament.admin.pages.tenant-property-details'),
@@ -233,8 +233,8 @@ class TenantHomePresenter
 
                 return [
                     'id' => $property->id,
-                    'property_name' => $property->name ?: __('tenant.shell.assigned_property'),
-                    'building_name' => $property->building?->name,
+                    'property_name' => $property->displayName() ?: __('tenant.shell.assigned_property'),
+                    'building_name' => $property->building?->displayName(),
                     'unit_number' => $property->unit_number,
                     'property_type' => $property->type?->label(),
                     'reading_count' => count($readings),

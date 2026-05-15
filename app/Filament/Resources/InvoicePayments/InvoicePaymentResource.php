@@ -41,6 +41,16 @@ class InvoicePaymentResource extends Resource
         return InvoicePaymentsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_payments.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_payments.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();

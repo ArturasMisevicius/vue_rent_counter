@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AuditLogs\Schemas;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\AuditLogs\AuditLogTablePresenter;
 use App\Models\AuditLog;
 use Filament\Forms\Components\DatePicker;
@@ -48,7 +49,7 @@ class AuditLogTable
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 TextColumn::make('occurred_at')
                     ->label(__('superadmin.audit_logs.columns.timestamp'))
-                    ->state(fn (AuditLog $record): string => $record->occurred_at?->locale(app()->getLocale())->isoFormat('LLL') ?? __('superadmin.audit_logs.placeholders.empty'))
+                    ->state(fn (AuditLog $record): string => $record->occurred_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('superadmin.audit_logs.placeholders.empty'))
                     ->sortable()
                     ->extraCellAttributes(self::expandableCellAttributes()),
                 Panel::make([

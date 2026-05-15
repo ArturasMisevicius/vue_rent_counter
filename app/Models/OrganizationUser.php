@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\UserRole;
+use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\OrganizationUserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,5 +60,16 @@ class OrganizationUser extends Model
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'invited_by');
+    }
+
+    public function roleLabel(): string
+    {
+        $role = UserRole::tryFrom((string) $this->role);
+
+        if ($role instanceof UserRole) {
+            return $role->label();
+        }
+
+        return LocalizedCodeLabel::translate('superadmin.relation_resources.organization_users.roles', $this->role);
     }
 }

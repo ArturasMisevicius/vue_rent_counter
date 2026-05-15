@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Organizations\Schemas;
 
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\Integration\IntegrationHealthPageData;
 use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Filament\Support\Superadmin\Organizations\OrganizationFinancialSnapshot;
@@ -98,13 +99,13 @@ class OrganizationInfolist
                 ['label' => __('superadmin.organizations.overview.fields.current_status'), 'value' => $organization->status->label()],
                 ['label' => __('superadmin.organizations.overview.fields.owner_name'), 'value' => $organization->owner?->name ?? __('superadmin.organizations.empty.owner')],
                 ['label' => __('superadmin.organizations.overview.fields.owner_email'), 'value' => $organization->owner?->email ?? __('superadmin.organizations.empty.owner')],
-                ['label' => __('superadmin.organizations.overview.fields.date_created'), 'value' => $organization->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.overview.placeholders.not_available')],
-                ['label' => __('superadmin.organizations.overview.fields.last_updated'), 'value' => $organization->updated_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.overview.placeholders.not_available')],
+                ['label' => __('superadmin.organizations.overview.fields.date_created'), 'value' => $organization->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.overview.placeholders.not_available')],
+                ['label' => __('superadmin.organizations.overview.fields.last_updated'), 'value' => $organization->updated_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.overview.placeholders.not_available')],
             ],
             'subscription' => [
                 ['label' => __('superadmin.organizations.overview.fields.current_plan'), 'value' => $subscription?->plan?->label() ?? __('superadmin.organizations.overview.placeholders.no_plan')],
                 ['label' => __('superadmin.organizations.overview.fields.subscription_status'), 'value' => $subscription?->status?->label() ?? __('superadmin.organizations.overview.placeholders.no_subscription')],
-                ['label' => __('superadmin.organizations.overview.fields.subscription_expiry_date'), 'value' => $subscription?->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.overview.placeholders.not_available')],
+                ['label' => __('superadmin.organizations.overview.fields.subscription_expiry_date'), 'value' => $subscription?->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.overview.placeholders.not_available')],
             ],
             'health' => [
                 ['label' => __('superadmin.organizations.overview.health_labels.access'), 'value' => $organization->status->label()],
@@ -172,7 +173,7 @@ class OrganizationInfolist
 
         return Carbon::parse($value)
             ->locale(app()->getLocale())
-            ->isoFormat('ll');
+            ->translatedFormat(LocalizedDateFormatter::dateFormat());
     }
 
     private static function ensureOverviewAggregates(Organization $organization): void

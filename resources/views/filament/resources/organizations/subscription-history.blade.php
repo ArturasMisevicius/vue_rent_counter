@@ -17,7 +17,7 @@
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.paid_on', [
                             'duration' => $durationLabel,
-                            'date' => $payment->paid_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown_date'),
+                            'date' => $payment->paid_at?->locale(app()->getLocale())->translatedFormat(\App\Filament\Support\Formatting\LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.subscription_history.unknown_date'),
                         ]) }}
                     </p>
                     <p class="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
@@ -49,8 +49,8 @@
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.period_range', [
-                            'from' => $renewal->old_expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown'),
-                            'to' => $renewal->new_expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? __('superadmin.organizations.subscription_history.unknown'),
+                            'from' => $renewal->old_expires_at?->locale(app()->getLocale())->translatedFormat(\App\Filament\Support\Formatting\LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.subscription_history.unknown'),
+                            'to' => $renewal->new_expires_at?->locale(app()->getLocale())->translatedFormat(\App\Filament\Support\Formatting\LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.subscription_history.unknown'),
                         ]) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-500">

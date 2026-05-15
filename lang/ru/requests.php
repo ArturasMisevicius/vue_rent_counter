@@ -93,9 +93,9 @@ return [
         'user' => 'пользователь',
         'value' => 'значение',
         'is_active' => 'активный статус',
-        'organization_id' => 'organization',
-        'personal_message' => 'personal message',
-        'tenant_user_id' => 'tenant',
-        'adjustments' => 'adjustments',
+        'organization_id' => 'организация',
+        'personal_message' => 'личное сообщение',
+        'tenant_user_id' => 'арендатор',
+        'adjustments' => 'корректировки',
     ],
 ];

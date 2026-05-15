@@ -2,7 +2,7 @@
 
 return [
     'admin' => 'Admin',
-    'manager' => 'Manager',
+    'manager' => 'Gestor',
     'superadmin' => 'Superadmin',
     'tenant' => 'Inquilino',
 ];

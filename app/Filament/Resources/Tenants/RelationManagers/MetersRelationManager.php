@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Meter;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -60,7 +61,7 @@ class MetersRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('identifier')
                     ->label(__('admin.tenants.meters.columns.serial_number'))
-                    ->state(fn (Meter $record): string => (string) ($record->identifier ?: $record->name))
+                    ->state(fn (Meter $record): string => (string) ($record->identifier ?: $record->displayName()))
                     ->url(fn (Meter $record): string => MeterResource::getUrl('view', ['record' => $record]))
                     ->fontFamily('mono')
                     ->searchable()
@@ -73,7 +74,7 @@ class MetersRelationManager extends RelationManager
                     ->badge(),
                 TextColumn::make('latestReading.reading_date')
                     ->label(__('admin.tenants.meters.columns.last_reading_date'))
-                    ->state(fn (Meter $record): string => $record->latestReading?->reading_date?->locale(app()->getLocale())->isoFormat('ll') ?? __('admin.tenants.empty.no_readings_yet')),
+                    ->state(fn (Meter $record): string => $record->latestReading?->reading_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? __('admin.tenants.empty.no_readings_yet')),
                 TextColumn::make('latestReading.reading_value')
                     ->label(__('admin.tenants.meters.columns.last_value'))
                     ->state(fn (Meter $record): string => $record->latestReading !== null

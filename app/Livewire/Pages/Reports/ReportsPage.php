@@ -348,8 +348,8 @@ class ReportsPage extends Page
             ->select(['id', 'organization_id', 'name'])
             ->forOrganization($organizationId)
             ->ordered()
-            ->pluck('name', 'id')
-            ->mapWithKeys(fn (string $label, int|string $id): array => [(string) $id => $label])
+            ->get()
+            ->mapWithKeys(fn (Building $building): array => [(string) $building->id => $building->displayName()])
             ->all();
     }
 
@@ -376,7 +376,7 @@ class ReportsPage extends Page
             ->get()
             ->mapWithKeys(fn (Property $property): array => [
                 (string) $property->id => trim(implode(' · ', array_filter([
-                    $property->name,
+                    $property->displayName(),
                     $property->unit_number,
                 ]))),
             ])

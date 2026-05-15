@@ -40,6 +40,16 @@ class PropertyAssignmentResource extends Resource
         return PropertyAssignmentsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.property_assignments.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.property_assignments.plural');
+    }
+
     public static function getRelations(): array
     {
         return [

@@ -75,7 +75,8 @@ class ProjectForm
                                     fn (Builder $query): Builder => $query->where('organization_id', (int) $get('organization_id')),
                                 )
                                 ->ordered()
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                                 ->all())
                             ->searchable()
                             ->afterStateUpdated(function (Set $set): void {
@@ -94,7 +95,8 @@ class ProjectForm
                                         : $query,
                                 )
                                 ->ordered()
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn (Property $property): array => [$property->id => $property->displayName()])
                                 ->all())
                             ->searchable(),
                         Select::make('type')

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use Database\Factories\MeterFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -214,5 +215,10 @@ class Meter extends Model
         return $this->hasOne(MeterReading::class)
             ->whereNotNull('reading_date')
             ->latestFirst();
+    }
+
+    public function displayName(): string
+    {
+        return app(DatabaseContentLocalizer::class)->meterName($this->name, $this->type);
     }
 }

@@ -57,7 +57,7 @@ return [
     'password_confirmation_mismatch' => 'Slaptažodžių patvirtinimas nesutampa.',
     'account_suspended' => 'Jūsų paskyra šiuo metu sustabdyta. Susisiekite su pagalba.',
     'account_inactive' => 'Jūsų organizacijos paskyra šiuo metu neaktyvi. Susisiekite su pagalba.',
-    'failed' => 'Neteisingas el. pašto adresas arba slaptažodis. Bandykite dar kartą.',
-    'password' => 'Pateiktas slaptažodis yra neteisingas.',
-    'throttle' => 'Per daug bandymų prisijungti. Bandykite dar kartą po :seconds sekundžių.',
+    'failed' => 'Prisijungimo duomenys neatitinka.',
+    'password' => 'Slaptažodis neteisingas.',
+    'throttle' => 'Per daug bandymų prisijungti. Bandykite po :seconds sec.',
 ];

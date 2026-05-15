@@ -7,6 +7,7 @@ use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;
@@ -39,11 +40,13 @@ class PropertiesTable
                     ->toggleable(),
                 TextColumn::make('name')
                     ->label(__('admin.properties.columns.property_name'))
+                    ->state(fn (Property $record): string => $record->displayName())
                     ->url(fn (Property $record): string => PropertyResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('building.name')
                     ->label(__('admin.properties.columns.building'))
+                    ->state(fn (Property $record): string => $record->building?->displayName() ?? '—')
                     ->url(fn (Property $record): ?string => $record->building !== null
                         ? BuildingResource::getUrl('view', ['record' => $record->building])
                         : null)
@@ -70,7 +73,7 @@ class PropertiesTable
                     ->color(fn (Property $record): string => $record->isOccupied() ? 'success' : 'gray'),
                 TextColumn::make('created_at')
                     ->label(__('admin.properties.columns.date_created'))
-                    ->state(fn (Property $record): string => $record->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '—')
+                    ->state(fn (Property $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
                     ->sortable(),
             ])
             ->filters([
@@ -105,7 +108,9 @@ class PropertiesTable
                                 fn ($query) => $query->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
                             )
                             ->orderBy('name')
-                            ->pluck('name', 'id')
+                            ->orderBy('id')
+                            ->get()
+                            ->mapWithKeys(fn (Building $building): array => [$building->id => $building->displayName()])
                             ->all();
                     }),
                 SelectFilter::make('type')

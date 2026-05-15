@@ -259,7 +259,7 @@ class AdminDashboardStats
             ->limit($limit)
             ->get()
             ->map(function (Invoice $invoice): array {
-                $propertyName = (string) ($invoice->property?->name ?? __('dashboard.not_available'));
+                $propertyName = (string) ($invoice->property?->displayName() ?? __('dashboard.not_available'));
                 $unitNumber = $invoice->property?->unit_number;
 
                 return [
@@ -315,7 +315,7 @@ class AdminDashboardStats
                 $dueDate = $baseDate->copy()->addDays($thresholdDays);
                 $daysUntilDue = (int) now()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
                 $unitNumber = $meter->property?->unit_number;
-                $propertyName = (string) ($meter->property?->name ?? __('dashboard.not_available'));
+                $propertyName = (string) ($meter->property?->displayName() ?? __('dashboard.not_available'));
 
                 return [
                     'meter_id' => (int) $meter->getKey(),

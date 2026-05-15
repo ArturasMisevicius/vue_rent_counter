@@ -27,6 +27,19 @@
                         @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
                     @endif
 
+                    @if ($showOnboardingTourButton)
+                        <button
+                            type="button"
+                            x-data
+                            x-on:click="$dispatch('tenanto-open-onboarding-tour')"
+                            class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                            data-onboarding-tour-button
+                        >
+                            <x-heroicon-m-question-mark-circle class="size-4" />
+                            {{ __('onboarding.tour.actions.open') }}
+                        </button>
+                    @endif
+
                     @if ($user && $profileUrl)
                         <a href="{{ $profileUrl }}" wire:navigate>
                             <x-shell.user-avatar :user="$user" />
@@ -87,6 +100,17 @@
                         <x-heroicon-m-x-mark hidden x-bind:hidden="! tenantMenuOpen" class="size-6" />
                         <span class="sr-only">{{ __('dashboard.menu') }}</span>
                     </button>
+                @elseif ($showOnboardingTourButton)
+                    <button
+                        type="button"
+                        x-data
+                        x-on:click="$dispatch('tenanto-open-onboarding-tour')"
+                        class="ml-auto inline-flex min-h-12 touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:hidden"
+                        data-onboarding-tour-button
+                    >
+                        <x-heroicon-m-question-mark-circle class="size-5" />
+                        {{ __('onboarding.tour.actions.open') }}
+                    </button>
                 @endif
 
                 <div class="ml-auto hidden items-center gap-3 lg:flex">
@@ -98,6 +122,19 @@
 
                     @if ($showLanguageSwitcher)
                         @livewire(\App\Livewire\Shell\LanguageSwitcher::class, [], key('shell-language-desktop'))
+                    @endif
+
+                    @if ($showOnboardingTourButton)
+                        <button
+                            type="button"
+                            x-data
+                            x-on:click="$dispatch('tenanto-open-onboarding-tour')"
+                            class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                            data-onboarding-tour-button
+                        >
+                            <x-heroicon-m-question-mark-circle class="size-4" />
+                            {{ __('onboarding.tour.actions.open') }}
+                        </button>
                     @endif
 
                     @if ($user && $profileUrl)
@@ -215,6 +252,18 @@
                         <div class="rounded-3xl border border-slate-200 bg-slate-50 p-2.5">
                             @livewire(\App\Livewire\Shell\GlobalSearch::class, [], key('shell-global-search-mobile'))
                         </div>
+
+                        @if ($showOnboardingTourButton)
+                            <button
+                                type="button"
+                                x-on:click="$dispatch('tenanto-open-onboarding-tour'); tenantMenuOpen = false"
+                                class="inline-flex min-h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100"
+                                data-onboarding-tour-button
+                            >
+                                <x-heroicon-m-question-mark-circle class="size-5" />
+                                {{ __('onboarding.tour.actions.open') }}
+                            </button>
+                        @endif
 
                         <div class="flex items-center gap-2.5 rounded-3xl border border-slate-200 bg-slate-50 p-2.5">
                             @if ($user && $profileUrl)

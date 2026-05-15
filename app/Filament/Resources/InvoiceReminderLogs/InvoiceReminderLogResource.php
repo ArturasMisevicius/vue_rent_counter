@@ -41,6 +41,16 @@ class InvoiceReminderLogResource extends Resource
         return InvoiceReminderLogsTable::configure($table);
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_reminder_logs.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('superadmin.relation_resources.invoice_reminder_logs.plural');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->forSuperadminIndex();
