@@ -8,6 +8,10 @@
     # Keep Laravel internals private when the hosting document root is this directory.
     RewriteRule ^\.well-known(?:/|$) - [L]
     RewriteRule (^|/)\. - [F,L]
+
+    # Route the Filament panel before the physical app/ source directory blocks Apache.
+    RewriteRule ^app(?:/.*)?$ index.php [L]
+
     RewriteRule ^(?:app|bootstrap|config|database|docs|lang|resources|routes|storage|tests|vendor|node_modules|_old)(?:/|$) - [F,L]
     RewriteRule ^(?:artisan|composer\.(?:json|lock)|package(?:-lock)?\.json|phpunit\.xml|vite\.config\.js|AGENTS\.md|CLAUDE\.md|GEMINI\.md|README\.md|CHANGELOG\.md|boost\.json|opencode\.json)$ - [F,L]
 

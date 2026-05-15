@@ -2,6 +2,12 @@
 
 ## 2026-05-15
 
+<!-- changelog:auto:start:staged-20260515204604 -->
+### Commit updates
+
+- updated `.htaccess`
+<!-- changelog:auto:end:staged-20260515204604 -->
+
 <!-- changelog:auto:start:staged-20260515174734 -->
 ### Commit updates
 
