@@ -2,6 +2,17 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614102858 -->
+### Commit updates
+
+- updated `app/Filament/Support/Superadmin/Projects/ProjectOverviewData.php`
+- updated `database/database.sqlite`
+- added `database/migrations/2026_06_14_102659_add_project_status_index_to_tasks_table.php`
+- updated `package-lock.json`
+- updated `package.json`
+- added `tests/Feature/Architecture/NoRawSqlExpressionsTest.php`
+<!-- changelog:auto:end:staged-20260614102858 -->
+
 <!-- changelog:auto:start:staged-20260614102826 -->
 ### Commit updates
 

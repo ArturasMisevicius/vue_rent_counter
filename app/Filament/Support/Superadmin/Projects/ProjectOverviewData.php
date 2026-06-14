@@ -19,6 +19,12 @@ use Illuminate\Support\Str;
 
 final class ProjectOverviewData
 {
+    private const TO_DO_TASK_STATUSES = [
+        'pending',
+        'draft',
+        'todo',
+    ];
+
     public function __construct(
         private readonly DatabaseContentLocalizer $databaseContentLocalizer,
     ) {}
@@ -205,19 +211,20 @@ final class ProjectOverviewData
 
     private function tasks(Project $project): array
     {
-        $counts = $project->tasks()
-            ->selectRaw('status, count(*) as aggregate')
-            ->groupBy('status')
-            ->pluck('aggregate', 'status')
-            ->map(fn (mixed $count): int => (int) $count);
-
-        $toDo = (int) ($counts->get('pending', 0) + $counts->get('draft', 0) + $counts->get('todo', 0));
-        $inProgress = (int) $counts->get('in_progress', 0);
-        $completed = (int) $counts->get('completed', 0);
-        $blocked = max(0, $counts->sum() - $toDo - $inProgress - $completed);
+        $toDo = $project->tasks()
+            ->whereIn('status', self::TO_DO_TASK_STATUSES)
+            ->count();
+        $inProgress = $project->tasks()
+            ->where('status', 'in_progress')
+            ->count();
+        $completed = $project->tasks()
+            ->where('status', 'completed')
+            ->count();
+        $total = $project->tasks()->count();
+        $blocked = max(0, $total - $toDo - $inProgress - $completed);
 
         return [
-            'total' => $counts->sum(),
+            'total' => $total,
             'columns' => [
                 ['label' => __('admin.projects.overview.to_do'), 'count' => $toDo, 'tone' => 'gray'],
                 ['label' => __('admin.projects.overview.in_progress'), 'count' => $inProgress, 'tone' => 'warning'],
@@ -243,12 +250,13 @@ final class ProjectOverviewData
             )
             ->get();
 
-        $share = $assignments->count() > 0
-            ? round((float) $project->actual_cost / $assignments->count(), 2)
+        $assignmentCount = $assignments->count();
+        $share = $assignmentCount > 0
+            ? round((float) $project->actual_cost / $assignmentCount, 2)
             : 0.0;
 
         return [
-            'affected_tenants_count' => $assignments->count(),
+            'affected_tenants_count' => $assignmentCount,
             'share_label' => $this->money($share),
             'rows' => $assignments
                 ->map(fn (PropertyAssignment $assignment): array => [
