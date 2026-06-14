@@ -1,0 +1,201 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - link "Laravel" [ref=e5] [cursor=pointer]:
+      - /url: https://shopper.prus.dev/admin
+      - generic [ref=e6]: Laravel
+    - generic [ref=e7]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Global search
+        - generic [ref=e12]:
+          - img [ref=e14]
+          - searchbox "Global search" [ref=e17]
+      - button "User menu" [ref=e20] [cursor=pointer]:
+        - img "Avatar of Admin User" [ref=e21]
+  - generic [ref=e22]:
+    - complementary [ref=e24]:
+      - navigation [ref=e25]:
+        - list [ref=e26]:
+          - listitem [ref=e27]:
+            - list [ref=e28]:
+              - listitem [ref=e29]:
+                - link "Dashboard" [ref=e30] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin
+                  - img [ref=e31]
+                  - generic [ref=e33]: Dashboard
+          - listitem [ref=e34]:
+            - generic [ref=e35] [cursor=pointer]:
+              - generic [ref=e36]: Sales
+              - button "Sales" [expanded] [ref=e37]:
+                - img [ref=e38]
+            - list [ref=e40]:
+              - listitem [ref=e41]:
+                - link "Orders" [ref=e42] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/orders
+                  - img [ref=e43]
+                  - generic [ref=e45]: Orders
+              - listitem [ref=e46]:
+                - link "Payments" [ref=e47] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/payments
+                  - img [ref=e48]
+                  - generic [ref=e50]: Payments
+              - listitem [ref=e51]:
+                - link "Tax Rates" [ref=e52] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/tax-rates
+                  - img [ref=e53]
+                  - generic [ref=e55]: Tax Rates
+              - listitem [ref=e56]:
+                - link "Carts" [ref=e57] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/carts
+                  - img [ref=e58]
+                  - generic [ref=e60]: Carts
+              - listitem [ref=e61]:
+                - link "Discounts" [ref=e62] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/discounts
+                  - img [ref=e63]
+                  - generic [ref=e65]: Discounts
+              - listitem [ref=e66]:
+                - link "Customers" [ref=e67] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/customers
+                  - img [ref=e68]
+                  - generic [ref=e70]: Customers
+          - listitem [ref=e71]:
+            - generic [ref=e72] [cursor=pointer]:
+              - generic [ref=e73]: System
+              - button "System" [expanded] [ref=e74]:
+                - img [ref=e75]
+            - list [ref=e77]:
+              - listitem [ref=e78]:
+                - link "Media Library" [ref=e79] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/media
+                  - img [ref=e80]
+                  - generic [ref=e82]: Media Library
+              - listitem [ref=e83]:
+                - link "Event Logs" [ref=e84] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/event-logs
+                  - img [ref=e85]
+                  - generic [ref=e87]: Event Logs
+              - listitem [ref=e88]:
+                - link "Webhooks" [ref=e89] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/webhooks
+                  - img [ref=e90]
+                  - generic [ref=e92]: Webhooks
+              - listitem [ref=e93]:
+                - link "Roles" [ref=e94] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/roles
+                  - img [ref=e95]
+                  - generic [ref=e97]: Roles
+              - listitem [ref=e98]:
+                - link "Users" [ref=e99] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/users
+                  - img [ref=e100]
+                  - generic [ref=e102]: Users
+          - listitem [ref=e103]:
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: Catalog
+              - button "Catalog" [expanded] [ref=e106]:
+                - img [ref=e107]
+            - list [ref=e109]:
+              - listitem [ref=e110]:
+                - link "Products" [ref=e111] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/products
+                  - img [ref=e112]
+                  - generic [ref=e114]: Products
+              - listitem [ref=e115]:
+                - link "Product Variants" [ref=e116] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/product-variants
+                  - img [ref=e117]
+                  - generic [ref=e119]: Product Variants
+              - listitem [ref=e120]:
+                - link "Pricing" [ref=e121] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/pricing-overview-page
+                  - img [ref=e122]
+                  - generic [ref=e124]: Pricing
+              - listitem [ref=e125]:
+                - link "Categories" [ref=e126] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/categories
+                  - img [ref=e127]
+                  - generic [ref=e129]: Categories
+              - listitem [ref=e130]:
+                - link "Collections" [ref=e131] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/collections
+                  - img [ref=e132]
+                  - generic [ref=e134]: Collections
+              - listitem [ref=e135]:
+                - link "Tags" [ref=e136] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/tags
+                  - img [ref=e137]
+                  - generic [ref=e140]: Tags
+              - listitem [ref=e141]:
+                - link "Attributes" [ref=e142] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/attributes
+                  - img [ref=e143]
+                  - generic [ref=e145]: Attributes
+              - listitem [ref=e146]:
+                - link "Suppliers" [ref=e147] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/suppliers
+                  - img [ref=e148]
+                  - generic [ref=e150]: Suppliers
+              - listitem [ref=e151]:
+                - link "Brands" [ref=e152] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/brands
+                  - img [ref=e153]
+                  - generic [ref=e156]: Brands
+              - listitem [ref=e157]:
+                - link "Reviews" [ref=e158] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/reviews
+                  - img [ref=e159]
+                  - generic [ref=e161]: Reviews
+          - listitem [ref=e162]:
+            - generic [ref=e163] [cursor=pointer]:
+              - generic [ref=e164]: Settings
+              - button "Settings" [expanded] [ref=e165]:
+                - img [ref=e166]
+            - list [ref=e168]:
+              - listitem [ref=e169]:
+                - link "General" [ref=e170] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/general-settings-page
+                  - img [ref=e171]
+                  - generic [ref=e174]: General
+              - listitem [ref=e175]:
+                - link "Inventory Locations" [ref=e176] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/locations
+                  - img [ref=e177]
+                  - generic [ref=e179]: Inventory Locations
+              - listitem [ref=e180]:
+                - link "Currencies" [ref=e181] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/currencies
+                  - img [ref=e182]
+                  - generic [ref=e184]: Currencies
+              - listitem [ref=e185]:
+                - link "Legal Pages" [ref=e186] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/legals
+                  - img [ref=e187]
+                  - generic [ref=e189]: Legal Pages
+              - listitem [ref=e190]:
+                - link "Zones" [ref=e191] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/zones
+                  - img [ref=e192]
+                  - generic [ref=e194]: Zones
+              - listitem [ref=e195]:
+                - link "Carriers" [ref=e196] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/carriers
+                  - img [ref=e197]
+                  - generic [ref=e199]: Carriers
+              - listitem [ref=e200]:
+                - link "Payment Methods" [ref=e201] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin/payment-methods
+                  - img [ref=e202]
+                  - generic [ref=e204]: Payment Methods
+    - main [ref=e206]:
+      - generic [ref=e208]:
+        - heading "Dashboard" [level=1] [ref=e211]
+        - generic [ref=e222]:
+          - img "Avatar of Admin User" [ref=e223]
+          - generic [ref=e224]:
+            - heading "Welcome" [level=2] [ref=e225]
+            - paragraph [ref=e226]: Admin User
+          - button "Sign out" [ref=e228] [cursor=pointer]:
+            - img [ref=e229]
+            - text: Sign out
+  - generic:
+    - status

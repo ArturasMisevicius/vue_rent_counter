@@ -1,0 +1,194 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e5]:
+      - generic [ref=e8]:
+        - generic [ref=e10]:
+          - img [ref=e11]
+          - heading "Shopper Demo Store" [level=4] [ref=e13]
+        - generic [ref=e16]:
+          - generic [ref=e18]:
+            - paragraph [ref=e19]: Onboarding
+            - paragraph [ref=e20]: 75% complete
+          - list [ref=e23]:
+            - listitem [ref=e24]:
+              - img [ref=e26]
+              - generic [ref=e28]: Identity
+            - listitem [ref=e29]:
+              - generic [ref=e31]: Address
+            - listitem [ref=e32]:
+              - img [ref=e34]
+              - generic [ref=e36]: Currency and timezone
+            - listitem [ref=e37]:
+              - img [ref=e39]
+              - generic [ref=e41]: Checkout
+            - listitem [ref=e42]:
+              - img [ref=e44]
+              - generic [ref=e46]: Social links (optional)
+          - link "Complete later" [ref=e47] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/onboarding
+            - text: Complete later
+            - img [ref=e48]
+        - generic [ref=e50]:
+          - navigation [ref=e53]:
+            - list
+          - list [ref=e56]:
+            - listitem [ref=e57]:
+              - link "Settings" [ref=e58] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/cpanel/setting
+                - img [ref=e59]
+                - generic [ref=e61]: Settings
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - button "shopper::layout.sidebar.toggle" [ref=e65] [cursor=pointer]:
+          - img [ref=e66]
+        - generic [ref=e69]:
+          - link [ref=e70] [cursor=pointer]:
+            - /url: https://shopper.prus.dev
+            - img [ref=e71]
+          - button "Switch language" [ref=e75] [cursor=pointer]:
+            - img "en" [ref=e76]
+          - button "admin@example.com Admin User" [ref=e79] [cursor=pointer]:
+            - img "admin@example.com" [ref=e80]
+            - generic [ref=e81]: Admin User
+      - generic [ref=e84]:
+        - navigation "Tabs" [ref=e85]:
+          - link "General" [ref=e86] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/general
+          - link "Staff & permissions" [ref=e87] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/team
+          - link "Inventories" [ref=e88] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/locations
+          - link "Payment methods" [ref=e89] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/payment-methods
+          - link "Carriers" [ref=e90] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/carriers
+          - link "Legal" [ref=e91] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/legal
+          - link "Zones" [ref=e92] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/zones
+          - link "Taxes" [ref=e93] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/taxes
+          - link "Currencies" [ref=e94] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/setting/currencies
+          - link "Loyalty" [ref=e95] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/loyalty/tiers
+          - link "Stripe" [ref=e96] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/stripe
+          - link "Demo Insights" [ref=e97] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/cpanel/demo-insights
+          - link "Configuration Setting" [ref=e98] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/configuration/manage
+          - link "Contributing Setting" [ref=e99] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/contributing/manage
+        - button [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+      - main [ref=e104]:
+        - generic "General Settings" [ref=e105]:
+          - generic [ref=e107]:
+            - navigation [ref=e109]:
+              - link [ref=e110] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/cpanel/dashboard
+                - img [ref=e111]
+              - img [ref=e113]
+              - link "Settings" [ref=e115] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/cpanel/setting
+              - img [ref=e116]
+              - generic [ref=e118]: General Settings
+            - generic "General Settings" [ref=e119]:
+              - heading "General Settings" [level=2] [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e125]:
+                - tablist "Settings" [ref=e126]:
+                  - tab "General" [ref=e127] [cursor=pointer]:
+                    - generic [ref=e128]: General
+                  - tab "Checkout" [ref=e129] [cursor=pointer]:
+                    - generic [ref=e130]: Checkout
+                  - tab "Social" [ref=e131] [cursor=pointer]:
+                    - generic [ref=e132]: Social
+                - tabpanel "Store Identity Store name* Shopper Demo Store Contact email* support@example.com Phone +1 555 0100 Brand Assets Logo Choose File Drag & Drop your files or Browse Favicon Choose File Drag & Drop your files or Browse Address Street 120 Market Street City San Francisco State Country ZIP 94103 Regional Defaults Default currency USD - US Dollar Clear selection Timezone* UTC Clear selection Weight unit* kg Clear selection" [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e138]:
+                      - heading "Store Identity" [level=2] [ref=e141]
+                      - generic [ref=e147]:
+                        - generic [ref=e150]:
+                          - generic [ref=e154]:
+                            - text: Store name
+                            - superscript [ref=e155]: "*"
+                          - textbox "Store name*" [ref=e159]: Shopper Demo Store
+                        - generic [ref=e162]:
+                          - generic [ref=e166]:
+                            - text: Contact email
+                            - superscript [ref=e167]: "*"
+                          - textbox "Contact email*" [ref=e171]: support@example.com
+                        - generic [ref=e174]:
+                          - generic [ref=e178]: Phone
+                          - textbox "Phone" [ref=e182]: +1 555 0100
+                    - generic [ref=e186]:
+                      - heading "Brand Assets" [level=2] [ref=e189]
+                      - generic [ref=e195]:
+                        - generic [ref=e198]:
+                          - generic [ref=e202]: Logo
+                          - group "Logo" [ref=e204]:
+                            - generic [ref=e206]:
+                              - button "Drag & Drop your files or Browse"
+                              - generic [ref=e208]: Drag & Drop your files or Browse
+                              - list [ref=e210]
+                              - alert [ref=e211]
+                        - generic [ref=e214]:
+                          - generic [ref=e218]: Favicon
+                          - group "Favicon" [ref=e220]:
+                            - generic [ref=e222]:
+                              - button "Drag & Drop your files or Browse"
+                              - generic [ref=e224]: Drag & Drop your files or Browse
+                              - list [ref=e226]
+                              - alert [ref=e227]
+                    - generic [ref=e231]:
+                      - heading "Address" [level=2] [ref=e234]
+                      - generic [ref=e236]:
+                        - generic [ref=e239]:
+                          - generic [ref=e243]: Street
+                          - textbox "Street" [ref=e247]: 120 Market Street
+                        - generic [ref=e251]:
+                          - generic [ref=e254]:
+                            - generic [ref=e258]: City
+                            - textbox "City" [ref=e262]: San Francisco
+                          - generic [ref=e265]:
+                            - generic [ref=e269]: State
+                            - textbox "State" [ref=e273]
+                          - generic [ref=e276]:
+                            - generic [ref=e280]: Country
+                            - textbox "Country" [ref=e284]
+                          - generic [ref=e287]:
+                            - generic [ref=e291]: ZIP
+                            - textbox "ZIP" [ref=e295]: "94103"
+                    - generic [ref=e299]:
+                      - heading "Regional Defaults" [level=2] [ref=e302]
+                      - generic [ref=e308]:
+                        - generic [ref=e311]:
+                          - generic [ref=e315]: Default currency
+                          - generic [ref=e321]:
+                            - button "USD - US Dollar" [ref=e322] [cursor=pointer]:
+                              - generic [ref=e324]: USD - US Dollar
+                            - button "Clear selection" [ref=e325] [cursor=pointer]:
+                              - img [ref=e326]
+                        - generic [ref=e330]:
+                          - generic [ref=e334]:
+                            - text: Timezone
+                            - superscript [ref=e335]: "*"
+                          - generic [ref=e341]:
+                            - button "UTC" [ref=e342] [cursor=pointer]:
+                              - generic [ref=e344]: UTC
+                            - button "Clear selection" [ref=e345] [cursor=pointer]:
+                              - img [ref=e346]
+                        - generic [ref=e350]:
+                          - generic [ref=e354]:
+                            - text: Weight unit
+                            - superscript [ref=e355]: "*"
+                          - generic [ref=e361]:
+                            - button "kg" [ref=e362] [cursor=pointer]:
+                              - generic [ref=e364]: kg
+                            - button "Clear selection" [ref=e365] [cursor=pointer]:
+                              - img [ref=e366]
+              - button "Save settings" [ref=e370] [cursor=pointer]
+  - generic:
+    - status

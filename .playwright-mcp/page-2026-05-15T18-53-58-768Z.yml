@@ -1,0 +1,662 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - link "Laravel" [ref=e5] [cursor=pointer]:
+      - /url: https://shopper.prus.dev/admin
+      - generic [ref=e6]: Laravel
+    - generic [ref=e7]:
+      - generic [ref=e10]:
+        - text: Global search
+        - generic [ref=e11]:
+          - img [ref=e13]
+          - searchbox "Global search" [ref=e16]
+      - generic [ref=e17]:
+        - button "User menu" [ref=e19]:
+          - img "Avatar of Admin User" [ref=e20]
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - img [ref=e23]
+            - text: Admin User
+          - generic [ref=e26]:
+            - button "Enable light theme" [ref=e27]
+            - button "Enable dark theme" [ref=e29]
+            - button "Enable system theme" [ref=e31]
+          - button "Sign out" [ref=e35]:
+            - img [ref=e36]
+            - text: Sign out
+  - generic [ref=e39]:
+    - complementary [ref=e41]:
+      - link "Laravel" [ref=e45] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/admin
+        - generic [ref=e46]: Laravel
+      - navigation [ref=e47]:
+        - list [ref=e48]:
+          - listitem [ref=e49]:
+            - list [ref=e50]:
+              - listitem [ref=e51]:
+                - link "Dashboard" [ref=e52] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/admin
+                  - img [ref=e53]
+                  - generic [ref=e55]: Dashboard
+          - listitem [ref=e56]:
+            - generic [ref=e57]:
+              - text: Sales
+              - button "Sales" [ref=e58]
+          - listitem [ref=e60]:
+            - generic [ref=e61]:
+              - text: System
+              - button "System" [ref=e62]
+          - listitem [ref=e64]:
+            - generic [ref=e65]:
+              - text: Catalog
+              - button "Catalog" [ref=e66]
+          - listitem [ref=e68]:
+            - generic [ref=e69]:
+              - text: Settings
+              - button "Settings" [ref=e70]
+    - main [ref=e73]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - navigation [ref=e78]:
+              - list [ref=e79]:
+                - listitem [ref=e80]:
+                  - link "Products" [ref=e81] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products
+                - listitem [ref=e82]:
+                  - img [ref=e83]
+                  - img [ref=e85]
+                  - text: List
+            - heading "Products" [level=1] [ref=e87]
+          - link "New product" [ref=e90] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/admin/products/create
+        - generic [ref=e98]:
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - text: Search
+              - generic [ref=e103]:
+                - img [ref=e105]
+                - searchbox "Search" [ref=e108]
+            - generic [ref=e109]:
+              - button "Filter" [ref=e111]:
+                - img [ref=e112]
+                - generic [ref=e114]: "0"
+              - generic [ref=e116]:
+                - generic [ref=e117]:
+                  - heading "Filters" [level=2] [ref=e118]
+                  - button "Reset" [ref=e120]
+                - generic [ref=e121]:
+                  - generic [ref=e128]:
+                    - generic [ref=e132]: Type
+                    - combobox "Type" [ref=e136]:
+                      - option "All" [selected]
+                      - option "External"
+                      - option "Virtual"
+                      - option "Standard"
+                      - option "Variant"
+                  - generic [ref=e147]: Category
+                  - generic [ref=e158]: Brand
+                  - generic [ref=e169]: Supplier
+                  - generic [ref=e176]:
+                    - generic [ref=e180]: Visibility
+                    - combobox "Visibility" [ref=e184]:
+                      - option "-" [selected]
+                      - option "Yes"
+                      - option "No"
+                  - generic [ref=e191]:
+                    - generic [ref=e195]: Stock status
+                    - combobox "Stock status" [ref=e199]:
+                      - option "All" [selected]
+                      - option "Has stock movement"
+                      - option "No stock movement"
+                      - option "Backorder allowed"
+                - button "Apply filters" [ref=e201]
+            - generic [ref=e202]:
+              - button "Column manager" [ref=e204]
+              - generic [ref=e207]:
+                - generic [ref=e208]:
+                  - heading "Columns" [level=2] [ref=e209]
+                  - button "Reset" [ref=e211]
+                - button "Apply columns" [ref=e213]
+          - table [ref=e215]:
+            - rowgroup [ref=e216]:
+              - row "Select/deselect all items for bulk actions. Thumbnail Name Type Price Stock Visible Published at Actions" [ref=e217]:
+                - columnheader "Select/deselect all items for bulk actions." [ref=e218]:
+                  - checkbox "Select/deselect all items for bulk actions." [ref=e219]
+                - columnheader "Thumbnail" [ref=e220]
+                - columnheader "Name" [ref=e221]:
+                  - button "Name" [ref=e222]:
+                    - text: Name
+                    - img [ref=e223]
+                - columnheader "Type" [ref=e225]:
+                  - button "Type" [ref=e226]:
+                    - text: Type
+                    - img [ref=e227]
+                - columnheader "Price" [ref=e229]
+                - columnheader "Stock" [ref=e230]
+                - columnheader "Visible" [ref=e231]:
+                  - button "Visible" [ref=e232]:
+                    - text: Visible
+                    - img [ref=e233]
+                - columnheader "Published at" [ref=e235]:
+                  - button "Published at" [ref=e236]:
+                    - text: Published at
+                    - img [ref=e237]
+                - columnheader "Actions" [ref=e239]
+            - rowgroup [ref=e240]:
+              - row "Select/deselect item 1 for bulk actions. Meridian Field Jacket SKU-MERIDIANFIELDJACKET Standard $149.00 54 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e241]:
+                - cell "Select/deselect item 1 for bulk actions." [ref=e242]:
+                  - checkbox "Select/deselect item 1 for bulk actions." [ref=e243]
+                - cell [ref=e244]:
+                  - link [ref=e245] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - img [ref=e247]
+                - cell "Meridian Field Jacket SKU-MERIDIANFIELDJACKET" [ref=e248]:
+                  - link "Meridian Field Jacket SKU-MERIDIANFIELDJACKET" [ref=e249] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - generic [ref=e250]:
+                      - paragraph [ref=e251]: Meridian Field Jacket
+                      - paragraph [ref=e252]: SKU-MERIDIANFIELDJACKET
+                - cell "Standard" [ref=e253]:
+                  - link "Standard" [ref=e254] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - generic [ref=e255]: Standard
+                - cell "$149.00" [ref=e256]:
+                  - link "$149.00" [ref=e257] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - generic [ref=e258]: $149.00
+                - cell "54" [ref=e259]:
+                  - link "54" [ref=e260] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - generic [ref=e261]: "54"
+                - cell [ref=e262]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e263]:
+                  - link "May 15, 2026 17:57:18" [ref=e264] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/1
+                    - generic [ref=e265]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e266]:
+                  - generic [ref=e268]:
+                    - button "Actions" [ref=e270]
+                    - generic [ref=e273]:
+                      - link "View" [ref=e274] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/1
+                        - img [ref=e275]
+                        - text: View
+                      - link "Edit" [ref=e278] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/1/edit
+                        - img [ref=e279]
+                        - text: Edit
+                      - button "Delete" [ref=e282]:
+                        - img [ref=e283]
+                        - text: Delete
+              - row "Select/deselect item 2 for bulk actions. Everyday Rib Tee SKU-EVERYDAYRIBTEE Variant $29.00 66 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e285]:
+                - cell "Select/deselect item 2 for bulk actions." [ref=e286]:
+                  - checkbox "Select/deselect item 2 for bulk actions." [ref=e287]
+                - cell [ref=e288]:
+                  - link [ref=e289] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - img [ref=e291]
+                - cell "Everyday Rib Tee SKU-EVERYDAYRIBTEE" [ref=e292]:
+                  - link "Everyday Rib Tee SKU-EVERYDAYRIBTEE" [ref=e293] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - generic [ref=e294]:
+                      - paragraph [ref=e295]: Everyday Rib Tee
+                      - paragraph [ref=e296]: SKU-EVERYDAYRIBTEE
+                - cell "Variant" [ref=e297]:
+                  - link "Variant" [ref=e298] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - generic [ref=e299]: Variant
+                - cell "$29.00" [ref=e300]:
+                  - link "$29.00" [ref=e301] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - generic [ref=e302]: $29.00
+                - cell "66" [ref=e303]:
+                  - link "66" [ref=e304] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - generic [ref=e305]: "66"
+                - cell [ref=e306]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e307]:
+                  - link "May 15, 2026 17:57:18" [ref=e308] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/2
+                    - generic [ref=e309]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e310]:
+                  - generic [ref=e312]:
+                    - button "Actions" [ref=e314]
+                    - generic [ref=e317]:
+                      - link "View" [ref=e318] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/2
+                        - img [ref=e319]
+                        - text: View
+                      - link "Edit" [ref=e322] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/2/edit
+                        - img [ref=e323]
+                        - text: Edit
+                      - button "Delete" [ref=e326]:
+                        - img [ref=e327]
+                        - text: Delete
+              - row "Select/deselect item 3 for bulk actions. Organic Canvas Tote SKU-ORGANICCANVASTOTE Standard $42.00 120 Apr 24, 2026 17:57:18 Actions View Edit Delete" [ref=e329]:
+                - cell "Select/deselect item 3 for bulk actions." [ref=e330]:
+                  - checkbox "Select/deselect item 3 for bulk actions." [ref=e331]
+                - cell [ref=e332]:
+                  - link [ref=e333] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - img [ref=e335]
+                - cell "Organic Canvas Tote SKU-ORGANICCANVASTOTE" [ref=e336]:
+                  - link "Organic Canvas Tote SKU-ORGANICCANVASTOTE" [ref=e337] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - generic [ref=e338]:
+                      - paragraph [ref=e339]: Organic Canvas Tote
+                      - paragraph [ref=e340]: SKU-ORGANICCANVASTOTE
+                - cell "Standard" [ref=e341]:
+                  - link "Standard" [ref=e342] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - generic [ref=e343]: Standard
+                - cell "$42.00" [ref=e344]:
+                  - link "$42.00" [ref=e345] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - generic [ref=e346]: $42.00
+                - cell "120" [ref=e347]:
+                  - link "120" [ref=e348] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - generic [ref=e349]: "120"
+                - cell [ref=e350]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "Apr 24, 2026 17:57:18" [ref=e351]:
+                  - link "Apr 24, 2026 17:57:18" [ref=e352] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/3
+                    - generic [ref=e353]: Apr 24, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e354]:
+                  - generic [ref=e356]:
+                    - button "Actions" [ref=e358]
+                    - generic [ref=e361]:
+                      - link "View" [ref=e362] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/3
+                        - img [ref=e363]
+                        - text: View
+                      - link "Edit" [ref=e366] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/3/edit
+                        - img [ref=e367]
+                        - text: Edit
+                      - button "Delete" [ref=e370]:
+                        - img [ref=e371]
+                        - text: Delete
+              - row "Select/deselect item 4 for bulk actions. Studio Desk Lamp SKU-STUDIODESKLAMP Standard $89.00 34 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e373]:
+                - cell "Select/deselect item 4 for bulk actions." [ref=e374]:
+                  - checkbox "Select/deselect item 4 for bulk actions." [ref=e375]
+                - cell [ref=e376]:
+                  - link [ref=e377] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - img [ref=e379]
+                - cell "Studio Desk Lamp SKU-STUDIODESKLAMP" [ref=e380]:
+                  - link "Studio Desk Lamp SKU-STUDIODESKLAMP" [ref=e381] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - generic [ref=e382]:
+                      - paragraph [ref=e383]: Studio Desk Lamp
+                      - paragraph [ref=e384]: SKU-STUDIODESKLAMP
+                - cell "Standard" [ref=e385]:
+                  - link "Standard" [ref=e386] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - generic [ref=e387]: Standard
+                - cell "$89.00" [ref=e388]:
+                  - link "$89.00" [ref=e389] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - generic [ref=e390]: $89.00
+                - cell "34" [ref=e391]:
+                  - link "34" [ref=e392] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - generic [ref=e393]: "34"
+                - cell [ref=e394]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e395]:
+                  - link "May 15, 2026 17:57:18" [ref=e396] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/4
+                    - generic [ref=e397]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e398]:
+                  - generic [ref=e400]:
+                    - button "Actions" [ref=e402]
+                    - generic [ref=e405]:
+                      - link "View" [ref=e406] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/4
+                        - img [ref=e407]
+                        - text: View
+                      - link "Edit" [ref=e410] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/4/edit
+                        - img [ref=e411]
+                        - text: Edit
+                      - button "Delete" [ref=e414]:
+                        - img [ref=e415]
+                        - text: Delete
+              - row "Select/deselect item 5 for bulk actions. Focus Wireless Headphones SKU-FOCUSWIRELESSHEADPHONES Variant $129.00 66 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e417]:
+                - cell "Select/deselect item 5 for bulk actions." [ref=e418]:
+                  - checkbox "Select/deselect item 5 for bulk actions." [ref=e419]
+                - cell [ref=e420]:
+                  - link [ref=e421] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - img [ref=e423]
+                - cell "Focus Wireless Headphones SKU-FOCUSWIRELESSHEADPHONES" [ref=e424]:
+                  - link "Focus Wireless Headphones SKU-FOCUSWIRELESSHEADPHONES" [ref=e425] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - generic [ref=e426]:
+                      - paragraph [ref=e427]: Focus Wireless Headphones
+                      - paragraph [ref=e428]: SKU-FOCUSWIRELESSHEADPHONES
+                - cell "Variant" [ref=e429]:
+                  - link "Variant" [ref=e430] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - generic [ref=e431]: Variant
+                - cell "$129.00" [ref=e432]:
+                  - link "$129.00" [ref=e433] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - generic [ref=e434]: $129.00
+                - cell "66" [ref=e435]:
+                  - link "66" [ref=e436] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - generic [ref=e437]: "66"
+                - cell [ref=e438]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e439]:
+                  - link "May 15, 2026 17:57:18" [ref=e440] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/5
+                    - generic [ref=e441]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e442]:
+                  - generic [ref=e444]:
+                    - button "Actions" [ref=e446]
+                    - generic [ref=e449]:
+                      - link "View" [ref=e450] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/5
+                        - img [ref=e451]
+                        - text: View
+                      - link "Edit" [ref=e454] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/5/edit
+                        - img [ref=e455]
+                        - text: Edit
+                      - button "Delete" [ref=e458]:
+                        - img [ref=e459]
+                        - text: Delete
+              - row "Select/deselect item 6 for bulk actions. Commerce Playbook PDF SKU-COMMERCEPLAYBOOKPDF Virtual $49.00 999 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e461]:
+                - cell "Select/deselect item 6 for bulk actions." [ref=e462]:
+                  - checkbox "Select/deselect item 6 for bulk actions." [ref=e463]
+                - cell [ref=e464]:
+                  - link [ref=e465] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - img [ref=e467]
+                - cell "Commerce Playbook PDF SKU-COMMERCEPLAYBOOKPDF" [ref=e468]:
+                  - link "Commerce Playbook PDF SKU-COMMERCEPLAYBOOKPDF" [ref=e469] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - generic [ref=e470]:
+                      - paragraph [ref=e471]: Commerce Playbook PDF
+                      - paragraph [ref=e472]: SKU-COMMERCEPLAYBOOKPDF
+                - cell "Virtual" [ref=e473]:
+                  - link "Virtual" [ref=e474] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - generic [ref=e475]: Virtual
+                - cell "$49.00" [ref=e476]:
+                  - link "$49.00" [ref=e477] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - generic [ref=e478]: $49.00
+                - cell "999" [ref=e479]:
+                  - link "999" [ref=e480] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - generic [ref=e481]: "999"
+                - cell [ref=e482]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e483]:
+                  - link "May 15, 2026 17:57:18" [ref=e484] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/6
+                    - generic [ref=e485]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e486]:
+                  - generic [ref=e488]:
+                    - button "Actions" [ref=e490]
+                    - generic [ref=e493]:
+                      - link "View" [ref=e494] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/6
+                        - img [ref=e495]
+                        - text: View
+                      - link "Edit" [ref=e498] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/6/edit
+                        - img [ref=e499]
+                        - text: Edit
+                      - button "Delete" [ref=e502]:
+                        - img [ref=e503]
+                        - text: Delete
+              - row "Select/deselect item 7 for bulk actions. SaaS Analytics Course SKU-SAASANALYTICSCOURSE Virtual $199.00 999 May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e505]:
+                - cell "Select/deselect item 7 for bulk actions." [ref=e506]:
+                  - checkbox "Select/deselect item 7 for bulk actions." [ref=e507]
+                - cell [ref=e508]:
+                  - link [ref=e509] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - img [ref=e511]
+                - cell "SaaS Analytics Course SKU-SAASANALYTICSCOURSE" [ref=e512]:
+                  - link "SaaS Analytics Course SKU-SAASANALYTICSCOURSE" [ref=e513] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - generic [ref=e514]:
+                      - paragraph [ref=e515]: SaaS Analytics Course
+                      - paragraph [ref=e516]: SKU-SAASANALYTICSCOURSE
+                - cell "Virtual" [ref=e517]:
+                  - link "Virtual" [ref=e518] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - generic [ref=e519]: Virtual
+                - cell "$199.00" [ref=e520]:
+                  - link "$199.00" [ref=e521] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - generic [ref=e522]: $199.00
+                - cell "999" [ref=e523]:
+                  - link "999" [ref=e524] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - generic [ref=e525]: "999"
+                - cell [ref=e526]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e527]:
+                  - link "May 15, 2026 17:57:18" [ref=e528] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/7
+                    - generic [ref=e529]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e530]:
+                  - generic [ref=e532]:
+                    - button "Actions" [ref=e534]
+                    - generic [ref=e537]:
+                      - link "View" [ref=e538] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/7
+                        - img [ref=e539]
+                        - text: View
+                      - link "Edit" [ref=e542] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/7/edit
+                        - img [ref=e543]
+                        - text: Edit
+                      - button "Delete" [ref=e546]:
+                        - img [ref=e547]
+                        - text: Delete
+              - row "Select/deselect item 8 for bulk actions. Minimalist Wooden Watch SKU-MINIMALISTWOODENWATCH External $129.00 Backorder May 15, 2026 17:57:18 Actions View Edit Delete" [ref=e549]:
+                - cell "Select/deselect item 8 for bulk actions." [ref=e550]:
+                  - checkbox "Select/deselect item 8 for bulk actions." [ref=e551]
+                - cell [ref=e552]:
+                  - link [ref=e553] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - img [ref=e555]
+                - cell "Minimalist Wooden Watch SKU-MINIMALISTWOODENWATCH" [ref=e556]:
+                  - link "Minimalist Wooden Watch SKU-MINIMALISTWOODENWATCH" [ref=e557] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - generic [ref=e558]:
+                      - paragraph [ref=e559]: Minimalist Wooden Watch
+                      - paragraph [ref=e560]: SKU-MINIMALISTWOODENWATCH
+                - cell "External" [ref=e561]:
+                  - link "External" [ref=e562] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - generic [ref=e563]: External
+                - cell "$129.00" [ref=e564]:
+                  - link "$129.00" [ref=e565] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - generic [ref=e566]: $129.00
+                - cell "Backorder" [ref=e567]:
+                  - link "Backorder" [ref=e568] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - generic [ref=e569]: Backorder
+                - cell [ref=e570]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "May 15, 2026 17:57:18" [ref=e571]:
+                  - link "May 15, 2026 17:57:18" [ref=e572] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/8
+                    - generic [ref=e573]: May 15, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e574]:
+                  - generic [ref=e576]:
+                    - button "Actions" [ref=e578]
+                    - generic [ref=e581]:
+                      - link "View" [ref=e582] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/8
+                        - img [ref=e583]
+                        - text: View
+                      - link "Edit" [ref=e586] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/8/edit
+                        - img [ref=e587]
+                        - text: Edit
+                      - button "Delete" [ref=e590]:
+                        - img [ref=e591]
+                        - text: Delete
+              - row "Select/deselect item 9 for bulk actions. Northline Utility Overshirt 001 SKU-NORTHLINEUTILITYOVERSHIRT001 Standard $91.50 25 Apr 16, 2026 17:57:18 Actions View Edit Delete" [ref=e593]:
+                - cell "Select/deselect item 9 for bulk actions." [ref=e594]:
+                  - checkbox "Select/deselect item 9 for bulk actions." [ref=e595]
+                - cell [ref=e596]:
+                  - link [ref=e597] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - img [ref=e599]
+                - cell "Northline Utility Overshirt 001 SKU-NORTHLINEUTILITYOVERSHIRT001" [ref=e600]:
+                  - link "Northline Utility Overshirt 001 SKU-NORTHLINEUTILITYOVERSHIRT001" [ref=e601] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - generic [ref=e602]:
+                      - paragraph [ref=e603]: Northline Utility Overshirt 001
+                      - paragraph [ref=e604]: SKU-NORTHLINEUTILITYOVERSHIRT001
+                - cell "Standard" [ref=e605]:
+                  - link "Standard" [ref=e606] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - generic [ref=e607]: Standard
+                - cell "$91.50" [ref=e608]:
+                  - link "$91.50" [ref=e609] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - generic [ref=e610]: $91.50
+                - cell "25" [ref=e611]:
+                  - link "25" [ref=e612] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - generic [ref=e613]: "25"
+                - cell [ref=e614]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "Apr 16, 2026 17:57:18" [ref=e615]:
+                  - link "Apr 16, 2026 17:57:18" [ref=e616] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/9
+                    - generic [ref=e617]: Apr 16, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e618]:
+                  - generic [ref=e620]:
+                    - button "Actions" [ref=e622]
+                    - generic [ref=e625]:
+                      - link "View" [ref=e626] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/9
+                        - img [ref=e627]
+                        - text: View
+                      - link "Edit" [ref=e630] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/9/edit
+                        - img [ref=e631]
+                        - text: Edit
+                      - button "Delete" [ref=e634]:
+                        - img [ref=e635]
+                        - text: Delete
+              - row "Select/deselect item 10 for bulk actions. Atelier Mono Ribbed Tank 002 SKU-ATELIERMONORIBBEDTANK002 Standard $49.00 26 Apr 17, 2026 17:57:18 Actions View Edit Delete" [ref=e637]:
+                - cell "Select/deselect item 10 for bulk actions." [ref=e638]:
+                  - checkbox "Select/deselect item 10 for bulk actions." [ref=e639]
+                - cell [ref=e640]:
+                  - link [ref=e641] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - img [ref=e643]
+                - cell "Atelier Mono Ribbed Tank 002 SKU-ATELIERMONORIBBEDTANK002" [ref=e644]:
+                  - link "Atelier Mono Ribbed Tank 002 SKU-ATELIERMONORIBBEDTANK002" [ref=e645] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - generic [ref=e646]:
+                      - paragraph [ref=e647]: Atelier Mono Ribbed Tank 002
+                      - paragraph [ref=e648]: SKU-ATELIERMONORIBBEDTANK002
+                - cell "Standard" [ref=e649]:
+                  - link "Standard" [ref=e650] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - generic [ref=e651]: Standard
+                - cell "$49.00" [ref=e652]:
+                  - link "$49.00" [ref=e653] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - generic [ref=e654]: $49.00
+                - cell "26" [ref=e655]:
+                  - link "26" [ref=e656] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - generic [ref=e657]: "26"
+                - cell [ref=e658]:
+                  - generic:
+                    - generic:
+                      - switch
+                - cell "Apr 17, 2026 17:57:18" [ref=e659]:
+                  - link "Apr 17, 2026 17:57:18" [ref=e660] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/admin/products/10
+                    - generic [ref=e661]: Apr 17, 2026 17:57:18
+                - cell "Actions View Edit Delete" [ref=e662]:
+                  - generic [ref=e664]:
+                    - button "Actions" [ref=e666]
+                    - generic [ref=e669]:
+                      - link "View" [ref=e670] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/10
+                        - img [ref=e671]
+                        - text: View
+                      - link "Edit" [ref=e674] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/admin/products/10/edit
+                        - img [ref=e675]
+                        - text: Edit
+                      - button "Delete" [ref=e678]:
+                        - img [ref=e679]
+                        - text: Delete
+          - navigation "Pagination navigation" [ref=e681]:
+            - text: Showing 1 to 10 of 1,100 results
+            - generic [ref=e682]:
+              - generic [ref=e683]:
+                - combobox "Per page" [ref=e686]:
+                  - option "5"
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+                - text: Per page
+              - generic [ref=e688]:
+                - generic [ref=e689]: Per page
+                - combobox "Per page" [ref=e691]:
+                  - option "5"
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+            - button "Next" [ref=e692]
+            - list [ref=e693]:
+              - listitem [ref=e694]:
+                - button "Go to page 1" [ref=e695]: "1"
+              - listitem [ref=e696]:
+                - button "Go to page 2" [ref=e697]: "2"
+              - listitem [ref=e698]:
+                - button "Go to page 3" [ref=e699]: "3"
+              - listitem [ref=e700]:
+                - button "Go to page 4" [ref=e701]: "4"
+              - listitem [ref=e702]:
+                - button "..." [disabled] [ref=e703]
+              - listitem [ref=e704]:
+                - button "Go to page 109" [ref=e705]: "109"
+              - listitem [ref=e706]:
+                - button "Go to page 110" [ref=e707]: "110"
+              - listitem [ref=e708]:
+                - button "Next" [ref=e709]
+  - generic:
+    - status

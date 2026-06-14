@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-06-14
+
+<!-- changelog:auto:start:staged-20260614102826 -->
+### Commit updates
+
+- added `.playwright-mcp/page-2026-05-15T18-51-55-127Z.yml`
+- added `.playwright-mcp/page-2026-05-15T18-52-09-888Z.yml`
+- added `.playwright-mcp/page-2026-05-15T18-53-04-036Z.yml`
+- added `.playwright-mcp/page-2026-05-15T18-53-58-768Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-00-28-546Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-06-42-388Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-06-53-180Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-07-46-281Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-21-29-725Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-21-33-122Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-22-00-388Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-22-43-185Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-22-59-127Z.yml`
+- added `.playwright-mcp/page-2026-05-15T19-23-09-392Z.yml`
+- added `.playwright-mcp/page-2026-05-15T20-43-21-493Z.yml`
+- added `.playwright-mcp/page-2026-05-15T20-45-17-464Z.yml`
+- added `.playwright-mcp/page-2026-05-15T20-45-25-540Z.yml`
+- updated `composer.lock`
+- updated `css/filament/filament/app.css`
+- updated `database/database.sqlite`
+- updated `js/filament/actions/actions.js`
+- updated `js/filament/forms/components/code-editor.js`
+- updated `js/filament/forms/components/date-time-picker.js`
+- updated `js/filament/forms/components/file-upload.js`
+- updated `js/filament/forms/components/markdown-editor.js`
+- updated `js/filament/forms/components/rich-editor.js`
+- updated `js/filament/forms/components/select.js`
+- updated `js/filament/schemas/schemas.js`
+- updated `js/filament/support/support.js`
+- updated `js/filament/tables/components/columns/select.js`
+- updated `js/filament/tables/tables.js`
+- updated `package-lock.json`
+<!-- changelog:auto:end:staged-20260614102826 -->
+
 ## 2026-05-15
 
 <!-- changelog:auto:start:staged-20260515204604 -->

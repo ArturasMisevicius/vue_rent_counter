@@ -1,0 +1,379 @@
+- main [ref=e6]:
+  - generic [ref=e7]:
+    - button "EN" [ref=e10] [cursor=pointer]:
+      - img [ref=e11]
+      - generic [ref=e14]: EN
+      - img [ref=e15]
+    - link "T Tenanto Property Operations" [ref=e18] [cursor=pointer]:
+      - /url: https://test.tenanto.eu
+      - generic [ref=e19]:
+        - generic [ref=e20]: T
+        - generic [ref=e21]:
+          - generic [ref=e22]: Tenanto
+          - generic [ref=e23]: Property Operations
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - heading "Welcome back" [level=1] [ref=e27]
+        - paragraph [ref=e28]: Log in to your account
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - text: Email Address
+          - textbox "Email Address" [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]: Password
+            - link "Forgot your password?" [ref=e35] [cursor=pointer]:
+              - /url: https://test.tenanto.eu/forgot-password
+          - textbox "Password" [ref=e36]
+        - button "Log In" [ref=e37] [cursor=pointer]:
+          - generic [ref=e38]: Log In
+        - paragraph [ref=e39]:
+          - text: Don't have an account?
+          - link "Register" [ref=e40] [cursor=pointer]:
+            - /url: https://test.tenanto.eu/register
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - heading "Demo Accounts" [level=2] [ref=e43]
+          - paragraph [ref=e44]: Use these seeded credentials for role-based system testing. Click a username to autofill the login form.
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - heading "Superadmin" [level=3] [ref=e48]
+            - table [ref=e49]:
+              - rowgroup [ref=e50]:
+                - row "Username Password Role" [ref=e51]:
+                  - columnheader "Username" [ref=e52]
+                  - columnheader "Password" [ref=e53]
+                  - columnheader "Role" [ref=e54]
+              - rowgroup [ref=e55]:
+                - row "platform.demo@tenanto-demo.test password Superadmin" [ref=e56]:
+                  - cell "platform.demo@tenanto-demo.test" [ref=e57]:
+                    - button "platform.demo@tenanto-demo.test" [ref=e58] [cursor=pointer]
+                  - cell "password" [ref=e59]
+                  - cell "Superadmin" [ref=e60]
+                - row "superadmin@example.com password Superadmin" [ref=e61]:
+                  - cell "superadmin@example.com" [ref=e62]:
+                    - button "superadmin@example.com" [ref=e63] [cursor=pointer]
+                  - cell "password" [ref=e64]
+                  - cell "Superadmin" [ref=e65]
+          - generic [ref=e66]:
+            - heading "Admin" [level=3] [ref=e68]
+            - table [ref=e69]:
+              - rowgroup [ref=e70]:
+                - row "Username Password Role" [ref=e71]:
+                  - columnheader "Username" [ref=e72]
+                  - columnheader "Password" [ref=e73]
+                  - columnheader "Role" [ref=e74]
+              - rowgroup [ref=e75]:
+                - row "org01-admin@tenanto-demo.test password Admin" [ref=e76]:
+                  - cell "org01-admin@tenanto-demo.test" [ref=e77]:
+                    - button "org01-admin@tenanto-demo.test" [ref=e78] [cursor=pointer]
+                  - cell "password" [ref=e79]
+                  - cell "Admin" [ref=e80]
+                - row "admin@example.com password Admin" [ref=e81]:
+                  - cell "admin@example.com" [ref=e82]:
+                    - button "admin@example.com" [ref=e83] [cursor=pointer]
+                  - cell "password" [ref=e84]
+                  - cell "Admin" [ref=e85]
+                - row "org03-admin@tenanto-demo.test password Admin" [ref=e86]:
+                  - cell "org03-admin@tenanto-demo.test" [ref=e87]:
+                    - button "org03-admin@tenanto-demo.test" [ref=e88] [cursor=pointer]
+                  - cell "password" [ref=e89]
+                  - cell "Admin" [ref=e90]
+                - row "org05-admin@tenanto-demo.test password Admin" [ref=e91]:
+                  - cell "org05-admin@tenanto-demo.test" [ref=e92]:
+                    - button "org05-admin@tenanto-demo.test" [ref=e93] [cursor=pointer]
+                  - cell "password" [ref=e94]
+                  - cell "Admin" [ref=e95]
+                - row "org04-admin@tenanto-demo.test password Admin" [ref=e96]:
+                  - cell "org04-admin@tenanto-demo.test" [ref=e97]:
+                    - button "org04-admin@tenanto-demo.test" [ref=e98] [cursor=pointer]
+                  - cell "password" [ref=e99]
+                  - cell "Admin" [ref=e100]
+                - row "org02-admin@tenanto-demo.test password Admin" [ref=e101]:
+                  - cell "org02-admin@tenanto-demo.test" [ref=e102]:
+                    - button "org02-admin@tenanto-demo.test" [ref=e103] [cursor=pointer]
+                  - cell "password" [ref=e104]
+                  - cell "Admin" [ref=e105]
+          - generic [ref=e106]:
+            - heading "Manager" [level=3] [ref=e108]
+            - table [ref=e109]:
+              - rowgroup [ref=e110]:
+                - row "Username Password Role" [ref=e111]:
+                  - columnheader "Username" [ref=e112]
+                  - columnheader "Password" [ref=e113]
+                  - columnheader "Role" [ref=e114]
+              - rowgroup [ref=e115]:
+                - row "billing.manager@example.com password Manager" [ref=e116]:
+                  - cell "billing.manager@example.com" [ref=e117]:
+                    - button "billing.manager@example.com" [ref=e118] [cursor=pointer]
+                  - cell "password" [ref=e119]
+                  - cell "Manager" [ref=e120]
+                - row "manager@example.com password Manager" [ref=e121]:
+                  - cell "manager@example.com" [ref=e122]:
+                    - button "manager@example.com" [ref=e123] [cursor=pointer]
+                  - cell "password" [ref=e124]
+                  - cell "Manager" [ref=e125]
+                - row "org03-manager@tenanto-demo.test password Manager" [ref=e126]:
+                  - cell "org03-manager@tenanto-demo.test" [ref=e127]:
+                    - button "org03-manager@tenanto-demo.test" [ref=e128] [cursor=pointer]
+                  - cell "password" [ref=e129]
+                  - cell "Manager" [ref=e130]
+                - row "org01-manager@tenanto-demo.test password Manager" [ref=e131]:
+                  - cell "org01-manager@tenanto-demo.test" [ref=e132]:
+                    - button "org01-manager@tenanto-demo.test" [ref=e133] [cursor=pointer]
+                  - cell "password" [ref=e134]
+                  - cell "Manager" [ref=e135]
+                - row "org04-manager@tenanto-demo.test password Manager" [ref=e136]:
+                  - cell "org04-manager@tenanto-demo.test" [ref=e137]:
+                    - button "org04-manager@tenanto-demo.test" [ref=e138] [cursor=pointer]
+                  - cell "password" [ref=e139]
+                  - cell "Manager" [ref=e140]
+                - row "org05-manager@tenanto-demo.test password Manager" [ref=e141]:
+                  - cell "org05-manager@tenanto-demo.test" [ref=e142]:
+                    - button "org05-manager@tenanto-demo.test" [ref=e143] [cursor=pointer]
+                  - cell "password" [ref=e144]
+                  - cell "Manager" [ref=e145]
+                - row "org02-manager@tenanto-demo.test password Manager" [ref=e146]:
+                  - cell "org02-manager@tenanto-demo.test" [ref=e147]:
+                    - button "org02-manager@tenanto-demo.test" [ref=e148] [cursor=pointer]
+                  - cell "password" [ref=e149]
+                  - cell "Manager" [ref=e150]
+          - generic [ref=e151]:
+            - heading "Tenant" [level=3] [ref=e153]
+            - table [ref=e154]:
+              - rowgroup [ref=e155]:
+                - row "Username Password Role" [ref=e156]:
+                  - columnheader "Username" [ref=e157]
+                  - columnheader "Password" [ref=e158]
+                  - columnheader "Role" [ref=e159]
+              - rowgroup [ref=e160]:
+                - row "tenant.alina@example.com password Tenant" [ref=e161]:
+                  - cell "tenant.alina@example.com" [ref=e162]:
+                    - button "tenant.alina@example.com" [ref=e163] [cursor=pointer]
+                  - cell "password" [ref=e164]
+                  - cell "Tenant" [ref=e165]
+                - row "org02-tenant01@tenanto-demo.test password Tenant" [ref=e166]:
+                  - cell "org02-tenant01@tenanto-demo.test" [ref=e167]:
+                    - button "org02-tenant01@tenanto-demo.test" [ref=e168] [cursor=pointer]
+                  - cell "password" [ref=e169]
+                  - cell "Tenant" [ref=e170]
+                - row "org02-tenant02@tenanto-demo.test password Tenant" [ref=e171]:
+                  - cell "org02-tenant02@tenanto-demo.test" [ref=e172]:
+                    - button "org02-tenant02@tenanto-demo.test" [ref=e173] [cursor=pointer]
+                  - cell "password" [ref=e174]
+                  - cell "Tenant" [ref=e175]
+                - row "org02-tenant03@tenanto-demo.test password Tenant" [ref=e176]:
+                  - cell "org02-tenant03@tenanto-demo.test" [ref=e177]:
+                    - button "org02-tenant03@tenanto-demo.test" [ref=e178] [cursor=pointer]
+                  - cell "password" [ref=e179]
+                  - cell "Tenant" [ref=e180]
+                - row "org02-tenant04@tenanto-demo.test password Tenant" [ref=e181]:
+                  - cell "org02-tenant04@tenanto-demo.test" [ref=e182]:
+                    - button "org02-tenant04@tenanto-demo.test" [ref=e183] [cursor=pointer]
+                  - cell "password" [ref=e184]
+                  - cell "Tenant" [ref=e185]
+                - row "org02-tenant05@tenanto-demo.test password Tenant" [ref=e186]:
+                  - cell "org02-tenant05@tenanto-demo.test" [ref=e187]:
+                    - button "org02-tenant05@tenanto-demo.test" [ref=e188] [cursor=pointer]
+                  - cell "password" [ref=e189]
+                  - cell "Tenant" [ref=e190]
+                - row "org05-tenant01@tenanto-demo.test password Tenant" [ref=e191]:
+                  - cell "org05-tenant01@tenanto-demo.test" [ref=e192]:
+                    - button "org05-tenant01@tenanto-demo.test" [ref=e193] [cursor=pointer]
+                  - cell "password" [ref=e194]
+                  - cell "Tenant" [ref=e195]
+                - row "org05-tenant02@tenanto-demo.test password Tenant" [ref=e196]:
+                  - cell "org05-tenant02@tenanto-demo.test" [ref=e197]:
+                    - button "org05-tenant02@tenanto-demo.test" [ref=e198] [cursor=pointer]
+                  - cell "password" [ref=e199]
+                  - cell "Tenant" [ref=e200]
+                - row "org05-tenant03@tenanto-demo.test password Tenant" [ref=e201]:
+                  - cell "org05-tenant03@tenanto-demo.test" [ref=e202]:
+                    - button "org05-tenant03@tenanto-demo.test" [ref=e203] [cursor=pointer]
+                  - cell "password" [ref=e204]
+                  - cell "Tenant" [ref=e205]
+                - row "org05-tenant04@tenanto-demo.test password Tenant" [ref=e206]:
+                  - cell "org05-tenant04@tenanto-demo.test" [ref=e207]:
+                    - button "org05-tenant04@tenanto-demo.test" [ref=e208] [cursor=pointer]
+                  - cell "password" [ref=e209]
+                  - cell "Tenant" [ref=e210]
+                - row "org05-tenant05@tenanto-demo.test password Tenant" [ref=e211]:
+                  - cell "org05-tenant05@tenanto-demo.test" [ref=e212]:
+                    - button "org05-tenant05@tenanto-demo.test" [ref=e213] [cursor=pointer]
+                  - cell "password" [ref=e214]
+                  - cell "Tenant" [ref=e215]
+                - row "org05-tenant06@tenanto-demo.test password Tenant" [ref=e216]:
+                  - cell "org05-tenant06@tenanto-demo.test" [ref=e217]:
+                    - button "org05-tenant06@tenanto-demo.test" [ref=e218] [cursor=pointer]
+                  - cell "password" [ref=e219]
+                  - cell "Tenant" [ref=e220]
+                - row "org05-tenant07@tenanto-demo.test password Tenant" [ref=e221]:
+                  - cell "org05-tenant07@tenanto-demo.test" [ref=e222]:
+                    - button "org05-tenant07@tenanto-demo.test" [ref=e223] [cursor=pointer]
+                  - cell "password" [ref=e224]
+                  - cell "Tenant" [ref=e225]
+                - row "org05-tenant08@tenanto-demo.test password Tenant" [ref=e226]:
+                  - cell "org05-tenant08@tenanto-demo.test" [ref=e227]:
+                    - button "org05-tenant08@tenanto-demo.test" [ref=e228] [cursor=pointer]
+                  - cell "password" [ref=e229]
+                  - cell "Tenant" [ref=e230]
+                - row "org05-tenant09@tenanto-demo.test password Tenant" [ref=e231]:
+                  - cell "org05-tenant09@tenanto-demo.test" [ref=e232]:
+                    - button "org05-tenant09@tenanto-demo.test" [ref=e233] [cursor=pointer]
+                  - cell "password" [ref=e234]
+                  - cell "Tenant" [ref=e235]
+                - row "org05-tenant10@tenanto-demo.test password Tenant" [ref=e236]:
+                  - cell "org05-tenant10@tenanto-demo.test" [ref=e237]:
+                    - button "org05-tenant10@tenanto-demo.test" [ref=e238] [cursor=pointer]
+                  - cell "password" [ref=e239]
+                  - cell "Tenant" [ref=e240]
+                - row "org05-tenant11@tenanto-demo.test password Tenant" [ref=e241]:
+                  - cell "org05-tenant11@tenanto-demo.test" [ref=e242]:
+                    - button "org05-tenant11@tenanto-demo.test" [ref=e243] [cursor=pointer]
+                  - cell "password" [ref=e244]
+                  - cell "Tenant" [ref=e245]
+                - row "org05-tenant12@tenanto-demo.test password Tenant" [ref=e246]:
+                  - cell "org05-tenant12@tenanto-demo.test" [ref=e247]:
+                    - button "org05-tenant12@tenanto-demo.test" [ref=e248] [cursor=pointer]
+                  - cell "password" [ref=e249]
+                  - cell "Tenant" [ref=e250]
+                - row "org05-tenant13@tenanto-demo.test password Tenant" [ref=e251]:
+                  - cell "org05-tenant13@tenanto-demo.test" [ref=e252]:
+                    - button "org05-tenant13@tenanto-demo.test" [ref=e253] [cursor=pointer]
+                  - cell "password" [ref=e254]
+                  - cell "Tenant" [ref=e255]
+                - row "org05-tenant14@tenanto-demo.test password Tenant" [ref=e256]:
+                  - cell "org05-tenant14@tenanto-demo.test" [ref=e257]:
+                    - button "org05-tenant14@tenanto-demo.test" [ref=e258] [cursor=pointer]
+                  - cell "password" [ref=e259]
+                  - cell "Tenant" [ref=e260]
+                - row "org05-tenant15@tenanto-demo.test password Tenant" [ref=e261]:
+                  - cell "org05-tenant15@tenanto-demo.test" [ref=e262]:
+                    - button "org05-tenant15@tenanto-demo.test" [ref=e263] [cursor=pointer]
+                  - cell "password" [ref=e264]
+                  - cell "Tenant" [ref=e265]
+                - row "org05-tenant16@tenanto-demo.test password Tenant" [ref=e266]:
+                  - cell "org05-tenant16@tenanto-demo.test" [ref=e267]:
+                    - button "org05-tenant16@tenanto-demo.test" [ref=e268] [cursor=pointer]
+                  - cell "password" [ref=e269]
+                  - cell "Tenant" [ref=e270]
+                - row "tenant.marius@example.com password Tenant" [ref=e271]:
+                  - cell "tenant.marius@example.com" [ref=e272]:
+                    - button "tenant.marius@example.com" [ref=e273] [cursor=pointer]
+                  - cell "password" [ref=e274]
+                  - cell "Tenant" [ref=e275]
+                - row "org03-tenant01@tenanto-demo.test password Tenant" [ref=e276]:
+                  - cell "org03-tenant01@tenanto-demo.test" [ref=e277]:
+                    - button "org03-tenant01@tenanto-demo.test" [ref=e278] [cursor=pointer]
+                  - cell "password" [ref=e279]
+                  - cell "Tenant" [ref=e280]
+                - row "org03-tenant02@tenanto-demo.test password Tenant" [ref=e281]:
+                  - cell "org03-tenant02@tenanto-demo.test" [ref=e282]:
+                    - button "org03-tenant02@tenanto-demo.test" [ref=e283] [cursor=pointer]
+                  - cell "password" [ref=e284]
+                  - cell "Tenant" [ref=e285]
+                - row "org03-tenant03@tenanto-demo.test password Tenant" [ref=e286]:
+                  - cell "org03-tenant03@tenanto-demo.test" [ref=e287]:
+                    - button "org03-tenant03@tenanto-demo.test" [ref=e288] [cursor=pointer]
+                  - cell "password" [ref=e289]
+                  - cell "Tenant" [ref=e290]
+                - row "org03-tenant04@tenanto-demo.test password Tenant" [ref=e291]:
+                  - cell "org03-tenant04@tenanto-demo.test" [ref=e292]:
+                    - button "org03-tenant04@tenanto-demo.test" [ref=e293] [cursor=pointer]
+                  - cell "password" [ref=e294]
+                  - cell "Tenant" [ref=e295]
+                - row "org03-tenant05@tenanto-demo.test password Tenant" [ref=e296]:
+                  - cell "org03-tenant05@tenanto-demo.test" [ref=e297]:
+                    - button "org03-tenant05@tenanto-demo.test" [ref=e298] [cursor=pointer]
+                  - cell "password" [ref=e299]
+                  - cell "Tenant" [ref=e300]
+                - row "org03-tenant06@tenanto-demo.test password Tenant" [ref=e301]:
+                  - cell "org03-tenant06@tenanto-demo.test" [ref=e302]:
+                    - button "org03-tenant06@tenanto-demo.test" [ref=e303] [cursor=pointer]
+                  - cell "password" [ref=e304]
+                  - cell "Tenant" [ref=e305]
+                - row "org03-tenant07@tenanto-demo.test password Tenant" [ref=e306]:
+                  - cell "org03-tenant07@tenanto-demo.test" [ref=e307]:
+                    - button "org03-tenant07@tenanto-demo.test" [ref=e308] [cursor=pointer]
+                  - cell "password" [ref=e309]
+                  - cell "Tenant" [ref=e310]
+                - row "org03-tenant08@tenanto-demo.test password Tenant" [ref=e311]:
+                  - cell "org03-tenant08@tenanto-demo.test" [ref=e312]:
+                    - button "org03-tenant08@tenanto-demo.test" [ref=e313] [cursor=pointer]
+                  - cell "password" [ref=e314]
+                  - cell "Tenant" [ref=e315]
+                - row "org04-tenant01@tenanto-demo.test password Tenant" [ref=e316]:
+                  - cell "org04-tenant01@tenanto-demo.test" [ref=e317]:
+                    - button "org04-tenant01@tenanto-demo.test" [ref=e318] [cursor=pointer]
+                  - cell "password" [ref=e319]
+                  - cell "Tenant" [ref=e320]
+                - row "org04-tenant02@tenanto-demo.test password Tenant" [ref=e321]:
+                  - cell "org04-tenant02@tenanto-demo.test" [ref=e322]:
+                    - button "org04-tenant02@tenanto-demo.test" [ref=e323] [cursor=pointer]
+                  - cell "password" [ref=e324]
+                  - cell "Tenant" [ref=e325]
+                - row "org04-tenant03@tenanto-demo.test password Tenant" [ref=e326]:
+                  - cell "org04-tenant03@tenanto-demo.test" [ref=e327]:
+                    - button "org04-tenant03@tenanto-demo.test" [ref=e328] [cursor=pointer]
+                  - cell "password" [ref=e329]
+                  - cell "Tenant" [ref=e330]
+                - row "org04-tenant04@tenanto-demo.test password Tenant" [ref=e331]:
+                  - cell "org04-tenant04@tenanto-demo.test" [ref=e332]:
+                    - button "org04-tenant04@tenanto-demo.test" [ref=e333] [cursor=pointer]
+                  - cell "password" [ref=e334]
+                  - cell "Tenant" [ref=e335]
+                - row "org04-tenant05@tenanto-demo.test password Tenant" [ref=e336]:
+                  - cell "org04-tenant05@tenanto-demo.test" [ref=e337]:
+                    - button "org04-tenant05@tenanto-demo.test" [ref=e338] [cursor=pointer]
+                  - cell "password" [ref=e339]
+                  - cell "Tenant" [ref=e340]
+                - row "org04-tenant06@tenanto-demo.test password Tenant" [ref=e341]:
+                  - cell "org04-tenant06@tenanto-demo.test" [ref=e342]:
+                    - button "org04-tenant06@tenanto-demo.test" [ref=e343] [cursor=pointer]
+                  - cell "password" [ref=e344]
+                  - cell "Tenant" [ref=e345]
+                - row "org04-tenant07@tenanto-demo.test password Tenant" [ref=e346]:
+                  - cell "org04-tenant07@tenanto-demo.test" [ref=e347]:
+                    - button "org04-tenant07@tenanto-demo.test" [ref=e348] [cursor=pointer]
+                  - cell "password" [ref=e349]
+                  - cell "Tenant" [ref=e350]
+                - row "org04-tenant08@tenanto-demo.test password Tenant" [ref=e351]:
+                  - cell "org04-tenant08@tenanto-demo.test" [ref=e352]:
+                    - button "org04-tenant08@tenanto-demo.test" [ref=e353] [cursor=pointer]
+                  - cell "password" [ref=e354]
+                  - cell "Tenant" [ref=e355]
+                - row "org04-tenant09@tenanto-demo.test password Tenant" [ref=e356]:
+                  - cell "org04-tenant09@tenanto-demo.test" [ref=e357]:
+                    - button "org04-tenant09@tenanto-demo.test" [ref=e358] [cursor=pointer]
+                  - cell "password" [ref=e359]
+                  - cell "Tenant" [ref=e360]
+                - row "org04-tenant10@tenanto-demo.test password Tenant" [ref=e361]:
+                  - cell "org04-tenant10@tenanto-demo.test" [ref=e362]:
+                    - button "org04-tenant10@tenanto-demo.test" [ref=e363] [cursor=pointer]
+                  - cell "password" [ref=e364]
+                  - cell "Tenant" [ref=e365]
+                - row "org04-tenant11@tenanto-demo.test password Tenant" [ref=e366]:
+                  - cell "org04-tenant11@tenanto-demo.test" [ref=e367]:
+                    - button "org04-tenant11@tenanto-demo.test" [ref=e368] [cursor=pointer]
+                  - cell "password" [ref=e369]
+                  - cell "Tenant" [ref=e370]
+                - row "org04-tenant12@tenanto-demo.test password Tenant" [ref=e371]:
+                  - cell "org04-tenant12@tenanto-demo.test" [ref=e372]:
+                    - button "org04-tenant12@tenanto-demo.test" [ref=e373] [cursor=pointer]
+                  - cell "password" [ref=e374]
+                  - cell "Tenant" [ref=e375]
+                - row "org01-tenant01@tenanto-demo.test password Tenant" [ref=e376]:
+                  - cell "org01-tenant01@tenanto-demo.test" [ref=e377]:
+                    - button "org01-tenant01@tenanto-demo.test" [ref=e378] [cursor=pointer]
+                  - cell "password" [ref=e379]
+                  - cell "Tenant" [ref=e380]
+                - row "org01-tenant02@tenanto-demo.test password Tenant" [ref=e381]:
+                  - cell "org01-tenant02@tenanto-demo.test" [ref=e382]:
+                    - button "org01-tenant02@tenanto-demo.test" [ref=e383] [cursor=pointer]
+                  - cell "password" [ref=e384]
+                  - cell "Tenant" [ref=e385]
+                - row "org01-tenant03@tenanto-demo.test password Tenant" [ref=e386]:
+                  - cell "org01-tenant03@tenanto-demo.test" [ref=e387]:
+                    - button "org01-tenant03@tenanto-demo.test" [ref=e388] [cursor=pointer]
+                  - cell "password" [ref=e389]
+                  - cell "Tenant" [ref=e390]

@@ -1,0 +1,276 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - link "T Tenanto Property Operations" [ref=e5] [cursor=pointer]:
+        - /url: https://test.tenanto.eu/app
+        - generic [ref=e6]:
+          - generic [ref=e7]: T
+          - generic [ref=e8]:
+            - generic [ref=e9]: Tenanto
+            - generic [ref=e10]: Property Operations
+      - generic [ref=e12]:
+        - generic [ref=e13]: Global search
+        - generic [ref=e14]: Search anything
+        - generic [ref=e15]:
+          - img
+          - searchbox "Global search" [ref=e16]
+      - generic [ref=e17]:
+        - generic [ref=e18]: Admin
+        - button "EN" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - generic [ref=e24]: EN
+          - img [ref=e25]
+        - button "Guide" [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+          - text: Guide
+        - link "DA Demo Admin" [ref=e30] [cursor=pointer]:
+          - /url: https://test.tenanto.eu/app/profile
+          - generic [ref=e31]:
+            - generic [ref=e32]: DA
+            - generic [ref=e34]: Demo Admin
+        - button "Logout" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - text: Logout
+  - generic [ref=e40]:
+    - complementary [ref=e42]:
+      - navigation [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: Properties
+            - generic [ref=e48]:
+              - link "Buildings" [ref=e49] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/buildings
+              - link "Properties" [ref=e50] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/properties
+              - link "Tenants" [ref=e51] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/tenants
+              - link "Meters" [ref=e52] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/meters
+              - link "Meter Readings" [ref=e53] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/meter-readings
+          - generic [ref=e54]:
+            - paragraph [ref=e55]: Billing
+            - generic [ref=e56]:
+              - link "Invoices" [ref=e57] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/invoices
+              - link "Tariffs" [ref=e58] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/tariffs
+              - link "Providers" [ref=e59] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/providers
+              - link "Service Configurations" [ref=e60] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/service-configurations
+              - link "Utility Services" [ref=e61] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/utility-services
+          - generic [ref=e62]:
+            - paragraph [ref=e63]: Reports
+            - link "Reports" [ref=e65] [cursor=pointer]:
+              - /url: https://test.tenanto.eu/app/reports
+          - generic [ref=e66]:
+            - paragraph [ref=e67]: Account
+            - generic [ref=e68]:
+              - link "Profile" [ref=e69] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/profile
+              - link "Settings" [ref=e70] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/settings
+              - link "Organization Users" [ref=e71] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/organization-users
+      - button "Logout" [ref=e74] [cursor=pointer]
+    - main [ref=e76]:
+      - generic [ref=e78]:
+        - heading "Dashboard" [level=1] [ref=e81]
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - paragraph [ref=e88]: Admin Workspace
+            - heading "Dashboard" [level=2] [ref=e89]
+            - paragraph [ref=e90]: Track the organization at a glance, review billing activity, and stay ahead of upcoming meter reading deadlines.
+          - generic [ref=e91]:
+            - article [ref=e92]:
+              - generic [ref=e93]:
+                - generic [ref=e94]:
+                  - paragraph [ref=e95]: Total Properties
+                  - paragraph [ref=e96]: "2"
+                  - paragraph [ref=e97]:
+                    - generic [ref=e98]: Properties currently assigned to this organization.
+                - img [ref=e100]
+            - article [ref=e102]:
+              - generic [ref=e103]:
+                - generic [ref=e104]:
+                  - paragraph [ref=e105]: Active Tenants
+                  - paragraph [ref=e106]: "2"
+                  - paragraph [ref=e107]:
+                    - generic [ref=e108]: Current occupants with an active assignment.
+                - img [ref=e110]
+            - article [ref=e112]:
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - paragraph [ref=e115]: Pending Invoices
+                  - paragraph [ref=e116]: "0"
+                  - paragraph [ref=e117]:
+                    - generic [ref=e118]: Draft invoices that have not been finalized yet.
+                - img [ref=e120]
+            - article [ref=e122]:
+              - generic [ref=e123]:
+                - generic [ref=e124]:
+                  - paragraph [ref=e125]: Revenue This Month
+                  - paragraph [ref=e126]: 235,00 €
+                  - paragraph [ref=e127]:
+                    - generic [ref=e128]: Paid invoice value captured during the current month.
+                - img [ref=e130]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - heading "Subscription Usage" [level=3] [ref=e134]
+              - paragraph [ref=e135]: Track live capacity against the current subscription plan.
+            - generic [ref=e136]:
+              - article [ref=e137]:
+                - generic [ref=e138]:
+                  - paragraph [ref=e139]: Properties
+                  - paragraph [ref=e140]: 2 of 50 properties used
+              - article [ref=e143]:
+                - generic [ref=e144]:
+                  - paragraph [ref=e145]: Tenants
+                  - paragraph [ref=e146]: 2 of 150 tenants used
+          - generic [ref=e149]:
+            - article [ref=e150]:
+              - generic [ref=e151]:
+                - generic [ref=e152]:
+                  - heading "Recent Invoices" [level=3] [ref=e153]
+                  - paragraph [ref=e154]: The latest ten invoices created in this organization.
+                - link "View All" [ref=e155] [cursor=pointer]:
+                  - /url: https://test.tenanto.eu/app/invoices
+              - generic [ref=e156]:
+                - generic [ref=e158]:
+                  - generic [ref=e159]:
+                    - link "Marius Jonaitis" [ref=e160] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/6
+                    - paragraph [ref=e161]: LOGIN-INV-02-03
+                    - paragraph [ref=e162]: Apartment 102 · 102
+                    - paragraph [ref=e163]: May 2026 to May 2026
+                  - generic [ref=e164]:
+                    - paragraph [ref=e165]: 145,00 €
+                    - generic [ref=e166]: Overdue
+                - generic [ref=e168]:
+                  - generic [ref=e169]:
+                    - link "Alina Petrauskienė" [ref=e170] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/3
+                    - paragraph [ref=e171]: LOGIN-INV-01-03
+                    - paragraph [ref=e172]: Apartment 101 · 101
+                    - paragraph [ref=e173]: May 2026 to May 2026
+                  - generic [ref=e174]:
+                    - paragraph [ref=e175]: 130,00 €
+                    - generic [ref=e176]: Overdue
+                - generic [ref=e178]:
+                  - generic [ref=e179]:
+                    - link "Alina Petrauskienė" [ref=e180] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/7
+                    - paragraph [ref=e181]: TEN-OPS-0001
+                    - paragraph [ref=e182]: Apartment 101 · 101
+                    - paragraph [ref=e183]: May 2026 to May 2026
+                  - generic [ref=e184]:
+                    - paragraph [ref=e185]: 142,75 €
+                    - generic [ref=e186]: Finalized
+                    - link "Process Payment" [ref=e188] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/7
+                - generic [ref=e190]:
+                  - generic [ref=e191]:
+                    - link "Marius Jonaitis" [ref=e192] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/5
+                    - paragraph [ref=e193]: LOGIN-INV-02-02
+                    - paragraph [ref=e194]: Apartment 102 · 102
+                    - paragraph [ref=e195]: May 2026 to May 2026
+                  - generic [ref=e196]:
+                    - paragraph [ref=e197]: 135,00 €
+                    - generic [ref=e198]: Finalized
+                    - link "Process Payment" [ref=e200] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/5
+                - generic [ref=e202]:
+                  - generic [ref=e203]:
+                    - link "Alina Petrauskienė" [ref=e204] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/2
+                    - paragraph [ref=e205]: LOGIN-INV-01-02
+                    - paragraph [ref=e206]: Apartment 101 · 101
+                    - paragraph [ref=e207]: May 2026 to May 2026
+                  - generic [ref=e208]:
+                    - paragraph [ref=e209]: 120,00 €
+                    - generic [ref=e210]: Finalized
+                    - link "Process Payment" [ref=e212] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/2
+                - generic [ref=e214]:
+                  - generic [ref=e215]:
+                    - link "Marius Jonaitis" [ref=e216] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/4
+                    - paragraph [ref=e217]: LOGIN-INV-02-01
+                    - paragraph [ref=e218]: Apartment 102 · 102
+                    - paragraph [ref=e219]: April 2026 to April 2026
+                  - generic [ref=e220]:
+                    - paragraph [ref=e221]: 125,00 €
+                    - generic [ref=e222]: Paid
+                - generic [ref=e224]:
+                  - generic [ref=e225]:
+                    - link "Alina Petrauskienė" [ref=e226] [cursor=pointer]:
+                      - /url: https://test.tenanto.eu/app/invoices/1
+                    - paragraph [ref=e227]: LOGIN-INV-01-01
+                    - paragraph [ref=e228]: Apartment 101 · 101
+                    - paragraph [ref=e229]: April 2026 to April 2026
+                  - generic [ref=e230]:
+                    - paragraph [ref=e231]: 110,00 €
+                    - generic [ref=e232]: Paid
+            - article [ref=e233]:
+              - generic [ref=e234]:
+                - heading "Upcoming Reading Deadlines" [level=3] [ref=e235]
+                - paragraph [ref=e236]: Meters that are due for a reading soon.
+              - link "LOGIN-02-02 Apartment 102 · 102 Overdue by 12 days" [ref=e238] [cursor=pointer]:
+                - /url: https://test.tenanto.eu/app/meter-readings/create?meter=4
+                - generic [ref=e239]:
+                  - generic [ref=e240]:
+                    - paragraph [ref=e241]: LOGIN-02-02
+                    - paragraph [ref=e242]: Apartment 102 · 102
+                  - paragraph [ref=e243]: Overdue by 12 days
+  - generic:
+    - status
+  - dialog "Welcome to your workspace" [ref=e244]:
+    - generic [ref=e245]:
+      - generic [ref=e246]:
+        - generic [ref=e247]:
+          - generic [ref=e248]:
+            - generic [ref=e249]:
+              - generic [ref=e250]: Product tour
+              - generic [ref=e251]: Admin
+            - generic [ref=e252]:
+              - heading "Welcome to your workspace" [level=2] [ref=e253]
+              - paragraph [ref=e254]: A short guided tour explains where the main tools are and how each area should be used.
+          - button "Close tour" [ref=e255] [cursor=pointer]:
+            - img [ref=e256]
+        - generic "Tour progress" [ref=e258]
+      - generic [ref=e265]:
+        - img [ref=e267]
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - paragraph [ref=e271]: Step 1 of 5
+            - heading "Dashboard and workspace" [level=3] [ref=e272]
+            - paragraph [ref=e273]: The dashboard is the starting point for organization work. It summarizes properties, invoices, readings, and subscription limits so you can see what needs attention first.
+          - generic [ref=e274]: Use it as the daily overview before opening detailed pages from the sidebar.
+          - generic [ref=e275]:
+            - button "1 Dashboard and workspace" [ref=e276] [cursor=pointer]:
+              - generic [ref=e277]: "1"
+              - generic [ref=e278]: Dashboard and workspace
+            - button "2 Sidebar, search, and language" [ref=e279] [cursor=pointer]:
+              - generic [ref=e280]: "2"
+              - generic [ref=e281]: Sidebar, search, and language
+            - button "3 Properties and tenants" [ref=e282] [cursor=pointer]:
+              - generic [ref=e283]: "3"
+              - generic [ref=e284]: Properties and tenants
+            - button "4 Billing and reports" [ref=e285] [cursor=pointer]:
+              - generic [ref=e286]: "4"
+              - generic [ref=e287]: Billing and reports
+            - button "5 Profile, settings, and managers" [ref=e288] [cursor=pointer]:
+              - generic [ref=e289]: "5"
+              - generic [ref=e290]: Profile, settings, and managers
+      - generic [ref=e292]:
+        - button "Later" [ref=e293] [cursor=pointer]
+        - generic [ref=e294]:
+          - button "Back" [disabled] [ref=e295]:
+            - img [ref=e296]
+            - text: Back
+          - button "Next" [ref=e298] [cursor=pointer]:
+            - text: Next
+            - img [ref=e299]

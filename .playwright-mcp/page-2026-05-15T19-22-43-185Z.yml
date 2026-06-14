@@ -1,0 +1,1245 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "SH Shopper Demo Store USD · Rest of World" [ref=e5] [cursor=pointer]:
+        - /url: https://shopper.prus.dev
+        - generic [ref=e6]: SH
+        - generic [ref=e7]:
+          - generic [ref=e8]: Shopper Demo Store
+          - generic [ref=e9]: USD · Rest of World
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: Currency
+          - combobox "Currency" [ref=e13]:
+            - option "USD" [selected]
+            - option "AUD"
+            - option "CAD"
+            - option "CHF"
+            - option "EUR"
+            - option "GBP"
+            - option "JPY"
+            - option "NOK"
+            - option "PLN"
+            - option "SEK"
+        - link "Customers" [ref=e14] [cursor=pointer]:
+          - /url: https://shopper.prus.dev/customers
+        - link "Account" [ref=e15] [cursor=pointer]:
+          - /url: https://shopper.prus.dev/account
+        - button "Cart (1)" [ref=e16]
+    - navigation [ref=e17]:
+      - link "Products" [ref=e18] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/products
+      - link "Variants" [ref=e19] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/product-variants
+      - link "Brands" [ref=e20] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/brands
+      - link "Categories" [ref=e21] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/categories
+      - link "Collections" [ref=e22] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/collections
+      - link "Attributes" [ref=e23] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/attributes
+      - link "Discounts" [ref=e24] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/discounts
+      - link "Carriers" [ref=e25] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/carriers
+      - link "Channels" [ref=e26] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/channels
+      - link "Orders" [ref=e27] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/orders
+      - link "Demo Store" [ref=e28] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/demo-store
+      - link "Setup" [ref=e29] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/setup-store
+      - link "Configuration" [ref=e30] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/configuration
+      - link "Contributing" [ref=e31] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/contributing
+      - link "Components" [ref=e32] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/overview
+      - link "Card Component" [ref=e33] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/card
+      - link "Alert Component" [ref=e34] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/alert
+      - link "Empty Card" [ref=e35] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/empty-card
+      - link "Empty State" [ref=e36] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/empty-state
+      - link "Heading" [ref=e37] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/heading
+      - link "Label" [ref=e38] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/label
+      - link "Loader" [ref=e39] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/loader
+      - link "ACL" [ref=e40] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/acl
+      - link "Dashboard" [ref=e41] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/dashboard
+      - link "Demo Admin" [ref=e42] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/demo-store/manage
+      - link "Discount Admin" [ref=e43] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/discounts/manage
+      - link "Event Admin" [ref=e44] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/events/manage
+      - link "Component Overview Admin" [ref=e45] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/overview/manage
+      - link "Alert Admin" [ref=e46] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/alert/manage
+      - link "Card Admin" [ref=e47] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/card/manage
+      - link "Empty Card Admin" [ref=e48] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/empty-card/manage
+      - link "Empty State Admin" [ref=e49] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/empty-state/manage
+      - link "Heading Admin" [ref=e50] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/heading/manage
+      - link "Label Admin" [ref=e51] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/label/manage
+      - link "Loader Admin" [ref=e52] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/components/loader/manage
+      - link "Brand Admin" [ref=e53] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/brands/manage
+      - link "Category Admin" [ref=e54] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/categories/manage
+      - link "Attribute Admin" [ref=e55] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/attributes/manage
+      - link "Carrier Admin" [ref=e56] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/carriers/manage
+      - link "Channel Admin" [ref=e57] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/channels/manage
+      - link "Currency Admin" [ref=e58] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/currencies/manage
+      - link "Legal Admin" [ref=e59] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/legal/manage
+      - link "Customer Admin" [ref=e60] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/customers/manage
+      - link "Collection Admin" [ref=e61] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/collections/manage
+      - link "Config Admin" [ref=e62] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/configuration/manage
+      - link "Contribution Admin" [ref=e63] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/contributing/manage
+      - link "Cart Admin" [ref=e64] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/cart/manage
+      - link "Addons" [ref=e65] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/addons
+      - link "Stripe" [ref=e66] [cursor=pointer]:
+        - /url: https://shopper.prus.dev/stripe
+  - main [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - heading "Products" [level=1] [ref=e71]
+          - paragraph [ref=e72]: Browse standard, variant, virtual, and external products from the Shopper catalog.
+        - generic [ref=e73]:
+          - generic [ref=e74]: No preserved filters.
+          - textbox "Search products" [ref=e75]
+          - button "Search" [ref=e76]
+      - generic [ref=e77]:
+        - complementary [ref=e78]:
+          - generic [ref=e79]:
+            - generic [ref=e81]:
+              - paragraph [ref=e82]: Filters
+              - paragraph [ref=e83]: 0 active
+            - generic [ref=e84]:
+              - paragraph [ref=e85]: Type
+              - generic [ref=e86]:
+                - link "External" [ref=e87] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?type=external
+                - link "Virtual" [ref=e88] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?type=virtual
+                - link "Standard" [ref=e89] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?type=standard
+                - link "Variant" [ref=e90] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?type=variant
+            - generic [ref=e91]:
+              - paragraph [ref=e92]: Channels
+              - generic [ref=e93]:
+                - link "Web Store 1100" [ref=e94] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=web-store
+                  - generic [ref=e95]: Web Store
+                  - generic [ref=e96]: "1100"
+                - link "Marketplace Feed 433" [ref=e97] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=marketplace-feed
+                  - generic [ref=e98]: Marketplace Feed
+                  - generic [ref=e99]: "433"
+                - link "Mobile App 602" [ref=e100] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=mobile-app
+                  - generic [ref=e101]: Mobile App
+                  - generic [ref=e102]: "602"
+                - link "Point Of Sale 245" [ref=e103] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=point-of-sale
+                  - generic [ref=e104]: Point Of Sale
+                  - generic [ref=e105]: "245"
+                - link "Social Shop 194" [ref=e106] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=social-shop
+                  - generic [ref=e107]: Social Shop
+                  - generic [ref=e108]: "194"
+                - link "Wholesale Portal 303" [ref=e109] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?channel=wholesale-portal
+                  - generic [ref=e110]: Wholesale Portal
+                  - generic [ref=e111]: "303"
+            - generic [ref=e112]:
+              - paragraph [ref=e113]: Brands
+              - generic [ref=e114]:
+                - link "Adidas 219" [ref=e115] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=adidas
+                  - generic [ref=e116]: Adidas
+                  - generic [ref=e117]: "219"
+                - link "Apple 221" [ref=e118] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=apple
+                  - generic [ref=e119]: Apple
+                  - generic [ref=e120]: "221"
+                - link "Bose 0" [ref=e121] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=bose
+                  - generic [ref=e122]: Bose
+                  - generic [ref=e123]: "0"
+                - link "Canon 0" [ref=e124] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=canon
+                  - generic [ref=e125]: Canon
+                  - generic [ref=e126]: "0"
+                - link "Dell 0" [ref=e127] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=dell
+                  - generic [ref=e128]: Dell
+                  - generic [ref=e129]: "0"
+                - link "Dyson 0" [ref=e130] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=dyson
+                  - generic [ref=e131]: Dyson
+                  - generic [ref=e132]: "0"
+                - link "H&M 0" [ref=e133] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=hm
+                  - generic [ref=e134]: H&M
+                  - generic [ref=e135]: "0"
+                - link "IKEA 0" [ref=e136] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?brand=ikea
+                  - generic [ref=e137]: IKEA
+                  - generic [ref=e138]: "0"
+            - generic [ref=e139]:
+              - paragraph [ref=e140]: Categories
+              - generic [ref=e142]:
+                - generic [ref=e143]:
+                  - link "Electronics 440" [ref=e144] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=electronics
+                    - generic [ref=e145]: Electronics
+                    - generic [ref=e146]: "440"
+                  - generic [ref=e148]:
+                    - generic [ref=e149]:
+                      - link "Phones 0" [ref=e150] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products?category=phones
+                        - generic [ref=e151]: Phones
+                        - generic [ref=e152]: "0"
+                      - generic [ref=e154]:
+                        - link "Smartphones 0" [ref=e156] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=smartphones
+                          - generic [ref=e157]: Smartphones
+                          - generic [ref=e158]: "0"
+                        - link "Android 0" [ref=e160] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=android
+                          - generic [ref=e161]: Android
+                          - generic [ref=e162]: "0"
+                        - link "iOS 0" [ref=e164] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=ios
+                          - generic [ref=e165]: iOS
+                          - generic [ref=e166]: "0"
+                    - generic [ref=e167]:
+                      - link "Laptops 0" [ref=e168] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products?category=laptops
+                        - generic [ref=e169]: Laptops
+                        - generic [ref=e170]: "0"
+                      - generic [ref=e172]:
+                        - link "Gaming 0" [ref=e174] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=gaming
+                          - generic [ref=e175]: Gaming
+                          - generic [ref=e176]: "0"
+                        - link "Business 330" [ref=e178] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=business
+                          - generic [ref=e179]: Business
+                          - generic [ref=e180]: "330"
+                    - generic [ref=e181]:
+                      - link "Audio 1" [ref=e182] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products?category=audio
+                        - generic [ref=e183]: Audio
+                        - generic [ref=e184]: "1"
+                      - generic [ref=e186]:
+                        - link "Headphones 109" [ref=e188] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=headphones
+                          - generic [ref=e189]: Headphones
+                          - generic [ref=e190]: "109"
+                        - link "Speakers 0" [ref=e192] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=speakers
+                          - generic [ref=e193]: Speakers
+                          - generic [ref=e194]: "0"
+                - generic [ref=e195]:
+                  - link "Clothing 659" [ref=e196] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=clothing
+                    - generic [ref=e197]: Clothing
+                    - generic [ref=e198]: "659"
+                  - generic [ref=e200]:
+                    - generic [ref=e201]:
+                      - link "Men 0" [ref=e202] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products?category=men
+                        - generic [ref=e203]: Men
+                        - generic [ref=e204]: "0"
+                      - generic [ref=e206]:
+                        - link "T-Shirts 440" [ref=e208] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=t-shirts
+                          - generic [ref=e209]: T-Shirts
+                          - generic [ref=e210]: "440"
+                        - link "Jeans 0" [ref=e212] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=jeans
+                          - generic [ref=e213]: Jeans
+                          - generic [ref=e214]: "0"
+                        - link "Shoes 1" [ref=e216] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=shoes
+                          - generic [ref=e217]: Shoes
+                          - generic [ref=e218]: "1"
+                    - generic [ref=e219]:
+                      - link "Women 0" [ref=e220] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products?category=women
+                        - generic [ref=e221]: Women
+                        - generic [ref=e222]: "0"
+                      - generic [ref=e224]:
+                        - link "Dresses 0" [ref=e226] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=dresses
+                          - generic [ref=e227]: Dresses
+                          - generic [ref=e228]: "0"
+                        - link "Tops 1" [ref=e230] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=tops
+                          - generic [ref=e231]: Tops
+                          - generic [ref=e232]: "1"
+                        - link "Shoes 217" [ref=e234] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products?category=shoes-1
+                          - generic [ref=e235]: Shoes
+                          - generic [ref=e236]: "217"
+                - generic [ref=e237]:
+                  - link "Home & Garden 1" [ref=e238] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=home-garden
+                    - generic [ref=e239]: Home & Garden
+                    - generic [ref=e240]: "1"
+                  - generic [ref=e242]:
+                    - link "Furniture 0" [ref=e244] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=furniture
+                      - generic [ref=e245]: Furniture
+                      - generic [ref=e246]: "0"
+                    - link "Kitchen 0" [ref=e248] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=kitchen
+                      - generic [ref=e249]: Kitchen
+                      - generic [ref=e250]: "0"
+                    - link "Garden Tools 0" [ref=e252] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=garden-tools
+                      - generic [ref=e253]: Garden Tools
+                      - generic [ref=e254]: "0"
+                    - link "Storage 1" [ref=e256] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=storage
+                      - generic [ref=e257]: Storage
+                      - generic [ref=e258]: "1"
+                - link "Clearance 0" [ref=e260] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=clearance
+                  - generic [ref=e261]: Clearance
+                  - generic [ref=e262]: "0"
+                - generic [ref=e263]:
+                  - link "Phones 0" [ref=e264] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=phones
+                    - generic [ref=e265]: Phones
+                    - generic [ref=e266]: "0"
+                  - generic [ref=e268]:
+                    - link "Smartphones 0" [ref=e270] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=smartphones
+                      - generic [ref=e271]: Smartphones
+                      - generic [ref=e272]: "0"
+                    - link "Android 0" [ref=e274] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=android
+                      - generic [ref=e275]: Android
+                      - generic [ref=e276]: "0"
+                    - link "iOS 0" [ref=e278] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=ios
+                      - generic [ref=e279]: iOS
+                      - generic [ref=e280]: "0"
+                - generic [ref=e281]:
+                  - link "Laptops 0" [ref=e282] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=laptops
+                    - generic [ref=e283]: Laptops
+                    - generic [ref=e284]: "0"
+                  - generic [ref=e286]:
+                    - link "Gaming 0" [ref=e288] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=gaming
+                      - generic [ref=e289]: Gaming
+                      - generic [ref=e290]: "0"
+                    - link "Business 330" [ref=e292] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=business
+                      - generic [ref=e293]: Business
+                      - generic [ref=e294]: "330"
+                - generic [ref=e295]:
+                  - link "Audio 1" [ref=e296] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=audio
+                    - generic [ref=e297]: Audio
+                    - generic [ref=e298]: "1"
+                  - generic [ref=e300]:
+                    - link "Headphones 109" [ref=e302] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=headphones
+                      - generic [ref=e303]: Headphones
+                      - generic [ref=e304]: "109"
+                    - link "Speakers 0" [ref=e306] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=speakers
+                      - generic [ref=e307]: Speakers
+                      - generic [ref=e308]: "0"
+                - link "Smartphones 0" [ref=e310] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=smartphones
+                  - generic [ref=e311]: Smartphones
+                  - generic [ref=e312]: "0"
+                - link "Android 0" [ref=e314] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=android
+                  - generic [ref=e315]: Android
+                  - generic [ref=e316]: "0"
+                - link "iOS 0" [ref=e318] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=ios
+                  - generic [ref=e319]: iOS
+                  - generic [ref=e320]: "0"
+                - link "Gaming 0" [ref=e322] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=gaming
+                  - generic [ref=e323]: Gaming
+                  - generic [ref=e324]: "0"
+                - link "Business 330" [ref=e326] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=business
+                  - generic [ref=e327]: Business
+                  - generic [ref=e328]: "330"
+                - link "Headphones 109" [ref=e330] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=headphones
+                  - generic [ref=e331]: Headphones
+                  - generic [ref=e332]: "109"
+                - link "Speakers 0" [ref=e334] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=speakers
+                  - generic [ref=e335]: Speakers
+                  - generic [ref=e336]: "0"
+                - generic [ref=e337]:
+                  - link "Men 0" [ref=e338] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=men
+                    - generic [ref=e339]: Men
+                    - generic [ref=e340]: "0"
+                  - generic [ref=e342]:
+                    - link "T-Shirts 440" [ref=e344] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=t-shirts
+                      - generic [ref=e345]: T-Shirts
+                      - generic [ref=e346]: "440"
+                    - link "Jeans 0" [ref=e348] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=jeans
+                      - generic [ref=e349]: Jeans
+                      - generic [ref=e350]: "0"
+                    - link "Shoes 1" [ref=e352] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=shoes
+                      - generic [ref=e353]: Shoes
+                      - generic [ref=e354]: "1"
+                - generic [ref=e355]:
+                  - link "Women 0" [ref=e356] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products?category=women
+                    - generic [ref=e357]: Women
+                    - generic [ref=e358]: "0"
+                  - generic [ref=e360]:
+                    - link "Dresses 0" [ref=e362] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=dresses
+                      - generic [ref=e363]: Dresses
+                      - generic [ref=e364]: "0"
+                    - link "Tops 1" [ref=e366] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=tops
+                      - generic [ref=e367]: Tops
+                      - generic [ref=e368]: "1"
+                    - link "Shoes 217" [ref=e370] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products?category=shoes-1
+                      - generic [ref=e371]: Shoes
+                      - generic [ref=e372]: "217"
+                - link "T-Shirts 440" [ref=e374] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=t-shirts
+                  - generic [ref=e375]: T-Shirts
+                  - generic [ref=e376]: "440"
+                - link "Jeans 0" [ref=e378] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=jeans
+                  - generic [ref=e379]: Jeans
+                  - generic [ref=e380]: "0"
+                - link "Shoes 1" [ref=e382] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=shoes
+                  - generic [ref=e383]: Shoes
+                  - generic [ref=e384]: "1"
+                - link "Dresses 0" [ref=e386] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=dresses
+                  - generic [ref=e387]: Dresses
+                  - generic [ref=e388]: "0"
+                - link "Tops 1" [ref=e390] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=tops
+                  - generic [ref=e391]: Tops
+                  - generic [ref=e392]: "1"
+                - link "Shoes 217" [ref=e394] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=shoes-1
+                  - generic [ref=e395]: Shoes
+                  - generic [ref=e396]: "217"
+                - link "Furniture 0" [ref=e398] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=furniture
+                  - generic [ref=e399]: Furniture
+                  - generic [ref=e400]: "0"
+                - link "Kitchen 0" [ref=e402] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=kitchen
+                  - generic [ref=e403]: Kitchen
+                  - generic [ref=e404]: "0"
+                - link "Garden Tools 0" [ref=e406] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=garden-tools
+                  - generic [ref=e407]: Garden Tools
+                  - generic [ref=e408]: "0"
+                - link "Storage 1" [ref=e410] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?category=storage
+                  - generic [ref=e411]: Storage
+                  - generic [ref=e412]: "1"
+            - generic [ref=e413]:
+              - paragraph [ref=e414]: Collections
+              - generic [ref=e415]:
+                - link "Best Sellers 774" [ref=e416] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=best-sellers
+                  - generic [ref=e417]: Best Sellers
+                  - generic [ref=e418]: "774"
+                - link "Clearance 55" [ref=e419] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=clearance
+                  - generic [ref=e420]: Clearance
+                  - generic [ref=e421]: "55"
+                - link "Eco Friendly 57" [ref=e422] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=eco-friendly
+                  - generic [ref=e423]: Eco Friendly
+                  - generic [ref=e424]: "57"
+                - link "Featured 0" [ref=e425] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=featured
+                  - generic [ref=e426]: Featured
+                  - generic [ref=e427]: "0"
+                - link "Kids 0" [ref=e428] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=kids
+                  - generic [ref=e429]: Kids
+                  - generic [ref=e430]: "0"
+                - link "New Arrivals 1100" [ref=e431] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=new-arrivals
+                  - generic [ref=e432]: New Arrivals
+                  - generic [ref=e433]: "1100"
+                - link "Nike Collection 129" [ref=e434] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=nike-collection
+                  - generic [ref=e435]: Nike Collection
+                  - generic [ref=e436]: "129"
+                - link "Premium 411" [ref=e437] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?collection=premium
+                  - generic [ref=e438]: Premium
+                  - generic [ref=e439]: "411"
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - generic [ref=e442]:
+                  - paragraph [ref=e443]: Tags
+                  - paragraph [ref=e444]: Tag cloud
+                - link "All tags" [ref=e445] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/product-tags
+              - generic [ref=e446]:
+                - link "#Best Seller 165" [ref=e447] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=bestseller
+                  - generic [ref=e448]: "#Best Seller"
+                  - generic [ref=e449]: "165"
+                - link "#Clearance 55" [ref=e450] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=clearance
+                  - generic [ref=e451]: "#Clearance"
+                  - generic [ref=e452]: "55"
+                - link "#Digital 279" [ref=e453] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=digital
+                  - generic [ref=e454]: "#Digital"
+                  - generic [ref=e455]: "279"
+                - link "#Dropship 322" [ref=e456] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=dropship
+                  - generic [ref=e457]: "#Dropship"
+                  - generic [ref=e458]: "322"
+                - link "#Eco Friendly 57" [ref=e459] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=eco-friendly
+                  - generic [ref=e460]: "#Eco Friendly"
+                  - generic [ref=e461]: "57"
+                - link "#Giftable 353" [ref=e462] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=giftable
+                  - generic [ref=e463]: "#Giftable"
+                  - generic [ref=e464]: "353"
+                - link "#Handmade 56" [ref=e465] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=handmade
+                  - generic [ref=e466]: "#Handmade"
+                  - generic [ref=e467]: "56"
+                - link "#Limited Edition 155" [ref=e468] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=limited-edition
+                  - generic [ref=e469]: "#Limited Edition"
+                  - generic [ref=e470]: "155"
+                - link "#Local Maker 54" [ref=e471] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=local-maker
+                  - generic [ref=e472]: "#Local Maker"
+                  - generic [ref=e473]: "54"
+                - link "#Low Stock 54" [ref=e474] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=low-stock
+                  - generic [ref=e475]: "#Low Stock"
+                  - generic [ref=e476]: "54"
+                - link "#New Arrival 748" [ref=e477] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=new-arrival
+                  - generic [ref=e478]: "#New Arrival"
+                  - generic [ref=e479]: "748"
+                - link "#Organic 57" [ref=e480] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=organic
+                  - generic [ref=e481]: "#Organic"
+                  - generic [ref=e482]: "57"
+                - link "#Premium 54" [ref=e483] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=premium
+                  - generic [ref=e484]: "#Premium"
+                  - generic [ref=e485]: "54"
+                - link "#Preorder 54" [ref=e486] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=preorder
+                  - generic [ref=e487]: "#Preorder"
+                  - generic [ref=e488]: "54"
+                - link "#Sale 288" [ref=e489] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=sale
+                  - generic [ref=e490]: "#Sale"
+                  - generic [ref=e491]: "288"
+                - link "#Small Batch 54" [ref=e492] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=small-batch
+                  - generic [ref=e493]: "#Small Batch"
+                  - generic [ref=e494]: "54"
+                - link "#Staff Pick 56" [ref=e495] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=staff-pick
+                  - generic [ref=e496]: "#Staff Pick"
+                  - generic [ref=e497]: "56"
+                - link "#Summer 54" [ref=e498] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=summer
+                  - generic [ref=e499]: "#Summer"
+                  - generic [ref=e500]: "54"
+                - link "#Sustainable 302" [ref=e501] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=sustainable
+                  - generic [ref=e502]: "#Sustainable"
+                  - generic [ref=e503]: "302"
+                - link "#Vegan 56" [ref=e504] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?tag=vegan
+                  - generic [ref=e505]: "#Vegan"
+                  - generic [ref=e506]: "56"
+            - generic [ref=e507]:
+              - generic [ref=e508]: No preserved filters.
+              - generic [ref=e509]:
+                - generic [ref=e510]:
+                  - paragraph [ref=e511]: Compliance · Warranty
+                  - link "View" [ref=e512] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/warranty
+                - generic [ref=e513]:
+                  - generic [ref=e514]:
+                    - checkbox "1 Year" [ref=e515]
+                    - generic [ref=e516]: 1 Year
+                  - generic [ref=e517]:
+                    - checkbox "2 Years" [ref=e518]
+                    - generic [ref=e519]: 2 Years
+                  - generic [ref=e520]:
+                    - checkbox "3 Years" [ref=e521]
+                    - generic [ref=e522]: 3 Years
+                  - generic [ref=e523]:
+                    - checkbox "Lifetime" [ref=e524]
+                    - generic [ref=e525]: Lifetime
+              - generic [ref=e526]:
+                - generic [ref=e527]:
+                  - paragraph [ref=e528]: Fit · Size
+                  - link "View" [ref=e529] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/size
+                - generic [ref=e530]:
+                  - generic [ref=e531]:
+                    - checkbox "XS" [ref=e532]
+                    - generic [ref=e533]: XS
+                  - generic [ref=e534]:
+                    - checkbox "S" [ref=e535]
+                    - generic [ref=e536]: S
+                  - generic [ref=e537]:
+                    - checkbox "M" [ref=e538]
+                    - generic [ref=e539]: M
+                  - generic [ref=e540]:
+                    - checkbox "L" [ref=e541]
+                    - generic [ref=e542]: L
+                  - generic [ref=e543]:
+                    - checkbox "XL" [ref=e544]
+                    - generic [ref=e545]: XL
+                  - generic [ref=e546]:
+                    - checkbox "XXL" [ref=e547]
+                    - generic [ref=e548]: XXL
+              - generic [ref=e549]:
+                - generic [ref=e550]:
+                  - paragraph [ref=e551]: Materials · Material
+                  - link "View" [ref=e552] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/material
+                - generic [ref=e553]:
+                  - generic [ref=e554]:
+                    - checkbox "Cotton" [ref=e555]
+                    - generic [ref=e556]: Cotton
+                  - generic [ref=e557]:
+                    - checkbox "Polyester" [ref=e558]
+                    - generic [ref=e559]: Polyester
+                  - generic [ref=e560]:
+                    - checkbox "Leather" [ref=e561]
+                    - generic [ref=e562]: Leather
+                  - generic [ref=e563]:
+                    - checkbox "Wood" [ref=e564]
+                    - generic [ref=e565]: Wood
+                  - generic [ref=e566]:
+                    - checkbox "Metal" [ref=e567]
+                    - generic [ref=e568]: Metal
+                  - generic [ref=e569]:
+                    - checkbox "Glass" [ref=e570]
+                    - generic [ref=e571]: Glass
+              - generic [ref=e572]:
+                - generic [ref=e573]:
+                  - paragraph [ref=e574]: Technical · Connectivity
+                  - link "View" [ref=e575] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/connectivity
+                - generic [ref=e576]:
+                  - generic [ref=e577]:
+                    - checkbox "WiFi" [ref=e578]
+                    - generic [ref=e579]: WiFi
+                  - generic [ref=e580]:
+                    - checkbox "Bluetooth" [ref=e581]
+                    - generic [ref=e582]: Bluetooth
+                  - generic [ref=e583]:
+                    - checkbox "USB-C" [ref=e584]
+                    - generic [ref=e585]: USB-C
+                  - generic [ref=e586]:
+                    - checkbox "HDMI" [ref=e587]
+                    - generic [ref=e588]: HDMI
+              - generic [ref=e589]:
+                - generic [ref=e590]:
+                  - paragraph [ref=e591]: Technical · Storage
+                  - link "View" [ref=e592] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/storage
+                - generic [ref=e593]:
+                  - generic [ref=e594]:
+                    - checkbox "64GB" [ref=e595]
+                    - generic [ref=e596]: 64GB
+                  - generic [ref=e597]:
+                    - checkbox "128GB" [ref=e598]
+                    - generic [ref=e599]: 128GB
+                  - generic [ref=e600]:
+                    - checkbox "256GB" [ref=e601]
+                    - generic [ref=e602]: 256GB
+                  - generic [ref=e603]:
+                    - checkbox "512GB" [ref=e604]
+                    - generic [ref=e605]: 512GB
+                  - generic [ref=e606]:
+                    - checkbox "1TB" [ref=e607]
+                    - generic [ref=e608]: 1TB
+              - generic [ref=e609]:
+                - generic [ref=e610]:
+                  - paragraph [ref=e611]: Visual · Color
+                  - link "View" [ref=e612] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/attributes/color
+                - generic [ref=e613]:
+                  - generic [ref=e614]:
+                    - checkbox "Red" [ref=e615]
+                    - generic [ref=e616]: Red
+                  - generic [ref=e617]:
+                    - checkbox "Blue" [ref=e618]
+                    - generic [ref=e619]: Blue
+                  - generic [ref=e620]:
+                    - checkbox "Green" [ref=e621]
+                    - generic [ref=e622]: Green
+                  - generic [ref=e623]:
+                    - checkbox "Black" [ref=e624]
+                    - generic [ref=e625]: Black
+                  - generic [ref=e626]:
+                    - checkbox "White" [ref=e627]
+                    - generic [ref=e628]: White
+                  - generic [ref=e629]:
+                    - checkbox "Yellow" [ref=e630]
+                    - generic [ref=e631]: Yellow
+              - button "Apply attributes" [ref=e632]
+        - generic [ref=e633]:
+          - generic [ref=e634]:
+            - generic [ref=e636]:
+              - heading "Featured Products" [level=2] [ref=e637]
+              - paragraph [ref=e638]: Published highlights matching the current catalog context.
+            - generic [ref=e639]:
+              - article [ref=e640]:
+                - link "Minimalist Wooden Watch" [ref=e641] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/minimalist-wooden-watch
+                  - img "Minimalist Wooden Watch" [ref=e643]
+                - generic [ref=e644]:
+                  - generic [ref=e645]:
+                    - generic [ref=e646]:
+                      - generic [ref=e647]:
+                        - link "Minimalist Wooden Watch" [ref=e648] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/minimalist-wooden-watch
+                        - paragraph [ref=e649]: Adidas
+                      - generic [ref=e650]: Featured
+                    - paragraph [ref=e651]: Demo external product with full Shopper catalog data.
+                  - generic [ref=e652]:
+                    - generic [ref=e653]:
+                      - paragraph [ref=e654]: $129.00
+                      - paragraph [ref=e655]: Excludes tax
+                      - generic [ref=e656]:
+                        - generic [ref=e657]: $169.00
+                        - generic [ref=e658]: Save 24%
+                    - generic [ref=e659]: external
+                  - link "Visit supplier" [ref=e660] [cursor=pointer]:
+                    - /url: https://example.com/suppliers/minimalist-wooden-watch
+              - article [ref=e661]:
+                - link "SaaS Analytics Course" [ref=e662] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/saas-analytics-course
+                  - img "SaaS Analytics Course" [ref=e664]
+                - generic [ref=e665]:
+                  - generic [ref=e666]:
+                    - generic [ref=e667]:
+                      - generic [ref=e668]:
+                        - link "SaaS Analytics Course" [ref=e669] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/saas-analytics-course
+                        - paragraph [ref=e670]: Samsung
+                      - generic [ref=e671]: Featured
+                    - paragraph [ref=e672]: Demo virtual product with full Shopper catalog data.
+                  - generic [ref=e673]:
+                    - generic [ref=e674]:
+                      - paragraph [ref=e675]: $199.00
+                      - paragraph [ref=e676]: Excludes tax
+                      - generic [ref=e677]:
+                        - generic [ref=e678]: $249.00
+                        - generic [ref=e679]: Save 20%
+                    - generic [ref=e680]: virtual
+                  - button "Add to cart" [ref=e682]
+              - article [ref=e683]:
+                - link "Commerce Playbook PDF" [ref=e684] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/commerce-playbook-pdf
+                  - img "Commerce Playbook PDF" [ref=e686]
+                - generic [ref=e687]:
+                  - generic [ref=e688]:
+                    - generic [ref=e689]:
+                      - generic [ref=e690]:
+                        - link "Commerce Playbook PDF" [ref=e691] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/commerce-playbook-pdf
+                        - paragraph [ref=e692]: Samsung
+                      - generic [ref=e693]: Featured
+                    - paragraph [ref=e694]: Demo virtual product with full Shopper catalog data.
+                  - generic [ref=e695]:
+                    - generic [ref=e696]:
+                      - paragraph [ref=e697]: $49.00
+                      - paragraph [ref=e698]: Excludes tax
+                    - generic [ref=e699]: virtual
+                  - button "Add to cart" [ref=e701]
+              - article [ref=e702]:
+                - link "Focus Wireless Headphones" [ref=e703] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+                  - img "Focus Wireless Headphones" [ref=e705]
+                - generic [ref=e706]:
+                  - generic [ref=e707]:
+                    - generic [ref=e708]:
+                      - generic [ref=e709]:
+                        - link "Focus Wireless Headphones" [ref=e710] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+                        - paragraph [ref=e711]: Sony
+                      - generic [ref=e712]: Featured
+                    - paragraph [ref=e713]: Demo variant product with full Shopper catalog data.
+                  - generic [ref=e714]:
+                    - generic [ref=e715]:
+                      - paragraph [ref=e716]: $129.00
+                      - paragraph [ref=e717]: Excludes tax
+                      - generic [ref=e718]:
+                        - generic [ref=e719]: $159.00
+                        - generic [ref=e720]: Save 19%
+                    - generic [ref=e721]: variant
+                  - link "Choose options" [ref=e722] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+              - article [ref=e723]:
+                - link "Studio Desk Lamp" [ref=e724] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/studio-desk-lamp
+                  - img "Studio Desk Lamp" [ref=e726]
+                - generic [ref=e727]:
+                  - generic [ref=e728]:
+                    - generic [ref=e729]:
+                      - generic [ref=e730]:
+                        - link "Studio Desk Lamp" [ref=e731] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/studio-desk-lamp
+                        - paragraph [ref=e732]: Sony
+                      - generic [ref=e733]: Featured
+                    - paragraph [ref=e734]: Demo standard product with full Shopper catalog data.
+                  - generic [ref=e735]:
+                    - generic [ref=e736]:
+                      - paragraph [ref=e737]: $89.00
+                      - paragraph [ref=e738]: Excludes tax
+                    - generic [ref=e739]: standard
+                  - button "Add to cart" [ref=e741]
+              - article [ref=e742]:
+                - link "Everyday Rib Tee" [ref=e743] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/everyday-rib-tee
+                  - img "Everyday Rib Tee" [ref=e745]
+                - generic [ref=e746]:
+                  - generic [ref=e747]:
+                    - generic [ref=e748]:
+                      - generic [ref=e749]:
+                        - link "Everyday Rib Tee" [ref=e750] [cursor=pointer]:
+                          - /url: https://shopper.prus.dev/products/everyday-rib-tee
+                        - paragraph [ref=e751]: Apple
+                      - generic [ref=e752]: Featured
+                    - paragraph [ref=e753]: Demo variant product with full Shopper catalog data.
+                  - generic [ref=e754]:
+                    - generic [ref=e755]:
+                      - paragraph [ref=e756]: $29.00
+                      - paragraph [ref=e757]: Excludes tax
+                      - generic [ref=e758]:
+                        - generic [ref=e759]: $39.00
+                        - generic [ref=e760]: Save 26%
+                    - generic [ref=e761]: variant
+                  - link "Choose options" [ref=e762] [cursor=pointer]:
+                    - /url: https://shopper.prus.dev/products/everyday-rib-tee
+          - generic [ref=e763]:
+            - article [ref=e764]:
+              - link "Meridian Field Jacket" [ref=e765] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/meridian-field-jacket
+                - img "Meridian Field Jacket" [ref=e767]
+              - generic [ref=e768]:
+                - generic [ref=e769]:
+                  - generic [ref=e770]:
+                    - generic [ref=e771]:
+                      - link "Meridian Field Jacket" [ref=e772] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/meridian-field-jacket
+                      - paragraph [ref=e773]: Nike
+                    - generic [ref=e774]: Featured
+                  - paragraph [ref=e775]: Demo standard product with full Shopper catalog data.
+                - generic [ref=e776]:
+                  - generic [ref=e777]:
+                    - paragraph [ref=e778]: $149.00
+                    - paragraph [ref=e779]: Excludes tax
+                    - generic [ref=e780]:
+                      - generic [ref=e781]: $189.00
+                      - generic [ref=e782]: Save 21%
+                  - generic [ref=e783]: standard
+                - button "Add to cart" [ref=e785]
+            - article [ref=e786]:
+              - link "Everyday Rib Tee" [ref=e787] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/everyday-rib-tee
+                - img "Everyday Rib Tee" [ref=e789]
+              - generic [ref=e790]:
+                - generic [ref=e791]:
+                  - generic [ref=e792]:
+                    - generic [ref=e793]:
+                      - link "Everyday Rib Tee" [ref=e794] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/everyday-rib-tee
+                      - paragraph [ref=e795]: Apple
+                    - generic [ref=e796]: Featured
+                  - paragraph [ref=e797]: Demo variant product with full Shopper catalog data.
+                - generic [ref=e798]:
+                  - generic [ref=e799]:
+                    - paragraph [ref=e800]: $29.00
+                    - paragraph [ref=e801]: Excludes tax
+                    - generic [ref=e802]:
+                      - generic [ref=e803]: $39.00
+                      - generic [ref=e804]: Save 26%
+                  - generic [ref=e805]: variant
+                - link "Choose options" [ref=e806] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/everyday-rib-tee
+            - article [ref=e807]:
+              - link "Studio Desk Lamp" [ref=e808] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/studio-desk-lamp
+                - img "Studio Desk Lamp" [ref=e810]
+              - generic [ref=e811]:
+                - generic [ref=e812]:
+                  - generic [ref=e813]:
+                    - generic [ref=e814]:
+                      - link "Studio Desk Lamp" [ref=e815] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/studio-desk-lamp
+                      - paragraph [ref=e816]: Sony
+                    - generic [ref=e817]: Featured
+                  - paragraph [ref=e818]: Demo standard product with full Shopper catalog data.
+                - generic [ref=e819]:
+                  - generic [ref=e820]:
+                    - paragraph [ref=e821]: $89.00
+                    - paragraph [ref=e822]: Excludes tax
+                  - generic [ref=e823]: standard
+                - button "Add to cart" [ref=e825]
+            - article [ref=e826]:
+              - link "Focus Wireless Headphones" [ref=e827] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+                - img "Focus Wireless Headphones" [ref=e829]
+              - generic [ref=e830]:
+                - generic [ref=e831]:
+                  - generic [ref=e832]:
+                    - generic [ref=e833]:
+                      - link "Focus Wireless Headphones" [ref=e834] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+                      - paragraph [ref=e835]: Sony
+                    - generic [ref=e836]: Featured
+                  - paragraph [ref=e837]: Demo variant product with full Shopper catalog data.
+                - generic [ref=e838]:
+                  - generic [ref=e839]:
+                    - paragraph [ref=e840]: $129.00
+                    - paragraph [ref=e841]: Excludes tax
+                    - generic [ref=e842]:
+                      - generic [ref=e843]: $159.00
+                      - generic [ref=e844]: Save 19%
+                  - generic [ref=e845]: variant
+                - link "Choose options" [ref=e846] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/focus-wireless-headphones
+            - article [ref=e847]:
+              - link "Commerce Playbook PDF" [ref=e848] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/commerce-playbook-pdf
+                - img "Commerce Playbook PDF" [ref=e850]
+              - generic [ref=e851]:
+                - generic [ref=e852]:
+                  - generic [ref=e853]:
+                    - generic [ref=e854]:
+                      - link "Commerce Playbook PDF" [ref=e855] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/commerce-playbook-pdf
+                      - paragraph [ref=e856]: Samsung
+                    - generic [ref=e857]: Featured
+                  - paragraph [ref=e858]: Demo virtual product with full Shopper catalog data.
+                - generic [ref=e859]:
+                  - generic [ref=e860]:
+                    - paragraph [ref=e861]: $49.00
+                    - paragraph [ref=e862]: Excludes tax
+                  - generic [ref=e863]: virtual
+                - button "Add to cart" [ref=e865]
+            - article [ref=e866]:
+              - link "SaaS Analytics Course" [ref=e867] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/saas-analytics-course
+                - img "SaaS Analytics Course" [ref=e869]
+              - generic [ref=e870]:
+                - generic [ref=e871]:
+                  - generic [ref=e872]:
+                    - generic [ref=e873]:
+                      - link "SaaS Analytics Course" [ref=e874] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/saas-analytics-course
+                      - paragraph [ref=e875]: Samsung
+                    - generic [ref=e876]: Featured
+                  - paragraph [ref=e877]: Demo virtual product with full Shopper catalog data.
+                - generic [ref=e878]:
+                  - generic [ref=e879]:
+                    - paragraph [ref=e880]: $199.00
+                    - paragraph [ref=e881]: Excludes tax
+                    - generic [ref=e882]:
+                      - generic [ref=e883]: $249.00
+                      - generic [ref=e884]: Save 20%
+                  - generic [ref=e885]: virtual
+                - button "Add to cart" [ref=e887]
+            - article [ref=e888]:
+              - link "Minimalist Wooden Watch" [ref=e889] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/minimalist-wooden-watch
+                - img "Minimalist Wooden Watch" [ref=e891]
+              - generic [ref=e892]:
+                - generic [ref=e893]:
+                  - generic [ref=e894]:
+                    - generic [ref=e895]:
+                      - link "Minimalist Wooden Watch" [ref=e896] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/minimalist-wooden-watch
+                      - paragraph [ref=e897]: Adidas
+                    - generic [ref=e898]: Featured
+                  - paragraph [ref=e899]: Demo external product with full Shopper catalog data.
+                - generic [ref=e900]:
+                  - generic [ref=e901]:
+                    - paragraph [ref=e902]: $129.00
+                    - paragraph [ref=e903]: Excludes tax
+                    - generic [ref=e904]:
+                      - generic [ref=e905]: $169.00
+                      - generic [ref=e906]: Save 24%
+                  - generic [ref=e907]: external
+                - link "Visit supplier" [ref=e908] [cursor=pointer]:
+                  - /url: https://example.com/suppliers/minimalist-wooden-watch
+            - article [ref=e909]:
+              - link "Nike Archive Travel Case 001" [ref=e910] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/nike-archive-travel-case-001
+                - img "Nike Archive Travel Case 001" [ref=e912]
+              - generic [ref=e913]:
+                - generic [ref=e914]:
+                  - generic [ref=e915]:
+                    - generic [ref=e916]:
+                      - link "Nike Archive Travel Case 001" [ref=e917] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/nike-archive-travel-case-001
+                      - paragraph [ref=e918]: Nike
+                    - generic [ref=e919]: Featured
+                  - paragraph [ref=e920]: Nike Archive Travel Case 001 is a maximum-detail seeded catalog record with every product field populated for storefront inspection.
+                - generic [ref=e921]:
+                  - generic [ref=e922]:
+                    - paragraph [ref=e923]: $68.25
+                    - paragraph [ref=e924]: Excludes tax
+                    - generic [ref=e925]:
+                      - generic [ref=e926]: $92.25
+                      - generic [ref=e927]: Save 26%
+                  - generic [ref=e928]: standard
+                - button "Add to cart" [ref=e930]
+            - article [ref=e931]:
+              - link "Northline Utility Overshirt 001" [ref=e932] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/northline-utility-overshirt-001
+                - img "Northline Utility Overshirt 001" [ref=e934]
+              - generic [ref=e935]:
+                - generic [ref=e936]:
+                  - generic [ref=e937]:
+                    - generic [ref=e938]:
+                      - link "Northline Utility Overshirt 001" [ref=e939] [cursor=pointer]:
+                        - /url: https://shopper.prus.dev/products/northline-utility-overshirt-001
+                      - paragraph [ref=e940]: Nike
+                    - generic [ref=e941]: Featured
+                  - paragraph [ref=e942]: Demo standard product with full Shopper catalog data.
+                - generic [ref=e943]:
+                  - generic [ref=e944]:
+                    - paragraph [ref=e945]: $91.50
+                    - paragraph [ref=e946]: Excludes tax
+                  - generic [ref=e947]: standard
+                - button "Add to cart" [ref=e949]
+            - article [ref=e950]:
+              - link "Apple Circuit Field Pack 077" [ref=e951] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/apple-circuit-field-pack-077
+                - img "Apple Circuit Field Pack 077" [ref=e953]
+              - generic [ref=e954]:
+                - generic [ref=e955]:
+                  - generic [ref=e957]:
+                    - link "Apple Circuit Field Pack 077" [ref=e958] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products/apple-circuit-field-pack-077
+                    - paragraph [ref=e959]: Apple
+                  - paragraph [ref=e960]: Apple Circuit Field Pack 077 is a maximum-detail seeded catalog record with every product field populated for storefront inspection.
+                - generic [ref=e961]:
+                  - generic [ref=e962]:
+                    - paragraph [ref=e963]: $102.25
+                    - paragraph [ref=e964]: Excludes tax
+                    - generic [ref=e965]:
+                      - generic [ref=e966]: $126.25
+                      - generic [ref=e967]: Save 19%
+                  - generic [ref=e968]: standard
+                - button "Add to cart" [ref=e970]
+            - article [ref=e971]:
+              - link "Sony Market Seasonal Edit 003" [ref=e972] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/sony-market-seasonal-edit-003
+                - img "Sony Market Seasonal Edit 003" [ref=e974]
+              - generic [ref=e975]:
+                - generic [ref=e976]:
+                  - generic [ref=e978]:
+                    - link "Sony Market Seasonal Edit 003" [ref=e979] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products/sony-market-seasonal-edit-003
+                    - paragraph [ref=e980]: Sony
+                  - paragraph [ref=e981]: Sony Market Seasonal Edit 003 is a maximum-detail seeded catalog record with every product field populated for storefront inspection.
+                - generic [ref=e982]:
+                  - generic [ref=e983]:
+                    - paragraph [ref=e984]: $76.75
+                    - paragraph [ref=e985]: Excludes tax
+                    - generic [ref=e986]:
+                      - generic [ref=e987]: $100.75
+                      - generic [ref=e988]: Save 24%
+                  - generic [ref=e989]: variant
+                - link "Choose options" [ref=e990] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products/sony-market-seasonal-edit-003
+            - article [ref=e991]:
+              - link "Atelier Mono Ribbed Tank 962" [ref=e992] [cursor=pointer]:
+                - /url: https://shopper.prus.dev/products/atelier-mono-ribbed-tank-962
+                - img "Atelier Mono Ribbed Tank 962" [ref=e994]
+              - generic [ref=e995]:
+                - generic [ref=e996]:
+                  - generic [ref=e998]:
+                    - link "Atelier Mono Ribbed Tank 962" [ref=e999] [cursor=pointer]:
+                      - /url: https://shopper.prus.dev/products/atelier-mono-ribbed-tank-962
+                    - paragraph [ref=e1000]: Apple
+                  - paragraph [ref=e1001]: Demo standard product with full Shopper catalog data.
+                - generic [ref=e1002]:
+                  - generic [ref=e1003]:
+                    - paragraph [ref=e1004]: $59.50
+                    - paragraph [ref=e1005]: Excludes tax
+                  - generic [ref=e1006]: standard
+                - button "Add to cart" [ref=e1008]
+          - navigation "Pagination Navigation" [ref=e1010]:
+            - generic [ref=e1011]:
+              - paragraph [ref=e1013]: Showing 1 to 12 of 1100 results
+              - generic [ref=e1015]:
+                - generic "&laquo; Previous" [ref=e1016]:
+                  - img [ref=e1018]
+                - generic [ref=e1021]: "1"
+                - link "Go to page 2" [ref=e1022] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=2
+                  - text: "2"
+                - link "Go to page 3" [ref=e1023] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=3
+                  - text: "3"
+                - link "Go to page 4" [ref=e1024] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=4
+                  - text: "4"
+                - link "Go to page 5" [ref=e1025] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=5
+                  - text: "5"
+                - link "Go to page 6" [ref=e1026] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=6
+                  - text: "6"
+                - link "Go to page 7" [ref=e1027] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=7
+                  - text: "7"
+                - link "Go to page 8" [ref=e1028] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=8
+                  - text: "8"
+                - link "Go to page 9" [ref=e1029] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=9
+                  - text: "9"
+                - link "Go to page 10" [ref=e1030] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=10
+                  - text: "10"
+                - generic [ref=e1032]: ...
+                - link "Go to page 91" [ref=e1033] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=91
+                  - text: "91"
+                - link "Go to page 92" [ref=e1034] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=92
+                  - text: "92"
+                - link "Next &raquo;" [ref=e1035] [cursor=pointer]:
+                  - /url: https://shopper.prus.dev/products?page=2
+                  - img [ref=e1036]
+  - contentinfo [ref=e1038]:
+    - generic [ref=e1039]:
+      - generic [ref=e1040]:
+        - paragraph [ref=e1041]: Shopper Demo Store
+        - generic [ref=e1042]:
+          - paragraph [ref=e1043]: 120 Market Street, San Francisco 94103
+          - link "support@example.com" [ref=e1044] [cursor=pointer]:
+            - /url: mailto:support@example.com
+          - link "+1 555 0100" [ref=e1045] [cursor=pointer]:
+            - /url: tel:+15550100
+        - generic [ref=e1046]:
+          - link "Facebook" [ref=e1047] [cursor=pointer]:
+            - /url: https://facebook.com/shopper
+            - generic [ref=e1048]: FB
+          - link "Instagram" [ref=e1049] [cursor=pointer]:
+            - /url: https://instagram.com/shopper
+            - generic [ref=e1050]: IG
+          - link "Twitter / X" [ref=e1051] [cursor=pointer]:
+            - /url: https://x.com/shopper
+            - generic [ref=e1052]: X
+      - generic [ref=e1053]:
+        - paragraph [ref=e1054]: Brands
+        - generic [ref=e1055]:
+          - link "Nike" [ref=e1056] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/nike
+          - link "Apple" [ref=e1057] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/apple
+          - link "Sony" [ref=e1058] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/sony
+          - link "Samsung" [ref=e1059] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/samsung
+          - link "Adidas" [ref=e1060] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/adidas
+          - link "IKEA" [ref=e1061] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/brands/ikea
+      - generic [ref=e1062]:
+        - paragraph [ref=e1063]: Store
+        - generic [ref=e1064]:
+          - link "Payments" [ref=e1065] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/payments
+          - link "Fulfillment" [ref=e1066] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/fulfillment
+          - link "Carriers" [ref=e1067] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/carriers
+          - link "Channels" [ref=e1068] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/channels
+          - link "Taxes" [ref=e1069] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/taxes
+      - generic [ref=e1070]:
+        - paragraph [ref=e1071]: Legal
+        - generic [ref=e1072]:
+          - link "Terms of Service" [ref=e1073] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/legal/terms
+            - img [ref=e1074]
+            - generic [ref=e1077]: Terms of Service
+          - link "Privacy Policy" [ref=e1078] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/legal/privacy
+            - img [ref=e1079]
+            - generic [ref=e1082]: Privacy Policy
+          - link "Refund Policy" [ref=e1083] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/legal/refund
+            - img [ref=e1084]
+            - generic [ref=e1087]: Refund Policy
+          - link "Shipping Policy" [ref=e1088] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/legal/shipping
+            - img [ref=e1089]
+            - generic [ref=e1094]: Shipping Policy
+          - link "Cookie Policy" [ref=e1095] [cursor=pointer]:
+            - /url: https://shopper.prus.dev/legal/cookie
+            - img [ref=e1096]
+            - generic [ref=e1098]: Cookie Policy
