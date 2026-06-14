@@ -76,6 +76,7 @@ class OrganizationUsersTable
                     ->sortable(),
                 TextColumn::make('invitedBy.name')
                     ->label(__('admin.organization_users.fields.invited_by'))
+                    ->state(fn (OrganizationUser $record): ?string => $record->invitedBy?->name ?? $record->inviter?->name)
                     ->placeholder('-')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')

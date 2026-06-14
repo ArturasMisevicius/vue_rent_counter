@@ -104,16 +104,21 @@ final class ExtraChargeInvoiceIntegrator
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
     ): BillingPeriod {
-        return BillingPeriod::query()->firstOrCreate(
-            [
-                'organization_id' => $assignment->organization_id,
-                'starts_at' => $periodStart->toDateString(),
-                'ends_at' => $periodEnd->toDateString(),
-            ],
-            [
-                'name' => $periodStart->format('F Y'),
-            ],
-        );
+        $billingPeriod = BillingPeriod::query()
+            ->forOrganization($assignment->organization_id)
+            ->forDateRange($periodStart->toDateString(), $periodEnd->toDateString())
+            ->first();
+
+        if ($billingPeriod instanceof BillingPeriod) {
+            return $billingPeriod;
+        }
+
+        return BillingPeriod::query()->create([
+            'organization_id' => $assignment->organization_id,
+            'starts_at' => $periodStart->toDateString(),
+            'ends_at' => $periodEnd->toDateString(),
+            'name' => $periodStart->format('F Y'),
+        ]);
     }
 
     /**

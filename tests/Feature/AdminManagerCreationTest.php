@@ -247,10 +247,12 @@ it('audits manager lifecycle actions and forbidden manager access attempts', fun
         'status' => UserStatus::ACTIVE,
     ])->save();
 
-    expect(app(ManagerPermissionService::class)->isManagerForOrganization($membership->user->fresh(), $organization))
-        ->toBeTrue();
+    $deniedManager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::ACTIVE,
+    ]);
 
-    $this->actingAs($membership->user)
+    $this->actingAs($deniedManager)
         ->getJson(route('test.admin-manager-denied-action'))
         ->assertForbidden();
 

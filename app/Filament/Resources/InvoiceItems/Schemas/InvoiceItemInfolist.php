@@ -67,7 +67,7 @@ class InvoiceItemInfolist
                 TextEntry::make('tenant_visible')
                     ->label(__('superadmin.relation_resources.invoice_items.fields.tenant_visible'))
                     ->badge()
-                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.common.yes') : __('admin.common.no')),
+                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.projects.overview.yes') : __('admin.projects.overview.no')),
                 TextEntry::make('sort_order')
                     ->label(__('superadmin.relation_resources.invoice_items.fields.sort_order'))
                     ->numeric(),

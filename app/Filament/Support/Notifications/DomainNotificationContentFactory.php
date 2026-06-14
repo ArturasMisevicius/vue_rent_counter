@@ -125,12 +125,13 @@ final class DomainNotificationContentFactory
     {
         if ($subject instanceof Invoice) {
             return match ($type) {
-                DomainNotificationCatalog::READING_REQUIRED,
-                DomainNotificationCatalog::READING_REMINDER,
-                DomainNotificationCatalog::READING_REJECTED => $this->route('tenant.readings.create', ['invoice' => $subject->id]),
+                DomainNotificationCatalog::INVOICE_CREATED,
                 DomainNotificationCatalog::INVOICE_SENT,
                 DomainNotificationCatalog::INVOICE_OVERDUE,
                 DomainNotificationCatalog::PAYMENT_RECEIVED => $this->route('tenant.invoices.index').'#tenant-invoice-'.$subject->id,
+                DomainNotificationCatalog::READING_REQUIRED,
+                DomainNotificationCatalog::READING_REMINDER,
+                DomainNotificationCatalog::READING_REJECTED => $this->route('tenant.readings.create', ['invoice' => $subject->id]),
                 default => $this->route('filament.admin.resources.invoices.edit', ['record' => $subject]),
             };
         }
@@ -143,8 +144,10 @@ final class DomainNotificationContentFactory
         }
 
         if ($subject instanceof OrganizationInvitation) {
-            if ($type === DomainNotificationCatalog::TENANT_INVITATION_SENT && filled($subject->routeToken())) {
-                return $this->route('invitation.show', ['token' => $subject->routeToken()]);
+            if ($type === DomainNotificationCatalog::TENANT_INVITATION_SENT) {
+                return filled($subject->routeToken())
+                    ? $this->route('invitation.show', ['token' => $subject->routeToken()])
+                    : null;
             }
 
             return $subject->role?->value === 'tenant'

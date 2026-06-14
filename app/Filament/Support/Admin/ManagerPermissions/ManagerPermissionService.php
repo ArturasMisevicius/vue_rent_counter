@@ -208,15 +208,14 @@ class ManagerPermissionService
             return false;
         }
 
-        $membershipQuery = OrganizationUser::query()
+        $membership = OrganizationUser::query()
             ->where('organization_id', $organization->id)
             ->where('user_id', $user->id)
-            ->where('role', UserRole::MANAGER->value);
+            ->where('role', UserRole::MANAGER->value)
+            ->first();
 
-        if ((clone $membershipQuery)->exists()) {
-            return (clone $membershipQuery)
-                ->active()
-                ->exists();
+        if ($membership instanceof OrganizationUser) {
+            return $membership->isActiveMembership();
         }
 
         if ($user->organization_id === $organization->id && $user->role === UserRole::MANAGER) {

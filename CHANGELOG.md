@@ -2,6 +2,50 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614162134 -->
+### Commit updates
+
+- updated `app/Filament/Resources/ExtraChargeTypes/ExtraChargeTypeResource.php`
+- updated `app/Filament/Resources/ExtraChargeTypes/Pages/CreateExtraChargeType.php`
+- updated `app/Filament/Resources/ExtraChargeTypes/Pages/EditExtraChargeType.php`
+- updated `app/Filament/Resources/ExtraChargeTypes/Schemas/ExtraChargeTypeForm.php`
+- updated `app/Filament/Resources/ExtraChargeTypes/Schemas/ExtraChargeTypeInfolist.php`
+- updated `app/Filament/Resources/ExtraChargeTypes/Tables/ExtraChargeTypesTable.php`
+- updated `app/Filament/Resources/ExtraCharges/ExtraChargeResource.php`
+- updated `app/Filament/Resources/ExtraCharges/Pages/CreateExtraCharge.php`
+- updated `app/Filament/Resources/ExtraCharges/Pages/EditExtraCharge.php`
+- updated `app/Filament/Resources/ExtraCharges/Pages/ListExtraCharges.php`
+- added `app/Filament/Resources/ExtraCharges/Pages/PendingExtraChargeApprovals.php`
+- updated `app/Filament/Resources/ExtraCharges/Schemas/ExtraChargeForm.php`
+- updated `app/Filament/Resources/ExtraCharges/Schemas/ExtraChargeInfolist.php`
+- updated `app/Filament/Resources/ExtraCharges/Tables/ExtraChargesTable.php`
+- updated `app/Filament/Resources/InvoiceItems/Schemas/InvoiceItemInfolist.php`
+- updated `app/Filament/Resources/InvoiceItems/Tables/InvoiceItemsTable.php`
+- updated `app/Filament/Resources/OrganizationUsers/Schemas/OrganizationUserInfolist.php`
+- updated `app/Filament/Resources/OrganizationUsers/Tables/OrganizationUsersTable.php`
+- updated `app/Filament/Support/Admin/BillingReview/BuildBillingReviewForPeriod.php`
+- updated `app/Filament/Support/Admin/ExtraCharges/ExtraChargeInvoiceIntegrator.php`
+- updated `app/Filament/Support/Admin/ManagerPermissions/ManagerPermissionService.php`
+- updated `app/Filament/Support/Notifications/DomainNotificationContentFactory.php`
+- updated `app/Http/Requests/Admin/Invoices/SaveInvoiceDraftRequest.php`
+- updated `database/database.sqlite`
+- updated `lang/en/admin.php`
+- updated `lang/en/superadmin.php`
+- updated `lang/en/tenant.php`
+- updated `lang/es/admin.php`
+- updated `lang/es/superadmin.php`
+- updated `lang/es/tenant.php`
+- updated `lang/lt/admin.php`
+- updated `lang/lt/superadmin.php`
+- updated `lang/lt/tenant.php`
+- updated `lang/ru/admin.php`
+- updated `lang/ru/superadmin.php`
+- updated `lang/ru/tenant.php`
+- updated `tests/Feature/AdminManagerCreationTest.php`
+- added `tests/Feature/Billing/BillingReviewCenterTest.php`
+- updated `tests/Feature/Notifications/NotificationsAndRemindersCenterTest.php`
+<!-- changelog:auto:end:staged-20260614162134 -->
+
 <!-- changelog:auto:start:staged-20260614161334 -->
 ### Commit updates
 

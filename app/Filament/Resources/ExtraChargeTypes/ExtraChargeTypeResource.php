@@ -28,7 +28,7 @@ class ExtraChargeTypeResource extends Resource
 {
     protected static ?string $model = ExtraChargeType::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
     {

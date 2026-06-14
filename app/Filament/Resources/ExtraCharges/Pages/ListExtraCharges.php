@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ExtraCharges\Pages;
 
 use App\Filament\Resources\ExtraCharges\ExtraChargeResource;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -13,6 +16,9 @@ class ListExtraCharges extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('pendingApprovals')
+                ->label(__('admin.extra_charges.actions.pending_approvals'))
+                ->url(ExtraChargeResource::getUrl('pending-approvals')),
             CreateAction::make(),
         ];
     }

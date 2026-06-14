@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\BillingReview;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\InvoiceItemSourceType;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterStatus;
 use App\Enums\PricingModel;
@@ -297,6 +298,7 @@ final readonly class BuildBillingReviewForPeriod
             ->with([
                 'utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge',
                 'tariff:id,provider_id,name,configuration',
+                'provider:id,organization_id,name,service_type',
             ])
             ->ordered()
             ->get();
@@ -342,7 +344,8 @@ final readonly class BuildBillingReviewForPeriod
             ])
             ->forOrganization($organizationId)
             ->forProperty($propertyId)
-            ->betweenDates($periodStart, $periodEnd)
+            ->whereDate('reading_date', '>=', $periodStart->toDateString())
+            ->whereDate('reading_date', '<=', $periodEnd->toDateString())
             ->with([
                 'meter:id,organization_id,property_id,name,identifier,type,unit',
                 'submittedBy:id,name,email',
@@ -561,15 +564,31 @@ final readonly class BuildBillingReviewForPeriod
         );
         $total = $this->calculator->calculateFlatRateCharge($quantity, $pricing['unit_rate'], $pricing['base_fee']);
 
+        $negativeConsumption = $this->calculator->compare($quantity, '0', 3) < 0;
+
         return $this->lineItem($configuration, $quantity, $pricing['unit_rate'], $total, [
             'meter_id' => $meter->id,
             'meter_name' => $meter->displayName(),
+            'start' => [
+                'id' => $previousReading->id,
+                'reading_value' => $previousReading->reading_value,
+                'reading_date' => $previousReading->reading_date?->toDateString(),
+                'validation_status' => $previousReading->validation_status?->value,
+            ],
+            'end' => [
+                'id' => $currentReading->id,
+                'reading_value' => $currentReading->reading_value,
+                'reading_date' => $currentReading->reading_date?->toDateString(),
+                'validation_status' => $currentReading->validation_status?->value,
+            ],
             'previous_reading_id' => $previousReading->id,
             'previous_reading_value' => $previousReading->reading_value,
             'previous_reading_date' => $previousReading->reading_date?->toDateString(),
             'current_reading_id' => $currentReading->id,
             'current_reading_value' => $currentReading->reading_value,
             'current_reading_date' => $currentReading->reading_date?->toDateString(),
+            'negative_consumption' => $negativeConsumption,
+            'negative_consumption_confirmed' => $negativeConsumption,
         ], $periodStart, $periodEnd);
     }
 
@@ -586,18 +605,121 @@ final readonly class BuildBillingReviewForPeriod
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
     ): array {
+        $sourceType = is_array($snapshot) ? InvoiceItemSourceType::METER_READING : InvoiceItemSourceType::FIXED_SERVICE;
+        $sourceId = $sourceType === InvoiceItemSourceType::METER_READING
+            ? data_get($snapshot, 'end.id')
+            : $configuration->id;
+        $description = (string) ($configuration->invoice_description ?: $configuration->utilityService?->name ?: __('admin.billing_review.unknown_service'));
+        $currency = strtoupper((string) data_get($configuration->tariff?->configuration, 'currency', 'EUR'));
+        $serviceSnapshot = $this->serviceSnapshot($configuration);
+        $tariffSnapshot = $this->tariffSnapshot($configuration);
+        $providerSnapshot = $this->providerSnapshot($configuration);
+        $formulaLabel = __('admin.invoices.formulas.quantity_times_unit_price_with_values', [
+            'quantity' => $this->calculator->quantity($quantity),
+            'unit_price' => $this->calculator->rate($rate),
+        ]);
+
         return [
+            'source_type' => $sourceType->value,
+            'source_id' => is_numeric($sourceId) ? (int) $sourceId : null,
+            'service_configuration_id' => $configuration->id,
             'utility_service_id' => $configuration->utility_service_id,
-            'description' => (string) ($configuration->invoice_description ?: $configuration->utilityService?->name ?: __('admin.billing_review.unknown_service')),
+            'tariff_id' => $configuration->tariff_id,
+            'provider_id' => $configuration->provider_id,
+            'title' => $description,
+            'description' => $description,
+            'description_for_tenant' => $description,
+            'internal_note' => null,
             'period' => $this->periodLabel($periodStart, $periodEnd),
             'quantity' => $this->calculator->quantity($quantity),
             'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
             'unit_price' => $this->calculator->rate($rate),
             'rate' => $this->calculator->rate($rate),
+            'subtotal' => $this->calculator->money($total),
+            'tax_amount' => $this->calculator->money('0'),
+            'discount_amount' => $this->calculator->money('0'),
             'total' => $this->calculator->money($total),
+            'currency' => $currency,
+            'formula_label' => $formulaLabel,
+            'calculation_snapshot' => [
+                'source_type' => $sourceType->value,
+                'source_id' => is_numeric($sourceId) ? (int) $sourceId : null,
+                'source_status' => 'approved',
+                'formula_label' => $formulaLabel,
+                'quantity' => $this->calculator->quantity($quantity),
+                'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
+                'unit_price' => $this->calculator->rate($rate),
+                'subtotal' => $this->calculator->money($total),
+                'tax_amount' => $this->calculator->money('0'),
+                'discount_amount' => $this->calculator->money('0'),
+                'total' => $this->calculator->money($total),
+                'currency' => $currency,
+                'meter_reading_snapshot' => $snapshot,
+                'service_snapshot' => $serviceSnapshot,
+                'tariff_snapshot' => $tariffSnapshot,
+                'provider_snapshot' => $providerSnapshot,
+            ],
+            'tenant_visible' => true,
             'consumption' => $this->calculator->quantity($quantity),
             'is_adjustment' => false,
             'meter_reading_snapshot' => $snapshot,
+            'service_snapshot' => $serviceSnapshot,
+            'tariff_snapshot' => $tariffSnapshot,
+            'provider_snapshot' => $providerSnapshot,
+            'billable' => true,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serviceSnapshot(ServiceConfiguration $configuration): array
+    {
+        return [
+            'id' => $configuration->id,
+            'provider_id' => $configuration->provider_id,
+            'tariff_id' => $configuration->tariff_id,
+            'utility_service_id' => $configuration->utility_service_id,
+            'utility_service_name' => $configuration->utilityService?->name,
+            'pricing_model' => $configuration->pricing_model?->value,
+            'distribution_method' => $configuration->distribution_method?->value,
+            'effective_from' => $configuration->effective_from?->toISOString(),
+            'effective_until' => $configuration->effective_until?->toISOString(),
+            'rate_schedule' => $configuration->rate_schedule,
+            'configuration_overrides' => $configuration->configuration_overrides,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function tariffSnapshot(ServiceConfiguration $configuration): ?array
+    {
+        if ($configuration->tariff === null) {
+            return null;
+        }
+
+        return [
+            'id' => $configuration->tariff->id,
+            'provider_id' => $configuration->tariff->provider_id,
+            'name' => $configuration->tariff->name,
+            'configuration' => $configuration->tariff->configuration,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function providerSnapshot(ServiceConfiguration $configuration): ?array
+    {
+        if ($configuration->provider === null) {
+            return null;
+        }
+
+        return [
+            'id' => $configuration->provider->id,
+            'name' => $configuration->provider->name,
+            'service_type' => $configuration->provider->service_type?->value,
         ];
     }
 
@@ -612,17 +734,39 @@ final readonly class BuildBillingReviewForPeriod
                 $total = $item['total'] ?? $item['amount'] ?? 0;
 
                 return [
+                    'source_type' => InvoiceItemSourceType::MANUAL_ADJUSTMENT->value,
+                    'source_id' => null,
+                    'service_configuration_id' => null,
                     'utility_service_id' => $item['utility_service_id'] ?? null,
+                    'tariff_id' => null,
+                    'provider_id' => null,
+                    'title' => (string) ($item['description'] ?? __('admin.invoices.fields.adjustment')),
                     'description' => (string) ($item['description'] ?? __('admin.invoices.fields.adjustment')),
+                    'description_for_tenant' => (string) ($item['description'] ?? __('admin.invoices.fields.adjustment')),
+                    'internal_note' => null,
                     'period' => $item['period'] ?? null,
                     'quantity' => $this->calculator->quantity($item['quantity'] ?? 1),
                     'unit' => $item['unit'] ?? null,
                     'unit_price' => $this->calculator->rate($item['unit_price'] ?? $total),
                     'rate' => $this->calculator->rate($item['rate'] ?? $item['unit_price'] ?? $total),
+                    'subtotal' => $this->calculator->money($total),
+                    'tax_amount' => $this->calculator->money('0'),
+                    'discount_amount' => $this->calculator->money('0'),
                     'total' => $this->calculator->money($total),
+                    'currency' => (string) ($item['currency'] ?? 'EUR'),
+                    'formula_label' => __('admin.invoices.formulas.quantity_times_unit_price'),
+                    'calculation_snapshot' => [
+                        'source_type' => InvoiceItemSourceType::MANUAL_ADJUSTMENT->value,
+                        'source_status' => 'approved',
+                    ],
+                    'tenant_visible' => true,
                     'consumption' => $this->calculator->quantity($item['consumption'] ?? 1),
                     'is_adjustment' => true,
                     'meter_reading_snapshot' => $item['meter_reading_snapshot'] ?? null,
+                    'service_snapshot' => null,
+                    'tariff_snapshot' => null,
+                    'provider_snapshot' => null,
+                    'billable' => true,
                 ];
             })
             ->values()

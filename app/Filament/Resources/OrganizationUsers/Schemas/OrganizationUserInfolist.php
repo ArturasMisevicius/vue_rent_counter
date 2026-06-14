@@ -67,6 +67,7 @@ class OrganizationUserInfolist
                     ->placeholder('-'),
                 TextEntry::make('invitedBy.name')
                     ->label(__('admin.organization_users.fields.invited_by'))
+                    ->state(fn (OrganizationUser $record): ?string => $record->invitedBy?->name ?? $record->inviter?->name)
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->label(__('superadmin.relation_resources.shared.fields.created_at'))
