@@ -2,6 +2,14 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614174828 -->
+### Commit updates
+
+- updated `composer.lock`
+- updated `database/database.sqlite`
+- updated `package-lock.json`
+<!-- changelog:auto:end:staged-20260614174828 -->
+
 <!-- changelog:auto:start:staged-20260614174335 -->
 ### Commit updates
 
