@@ -2,6 +2,12 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614150756 -->
+### Commit updates
+
+- updated `app/Http/Requests/Admin/Invoices/SaveInvoiceDraftRequest.php`
+<!-- changelog:auto:end:staged-20260614150756 -->
+
 <!-- changelog:auto:start:staged-20260614150739 -->
 ### Commit updates
 

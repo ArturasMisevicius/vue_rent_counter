@@ -38,7 +38,18 @@ class SaveInvoiceDraftRequest extends FormRequest
             'paid_at' => ['sometimes', 'nullable', 'date'],
             'payment_reference' => ['sometimes', 'nullable', 'string', 'max:255'],
             'items' => ['sometimes', 'nullable', 'array'],
+            'items.*.utility_service_id' => ['sometimes', 'nullable', 'integer'],
             'items.*.description' => ['sometimes', 'nullable', 'string', 'max:'.InvoiceLineItemDescription::MAX_LENGTH],
+            'items.*.period' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'items.*.quantity' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'items.*.unit' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'items.*.unit_price' => ['sometimes', 'nullable', 'numeric'],
+            'items.*.amount' => ['sometimes', 'nullable', 'numeric'],
+            'items.*.total' => ['sometimes', 'nullable', 'numeric'],
+            'items.*.consumption' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'items.*.rate' => ['sometimes', 'nullable', 'numeric'],
+            'items.*.is_adjustment' => ['sometimes', 'boolean'],
+            'items.*.meter_reading_snapshot' => ['sometimes', 'nullable', 'array'],
             'notes' => ['sometimes', 'nullable', 'string'],
         ];
     }
@@ -64,6 +75,14 @@ class SaveInvoiceDraftRequest extends FormRequest
             'payment_reference.max' => ['max.string', 'payment_reference', ['max' => 255]],
             'items.array' => ['array', 'items'],
             'items.*.description.max' => ['max.string', 'items', ['max' => InvoiceLineItemDescription::MAX_LENGTH]],
+            'items.*.quantity.numeric' => ['numeric', 'items'],
+            'items.*.quantity.min' => ['min.numeric', 'items', ['min' => 0]],
+            'items.*.unit_price.numeric' => ['numeric', 'items'],
+            'items.*.amount.numeric' => ['numeric', 'items'],
+            'items.*.total.numeric' => ['numeric', 'items'],
+            'items.*.consumption.numeric' => ['numeric', 'items'],
+            'items.*.consumption.min' => ['min.numeric', 'items', ['min' => 0]],
+            'items.*.rate.numeric' => ['numeric', 'items'],
         ]);
     }
 
