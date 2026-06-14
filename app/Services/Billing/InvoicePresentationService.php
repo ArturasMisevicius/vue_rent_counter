@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Billing\InvoiceCalculationRows;
 use App\Filament\Support\Billing\InvoiceContentLocalizer;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
@@ -16,6 +17,7 @@ final class InvoicePresentationService
     public function __construct(
         private readonly UniversalBillingCalculator $calculator,
         private readonly InvoiceContentLocalizer $contentLocalizer,
+        private readonly InvoiceCalculationRows $calculationRows,
     ) {}
 
     /**
@@ -65,7 +67,7 @@ final class InvoicePresentationService
             'property:id,organization_id,building_id,name,unit_number',
             'property.building:id,organization_id,name',
             'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
-            'invoiceItems:id,invoice_id,description,quantity,unit,unit_price,total,meter_reading_snapshot',
+            'invoiceItems:id,invoice_id,source_type,source_id,title,description,description_for_tenant,quantity,unit,unit_price,subtotal,tax_amount,discount_amount,total,currency,formula_label,calculation_snapshot,tenant_visible,sort_order,meter_reading_snapshot,service_snapshot,tariff_snapshot,provider_snapshot',
         ]);
 
         $status = $invoice->effectiveStatus();
@@ -148,83 +150,47 @@ final class InvoicePresentationService
      */
     private function presentItems(Invoice $invoice, string $currency): array
     {
-        return array_values(array_map(function (mixed $item) use ($currency): array {
-            $resolvedItem = is_array($item) ? $item : [];
-            $quantity = $this->calculator->quantity($resolvedItem['quantity'] ?? 1);
+        return array_values(array_map(function (array $item) use ($currency): array {
+            $quantity = $this->calculator->quantity($item['quantity'] ?? 1);
             $unitPrice = $this->calculator->rate(
-                $resolvedItem['unit_price']
-                ?? $resolvedItem['rate']
-                ?? $resolvedItem['amount']
-                ?? $resolvedItem['total']
+                $item['unit_price']
+                ?? $item['rate']
+                ?? $item['amount']
+                ?? $item['total']
                 ?? '0',
             );
             $total = $this->calculator->money(
-                $resolvedItem['total']
-                ?? $resolvedItem['amount']
+                $item['total']
+                ?? $item['amount']
                 ?? '0',
             );
+            $itemCurrency = (string) ($item['currency'] ?? $currency);
 
             return [
                 'description' => $this->contentLocalizer->lineItemDescription(
-                    (string) ($resolvedItem['description'] ?? ''),
+                    (string) ($item['description_for_tenant'] ?? $item['description'] ?? ''),
                 ),
-                'period' => filled($resolvedItem['period'] ?? null)
-                    ? (string) $resolvedItem['period']
+                'period' => filled($item['period'] ?? null)
+                    ? (string) $item['period']
                     : '—',
                 'quantity' => $quantity,
-                'unit' => $this->contentLocalizer->unit((string) ($resolvedItem['unit'] ?? '')),
+                'unit' => $this->contentLocalizer->unit((string) ($item['unit'] ?? '')),
                 'unit_price' => $unitPrice,
-                'unit_price_display' => EuMoneyFormatter::format($unitPrice, $currency),
+                'unit_price_display' => EuMoneyFormatter::format($unitPrice, $itemCurrency),
+                'subtotal' => $this->calculator->money($item['subtotal'] ?? $total),
+                'tax_amount' => $this->calculator->money($item['tax_amount'] ?? '0'),
+                'discount_amount' => $this->calculator->money($item['discount_amount'] ?? '0'),
                 'total' => $total,
-                'total_display' => EuMoneyFormatter::format($total, $currency),
-                'is_adjustment' => (bool) ($resolvedItem['is_adjustment'] ?? false),
+                'total_display' => EuMoneyFormatter::format($total, $itemCurrency),
+                'is_adjustment' => (bool) ($item['is_adjustment'] ?? false),
+                'source_type' => (string) ($item['source_type'] ?? ''),
+                'source_label' => (string) ($item['source_label'] ?? ''),
+                'formula_label' => (string) ($item['formula_label'] ?? ''),
+                'meter_reading_snapshot' => is_array($item['meter_reading_snapshot'] ?? null)
+                    ? $item['meter_reading_snapshot']
+                    : null,
             ];
-        }, $this->canonicalItems($invoice)));
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function canonicalItems(Invoice $invoice): array
-    {
-        $snapshotItems = $this->itemRowsFrom($invoice->snapshot_data);
-
-        if ($snapshotItems !== []) {
-            return $snapshotItems;
-        }
-
-        if ($invoice->relationLoaded('invoiceItems') && $invoice->invoiceItems->isNotEmpty()) {
-            return $invoice->invoiceItems
-                ->map(fn ($item): array => [
-                    'description' => (string) $item->description,
-                    'period' => null,
-                    'quantity' => (string) $item->quantity,
-                    'unit' => $item->unit,
-                    'unit_price' => (string) $item->unit_price,
-                    'rate' => (string) $item->unit_price,
-                    'total' => (string) $item->total,
-                    'consumption' => (string) $item->quantity,
-                    'is_adjustment' => false,
-                    'meter_reading_snapshot' => $item->meter_reading_snapshot,
-                ])
-                ->all();
-        }
-
-        return $this->itemRowsFrom($invoice->items);
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function itemRowsFrom(mixed $items): array
-    {
-        if (! is_array($items)) {
-            return [];
-        }
-
-        $rows = is_array($items['items'] ?? null) ? $items['items'] : $items;
-
-        return array_values(array_filter($rows, is_array(...)));
+        }, $this->calculationRows->forInvoice($invoice, tenantVisibleOnly: true)));
     }
 
     private function statusSummary(Invoice $invoice, InvoiceStatus $status): string

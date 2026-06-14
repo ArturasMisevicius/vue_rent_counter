@@ -12,6 +12,19 @@ uses(RefreshDatabase::class);
 
 const GUEST_LOCALE_CSRF_TOKEN = 'guest-locale-test-token';
 
+function guestLocaleInvitationUrl(): string
+{
+    $token = OrganizationInvitation::issueToken();
+    $tokenHash = OrganizationInvitation::hashToken($token);
+
+    OrganizationInvitation::factory()->create([
+        'token' => $tokenHash,
+        'token_hash' => $tokenHash,
+    ]);
+
+    return route('invitation.show', $token);
+}
+
 it('renders the shared locale switcher on each guest auth page', function (Closure $urlFactory) {
     $this->get($urlFactory())
         ->assertSuccessful()
@@ -44,11 +57,7 @@ it('renders the shared locale switcher on each guest auth page', function (Closu
         },
     ],
     'invitation acceptance' => [
-        function (): string {
-            $invitation = OrganizationInvitation::factory()->create();
-
-            return route('invitation.show', $invitation->token);
-        },
+        fn (): string => guestLocaleInvitationUrl(),
     ],
 ]);
 
@@ -78,9 +87,7 @@ it('redirects back to the same reset password page after changing the locale', f
 });
 
 it('redirects back to the same invitation page after changing the locale', function () {
-    $invitation = OrganizationInvitation::factory()->create();
-
-    $invitationUrl = route('invitation.show', $invitation->token);
+    $invitationUrl = guestLocaleInvitationUrl();
 
     $this->from($invitationUrl)
         ->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
@@ -129,11 +136,9 @@ it('applies the guest locale to the reset password page', function () {
 });
 
 it('applies the guest locale to the invitation page', function () {
-    $invitation = OrganizationInvitation::factory()->create();
-
     $this->withSession([
         'guest_locale' => 'ru',
-    ])->get(route('invitation.show', $invitation->token))
+    ])->get(guestLocaleInvitationUrl())
         ->assertSuccessful()
         ->assertSeeText(__('auth.invitation_title', [], 'ru'));
 });

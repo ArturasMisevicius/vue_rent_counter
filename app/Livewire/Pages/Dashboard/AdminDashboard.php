@@ -98,6 +98,12 @@ final class AdminDashboard extends Component
             'subscription_usage' => [],
             'recent_invoices' => [],
             'upcoming_reading_deadlines' => [],
+            'rental_contracts' => [
+                'tenants_without_contract' => 0,
+                'contracts_expiring_soon' => 0,
+                'expired_contracts' => 0,
+                'active_contracts' => 0,
+            ],
         ];
     }
 

@@ -10,6 +10,7 @@ use App\Filament\Resources\Properties\Pages\ViewProperty;
 use App\Filament\Resources\Properties\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\ReadingsRelationManager;
+use App\Filament\Resources\Properties\RelationManagers\RentalHistoryRelationManager;
 use App\Filament\Resources\Properties\Schemas\PropertyForm;
 use App\Filament\Resources\Properties\Schemas\PropertyInfolist;
 use App\Filament\Resources\Properties\Tables\PropertiesTable;
@@ -150,6 +151,7 @@ class PropertyResource extends Resource
             MetersRelationManager::class,
             ReadingsRelationManager::class,
             InvoicesRelationManager::class,
+            RentalHistoryRelationManager::class,
         ];
     }
 

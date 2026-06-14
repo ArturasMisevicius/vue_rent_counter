@@ -59,7 +59,40 @@
                 <tbody class="divide-y divide-slate-100 bg-white">
                     @forelse ($lineItems as $item)
                         <tr>
-                            <td class="px-4 py-4 text-slate-700">{{ $item['description'] ?? __('dashboard.not_available') }}</td>
+                            <td class="px-4 py-4 text-slate-700">
+                                <p>{{ $item['description'] ?? __('dashboard.not_available') }}</p>
+
+                                @if (filled($item['source_label'] ?? null) || filled($item['formula_label'] ?? null))
+                                    <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                                        @if (filled($item['source_label'] ?? null))
+                                            <span>{{ __('tenant.pages.invoices.source') }}: {{ $item['source_label'] }}</span>
+                                        @endif
+
+                                        @if (filled($item['formula_label'] ?? null))
+                                            <span>{{ __('tenant.pages.invoices.formula') }}: {{ $item['formula_label'] }}</span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if (! empty($item['meter_reading_snapshot']))
+                                    <div class="mt-2 grid gap-1 text-xs text-slate-500 sm:grid-cols-2">
+                                        <p>
+                                            {{ __('tenant.pages.invoices.previous_reading') }}:
+                                            {{ data_get($item, 'meter_reading_snapshot.start.value', '—') }}
+                                            @if (filled(data_get($item, 'meter_reading_snapshot.start.date')))
+                                                · {{ data_get($item, 'meter_reading_snapshot.start.date') }}
+                                            @endif
+                                        </p>
+                                        <p>
+                                            {{ __('tenant.pages.invoices.current_reading') }}:
+                                            {{ data_get($item, 'meter_reading_snapshot.end.value', '—') }}
+                                            @if (filled(data_get($item, 'meter_reading_snapshot.end.date')))
+                                                · {{ data_get($item, 'meter_reading_snapshot.end.date') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-4 py-4 text-slate-600">{{ $item['quantity'] ?? '—' }}{{ filled($item['unit'] ?? null) ? ' '.$item['unit'] : '' }}</td>
                             <td class="px-4 py-4 text-slate-600">{{ $item['unit_price_display'] ?? '—' }}</td>
                             <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ $item['total_display'] ?? '—' }}</td>

@@ -34,6 +34,24 @@ beforeEach(function (): void {
     registerInvitationLocaleDestinationFixtures();
 });
 
+/**
+ * @param  array<string, mixed>  $attributes
+ * @return array{invitation: OrganizationInvitation, token: string}
+ */
+function localePersistenceInvitation(array $attributes = []): array
+{
+    $token = OrganizationInvitation::issueToken();
+    $tokenHash = OrganizationInvitation::hashToken($token);
+
+    $invitation = OrganizationInvitation::factory()->create([
+        ...$attributes,
+        'token' => $tokenHash,
+        'token_hash' => $tokenHash,
+    ]);
+
+    return compact('invitation', 'token');
+}
+
 it('stores the active guest locale when accepting a new invitation', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
@@ -41,7 +59,7 @@ it('stores the active guest locale when accepting a new invitation', function ()
         'locale' => 'ru',
     ]);
 
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = localePersistenceInvitation([
         'organization_id' => $organization->id,
         'inviter_user_id' => $admin->id,
         'email' => 'manager@example.com',
@@ -49,13 +67,13 @@ it('stores the active guest locale when accepting a new invitation', function ()
         'full_name' => 'Marta Manager',
     ]);
 
-    $this->from(route('invitation.show', $invitation->token))
+    $this->from(route('invitation.show', $token))
         ->post(route('locale.update'), [
             'locale' => 'ru',
         ])
-        ->assertRedirect(route('invitation.show', $invitation->token));
+        ->assertRedirect(route('invitation.show', $token));
 
-    $this->post(route('invitation.store', $invitation->token), [
+    $this->post(route('invitation.store', $token), [
         'name' => 'Marta Manager',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
@@ -81,7 +99,7 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
         'status' => UserStatus::INACTIVE,
     ]);
 
-    $invitation = OrganizationInvitation::factory()->create([
+    ['token' => $token] = localePersistenceInvitation([
         'organization_id' => $organization->id,
         'inviter_user_id' => $admin->id,
         'email' => $tenant->email,
@@ -89,13 +107,13 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
         'role' => UserRole::TENANT,
     ]);
 
-    $this->from(route('invitation.show', $invitation->token))
+    $this->from(route('invitation.show', $token))
         ->post(route('locale.update'), [
             'locale' => 'ru',
         ])
-        ->assertRedirect(route('invitation.show', $invitation->token));
+        ->assertRedirect(route('invitation.show', $token));
 
-    $this->post(route('invitation.store', $invitation->token), [
+    $this->post(route('invitation.store', $token), [
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',

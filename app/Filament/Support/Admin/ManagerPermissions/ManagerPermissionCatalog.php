@@ -19,9 +19,11 @@ class ManagerPermissionCatalog
             'buildings',
             'properties',
             'tenants',
+            'rental_contracts',
             'meters',
             'meter_readings',
             'billing',
+            'extra_charges',
             'invoices',
             'tariffs',
             'providers',
@@ -114,9 +116,11 @@ class ManagerPermissionCatalog
             'buildings' => __('admin.buildings.plural'),
             'properties' => __('admin.properties.plural'),
             'tenants' => __('admin.tenants.plural'),
+            'rental_contracts' => __('admin.rental_contracts.plural'),
             'meters' => __('admin.meters.plural'),
             'meter_readings' => __('admin.meter_readings.plural'),
             'billing' => __('admin.manager_permissions.resources.billing'),
+            'extra_charges' => __('admin.extra_charges.plural'),
             'invoices' => __('admin.invoices.plural'),
             'tariffs' => __('admin.tariffs.plural'),
             'providers' => __('admin.providers.plural'),
@@ -188,6 +192,7 @@ class ManagerPermissionCatalog
 
         $billingResources = [
             'billing',
+            'extra_charges',
             'invoices',
             'tariffs',
             'providers',
@@ -199,6 +204,7 @@ class ManagerPermissionCatalog
             'buildings',
             'properties',
             'tenants',
+            'rental_contracts',
             'meters',
             'meter_readings',
         ];
@@ -235,7 +241,7 @@ class ManagerPermissionCatalog
             ->all();
 
         if ($organization->status === OrganizationStatus::PENDING || self::hasRestrictedTrialPlan($organization)) {
-            foreach (['billing', 'invoices', 'tariffs', 'providers', 'service_configurations', 'utility_services'] as $resource) {
+            foreach (['billing', 'extra_charges', 'invoices', 'tariffs', 'providers', 'service_configurations', 'utility_services'] as $resource) {
                 $availability[$resource] = [
                     'available' => false,
                     'reason' => __('admin.manager_permissions.plan_restricted', [

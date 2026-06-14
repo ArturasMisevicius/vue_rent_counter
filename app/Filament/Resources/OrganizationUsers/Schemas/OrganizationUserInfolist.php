@@ -8,7 +8,6 @@ use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -20,10 +19,20 @@ class OrganizationUserInfolist
         return $schema
             ->components([
                 TextEntry::make('organization.name')->label(__('superadmin.organizations.singular')),
-                TextEntry::make('user.name')->label(__('superadmin.relation_resources.organization_users.fields.user')),
+                TextEntry::make('user.name')->label(__('admin.organization_users.fields.name')),
+                TextEntry::make('user.email')->label(__('admin.organization_users.fields.email')),
                 TextEntry::make('role')
-                    ->label(__('superadmin.relation_resources.organization_users.fields.role'))
+                    ->label(__('admin.organization_users.fields.role'))
                     ->state(fn (OrganizationUser $record): string => $record->roleLabel()),
+                TextEntry::make('status')
+                    ->label(__('admin.organization_users.fields.status'))
+                    ->state(fn (OrganizationUser $record): string => $record->statusLabel())
+                    ->badge(),
+                TextEntry::make('permissions_preset')
+                    ->label(__('admin.organization_users.fields.permissions_preset'))
+                    ->state(fn (OrganizationUser $record): string => ManagerPermissionCatalog::presets()[(string) ($record->permissions_preset ?: 'read_only')]['name']
+                        ?? __('admin.manager_permissions.presets.custom'))
+                    ->badge(),
                 Section::make(__('admin.manager_permissions.section'))
                     ->description(__('admin.manager_permissions.description'))
                     ->schema([
@@ -41,18 +50,23 @@ class OrganizationUserInfolist
                     ->placeholder('-')
                     ->columnSpanFull()
                     ->visible(fn (OrganizationUser $record): bool => $record->role !== UserRole::MANAGER->value),
-                TextEntry::make('joined_at')
-                    ->label(__('superadmin.relation_resources.organization_users.fields.joined_at'))
+                TextEntry::make('invited_at')
+                    ->label(__('admin.organization_users.fields.invited_at'))
                     ->dateTime(),
-                TextEntry::make('left_at')
-                    ->label(__('superadmin.relation_resources.organization_users.fields.left_at'))
+                TextEntry::make('accepted_at')
+                    ->label(__('admin.organization_users.fields.accepted_at'))
                     ->dateTime()
                     ->placeholder('-'),
-                IconEntry::make('is_active')
-                    ->label(__('superadmin.relation_resources.organization_users.fields.is_active'))
-                    ->boolean(),
-                TextEntry::make('inviter.name')
-                    ->label(__('superadmin.relation_resources.organization_users.fields.inviter'))
+                TextEntry::make('disabled_at')
+                    ->label(__('admin.organization_users.fields.disabled_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('user.last_login_at')
+                    ->label(__('admin.organization_users.fields.last_login_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('invitedBy.name')
+                    ->label(__('admin.organization_users.fields.invited_by'))
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->label(__('superadmin.relation_resources.shared.fields.created_at'))

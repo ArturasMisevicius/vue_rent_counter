@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources\OrganizationUsers\Pages;
 
+use App\Enums\UserRole;
 use App\Filament\Actions\Admin\OrganizationUsers\CreateOrganizationManagerAction;
 use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Section;
@@ -29,7 +32,7 @@ class CreateOrganizationUser extends CreateRecord
             return parent::getTitle();
         }
 
-        return __('superadmin.organizations.relations.managers.actions.create');
+        return __('admin.organization_users.actions.invite_manager');
     }
 
     public function getBreadcrumb(): string
@@ -38,7 +41,7 @@ class CreateOrganizationUser extends CreateRecord
             return parent::getBreadcrumb();
         }
 
-        return __('superadmin.organizations.relations.managers.actions.create');
+        return __('admin.organization_users.actions.invite_manager');
     }
 
     public function form(Schema $schema): Schema
@@ -50,7 +53,7 @@ class CreateOrganizationUser extends CreateRecord
         return $schema
             ->components([
                 Section::make(__('superadmin.users.sections.details'))
-                    ->description(__('superadmin.organizations.relations.managers.messages.invitation_onboarding_hint'))
+                    ->description(__('admin.organization_users.messages.invitation_onboarding_hint'))
                     ->schema([
                         TextInput::make('name')
                             ->label(__('superadmin.users.fields.name'))
@@ -60,8 +63,26 @@ class CreateOrganizationUser extends CreateRecord
                             ->label(__('superadmin.users.fields.email'))
                             ->email()
                             ->required()
-                            ->maxLength(255)
-                            ->unique(table: User::class, column: 'email'),
+                            ->maxLength(255),
+                        Select::make('role')
+                            ->label(__('admin.organization_users.fields.role'))
+                            ->options([
+                                UserRole::MANAGER->value => UserRole::MANAGER->label(),
+                            ])
+                            ->default(UserRole::MANAGER->value)
+                            ->required()
+                            ->disabled()
+                            ->dehydrated(),
+                        Select::make('permissions_preset')
+                            ->label(__('admin.organization_users.fields.permissions_preset'))
+                            ->options(fn (): array => collect(ManagerPermissionCatalog::presets())
+                                ->mapWithKeys(fn (array $preset, string $key): array => [$key => $preset['name']])
+                                ->all())
+                            ->default('read_only')
+                            ->required(),
+                        Toggle::make('send_invitation_email')
+                            ->label(__('admin.organization_users.fields.send_invitation_email'))
+                            ->default(true),
                         Select::make('locale')
                             ->label(__('superadmin.users.fields.locale'))
                             ->options(config('tenanto.locales', []))
@@ -94,6 +115,8 @@ class CreateOrganizationUser extends CreateRecord
                 'name' => (string) $data['name'],
                 'email' => (string) $data['email'],
                 'locale' => (string) $data['locale'],
+                'permissions_preset' => (string) ($data['permissions_preset'] ?? 'read_only'),
+                'send_invitation_email' => (bool) ($data['send_invitation_email'] ?? true),
             ],
         );
     }
@@ -106,8 +129,8 @@ class CreateOrganizationUser extends CreateRecord
 
         return Notification::make()
             ->success()
-            ->title(__('superadmin.organizations.relations.managers.messages.manager_invited'))
-            ->body(__('superadmin.organizations.relations.managers.messages.invitation_sent', [
+            ->title(__('admin.organization_users.notifications.manager_invited'))
+            ->body(__('admin.organization_users.notifications.invitation_sent', [
                 'email' => (string) $this->record?->user?->email,
             ]));
     }

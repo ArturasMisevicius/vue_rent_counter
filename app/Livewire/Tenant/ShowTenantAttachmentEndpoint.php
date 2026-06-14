@@ -6,6 +6,7 @@ namespace App\Livewire\Tenant;
 
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Attachment;
+use App\Models\ExtraCharge;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,13 +20,8 @@ final class ShowTenantAttachmentEndpoint extends Component
         $user = $request->user();
 
         abort_unless($user instanceof User, 403);
-        abort_unless($attachment->document_type === TenantLeaseAgreement::DOCUMENT_TYPE, 404);
-        abort_unless($attachment->attachable instanceof User && $attachment->attachable->isTenant(), 404);
 
-        $tenant = $attachment->attachable;
-        $canAccess = $user->isSuperadmin()
-            || ($user->isAdminLike() && $user->organization_id === $attachment->organization_id)
-            || $tenant->id === $user->id;
+        $canAccess = $this->canAccessTenantAttachment($user, $attachment);
 
         abort_unless($canAccess, 403);
 
@@ -37,5 +33,33 @@ final class ShowTenantAttachmentEndpoint extends Component
             'Content-Type' => (string) $attachment->mime_type,
             'Content-Disposition' => 'inline; filename="'.($attachment->original_filename ?: $attachment->filename).'"',
         ]);
+    }
+
+    private function canAccessTenantAttachment(User $user, Attachment $attachment): bool
+    {
+        $attachable = $attachment->attachable;
+
+        if ($attachment->document_type === TenantLeaseAgreement::DOCUMENT_TYPE) {
+            if (! $attachable instanceof User || ! $attachable->isTenant()) {
+                abort(404);
+            }
+
+            return $user->isSuperadmin()
+                || ($user->isAdminLike() && $user->organization_id === $attachment->organization_id)
+                || $attachable->id === $user->id;
+        }
+
+        if (! $attachable instanceof ExtraCharge) {
+            abort(404);
+        }
+
+        if ($user->isSuperadmin() || ($user->isAdminLike() && $user->organization_id === $attachment->organization_id)) {
+            return true;
+        }
+
+        return $user->isTenant()
+            && $attachment->tenant_visible
+            && $attachable->tenant_id === $user->id
+            && $attachable->organization_id === $user->organization_id;
     }
 }

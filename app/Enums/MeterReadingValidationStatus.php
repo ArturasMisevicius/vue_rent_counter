@@ -13,6 +13,7 @@ enum MeterReadingValidationStatus: string implements HasLabel
     case VALID = 'valid';
     case FLAGGED = 'flagged';
     case REJECTED = 'rejected';
+    case VOID = 'void';
 
     /**
      * @return array<int, string>

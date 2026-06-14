@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Resources\OrganizationUsers\Pages\CreateOrganizationUser;
@@ -172,9 +173,9 @@ it('lets admins create manager accounts for their current organization', functio
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.organization-users.create'))
         ->assertSuccessful()
-        ->assertSeeText(__('superadmin.organizations.relations.managers.actions.create'))
+        ->assertSeeText(__('admin.organization_users.actions.invite_manager'))
         ->assertSeeText(__('superadmin.users.fields.name'))
-        ->assertSeeText(__('superadmin.organizations.relations.managers.messages.invitation_onboarding_hint'))
+        ->assertSeeText(__('admin.organization_users.messages.invitation_onboarding_hint'))
         ->assertDontSeeText(__('superadmin.users.fields.status'))
         ->assertDontSeeText(__('superadmin.users.fields.password'))
         ->assertDontSeeText(__('shell.profile.fields.password_confirmation'))
@@ -211,8 +212,10 @@ it('lets admins create manager accounts for their current organization', functio
         ->and($manager->status)->toBe(UserStatus::INACTIVE)
         ->and($manager->locale)->toBe('ru')
         ->and($membership->role)->toBe(UserRole::MANAGER->value)
-        ->and($membership->is_active)->toBeTrue()
+        ->and($membership->status)->toBe(ManagerMembershipStatus::INVITED)
+        ->and($membership->is_active)->toBeFalse()
         ->and($membership->invited_by)->toBe($admin->id)
+        ->and($membership->invited_by_user_id)->toBe($admin->id)
         ->and($invitation->role)->toBe(UserRole::MANAGER)
         ->and($invitation->full_name)->toBe('Operations Manager');
 

@@ -17,6 +17,27 @@ return [
         'logged_out' => 'Logged out',
         'sent' => 'Sent',
     ],
+    'assignment_scope' => [
+        'property' => 'Property',
+        'building' => 'Building',
+        'organization' => 'Organization',
+        'tenant' => 'Tenant',
+    ],
+    'billing_frequency' => [
+        'monthly' => 'Monthly',
+        'quarterly' => 'Quarterly',
+        'yearly' => 'Yearly',
+        'one_time' => 'One time',
+    ],
+    'billing_method' => [
+        'meter_based' => 'Meter based',
+        'fixed_monthly' => 'Fixed monthly',
+        'one_time' => 'One time',
+        'manual' => 'Manual',
+        'percentage' => 'Percentage',
+        'formula_based' => 'Formula based',
+        'included_free' => 'Included/free',
+    ],
     'distribution_method' => [
         'equal' => 'Equal',
         'area' => 'By area',
@@ -51,6 +72,18 @@ return [
         'active' => 'Active',
         'inactive' => 'Inactive',
     ],
+    'invitation_status' => [
+        'pending' => 'Pending',
+        'accepted' => 'Accepted',
+        'expired' => 'Expired',
+        'revoked' => 'Revoked',
+    ],
+    'manager_membership_status' => [
+        'invited' => 'Invited',
+        'active' => 'Active',
+        'disabled' => 'Disabled',
+        'expired' => 'Expired',
+    ],
     'meter_reading_submission_method' => [
         'admin_manual' => 'Admin manual',
         'tenant_portal' => 'Tenant portal',
@@ -65,6 +98,7 @@ return [
         'valid' => 'Valid',
         'flagged' => 'Flagged',
         'rejected' => 'Rejected',
+        'void' => 'Void',
     ],
     'meter_status' => [
         'active' => 'Active',
@@ -196,6 +230,13 @@ return [
         'maintenance' => 'Maintenance',
         'waste' => 'Waste',
     ],
+    'service_configuration_status' => [
+        'draft' => 'Draft',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'archived' => 'Archived',
+        'configuration_error' => 'Configuration error',
+    ],
     'subscription_access_mode' => [
         'active' => 'Active',
         'limit_blocked' => 'Limit blocked',
@@ -219,9 +260,32 @@ return [
         'custom' => 'Custom',
     ],
     'tenant_status' => [
+        'draft' => 'Draft',
         'active' => 'Active',
         'inactive' => 'Inactive',
-        'suspended' => 'Suspended',
+        'moved_out' => 'Moved out',
+        'archived' => 'Archived',
+    ],
+    'portal_access_status' => [
+        'not_invited' => 'Not invited',
+        'invited' => 'Invited',
+        'invitation_expired' => 'Invitation expired',
+        'active' => 'Active',
+        'disabled' => 'Disabled',
+    ],
+    'invitation_status' => [
+        'pending' => 'Pending',
+        'accepted' => 'Accepted',
+        'expired' => 'Expired',
+        'revoked' => 'Revoked',
+    ],
+    'rental_contract_status' => [
+        'draft' => 'Draft',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'terminated' => 'Terminated',
+        'renewed' => 'Renewed',
+        'cancelled' => 'Cancelled',
     ],
     'unit_of_measurement' => [
         'm3' => 'm3',

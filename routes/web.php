@@ -19,6 +19,7 @@ use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
 use App\Livewire\Tenant\DownloadInvoiceEndpoint;
+use App\Livewire\Tenant\DownloadRentalContractEndpoint;
 use App\Livewire\Tenant\ShowTenantAttachmentEndpoint;
 use App\Livewire\Tenant\TenantPortalRouteEndpoint;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -100,6 +101,9 @@ Route::middleware('auth')
         Route::get('/attachments/{attachment}', [ShowTenantAttachmentEndpoint::class, 'show'])
             ->name('attachments.show');
 
+        Route::get('/rental-contracts/{rentalContract}/attachments/{attachment}/download', [DownloadRentalContractEndpoint::class, 'download'])
+            ->name('rental-contracts.download');
+
         Route::middleware('tenant.only')->group(function (): void {
             Route::get('/', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'home')
@@ -110,6 +114,9 @@ Route::middleware('auth')
             Route::get('/invoices', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'invoices.index')
                 ->name('invoices.index');
+            Route::get('/documents', [TenantPortalRouteEndpoint::class, 'show'])
+                ->defaults('destination', 'documents.index')
+                ->name('documents.index');
             Route::get('/property', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'property.show')
                 ->name('property.show');

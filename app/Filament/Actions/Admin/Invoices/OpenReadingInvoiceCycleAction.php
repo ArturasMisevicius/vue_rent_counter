@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions\Admin\Invoices;
 
+use App\Filament\Actions\Admin\BillingPeriods\ResolveBillingPeriodForInvoiceCycleAction;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Invoices\OpenReadingInvoiceCycleRequest;
+use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\PropertyAssignment;
@@ -21,11 +23,13 @@ class OpenReadingInvoiceCycleAction
     public function __construct(
         private readonly InvoiceService $invoiceService,
         private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
+        private readonly ResolveBillingPeriodForInvoiceCycleAction $resolveBillingPeriodForInvoiceCycle,
     ) {}
 
     /**
-     * @param  array{billing_period_start: string, billing_period_end: string, due_date: string}  $attributes
+     * @param  array{billing_period_start: string, billing_period_end: string, due_date: string, payment_due_date?: string|null}  $attributes
      * @return array{
+     *     billing_period: BillingPeriod,
      *     created: Collection<int, Invoice>,
      *     skipped: array<int, array{
      *         assignment_id: int,
@@ -48,6 +52,16 @@ class OpenReadingInvoiceCycleAction
         $periodStart = CarbonImmutable::parse((string) $validated['billing_period_start'])->startOfDay();
         $periodEnd = CarbonImmutable::parse((string) $validated['billing_period_end'])->endOfDay();
         $dueDate = CarbonImmutable::parse((string) $validated['due_date'])->toDateString();
+        $paymentDueDate = filled($validated['payment_due_date'] ?? null)
+            ? CarbonImmutable::parse((string) $validated['payment_due_date'])->toDateString()
+            : null;
+        $billingPeriod = $this->resolveBillingPeriodForInvoiceCycle->handle(
+            $organization,
+            $periodStart,
+            $periodEnd,
+            $dueDate,
+            paymentDueDate: $paymentDueDate,
+        );
         $created = collect();
         $skipped = [];
         $notified = 0;
@@ -82,6 +96,7 @@ class OpenReadingInvoiceCycleAction
                 $periodStart,
                 $periodEnd,
                 $dueDate,
+                $billingPeriod,
                 $actor,
                 $created,
                 &$skipped,
@@ -111,6 +126,7 @@ class OpenReadingInvoiceCycleAction
                         $periodEnd,
                         $dueDate,
                         $actor,
+                        $billingPeriod,
                     );
 
                     $assignment->tenant->notify(new InvoiceReadingRequestNotification($invoice));
@@ -121,6 +137,7 @@ class OpenReadingInvoiceCycleAction
             });
 
         return [
+            'billing_period' => $billingPeriod,
             'created' => $created,
             'skipped' => $skipped,
             'notified' => $notified,

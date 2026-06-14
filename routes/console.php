@@ -2,6 +2,8 @@
 
 use App\Console\Commands\OpenReadingInvoiceCycleCommand;
 use App\Enums\ProjectStatus;
+use App\Filament\Actions\Admin\RentalContracts\ExpireRentalContractsAction;
+use App\Filament\Actions\Admin\RentalContracts\SendContractExpiryReminderAction;
 use App\Models\Project;
 use App\Models\SecurityViolation;
 use App\Models\User;
@@ -225,6 +227,21 @@ Artisan::command('projects:alert-unapproved', function (): int {
     return self::SUCCESS;
 })->purpose('Send project approval reminders and superadmin escalations');
 
+Artisan::command('rental-contracts:maintain', function (
+    ExpireRentalContractsAction $expireRentalContracts,
+    SendContractExpiryReminderAction $sendContractExpiryReminder,
+): int {
+    $expired = $expireRentalContracts->handle();
+    $reminders = $sendContractExpiryReminder->handle();
+
+    $this->components->info(__('admin.rental_contracts.commands.maintain_complete', [
+        'expired' => $expired,
+        'reminders' => $reminders,
+    ]));
+
+    return self::SUCCESS;
+})->purpose('Expire rental contracts and send rental contract expiry reminders');
+
 Schedule::command('model:prune', ['--model' => [SecurityViolation::class]])
     ->daily();
 
@@ -246,4 +263,8 @@ Schedule::command('projects:alert-unapproved')
 
 Schedule::command(OpenReadingInvoiceCycleCommand::class)
     ->monthlyOn(1, '08:00')
+    ->withoutOverlapping();
+
+Schedule::command('rental-contracts:maintain')
+    ->dailyAt('07:30')
     ->withoutOverlapping();

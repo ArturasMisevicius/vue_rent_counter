@@ -2,8 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Enums\AssignmentScope;
+use App\Enums\BillingFrequency;
+use App\Enums\BillingMethod;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
+use App\Enums\ServiceConfigurationStatus;
 use App\Enums\ServiceType;
 use App\Models\Building;
 use App\Models\Organization;
@@ -49,6 +53,38 @@ class ServiceConfigurationFactory extends Factory
                 'service_type_bridge' => $serviceType,
                 'default_pricing_model' => $pricingModel,
             ])->getKey(),
+            'service_name' => $serviceType->getLabel(),
+            'service_type' => $serviceType,
+            'billing_method' => BillingMethod::METER_BASED,
+            'unit' => $serviceType->defaultUnit()->value,
+            'currency' => 'EUR',
+            'fixed_amount' => null,
+            'billing_frequency' => BillingFrequency::MONTHLY,
+            'assignment_scope' => AssignmentScope::PROPERTY,
+            'tenant_visible' => true,
+            'tenant_visible_name' => $serviceType->getLabel(),
+            'tenant_visible_description' => fake()->sentence(),
+            'show_formula_to_tenant' => false,
+            'show_provider_to_tenant' => true,
+            'show_readings_to_tenant' => true,
+            'internal_note' => null,
+            'status' => ServiceConfigurationStatus::ACTIVE,
+            'starts_at' => now()->startOfMonth(),
+            'ends_at' => null,
+            'meter_rules' => [
+                'require_readings' => true,
+                'allow_estimates' => false,
+                'minimum_readings' => 2,
+            ],
+            'assignment_rules' => [
+                'prevent_duplicate_invoice_items' => true,
+            ],
+            'validation_result' => [
+                'status' => ServiceConfigurationStatus::ACTIVE->value,
+                'blocking_errors' => [],
+                'warnings' => [],
+                'recommendations' => [],
+            ],
             'pricing_model' => $pricingModel,
             'rate_schedule' => [
                 'unit_rate' => fake()->randomFloat(4, 0.05, 2.00),
@@ -76,5 +112,21 @@ class ServiceConfigurationFactory extends Factory
             'invoice_description' => null,
             'is_active' => true,
         ];
+    }
+
+    public function fixedMonthly(string|int|float $amount = '25.00'): static
+    {
+        return $this->state([
+            'billing_method' => BillingMethod::FIXED_MONTHLY,
+            'pricing_model' => PricingModel::FIXED_MONTHLY,
+            'rate_schedule' => [
+                'unit_rate' => $amount,
+                'base_fee' => 0,
+            ],
+            'fixed_amount' => $amount,
+            'billing_frequency' => BillingFrequency::MONTHLY,
+            'meter_rules' => null,
+            'distribution_method' => DistributionMethod::EQUAL,
+        ]);
     }
 }

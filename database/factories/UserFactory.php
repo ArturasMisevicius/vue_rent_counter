@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Enums\TenantStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Organization;
@@ -33,6 +36,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'role' => UserRole::ADMIN,
             'status' => UserStatus::ACTIVE,
+            'tenant_status' => null,
+            'portal_access_enabled' => false,
             'locale' => 'en',
             'organization_id' => null,
             'last_login_at' => null,
@@ -79,6 +84,8 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::TENANT,
+            'tenant_status' => TenantStatus::ACTIVE,
+            'portal_access_enabled' => true,
             'organization_id' => $attributes['organization_id'] ?? Organization::factory(),
         ]);
     }

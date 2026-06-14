@@ -17,6 +17,7 @@ final class TenantPortalRouteEndpoint extends Component
         'home' => 'filament.admin.pages.dashboard',
         'readings.create' => 'filament.admin.pages.tenant-submit-meter-reading',
         'invoices.index' => 'filament.admin.pages.tenant-invoice-history',
+        'documents.index' => 'filament.admin.pages.tenant-documents',
         'property.show' => 'filament.admin.pages.tenant-property-details',
         'profile.edit' => 'filament.admin.pages.profile',
     ];

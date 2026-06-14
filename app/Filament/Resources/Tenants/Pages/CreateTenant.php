@@ -124,11 +124,17 @@ class CreateTenant extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
+        $invitation = $this->record instanceof User
+            ? $this->record->latestTenantInvitationRecord()
+            : null;
+
         return Notification::make()
             ->success()
             ->title(__('admin.tenants.messages.tenant_created'))
-            ->body(__('admin.tenants.messages.invitation_sent', [
-                'email' => (string) $this->record?->email,
-            ]));
+            ->body($invitation === null
+                ? __('admin.tenants.messages.invitation_not_sent')
+                : __('admin.tenants.messages.invitation_sent', [
+                    'email' => (string) $this->record?->email,
+                ]));
     }
 }

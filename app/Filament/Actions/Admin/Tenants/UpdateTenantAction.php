@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Actions\Admin\Tenants;
 
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
@@ -48,7 +50,11 @@ class UpdateTenantAction
             OrganizationInvitation::query()
                 ->forOrganization($tenant->organization_id)
                 ->pending()
-                ->where('email', $originalEmail)
+                ->where(function ($query) use ($originalEmail, $tenant): void {
+                    $query
+                        ->where('tenant_id', $tenant->id)
+                        ->orWhere('email', $originalEmail);
+                })
                 ->update([
                     'email' => $validated['email'],
                     'full_name' => $validated['name'],

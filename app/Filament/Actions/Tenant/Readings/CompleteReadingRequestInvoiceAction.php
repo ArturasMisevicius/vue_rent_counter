@@ -147,7 +147,8 @@ final class CompleteReadingRequestInvoiceAction
             ->forProperty($propertyId)
             ->forTenant($tenantId)
             ->where('status', InvoiceStatus::DRAFT->value)
-            ->where('automation_level', 'reading_request');
+            ->where('automation_level', 'reading_request')
+            ->where('approval_status', 'pending');
     }
 
     /**

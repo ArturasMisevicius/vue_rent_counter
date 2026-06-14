@@ -41,8 +41,20 @@ it('creates a meter reading record from the tenant submission flow with valid da
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'finalized_at' => null,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+        ]);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '245.125')
@@ -66,8 +78,20 @@ it('fails tenant submission validation when the reading value is lower than the 
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'finalized_at' => null,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+        ]);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '120.000')
@@ -84,8 +108,20 @@ it('fails tenant submission validation when the reading date is in the future', 
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'finalized_at' => null,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+        ]);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '245.125')

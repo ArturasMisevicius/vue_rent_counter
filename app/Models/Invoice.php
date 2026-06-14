@@ -21,6 +21,7 @@ class Invoice extends Model
     private const ADMIN_WORKSPACE_COLUMNS = [
         'id',
         'organization_id',
+        'billing_period_id',
         'property_id',
         'tenant_user_id',
         'invoice_number',
@@ -56,6 +57,7 @@ class Invoice extends Model
     private const TENANT_WORKSPACE_COLUMNS = [
         'id',
         'organization_id',
+        'billing_period_id',
         'property_id',
         'tenant_user_id',
         'invoice_number',
@@ -76,6 +78,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'organization_id',
+        'billing_period_id',
         'property_id',
         'tenant_user_id',
         'invoice_number',
@@ -448,6 +451,11 @@ class Invoice extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function billingPeriod(): BelongsTo
+    {
+        return $this->belongsTo(BillingPeriod::class);
     }
 
     public function property(): BelongsTo

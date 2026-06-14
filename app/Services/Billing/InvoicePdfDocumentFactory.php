@@ -29,7 +29,7 @@ final class InvoicePdfDocumentFactory
             'property:id,organization_id,building_id,name,unit_number',
             'property.building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
             'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
-            'invoiceItems:id,invoice_id,description,quantity,unit,unit_price,total,meter_reading_snapshot',
+            'invoiceItems:id,invoice_id,source_type,source_id,title,description,description_for_tenant,quantity,unit,unit_price,subtotal,tax_amount,discount_amount,total,currency,formula_label,calculation_snapshot,tenant_visible,sort_order,meter_reading_snapshot,service_snapshot,tariff_snapshot,provider_snapshot',
         ]);
 
         $presentation = $this->invoicePresentationService->present($invoice);

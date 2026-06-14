@@ -44,6 +44,7 @@ return [
             'reports' => 'Reports',
             'settings' => 'Settings',
             'organization_users' => 'Organization Users',
+            'team_managers' => 'Team / Managers',
             'projects' => 'Projects',
             'tasks' => 'Tasks',
             'task_assignments' => 'Task Assignments',

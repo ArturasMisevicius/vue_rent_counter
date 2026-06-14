@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Actions\Admin\Tenants;
 
+use App\Enums\TenantStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
-use App\Filament\Actions\Auth\CreateOrganizationInvitationAction;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
 use App\Models\Organization;
-use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class CreateTenantAction
     public function __construct(
         private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
         private readonly AssignTenantToPropertyAction $assignTenantToPropertyAction,
-        private readonly CreateOrganizationInvitationAction $createOrganizationInvitationAction,
+        private readonly SendTenantInvitation $sendTenantInvitation,
     ) {}
 
     public function handle(User $actor, array $data, ?Organization $organization = null): User
@@ -46,11 +47,19 @@ class CreateTenantAction
                 'phone' => $validated['phone'],
                 'role' => UserRole::TENANT,
                 'status' => UserStatus::INACTIVE,
+                'tenant_status' => TenantStatus::DRAFT,
+                'portal_access_enabled' => false,
                 'locale' => $validated['locale'],
                 'password' => Str::random(32),
             ]);
 
-            $this->issueInvitation($actor, $organization, $tenant);
+            if ($validated['create_portal_access'] && $validated['send_invitation_now']) {
+                $this->sendTenantInvitation->handle(
+                    $actor->isSuperadmin() ? $this->resolveInviterForSuperadmin($organization) : $actor,
+                    $tenant,
+                    $validated['invitation_expiration_days'],
+                );
+            }
 
             if ($validated['property'] !== null) {
                 $this->assignTenantToPropertyAction->handle(
@@ -66,26 +75,15 @@ class CreateTenantAction
         });
     }
 
-    private function issueInvitation(User $actor, Organization $organization, User $tenant): OrganizationInvitation
-    {
-        $inviter = $actor->isSuperadmin()
-            ? $this->resolveInviterForSuperadmin($organization)
-            : $actor;
-
-        return $this->createOrganizationInvitationAction->handle($inviter, [
-            'email' => $tenant->email,
-            'role' => UserRole::TENANT,
-            'full_name' => $tenant->name,
-            'existing_user_id' => $tenant->id,
-        ]);
-    }
-
     /**
      * @return array{
      *     name: string,
      *     email: string,
      *     phone: string|null,
      *     locale: string,
+     *     create_portal_access: bool,
+     *     send_invitation_now: bool,
+     *     invitation_expiration_days: int,
      *     property_id: int|null,
      *     unit_area_sqm: float|int|null,
      *     property: Property|null

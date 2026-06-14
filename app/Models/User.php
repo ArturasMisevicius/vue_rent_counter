@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\PortalAccessStatus;
+use App\Enums\TenantStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
@@ -40,6 +44,8 @@ class User extends Authenticatable implements FilamentUser
         'avatar_updated_at',
         'role',
         'status',
+        'tenant_status',
+        'portal_access_enabled',
         'locale',
         'email_verified_at',
         'last_login_at',
@@ -62,6 +68,8 @@ class User extends Authenticatable implements FilamentUser
         'avatar_updated_at',
         'role',
         'status',
+        'tenant_status',
+        'portal_access_enabled',
         'locale',
         'email_verified_at',
         'last_login_at',
@@ -95,6 +103,8 @@ class User extends Authenticatable implements FilamentUser
         'avatar_updated_at',
         'role',
         'status',
+        'tenant_status',
+        'portal_access_enabled',
         'locale',
         'organization_id',
         'last_login_at',
@@ -130,10 +140,12 @@ class User extends Authenticatable implements FilamentUser
             'last_login_at' => 'datetime',
             'onboarding_tour_completed_at' => 'datetime',
             'is_super_admin' => 'boolean',
+            'portal_access_enabled' => 'boolean',
             'suspended_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
             'status' => UserStatus::class,
+            'tenant_status' => TenantStatus::class,
         ];
     }
 
@@ -214,7 +226,8 @@ class User extends Authenticatable implements FilamentUser
             'organizationInvitations as roster_has_unaccepted_invitation' => fn (Builder $invitationQuery): Builder => $invitationQuery
                 ->whereColumn('organization_id', 'users.organization_id')
                 ->whereColumn('role', 'users.role')
-                ->whereNull('accepted_at'),
+                ->whereNull('accepted_at')
+                ->whereNull('revoked_at'),
         ]);
     }
 
@@ -256,6 +269,24 @@ class User extends Authenticatable implements FilamentUser
                     'attachments.created_at',
                     'attachments.updated_at',
                 ]),
+                'latestTenantInvitation' => fn ($invitationQuery) => $invitationQuery->select([
+                    'organization_invitations.id',
+                    'organization_invitations.organization_id',
+                    'organization_invitations.tenant_id',
+                    'organization_invitations.inviter_user_id',
+                    'organization_invitations.invited_by_user_id',
+                    'organization_invitations.email',
+                    'organization_invitations.role',
+                    'organization_invitations.full_name',
+                    'organization_invitations.token',
+                    'organization_invitations.token_hash',
+                    'organization_invitations.sent_at',
+                    'organization_invitations.expires_at',
+                    'organization_invitations.accepted_at',
+                    'organization_invitations.revoked_at',
+                    'organization_invitations.created_at',
+                    'organization_invitations.updated_at',
+                ]),
             ])
             ->withCurrentPropertySummary()
             ->withPaidInvoiceSummary()
@@ -282,6 +313,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(OrganizationInvitation::class, 'inviter_user_id');
     }
 
+    public function sentTenantInvitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class, 'invited_by_user_id');
+    }
+
     public function organizationMemberships(): HasMany
     {
         return $this->hasMany(OrganizationUser::class);
@@ -295,6 +331,18 @@ class User extends Authenticatable implements FilamentUser
     public function organizationInvitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class, 'email', 'email');
+    }
+
+    public function tenantInvitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class, 'tenant_id');
+    }
+
+    public function latestTenantInvitation(): HasOne
+    {
+        return $this->hasOne(OrganizationInvitation::class, 'tenant_id')
+            ->where('organization_invitations.role', UserRole::TENANT)
+            ->latestOfMany('id');
     }
 
     public function invitedOrganizationMemberships(): HasMany
@@ -356,6 +404,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Invoice::class, 'tenant_user_id');
     }
 
+    public function extraCharges(): HasMany
+    {
+        return $this->hasMany(ExtraCharge::class, 'tenant_id');
+    }
+
     public function tenantInvoices(): HasMany
     {
         return $this->invoices();
@@ -364,6 +417,16 @@ class User extends Authenticatable implements FilamentUser
     public function leases(): HasMany
     {
         return $this->hasMany(Lease::class, 'tenant_user_id');
+    }
+
+    public function rentalContracts(): HasMany
+    {
+        return $this->hasMany(RentalContract::class, 'tenant_id');
+    }
+
+    public function visibleRentalContracts(): HasMany
+    {
+        return $this->rentalContracts()->visibleToTenant();
     }
 
     public function subscriptionRenewals(): HasMany
@@ -494,8 +557,15 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'admin'
-            && ($this->isAdminLike() || $this->isTenant());
+        if ($panel->getId() !== 'admin') {
+            return false;
+        }
+
+        if ($this->isAdminLike()) {
+            return true;
+        }
+
+        return $this->canAccessTenantPortal();
     }
 
     public function canBeDeletedFromSuperadmin(): bool
@@ -536,7 +606,7 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        if ($this->organization_id === $organizationId && $this->role === $role) {
+        if ($this->organization_id === $organizationId && $this->role === $role && $this->status === UserStatus::ACTIVE) {
             return true;
         }
 
@@ -594,17 +664,85 @@ class User extends Authenticatable implements FilamentUser
                 'role',
                 'full_name',
                 'token',
+                'token_hash',
+                'sent_at',
                 'expires_at',
                 'accepted_at',
+                'revoked_at',
                 'created_at',
                 'updated_at',
             ])
             ->where('organization_id', $this->organization_id)
             ->where('role', $this->role)
             ->whereNull('accepted_at')
+            ->whereNull('revoked_at')
             ->latest('expires_at')
             ->latest('id')
             ->first();
+    }
+
+    public function portalAccessStatus(): PortalAccessStatus
+    {
+        $invitation = $this->latestTenantInvitationRecord();
+
+        if ($this->portal_access_enabled && $this->status === UserStatus::ACTIVE) {
+            return PortalAccessStatus::ACTIVE;
+        }
+
+        if ($invitation?->isPending()) {
+            return PortalAccessStatus::INVITED;
+        }
+
+        if ($invitation?->isExpired() && ! $invitation->isRevoked() && ! $invitation->isAccepted()) {
+            return PortalAccessStatus::INVITATION_EXPIRED;
+        }
+
+        if ($invitation?->isAccepted() || $this->status === UserStatus::ACTIVE) {
+            return PortalAccessStatus::DISABLED;
+        }
+
+        return PortalAccessStatus::NOT_INVITED;
+    }
+
+    public function latestTenantInvitationRecord(): ?OrganizationInvitation
+    {
+        if ($this->relationLoaded('latestTenantInvitation')) {
+            return $this->latestTenantInvitation;
+        }
+
+        return $this->latestTenantInvitation()
+            ->select([
+                'organization_invitations.id',
+                'organization_invitations.organization_id',
+                'organization_invitations.tenant_id',
+                'organization_invitations.inviter_user_id',
+                'organization_invitations.invited_by_user_id',
+                'organization_invitations.email',
+                'organization_invitations.role',
+                'organization_invitations.full_name',
+                'organization_invitations.token',
+                'organization_invitations.token_hash',
+                'organization_invitations.sent_at',
+                'organization_invitations.expires_at',
+                'organization_invitations.accepted_at',
+                'organization_invitations.revoked_at',
+                'organization_invitations.created_at',
+                'organization_invitations.updated_at',
+            ])
+            ->first();
+    }
+
+    public function canAcceptTenantInvitation(): bool
+    {
+        return $this->isTenant()
+            && in_array($this->tenant_status, [TenantStatus::DRAFT, TenantStatus::ACTIVE], true);
+    }
+
+    public function canAccessTenantPortal(): bool
+    {
+        return $this->isTenant()
+            && $this->status === UserStatus::ACTIVE
+            && $this->portal_access_enabled;
     }
 
     public function superadminDeletionBlockedReason(): ?string

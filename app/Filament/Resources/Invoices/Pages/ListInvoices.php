@@ -108,6 +108,9 @@ class ListInvoices extends ListRecords
                     ->label(__('admin.invoices.fields.due_date'))
                     ->required()
                     ->default(now()->subMonthNoOverflow()->endOfMonth()->addDays(14)->toDateString()),
+                DatePicker::make('payment_due_date')
+                    ->label(__('admin.invoices.fields.payment_due_date'))
+                    ->default(now()->subMonthNoOverflow()->endOfMonth()->addDays(28)->toDateString()),
             ])
             ->action(function (array $data, OpenReadingInvoiceCycleAction $openReadingInvoiceCycleAction) use ($user): void {
                 $organization = $user->currentOrganization();

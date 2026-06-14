@@ -16,10 +16,31 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
+use Tests\Support\TenantPortalFixture;
 
 uses(RefreshDatabase::class);
 
-it('allows a tenant to submit a reading for an assigned meter', function () {
+function createTenantReadingRequestInvoice(TenantPortalFixture $tenant, array $attributes = []): Invoice
+{
+    return Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => now()->startOfMonth()->toDateString(),
+            'billing_period_end' => now()->endOfMonth()->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'finalized_at' => null,
+            'total_amount' => 0,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+            ...$attributes,
+        ]);
+}
+
+it('requires an open reading request invoice before tenant readings can be submitted', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
         ->withMeters(1)
@@ -30,27 +51,16 @@ it('allows a tenant to submit a reading for an assigned meter', function () {
 
     Livewire::actingAs($tenant->user)
         ->test(SubmitReadingPage::class)
-        ->set('meterId', (string) $meter->id)
-        ->set('readingValue', '245.125')
+        ->set("readings.{$meter->id}.value", '245.125')
         ->set('readingDate', now()->toDateString())
-        ->set('notes', 'Submitted from the tenant portal.')
         ->call('submit')
-        ->assertHasNoErrors()
-        ->assertSeeText('Reading Submitted!')
-        ->assertSeeText($meter->identifier)
-        ->assertSeeText($meter->unit)
-        ->assertSeeText('245.125');
+        ->assertHasErrors(['readings'])
+        ->assertSeeText('No open reading request');
 
-    $reading = MeterReading::query()
+    expect(MeterReading::query()
         ->where('meter_id', $meter->id)
         ->where('submitted_by_user_id', $tenant->user->id)
-        ->latest('id')
-        ->first();
-
-    expect($reading)
-        ->not->toBeNull()
-        ->submission_method->toBe(MeterReadingSubmissionMethod::TENANT_PORTAL)
-        ->reading_value->toBe('245.125');
+        ->exists())->toBeFalse();
 });
 
 it('shows reading request invoice context from a tenant deep link', function () {
@@ -81,7 +91,7 @@ it('shows reading request invoice context from a tenant deep link', function () 
         ->assertSeeText('Submit readings by');
 });
 
-it('does not show reading request invoice context for another tenant invoice', function () {
+it('does not allow tenant readings through another tenant invoice link', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
         ->withMeters(1)
@@ -108,9 +118,13 @@ it('does not show reading request invoice context for another tenant invoice', f
         ->set("readings.{$tenant->meters->firstOrFail()->id}.value", '245.125')
         ->set('readingDate', now()->toDateString())
         ->call('submit')
-        ->assertHasNoErrors();
+        ->assertHasErrors(['readings'])
+        ->assertSeeText('Reading request already handled');
 
-    expect($outsideInvoice->fresh()->approval_status)->not->toBe('readings_submitted');
+    expect($outsideInvoice->fresh()->approval_status)->not->toBe('readings_submitted')
+        ->and(MeterReading::query()
+            ->where('submitted_by_user_id', $tenant->user->id)
+            ->exists())->toBeFalse();
 });
 
 it('marks the linked reading request invoice and notifies billing reviewers after tenant submission', function () {
@@ -186,6 +200,43 @@ it('marks the linked reading request invoice and notifies billing reviewers afte
     Notification::assertNotSentTo($restrictedManager, TenantReadingsSubmittedForInvoiceNotification::class);
 });
 
+it('prevents tenant resubmission after a reading request invoice has been submitted', function () {
+    Notification::fake();
+
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
+
+    Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '245.125')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    expect($invoice->fresh()->approval_status)->toBe('readings_submitted');
+
+    Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '246.000')
+        ->set('readingDate', now()->addDay()->toDateString())
+        ->call('submit')
+        ->assertHasErrors(['readings'])
+        ->assertSeeText('Reading request already handled');
+
+    expect(MeterReading::query()
+        ->where('meter_id', $meter->id)
+        ->where('submitted_by_user_id', $tenant->user->id)
+        ->count())->toBe(1);
+});
+
 it('updates linked reading request invoice metadata without notifying when reviewer notifications are disabled', function () {
     Notification::fake();
 
@@ -243,17 +294,25 @@ it('prevents duplicate tenant readings for the same meter and date', function ()
     $meter = $tenant->meters->firstOrFail();
     $readingDate = now()->toDateString();
 
+    $invoice = createTenantReadingRequestInvoice($tenant);
+    MeterReading::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($meter)
+        ->create([
+            'submitted_by_user_id' => $tenant->user->id,
+            'reading_value' => 245.125,
+            'reading_date' => $readingDate,
+            'submission_method' => MeterReadingSubmissionMethod::TENANT_PORTAL,
+        ]);
+
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
-        ->set('meterId', (string) $meter->id)
-        ->set('readingValue', '245.125')
+        ->set("readings.{$meter->id}.value", '246.000')
         ->set('readingDate', $readingDate)
         ->call('submit')
-        ->assertHasNoErrors()
-        ->set('readingValue', '246.000')
-        ->set('readingDate', $readingDate)
-        ->call('submit')
-        ->assertHasErrors(['readingValue']);
+        ->assertHasErrors(["readings.{$meter->id}.value"]);
 
     expect(MeterReading::query()
         ->where('meter_id', $meter->id)
@@ -271,8 +330,10 @@ it('allows a tenant to submit readings for multiple meters from one form', funct
     $firstMeter = $tenant->meters->values()->get(0);
     /** @var Meter $secondMeter */
     $secondMeter = $tenant->meters->values()->get(1);
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set("readings.{$firstMeter->id}.value", '245.125')
         ->set("readings.{$firstMeter->id}.notes", 'Kitchen meter.')
@@ -308,8 +369,10 @@ it('shows a live consumption preview for the selected meter', function () {
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '150.750')
@@ -342,7 +405,10 @@ it('shows full lithuanian month names in previous reading dates', function () {
 
     app()->setLocale('lt');
 
+    $invoice = createTenantReadingRequestInvoice($tenant);
+
     Livewire::actingAs($tenant->user->fresh())
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->assertSeeText('2026 m. kovo 2 d.')
         ->assertDontSeeText('kov 2, 2026');
@@ -360,8 +426,10 @@ it('renders a localized modal calendar selector for the tenant reading date', fu
 
     app()->setLocale('lt');
 
+    $invoice = createTenantReadingRequestInvoice($tenant);
+
     $this->actingAs($tenant->user->fresh())
-        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => $invoice->id]))
         ->assertSuccessful()
         ->assertSee('data-calendar-picker', false)
         ->assertSee('data-calendar-dialog', false)
@@ -390,7 +458,10 @@ it('localizes seeded operations demo meter names on the tenant reading page', fu
 
     app()->setLocale('lt');
 
+    $invoice = createTenantReadingRequestInvoice($tenant);
+
     Livewire::actingAs($tenant->user->fresh())
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->assertSeeText('Operacijų demonstracinis skaitiklis: Elektra')
         ->assertDontSeeText('Operations Demo Meter')
@@ -411,8 +482,10 @@ it('shows a live warning when the entered reading is lower than the previous val
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '120.000')
@@ -428,8 +501,10 @@ it('shows a validation error when the submitted reading decreases', function () 
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '120.000')
@@ -452,8 +527,10 @@ it('shows localized tenant validation reasons for invalid reading values', funct
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user->fresh())
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set("readings.{$meter->id}.value", '0')
         ->set('readingDate', now()->toDateString())
@@ -477,8 +554,10 @@ it('explains why a tenant reading below the previous value is rejected', functio
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user->fresh())
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set("readings.{$meter->id}.value", '120.000')
         ->set('readingDate', now()->toDateString())
@@ -495,8 +574,10 @@ it('rejects future-dated tenant readings with a plain language reason', function
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set("readings.{$meter->id}.value", '245.125')
         ->set('readingDate', now()->addDay()->toDateString())
@@ -507,6 +588,10 @@ it('rejects future-dated tenant readings with a plain language reason', function
 
 it('provides tenant reading validation messages for every supported locale', function () {
     $keys = [
+        'tenant.pages.readings.no_open_request_title',
+        'tenant.pages.readings.no_open_request',
+        'tenant.pages.readings.invoice_request_unavailable_title',
+        'tenant.pages.readings.invoice_request_unavailable',
         'tenant.pages.readings.validation.meter_required',
         'tenant.pages.readings.validation.meter_invalid',
         'tenant.pages.readings.validation.reading_value_required',
@@ -538,8 +623,10 @@ it('preselects and locks the meter picker for single-meter tenant accounts', fun
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->assertSet('meterId', (string) $meter->id)
         ->assertSeeText($meter->name)
@@ -573,8 +660,10 @@ it('does not expose outside meters and rejects submissions for them', function (
     $outsideMeter = Meter::factory()->create([
         'name' => 'Outside Meter',
     ]);
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->assertDontSeeText('Outside Meter')
         ->set('meterId', (string) $outsideMeter->id)
@@ -596,8 +685,10 @@ it('refreshes translated submit reading copy when the shell locale changes', fun
         ->withAssignedProperty()
         ->withMeters(1)
         ->create();
+    $invoice = createTenantReadingRequestInvoice($tenant);
 
     $component = Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->assertSeeText(__('tenant.pages.readings.title', [], 'en'));
 

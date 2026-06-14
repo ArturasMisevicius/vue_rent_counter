@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tenant;
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Actions\Tenant\Readings\CompleteReadingRequestInvoiceAction;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
@@ -79,6 +80,16 @@ class SubmitReadingPage extends Component
         $this->submittedReading = null;
         $this->submittedReadings = [];
 
+        if ($this->readingRequestInvoiceSummary === null) {
+            $this->addError('readings', $this->readingRequestUnavailableMessage());
+
+            if (filled($this->readingValue)) {
+                $this->addError('readingValue', $this->readingRequestUnavailableMessage());
+            }
+
+            return;
+        }
+
         if (filled($this->readingValue)) {
             $this->submitLegacyReading($submitTenantReadingAction, $completeReadingRequestInvoiceAction);
 
@@ -124,6 +135,8 @@ class SubmitReadingPage extends Component
             'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
             'readingRequestInvoiceSummary' => $this->readingRequestInvoiceSummary,
+            'readingRequestUnavailableMessage' => $this->readingRequestUnavailableMessage(),
+            'readingRequestUnavailableTitle' => $this->readingRequestUnavailableTitle(),
             'tenant' => $tenant,
         ]);
     }
@@ -498,13 +511,17 @@ class SubmitReadingPage extends Component
                 'billing_period_start',
                 'billing_period_end',
                 'due_date',
+                'status',
                 'automation_level',
+                'approval_status',
             ])
             ->forOrganization($workspace->organizationId)
             ->whereKey($invoiceId)
             ->where('property_id', $workspace->propertyId)
             ->where('tenant_user_id', $workspace->userId)
+            ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
+            ->where('approval_status', 'pending')
             ->first();
 
         if (! $invoice instanceof Invoice) {
@@ -521,6 +538,24 @@ class SubmitReadingPage extends Component
                 'date' => LocalizedDateFormatter::date($invoice->due_date),
             ]),
         ];
+    }
+
+    private function readingRequestUnavailableTitle(): string
+    {
+        if ($this->normalizedInvoiceId() !== null) {
+            return __('tenant.pages.readings.invoice_request_unavailable_title');
+        }
+
+        return __('tenant.pages.readings.no_open_request_title');
+    }
+
+    private function readingRequestUnavailableMessage(): string
+    {
+        if ($this->normalizedInvoiceId() !== null) {
+            return __('tenant.pages.readings.invoice_request_unavailable');
+        }
+
+        return __('tenant.pages.readings.no_open_request');
     }
 
     #[Computed]

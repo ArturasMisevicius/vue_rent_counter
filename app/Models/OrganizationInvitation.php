@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\InvitationStatus;
 use App\Enums\UserRole;
 use Database\Factories\OrganizationInvitationFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,13 +23,18 @@ class OrganizationInvitation extends Model
     private const ACCEPTANCE_COLUMNS = [
         'id',
         'organization_id',
+        'tenant_id',
         'inviter_user_id',
+        'invited_by_user_id',
         'email',
         'role',
         'full_name',
         'token',
+        'token_hash',
+        'sent_at',
         'expires_at',
         'accepted_at',
+        'revoked_at',
         'created_at',
         'updated_at',
     ];
@@ -35,21 +43,28 @@ class OrganizationInvitation extends Model
 
     protected $fillable = [
         'organization_id',
+        'tenant_id',
         'inviter_user_id',
+        'invited_by_user_id',
         'email',
         'role',
         'full_name',
         'token',
+        'token_hash',
+        'sent_at',
         'expires_at',
         'accepted_at',
+        'revoked_at',
     ];
 
     protected function casts(): array
     {
         return [
             'role' => UserRole::class,
+            'sent_at' => 'datetime',
             'expires_at' => 'datetime',
             'accepted_at' => 'datetime',
+            'revoked_at' => 'datetime',
         ];
     }
 
@@ -58,9 +73,19 @@ class OrganizationInvitation extends Model
         return $this->belongsTo(Organization::class);
     }
 
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tenant_id');
+    }
+
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'inviter_user_id');
+    }
+
+    public function invitedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'invited_by_user_id');
     }
 
     public function scopeForAcceptancePortal(Builder $query): Builder
@@ -68,12 +93,19 @@ class OrganizationInvitation extends Model
         return $query
             ->select(self::ACCEPTANCE_COLUMNS)
             ->withAcceptanceSummary()
-            ->latestExpiryFirst();
+            ->latestSentFirst();
     }
 
     public function scopeForOrganization(Builder $query, int $organizationId): Builder
     {
         return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForTenant(Builder $query, User|int $tenant): Builder
+    {
+        $tenantId = $tenant instanceof User ? $tenant->id : $tenant;
+
+        return $query->where('tenant_id', $tenantId);
     }
 
     public function scopeForToken(Builder $query, string $token): Builder
@@ -84,12 +116,13 @@ class OrganizationInvitation extends Model
             return $query->whereKey(0);
         }
 
-        return $query->where(
-            'token',
-            self::isHashedToken($normalizedToken)
-                ? $normalizedToken
-                : self::hashToken($normalizedToken),
-        );
+        $tokenHash = self::hashToken($normalizedToken);
+
+        return $query->where(function (Builder $query) use ($tokenHash): void {
+            $query
+                ->where('token_hash', $tokenHash)
+                ->orWhere('token', $tokenHash);
+        });
     }
 
     public function scopeAccepted(Builder $query): Builder
@@ -106,6 +139,7 @@ class OrganizationInvitation extends Model
     {
         return $query
             ->whereNull('accepted_at')
+            ->whereNull('revoked_at')
             ->unexpired();
     }
 
@@ -116,6 +150,13 @@ class OrganizationInvitation extends Model
             ->where('email', $email);
     }
 
+    public function scopePendingForTenant(Builder $query, User $tenant): Builder
+    {
+        return $query
+            ->pending()
+            ->forTenant($tenant);
+    }
+
     public function scopeLatestExpiryFirst(Builder $query): Builder
     {
         return $query
@@ -123,17 +164,34 @@ class OrganizationInvitation extends Model
             ->orderByDesc('id');
     }
 
+    public function scopeLatestSentFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('sent_at')
+            ->orderByDesc('id');
+    }
+
     public function scopeWithAcceptanceSummary(Builder $query): Builder
     {
         return $query->with([
             'organization:id,name',
+            'tenant:id,organization_id,name,email,role,status,tenant_status,portal_access_enabled,locale',
+            'tenant.currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
+            'tenant.currentPropertyAssignment.property:id,organization_id,building_id,name,floor,unit_number,type,floor_area_sqm',
+            'tenant.currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
             'inviter:id,organization_id,name,email,role,status',
+            'invitedBy:id,organization_id,name,email,role,status',
         ]);
     }
 
     public function isAccepted(): bool
     {
         return filled($this->accepted_at);
+    }
+
+    public function isRevoked(): bool
+    {
+        return filled($this->revoked_at);
     }
 
     public function isExpired(): bool
@@ -143,12 +201,22 @@ class OrganizationInvitation extends Model
 
     public function isPending(): bool
     {
-        return ! $this->isAccepted() && ! $this->isExpired();
+        return ! $this->isAccepted() && ! $this->isRevoked() && ! $this->isExpired();
+    }
+
+    public function invitationStatus(): InvitationStatus
+    {
+        return match (true) {
+            $this->isAccepted() => InvitationStatus::ACCEPTED,
+            $this->isRevoked() => InvitationStatus::REVOKED,
+            $this->isExpired() => InvitationStatus::EXPIRED,
+            default => InvitationStatus::PENDING,
+        };
     }
 
     public function routeToken(): string
     {
-        return $this->acceptanceToken ?? $this->token;
+        return $this->acceptanceToken ?? '';
     }
 
     public static function issueToken(): string

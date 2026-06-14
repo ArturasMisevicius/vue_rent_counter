@@ -209,6 +209,16 @@ class Property extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function extraCharges(): HasMany
+    {
+        return $this->hasMany(ExtraCharge::class);
+    }
+
+    public function rentalContracts(): HasMany
+    {
+        return $this->hasMany(RentalContract::class);
+    }
+
     public function getCurrentTenantAttribute(): ?User
     {
         return $this->currentAssignment?->tenant;
@@ -281,6 +291,7 @@ class Property extends Model
             $this->assignments()->exists()
             || $this->meters()->exists()
             || $this->invoices()->exists()
+            || $this->rentalContracts()->exists()
         );
     }
 

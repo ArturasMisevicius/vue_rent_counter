@@ -16,7 +16,8 @@ class OpenReadingInvoiceCycleCommand extends Command
     protected $signature = 'billing:open-reading-invoice-cycle
         {--organization=* : Limit to one or more organization IDs}
         {--period= : Billing month in YYYY-MM format. Defaults to the previous month}
-        {--due-date= : Due date. Defaults to period end plus 14 days}';
+        {--due-date= : Reading submission deadline. Defaults to period end plus 14 days}
+        {--payment-due-date= : Payment due date after invoice review. Defaults to reading deadline plus 14 days}';
 
     protected $description = 'Open empty draft invoices and notify tenants to submit meter readings.';
 
@@ -25,6 +26,7 @@ class OpenReadingInvoiceCycleCommand extends Command
         try {
             [$periodStart, $periodEnd] = $this->resolveBillingPeriod();
             $dueDate = $this->resolveDueDate($periodEnd);
+            $paymentDueDate = $this->resolvePaymentDueDate($dueDate);
             $organizationIds = $this->organizationIds();
         } catch (InvalidArgumentException $exception) {
             $this->components->error($exception->getMessage());
@@ -58,6 +60,7 @@ class OpenReadingInvoiceCycleCommand extends Command
                 $periodStart,
                 $periodEnd,
                 $dueDate,
+                $paymentDueDate,
                 &$totals,
             ): void {
                 foreach ($organizations as $organization) {
@@ -68,6 +71,7 @@ class OpenReadingInvoiceCycleCommand extends Command
                             'billing_period_start' => $periodStart->toDateString(),
                             'billing_period_end' => $periodEnd->toDateString(),
                             'due_date' => $dueDate,
+                            'payment_due_date' => $paymentDueDate,
                         ]);
                     } catch (Throwable $exception) {
                         $totals['failed']++;
@@ -157,6 +161,32 @@ class OpenReadingInvoiceCycleCommand extends Command
         }
 
         return $resolvedDueDate->toDateString();
+    }
+
+    private function resolvePaymentDueDate(string $readingSubmissionDeadline): string
+    {
+        $paymentDueDate = $this->option('payment-due-date');
+        $readingDeadline = CarbonImmutable::parse($readingSubmissionDeadline)->startOfDay();
+
+        if (blank($paymentDueDate)) {
+            return $readingDeadline->addDays(14)->toDateString();
+        }
+
+        if (! is_string($paymentDueDate)) {
+            throw new InvalidArgumentException('The --payment-due-date option must be a date string.');
+        }
+
+        try {
+            $resolvedPaymentDueDate = CarbonImmutable::parse($paymentDueDate)->startOfDay();
+        } catch (Throwable) {
+            throw new InvalidArgumentException('The --payment-due-date option must be a valid date.');
+        }
+
+        if ($resolvedPaymentDueDate->lessThan($readingDeadline)) {
+            throw new InvalidArgumentException('The --payment-due-date option must be on or after the due date.');
+        }
+
+        return $resolvedPaymentDueDate->toDateString();
     }
 
     /**

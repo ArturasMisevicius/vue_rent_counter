@@ -51,6 +51,25 @@ return [
         'active' => 'Aktyvi',
         'inactive' => 'Neaktyvi',
     ],
+    'invitation_status' => [
+        'pending' => 'Laukiama',
+        'accepted' => 'Priimta',
+        'expired' => 'Pasibaigęs',
+        'revoked' => 'Atšauktas',
+    ],
+    'portal_access_status' => [
+        'not_invited' => 'Nepakviesta',
+        'invited' => 'Pakviesta',
+        'invitation_expired' => 'Kvietimas nebegalioja',
+        'active' => 'Aktyvi',
+        'disabled' => 'Išjungta',
+    ],
+    'manager_membership_status' => [
+        'invited' => 'Pakviestas',
+        'active' => 'Aktyvus',
+        'disabled' => 'Išjungtas',
+        'expired' => 'Pasibaigęs',
+    ],
     'meter_reading_submission_method' => [
         'admin_manual' => 'Administratoriaus įrašas',
         'tenant_portal' => 'Nuomininko portalas',
@@ -65,6 +84,7 @@ return [
         'valid' => 'Galiojanti',
         'flagged' => 'Pažymėta',
         'rejected' => 'Atmesta',
+        'void' => 'Anuliuota',
     ],
     'meter_status' => [
         'active' => 'Aktyvus',
@@ -219,9 +239,20 @@ return [
         'custom' => 'Individualus',
     ],
     'tenant_status' => [
+        'draft' => 'Juodraštis',
         'active' => 'Aktyvus',
         'inactive' => 'Neaktyvus',
+        'moved_out' => 'Išsikėlęs',
+        'archived' => 'Archyvuotas',
         'suspended' => 'Sustabdytas',
+    ],
+    'rental_contract_status' => [
+        'draft' => 'Draft',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'terminated' => 'Terminated',
+        'renewed' => 'Renewed',
+        'cancelled' => 'Cancelled',
     ],
     'unit_of_measurement' => [
         'm3' => 'm3',

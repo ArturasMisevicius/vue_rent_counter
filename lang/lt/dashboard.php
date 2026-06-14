@@ -39,6 +39,16 @@ return [
         'limit_reached' => ':label limitas pasiektas.',
         'upgrade_action' => 'Keisti planą',
     ],
+    'organization_contracts' => [
+        'tenants_without_contract' => 'Tenants Without Contract',
+        'tenants_without_contract_trend' => 'Tenants without an active rental contract.',
+        'expiring_soon' => 'Contracts Expiring Soon',
+        'expiring_soon_trend' => 'Active contracts ending in the next 30 days.',
+        'expired' => 'Expired Contracts',
+        'expired_trend' => 'Contracts marked expired.',
+        'active' => 'Active Contracts',
+        'active_trend' => 'Contracts currently active.',
+    ],
     'platform_sections' => [
         'revenue_by_plan' => 'Pajamos pagal planą per paskutinius 12 mėnesių',
         'revenue_by_plan_description' => 'Sekite planų dinamiką pagal mėnesinę pajamų tendenciją.',

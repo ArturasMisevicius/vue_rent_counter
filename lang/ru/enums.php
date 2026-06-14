@@ -51,6 +51,25 @@ return [
         'active' => 'Активный',
         'inactive' => 'Неактивный',
     ],
+    'invitation_status' => [
+        'pending' => 'Ожидает',
+        'accepted' => 'Принято',
+        'expired' => 'Истекло',
+        'revoked' => 'Отозвано',
+    ],
+    'portal_access_status' => [
+        'not_invited' => 'Не приглашен',
+        'invited' => 'Приглашен',
+        'invitation_expired' => 'Приглашение истекло',
+        'active' => 'Активен',
+        'disabled' => 'Отключен',
+    ],
+    'manager_membership_status' => [
+        'invited' => 'Приглашён',
+        'active' => 'Активен',
+        'disabled' => 'Отключён',
+        'expired' => 'Истекло',
+    ],
     'meter_reading_submission_method' => [
         'admin_manual' => 'Ввод администратором',
         'tenant_portal' => 'Портал арендатора',
@@ -65,6 +84,7 @@ return [
         'valid' => 'Корректно',
         'flagged' => 'Отмечено',
         'rejected' => 'Отклонено',
+        'void' => 'Аннулировано',
     ],
     'meter_status' => [
         'active' => 'Активный',
@@ -219,9 +239,20 @@ return [
         'custom' => 'Индивидуальный',
     ],
     'tenant_status' => [
+        'draft' => 'Черновик',
         'active' => 'Активен',
         'inactive' => 'Неактивен',
+        'moved_out' => 'Съехал',
+        'archived' => 'Архивирован',
         'suspended' => 'Приостановлен',
+    ],
+    'rental_contract_status' => [
+        'draft' => 'Draft',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'terminated' => 'Terminated',
+        'renewed' => 'Renewed',
+        'cancelled' => 'Cancelled',
     ],
     'unit_of_measurement' => [
         'm3' => 'm3',

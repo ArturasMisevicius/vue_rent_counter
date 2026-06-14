@@ -6,12 +6,16 @@ namespace App\Services\Billing;
 
 use App\Contracts\BillingServiceInterface;
 use App\Enums\DistributionMethod;
+use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Filament\Support\Admin\ExtraCharges\ExtraChargeInvoiceIntegrator;
 use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
+use App\Filament\Support\Admin\Invoices\InvoiceApprovalValidator;
 use App\Filament\Support\Admin\Invoices\InvoiceEligibilityWindow;
+use App\Filament\Support\Admin\ServiceConfigurations\ValidateServiceConfiguration;
 use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
@@ -37,6 +41,9 @@ final class BillingService implements BillingServiceInterface
         private readonly SharedServiceCostDistributorService $sharedServiceCostDistributorService,
         private readonly InvoiceEligibilityWindow $invoiceEligibilityWindow,
         private readonly FinalizedInvoiceGuard $finalizedInvoiceGuard,
+        private readonly InvoiceApprovalValidator $invoiceApprovalValidator,
+        private readonly ValidateServiceConfiguration $validateServiceConfiguration,
+        private readonly ExtraChargeInvoiceIntegrator $extraChargeInvoiceIntegrator,
     ) {}
 
     public function previewBulkInvoices(Organization $organization, array $attributes): array
@@ -162,8 +169,12 @@ final class BillingService implements BillingServiceInterface
 
     public function finalize(Invoice $invoice, array $attributes = []): Invoice
     {
+        $approveWithWarnings = (bool) ($attributes['approve_with_warnings'] ?? false);
+        unset($attributes['approve_with_warnings']);
+
         $beforeSnapshot = $this->invoiceAuditSnapshot($invoice);
         $invoice = $this->saveDraft($invoice, $attributes);
+        $this->invoiceApprovalValidator->ensureCanApprove($invoice, $approveWithWarnings);
 
         return $this->invoiceService->markAsFinalized($invoice, auth()->user(), $beforeSnapshot);
     }
@@ -410,6 +421,26 @@ final class BillingService implements BillingServiceInterface
                         'organization_id',
                         'property_id',
                         'utility_service_id',
+                        'service_name',
+                        'service_type',
+                        'billing_method',
+                        'unit',
+                        'currency',
+                        'fixed_amount',
+                        'billing_frequency',
+                        'tenant_visible',
+                        'tenant_visible_name',
+                        'tenant_visible_description',
+                        'show_formula_to_tenant',
+                        'show_provider_to_tenant',
+                        'show_readings_to_tenant',
+                        'internal_note',
+                        'status',
+                        'starts_at',
+                        'ends_at',
+                        'meter_rules',
+                        'assignment_rules',
+                        'validation_result',
                         'pricing_model',
                         'rate_schedule',
                         'distribution_method',
@@ -427,6 +458,7 @@ final class BillingService implements BillingServiceInterface
                     ->with([
                         'utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge',
                         'tariff:id,provider_id,name,configuration',
+                        'provider:id,organization_id,name,service_type',
                     ]),
                 'property.meters' => fn ($query) => $query
                     ->select([
@@ -455,6 +487,7 @@ final class BillingService implements BillingServiceInterface
             ->get()
             ->filter(fn (PropertyAssignment $assignment): bool => $this->invoiceEligibilityWindow->allows($assignment, $periodStart, $periodEnd))
             ->sortBy('id')
+            ->unique(fn (PropertyAssignment $assignment): string => $this->invoiceKey($assignment->property_id, $assignment->tenant_user_id))
             ->values();
 
         $existingInvoiceKeys = Invoice::query()
@@ -505,6 +538,26 @@ final class BillingService implements BillingServiceInterface
                         'organization_id',
                         'property_id',
                         'utility_service_id',
+                        'service_name',
+                        'service_type',
+                        'billing_method',
+                        'unit',
+                        'currency',
+                        'fixed_amount',
+                        'billing_frequency',
+                        'tenant_visible',
+                        'tenant_visible_name',
+                        'tenant_visible_description',
+                        'show_formula_to_tenant',
+                        'show_provider_to_tenant',
+                        'show_readings_to_tenant',
+                        'internal_note',
+                        'status',
+                        'starts_at',
+                        'ends_at',
+                        'meter_rules',
+                        'assignment_rules',
+                        'validation_result',
                         'pricing_model',
                         'rate_schedule',
                         'distribution_method',
@@ -522,6 +575,7 @@ final class BillingService implements BillingServiceInterface
                     ->with([
                         'utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge',
                         'tariff:id,provider_id,name,configuration',
+                        'provider:id,organization_id,name,service_type',
                     ]),
                 'property.meters' => fn ($query) => $query
                     ->select([
@@ -672,8 +726,10 @@ final class BillingService implements BillingServiceInterface
             $items,
             fn (array $item): bool => $item['billable'] ?? true,
         ));
+        $extraChargeItems = $this->extraChargeInvoiceIntegrator->lineItemsForAssignment($assignment, $periodStart, $periodEnd);
+        $allBillableItems = [...$billableItems, ...$extraChargeItems];
 
-        if ($billableItems === [] && $effectiveConfigurations->isNotEmpty()) {
+        if ($allBillableItems === [] && $effectiveConfigurations->isNotEmpty()) {
             return [
                 'items' => [],
                 'total_amount' => $this->calculator->money('0'),
@@ -681,14 +737,14 @@ final class BillingService implements BillingServiceInterface
             ];
         }
 
-        if ($billableItems === []) {
+        if ($allBillableItems === []) {
             return $this->defaultLineItemPayload($assignment, $periodStart, $periodEnd);
         }
 
         return [
-            'items' => $billableItems,
+            'items' => $allBillableItems,
             'total_amount' => $this->calculator->sumMoney(
-                array_map(fn (array $item): string => (string) $item['total'], $billableItems),
+                array_map(fn (array $item): string => (string) $item['total'], $allBillableItems),
             ),
             'billable' => true,
         ];
@@ -715,6 +771,15 @@ final class BillingService implements BillingServiceInterface
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
     ): array {
+        if (! $configuration->billing_method?->createsAutomaticInvoiceItems()) {
+            return [
+                'description' => '',
+                'billable' => false,
+            ];
+        }
+
+        $this->guardServiceConfigurationForInvoice($configuration);
+
         $pricing = $this->tariffResolver->resolve($configuration);
         $measurement = $this->measurementContext($property, $configuration, $periodStart, $periodEnd);
         $quantity = $this->billableQuantity($configuration, $measurement['quantity'], $periodStart, $periodEnd);
@@ -740,23 +805,101 @@ final class BillingService implements BillingServiceInterface
             );
         }
 
+        $sourceType = is_array($measurement['snapshot'])
+            ? InvoiceItemSourceType::METER_READING
+            : InvoiceItemSourceType::FIXED_SERVICE;
+        $description = $this->lineItemDescription($configuration);
+        $tenantDescription = $this->tenantLineItemDescription($configuration, $description);
+        $quantityLabel = $this->calculator->quantity($quantity);
+        $unitRate = $this->calculator->rate($pricing['unit_rate']);
+        $moneyTotal = $this->calculator->money($total);
+        $formulaLabel = $this->formulaLabel($configuration, $pricing, $quantityLabel);
+        $unit = (string) ($configuration->unit ?: $configuration->utilityService?->unit_of_measurement ?? '');
+        $currency = strtoupper((string) ($configuration->currency ?: data_get($configuration->tariff?->configuration, 'currency', 'EUR')));
+        $serviceSnapshot = $this->serviceSnapshot($configuration);
+        $tariffSnapshot = $this->tariffSnapshot($configuration);
+        $providerSnapshot = $this->providerSnapshot($configuration);
+        $sourceId = $sourceType === InvoiceItemSourceType::METER_READING
+            ? data_get($measurement['snapshot'], 'end.id')
+            : $configuration->id;
+
         return [
+            'source_type' => $sourceType->value,
+            'source_id' => is_numeric($sourceId) ? (int) $sourceId : null,
+            'service_configuration_id' => $configuration->id,
             'utility_service_id' => $configuration->utility_service_id,
-            'description' => $this->lineItemDescription($configuration),
+            'tariff_id' => $configuration->tariff_id,
+            'provider_id' => $configuration->provider_id,
+            'title' => $description,
+            'description' => $description,
+            'description_for_tenant' => $tenantDescription,
+            'internal_note' => null,
             'period' => $this->billingPeriodLabel($periodStart, $periodEnd),
-            'quantity' => $this->calculator->quantity($quantity),
-            'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
-            'unit_price' => $this->calculator->rate($pricing['unit_rate']),
-            'total' => $this->calculator->money($total),
+            'quantity' => $quantityLabel,
+            'unit' => $unit,
+            'unit_price' => $unitRate,
+            'subtotal' => $moneyTotal,
+            'tax_amount' => $this->calculator->money('0'),
+            'discount_amount' => $this->calculator->money('0'),
+            'total' => $moneyTotal,
+            'currency' => $currency,
+            'formula_label' => $formulaLabel,
+            'calculation_snapshot' => [
+                'source_type' => $sourceType->value,
+                'source_id' => is_numeric($sourceId) ? (int) $sourceId : null,
+                'source_status' => 'approved',
+                'formula_label' => $formulaLabel,
+                'pricing' => $pricing,
+                'quantity' => $quantityLabel,
+                'unit' => $unit,
+                'unit_price' => $unitRate,
+                'subtotal' => $moneyTotal,
+                'tax_amount' => $this->calculator->money('0'),
+                'discount_amount' => $this->calculator->money('0'),
+                'total' => $moneyTotal,
+                'currency' => $currency,
+                'meter_reading_snapshot' => $measurement['snapshot'],
+                'service_snapshot' => $serviceSnapshot,
+                'tariff_snapshot' => $tariffSnapshot,
+                'provider_snapshot' => $providerSnapshot,
+            ],
+            'tenant_visible' => (bool) $configuration->tenant_visible,
             'consumption' => $this->calculator->quantity(
                 $configuration->pricing_model?->requiresBillingPeriodQuantity()
                     ? $quantity
                     : $measurement['consumption'],
             ),
             'billable' => $measurement['billable'],
-            'rate' => $this->calculator->rate($pricing['unit_rate']),
+            'rate' => $unitRate,
             'meter_reading_snapshot' => $measurement['snapshot'],
+            'service_snapshot' => $serviceSnapshot,
+            'tariff_snapshot' => $tariffSnapshot,
+            'provider_snapshot' => $providerSnapshot,
         ];
+    }
+
+    private function guardServiceConfigurationForInvoice(ServiceConfiguration $configuration): void
+    {
+        $validationResult = $this->validateServiceConfiguration->handle($configuration);
+
+        if ($validationResult['blocking_errors'] !== []) {
+            throw ValidationException::withMessages([
+                'service_configuration' => __('admin.service_configurations.messages.invoice_generation_blocked', [
+                    'service' => $configuration->service_name ?: $configuration->utilityService?->name ?: $configuration->id,
+                ]),
+            ]);
+        }
+
+        $currency = strtoupper((string) ($configuration->currency ?: 'EUR'));
+
+        if ($currency !== 'EUR') {
+            throw ValidationException::withMessages([
+                'currency' => __('admin.service_configurations.messages.currency_mismatch', [
+                    'service' => $configuration->service_name ?: $configuration->utilityService?->name ?: $configuration->id,
+                    'currency' => $currency,
+                ]),
+            ]);
+        }
     }
 
     private function lineItemDescription(ServiceConfiguration $configuration): string
@@ -765,7 +908,122 @@ final class BillingService implements BillingServiceInterface
             return (string) $configuration->invoice_description;
         }
 
-        return (string) ($configuration->utilityService?->name ?? '');
+        return (string) ($configuration->service_name ?: ($configuration->utilityService?->name ?? ''));
+    }
+
+    private function tenantLineItemDescription(ServiceConfiguration $configuration, string $fallback): string
+    {
+        if (! $configuration->tenant_visible) {
+            return '';
+        }
+
+        return (string) (
+            $configuration->tenant_visible_name
+            ?: $configuration->tenant_visible_description
+            ?: $fallback
+        );
+    }
+
+    /**
+     * @param  array{type: string, unit_rate: string, base_fee: string, zones: array<int, array{id: string, rate: string, start: string|null, end: string|null}>}  $pricing
+     */
+    private function formulaLabel(ServiceConfiguration $configuration, array $pricing, string $quantity): string
+    {
+        if (
+            $configuration->pricing_model === PricingModel::TIME_OF_USE
+            && $pricing['zones'] !== []
+        ) {
+            return __('admin.invoices.formulas.time_of_use_plus_base_fee');
+        }
+
+        if ($this->calculator->compare($pricing['base_fee'], '0', 2) !== 0) {
+            return __('admin.invoices.formulas.quantity_times_unit_price_plus_base_fee', [
+                'quantity' => $quantity,
+                'unit_price' => $pricing['unit_rate'],
+                'base_fee' => $pricing['base_fee'],
+            ]);
+        }
+
+        return __('admin.invoices.formulas.quantity_times_unit_price_with_values', [
+            'quantity' => $quantity,
+            'unit_price' => $pricing['unit_rate'],
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serviceSnapshot(ServiceConfiguration $configuration): array
+    {
+        return [
+            'id' => $configuration->id,
+            'service_name' => $configuration->service_name,
+            'service_type' => $configuration->service_type?->value,
+            'billing_method' => $configuration->billing_method?->value,
+            'provider_id' => $configuration->provider_id,
+            'tariff_id' => $configuration->tariff_id,
+            'utility_service_id' => $configuration->utility_service_id,
+            'utility_service_name' => $configuration->utilityService?->name,
+            'unit' => $configuration->unit,
+            'currency' => $configuration->currency,
+            'fixed_amount' => $configuration->fixed_amount,
+            'billing_frequency' => $configuration->billing_frequency?->value,
+            'assignment_scope' => $configuration->assignment_scope?->value,
+            'tenant_visible' => (bool) $configuration->tenant_visible,
+            'tenant_visible_name' => $configuration->tenant_visible_name,
+            'tenant_visible_description' => $configuration->tenant_visible_description,
+            'show_formula_to_tenant' => (bool) $configuration->show_formula_to_tenant,
+            'show_provider_to_tenant' => (bool) $configuration->show_provider_to_tenant,
+            'show_readings_to_tenant' => (bool) $configuration->show_readings_to_tenant,
+            'status' => $configuration->status?->value,
+            'starts_at' => $configuration->starts_at?->toISOString(),
+            'ends_at' => $configuration->ends_at?->toISOString(),
+            'meter_rules' => $configuration->meter_rules,
+            'assignment_rules' => $configuration->assignment_rules,
+            'pricing_model' => $configuration->pricing_model?->value,
+            'distribution_method' => $configuration->distribution_method?->value,
+            'is_shared_service' => (bool) $configuration->is_shared_service,
+            'effective_from' => $configuration->effective_from?->toISOString(),
+            'effective_until' => $configuration->effective_until?->toISOString(),
+            'rate_schedule' => $configuration->rate_schedule,
+            'configuration_overrides' => $configuration->configuration_overrides,
+            'custom_formula' => $configuration->custom_formula,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function tariffSnapshot(ServiceConfiguration $configuration): ?array
+    {
+        if ($configuration->tariff === null) {
+            return null;
+        }
+
+        return [
+            'id' => $configuration->tariff->id,
+            'provider_id' => $configuration->tariff->provider_id,
+            'name' => $configuration->tariff->name,
+            'configuration' => $configuration->tariff->configuration,
+            'active_from' => $configuration->tariff->active_from?->toISOString(),
+            'active_until' => $configuration->tariff->active_until?->toISOString(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function providerSnapshot(ServiceConfiguration $configuration): ?array
+    {
+        if ($configuration->provider === null) {
+            return null;
+        }
+
+        return [
+            'id' => $configuration->provider->id,
+            'name' => $configuration->provider->name,
+            'service_type' => $configuration->provider->service_type?->value,
+        ];
     }
 
     /**
@@ -902,7 +1160,8 @@ final class BillingService implements BillingServiceInterface
             $startReading->reading_value,
             3,
         );
-        $consumption = $this->calculator->compare($consumptionDelta, '0', 3) < 0
+        $hasNegativeConsumption = $this->calculator->compare($consumptionDelta, '0', 3) < 0;
+        $consumption = $hasNegativeConsumption
             ? $this->calculator->quantity('0')
             : $this->calculator->quantity($consumptionDelta);
 
@@ -913,15 +1172,20 @@ final class BillingService implements BillingServiceInterface
             'snapshot' => [
                 'meter_id' => $meter->id,
                 'meter_name' => $meter->name,
+                'consumption_delta' => $this->calculator->quantity($consumptionDelta),
+                'negative_consumption' => $hasNegativeConsumption,
+                'negative_consumption_confirmed' => false,
                 'start' => [
                     'id' => $startReading->id,
                     'value' => $this->calculator->quantity($startReading->reading_value),
                     'date' => $startReading->reading_date?->toDateString(),
+                    'validation_status' => $startReading->validation_status?->value,
                 ],
                 'end' => [
                     'id' => $endReading->id,
                     'value' => $this->calculator->quantity($endReading->reading_value),
                     'date' => $endReading->reading_date?->toDateString(),
+                    'validation_status' => $endReading->validation_status?->value,
                 ],
             ],
             'zone_consumption' => $defaultZoneConsumption,
@@ -1029,19 +1293,31 @@ final class BillingService implements BillingServiceInterface
         CarbonImmutable $periodEnd,
     ): array {
         $propertyName = $assignment->property?->displayName() ?? __('admin.invoices.empty.property');
+        $description = __('admin.invoices.generated.default_line_item', [
+            'property' => $propertyName,
+            'period_start' => $periodStart->toDateString(),
+            'period_end' => $periodEnd->toDateString(),
+        ]);
         $item = [
-            'description' => __('admin.invoices.generated.default_line_item', [
-                'property' => $propertyName,
-                'period_start' => $periodStart->toDateString(),
-                'period_end' => $periodEnd->toDateString(),
-            ]),
+            'source_type' => InvoiceItemSourceType::MANUAL_ADJUSTMENT->value,
+            'source_id' => null,
+            'source_status' => 'approved',
+            'title' => $description,
+            'description' => $description,
+            'description_for_tenant' => $description,
             'period' => $this->billingPeriodLabel($periodStart, $periodEnd),
             'quantity' => $this->calculator->quantity('1'),
             'unit' => null,
             'unit_price' => $this->calculator->rate('0'),
+            'subtotal' => $this->calculator->money('0'),
+            'tax_amount' => $this->calculator->money('0'),
+            'discount_amount' => $this->calculator->money('0'),
             'total' => $this->calculator->money('0'),
+            'currency' => 'EUR',
+            'formula_label' => __('admin.invoices.formulas.manual_amount'),
             'consumption' => $this->calculator->quantity('0'),
             'rate' => $this->calculator->rate('0'),
+            'tenant_visible' => true,
             'meter_reading_snapshot' => null,
         ];
 

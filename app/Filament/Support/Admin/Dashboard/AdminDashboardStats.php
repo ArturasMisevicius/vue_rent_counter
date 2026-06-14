@@ -3,12 +3,14 @@
 namespace App\Filament\Support\Admin\Dashboard;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\RentalContractStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
+use App\Models\RentalContract;
 use App\Models\Subscription;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
@@ -218,6 +220,41 @@ class AdminDashboardStats
             'subscription_usage' => $this->buildSubscriptionUsage($subscription),
             'recent_invoices' => $this->buildRecentInvoices($organizationId, $invoiceLimit),
             'upcoming_reading_deadlines' => $this->buildUpcomingReadingDeadlines($organizationId, $deadlineLimit),
+            'rental_contracts' => $this->buildRentalContractReport($organizationId),
+        ];
+    }
+
+    /**
+     * @return array{
+     *     tenants_without_contract: int,
+     *     contracts_expiring_soon: int,
+     *     expired_contracts: int,
+     *     active_contracts: int
+     * }
+     */
+    private function buildRentalContractReport(int $organizationId): array
+    {
+        return [
+            'tenants_without_contract' => User::query()
+                ->select(['id', 'organization_id', 'role'])
+                ->forOrganization($organizationId)
+                ->tenants()
+                ->whereDoesntHave('rentalContracts', fn (Builder $query): Builder => $query->active())
+                ->count(),
+            'contracts_expiring_soon' => RentalContract::query()
+                ->forOrganization($organizationId)
+                ->active()
+                ->whereDate('end_date', '>=', today())
+                ->whereDate('end_date', '<=', today()->addDays(30))
+                ->count(),
+            'expired_contracts' => RentalContract::query()
+                ->forOrganization($organizationId)
+                ->where('status', RentalContractStatus::EXPIRED)
+                ->count(),
+            'active_contracts' => RentalContract::query()
+                ->forOrganization($organizationId)
+                ->active()
+                ->count(),
         ];
     }
 
@@ -449,6 +486,12 @@ class AdminDashboardStats
             'subscription_usage' => [],
             'recent_invoices' => [],
             'upcoming_reading_deadlines' => [],
+            'rental_contracts' => [
+                'tenants_without_contract' => 0,
+                'contracts_expiring_soon' => 0,
+                'expired_contracts' => 0,
+                'active_contracts' => 0,
+            ],
         ];
     }
 

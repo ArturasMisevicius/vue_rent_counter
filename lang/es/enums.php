@@ -51,6 +51,25 @@ return [
         'active' => 'Activo',
         'inactive' => 'Inactivo',
     ],
+    'invitation_status' => [
+        'pending' => 'Pendiente',
+        'accepted' => 'Aceptada',
+        'expired' => 'Caducada',
+        'revoked' => 'Revocada',
+    ],
+    'portal_access_status' => [
+        'not_invited' => 'No invitado',
+        'invited' => 'Invitado',
+        'invitation_expired' => 'Invitación caducada',
+        'active' => 'Activo',
+        'disabled' => 'Desactivado',
+    ],
+    'manager_membership_status' => [
+        'invited' => 'Invitado',
+        'active' => 'Activo',
+        'disabled' => 'Desactivado',
+        'expired' => 'Caducado',
+    ],
     'meter_reading_submission_method' => [
         'admin_manual' => 'Manual de administrador',
         'tenant_portal' => 'Inquilino portal',
@@ -65,6 +84,7 @@ return [
         'valid' => 'Válido',
         'flagged' => 'Marcado',
         'rejected' => 'Rechazado',
+        'void' => 'Anulado',
     ],
     'meter_status' => [
         'active' => 'Activo',
@@ -256,9 +276,20 @@ return [
         'super_off_peak' => 'Super valle',
     ],
     'tenant_status' => [
+        'draft' => 'Borrador',
         'active' => 'Activo',
         'inactive' => 'Inactivo',
+        'moved_out' => 'Se mudó',
+        'archived' => 'Archivado',
         'suspended' => 'Suspendido',
+    ],
+    'rental_contract_status' => [
+        'draft' => 'Draft',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'terminated' => 'Terminated',
+        'renewed' => 'Renewed',
+        'cancelled' => 'Cancelled',
     ],
     'unit_of_measurement' => [
         'm3' => 'm3',

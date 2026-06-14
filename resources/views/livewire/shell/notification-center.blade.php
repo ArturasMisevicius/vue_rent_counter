@@ -71,5 +71,13 @@
                 </div>
             @endforelse
         </div>
+
+        <a
+            href="{{ $viewAllUrl }}"
+            wire:navigate
+            class="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-2xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+        >
+            {{ __('notifications.center.actions.view_all') }}
+        </a>
     </div>
 </div>

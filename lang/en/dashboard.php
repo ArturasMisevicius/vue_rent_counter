@@ -39,6 +39,16 @@ return [
         'limit_reached' => 'The :label limit has been reached.',
         'upgrade_action' => 'Upgrade Plan',
     ],
+    'organization_contracts' => [
+        'tenants_without_contract' => 'Tenants Without Contract',
+        'tenants_without_contract_trend' => 'Tenants without an active rental contract.',
+        'expiring_soon' => 'Contracts Expiring Soon',
+        'expiring_soon_trend' => 'Active contracts ending in the next 30 days.',
+        'expired' => 'Expired Contracts',
+        'expired_trend' => 'Contracts marked expired.',
+        'active' => 'Active Contracts',
+        'active_trend' => 'Contracts currently active.',
+    ],
     'platform_sections' => [
         'revenue_by_plan' => 'Revenue by Plan — Last 12 Months',
         'revenue_by_plan_description' => 'Track plan momentum over time with a month-by-month revenue trend.',

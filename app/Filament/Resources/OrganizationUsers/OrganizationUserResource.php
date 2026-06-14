@@ -48,11 +48,19 @@ class OrganizationUserResource extends Resource
 
     public static function getModelLabel(): string
     {
+        if (! static::currentUser()?->isSuperadmin()) {
+            return __('admin.organization_users.singular');
+        }
+
         return __('superadmin.relation_resources.organization_users.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
+        if (! static::currentUser()?->isSuperadmin()) {
+            return __('admin.organization_users.plural');
+        }
+
         return __('superadmin.relation_resources.organization_users.plural');
     }
 
@@ -105,18 +113,25 @@ class OrganizationUserResource extends Resource
                 'organization_id',
                 'user_id',
                 'role',
+                'status',
                 'permissions',
+                'permissions_preset',
                 'joined_at',
                 'left_at',
                 'is_active',
                 'invited_by',
+                'invited_by_user_id',
+                'invited_at',
+                'accepted_at',
+                'disabled_at',
                 'created_at',
                 'updated_at',
             ])
             ->with([
                 'organization:id,name',
-                'user:id,name,email',
+                'user:id,organization_id,name,email,role,status,last_login_at,locale',
                 'inviter:id,name',
+                'invitedBy:id,name',
             ]);
 
         $user = static::currentUser();

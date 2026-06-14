@@ -55,6 +55,12 @@
                     :title="__('tenant.pages.readings.title')"
                     :description="__('tenant.messages.no_meters_assigned')"
                 />
+            @elseif (! $readingRequestInvoiceSummary)
+                <x-shared.empty-state
+                    icon="heroicon-m-document-text"
+                    :title="$readingRequestUnavailableTitle"
+                    :description="$readingRequestUnavailableMessage"
+                />
             @else
                 <x-shared.form-section icon="heroicon-m-clipboard-document-list" :title="__('tenant.pages.readings.title')" :description="__('tenant.pages.readings.batch_description')">
                     <form wire:submit="submit" class="space-y-5" data-tenant-reading-batch-form>

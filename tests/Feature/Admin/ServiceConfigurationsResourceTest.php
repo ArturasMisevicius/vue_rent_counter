@@ -27,12 +27,14 @@ it('shows service configuration guidance on the create form', function () {
 
     Livewire::test(CreateServiceConfiguration::class)
         ->assertSee(__('admin.service_configurations.guidance.title'))
-        ->assertSee(__('admin.service_configurations.guidance.items.1'))
+        ->assertSee(__('admin.service_configurations.wizard.steps.service_type'))
+        ->assertSee(__('admin.service_configurations.wizard.help.service_type'))
+        ->assertSee(__('admin.service_configurations.fields.billing_method'))
+        ->assertSee(__('admin.service_configurations.fields.tenant_visible_name'))
+        ->assertSee(__('admin.service_configurations.fields.internal_note'))
         ->assertSee(__('admin.service_configurations.fields.invoice_description'))
         ->assertSee(__('admin.service_configurations.helpers.invoice_description'))
-        ->assertSee(__('admin.service_configurations.helpers.tariff'))
-        ->assertSee(__('admin.service_configurations.helpers.effective_from'))
-        ->assertSee(__('admin.service_configurations.helpers.custom_formula'));
+        ->assertSee(__('admin.service_configurations.helpers.tariff'));
 });
 
 it('shows organization context on the service configurations list for superadmins while keeping admins scoped', function () {

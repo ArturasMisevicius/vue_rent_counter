@@ -5,8 +5,12 @@ namespace App\Filament\Resources\Tenants\Pages;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
+use App\Filament\Actions\Admin\Tenants\DisableTenantPortalAccess;
+use App\Filament\Actions\Admin\Tenants\EnableTenantPortalAccess;
+use App\Filament\Actions\Admin\Tenants\ResendTenantInvitation;
+use App\Filament\Actions\Admin\Tenants\RevokeTenantInvitation;
+use App\Filament\Actions\Admin\Tenants\SendTenantInvitation;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
-use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Tenants\TenantResource;
@@ -18,6 +22,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 
 class ViewTenant extends ViewRecord
 {
@@ -83,30 +88,128 @@ class ViewTenant extends ViewRecord
             ...(
                 TenantResource::canEdit($this->record)
                     ? [
-                        ...(
-                            $this->canResendInvitation()
-                                ? [
-                                    Action::make('resendInvitation')
-                                        ->label(__('admin.tenants.actions.resend_invitation'))
-                                        ->action(function (ResendOrganizationInvitationAction $resendOrganizationInvitationAction): void {
-                                            $actor = auth()->user();
+                        Action::make('sendInvitation')
+                            ->label(__('admin.tenants.actions.send_invitation'))
+                            ->icon('heroicon-m-envelope')
+                            ->visible(fn (): bool => $this->canSendInvitation())
+                            ->action(function (SendTenantInvitation $sendTenantInvitation): void {
+                                $actor = auth()->user();
 
-                                            abort_if(! $actor instanceof User, 403);
+                                abort_if(! $actor instanceof User, 403);
 
-                                            $invitation = $this->latestInvitation();
+                                $this->latestInvitation = $sendTenantInvitation->handle($actor, $this->record);
+                                $this->refreshRecord();
 
-                                            abort_if($invitation === null, 404);
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin.tenants.messages.invitation_sent', ['email' => $this->record->email]))
+                                    ->send();
+                            }),
+                        Action::make('resendInvitation')
+                            ->label(__('admin.tenants.actions.resend_invitation'))
+                            ->icon('heroicon-m-arrow-path')
+                            ->visible(fn (): bool => $this->canResendInvitation())
+                            ->action(function (ResendTenantInvitation $resendTenantInvitation): void {
+                                $actor = auth()->user();
 
-                                            $this->latestInvitation = $resendOrganizationInvitationAction->handle($actor, $invitation);
+                                abort_if(! $actor instanceof User, 403);
 
-                                            Notification::make()
-                                                ->success()
-                                                ->title(__('admin.tenants.messages.invitation_resent'))
-                                                ->send();
-                                        }),
-                                ]
-                                : []
-                        ),
+                                $this->latestInvitation = $resendTenantInvitation->handle($actor, $this->record);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin.tenants.messages.invitation_resent'))
+                                    ->send();
+                            }),
+                        Action::make('copyInvitationLink')
+                            ->label(__('admin.tenants.actions.copy_invitation_link'))
+                            ->icon('heroicon-m-clipboard-document')
+                            ->modalHeading(__('admin.tenants.actions.copy_invitation_link'))
+                            ->modalDescription(__('admin.tenants.messages.copy_invitation_link_description'))
+                            ->schema([
+                                TextInput::make('invitation_link')
+                                    ->label(__('admin.tenants.fields.invitation_link'))
+                                    ->readOnly()
+                                    ->copyable(copyMessage: __('admin.tenants.messages.invitation_link_copied')),
+                            ])
+                            ->mountUsing(function (Schema $form): void {
+                                $actor = auth()->user();
+
+                                abort_if(! $actor instanceof User, 403);
+
+                                $this->latestInvitation = app(SendTenantInvitation::class)->handle(
+                                    $actor,
+                                    $this->record,
+                                    sendEmail: false,
+                                );
+
+                                $this->refreshRecord();
+
+                                $form->fill([
+                                    'invitation_link' => route('invitation.show', $this->latestInvitation->acceptanceToken),
+                                ]);
+                            })
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel(__('admin.actions.close'))
+                            ->visible(fn (): bool => $this->canCopyInvitationLink()),
+                        Action::make('revokeInvitation')
+                            ->label(__('admin.tenants.actions.revoke_invitation'))
+                            ->icon('heroicon-m-x-circle')
+                            ->color('danger')
+                            ->requiresConfirmation()
+                            ->visible(fn (): bool => $this->canRevokeInvitation())
+                            ->action(function (RevokeTenantInvitation $revokeTenantInvitation): void {
+                                $actor = auth()->user();
+                                $invitation = $this->latestInvitation();
+
+                                abort_if(! $actor instanceof User || ! $invitation instanceof OrganizationInvitation, 403);
+
+                                $this->latestInvitation = $revokeTenantInvitation->handle($actor, $invitation);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin.tenants.messages.invitation_revoked'))
+                                    ->send();
+                            }),
+                        Action::make('enablePortalAccess')
+                            ->label(__('admin.tenants.actions.enable_portal_access'))
+                            ->icon('heroicon-m-lock-open')
+                            ->color('success')
+                            ->visible(fn (): bool => $this->canEnablePortalAccess())
+                            ->action(function (EnableTenantPortalAccess $enableTenantPortalAccess): void {
+                                $actor = auth()->user();
+
+                                abort_if(! $actor instanceof User, 403);
+
+                                $enableTenantPortalAccess->handle($actor, $this->record);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin.tenants.messages.portal_access_enabled'))
+                                    ->send();
+                            }),
+                        Action::make('disablePortalAccess')
+                            ->label(__('admin.tenants.actions.disable_portal_access'))
+                            ->icon('heroicon-m-lock-closed')
+                            ->color('warning')
+                            ->requiresConfirmation()
+                            ->visible(fn (): bool => $this->canDisablePortalAccess())
+                            ->action(function (DisableTenantPortalAccess $disableTenantPortalAccess): void {
+                                $actor = auth()->user();
+
+                                abort_if(! $actor instanceof User, 403);
+
+                                $disableTenantPortalAccess->handle($actor, $this->record);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin.tenants.messages.portal_access_disabled'))
+                                    ->send();
+                            }),
                         Action::make('assignProperty')
                             ->label($this->record->currentPropertyAssignment === null
                                 ? __('admin.tenants.actions.assign_to_property')
@@ -223,8 +326,38 @@ class ViewTenant extends ViewRecord
 
     private function canResendInvitation(): bool
     {
-        return $this->record->status === UserStatus::INACTIVE
-            && $this->latestInvitation() !== null;
+        $invitation = $this->latestInvitation();
+
+        return $invitation instanceof OrganizationInvitation
+            && ! $invitation->isAccepted()
+            && ! $this->record->canAccessTenantPortal();
+    }
+
+    private function canSendInvitation(): bool
+    {
+        return ! $this->record->canAccessTenantPortal()
+            && ! $this->latestInvitation()?->isPending();
+    }
+
+    private function canCopyInvitationLink(): bool
+    {
+        return ! $this->record->canAccessTenantPortal();
+    }
+
+    private function canRevokeInvitation(): bool
+    {
+        return $this->latestInvitation()?->isPending() ?? false;
+    }
+
+    private function canEnablePortalAccess(): bool
+    {
+        return $this->record->status === UserStatus::ACTIVE
+            && ! $this->record->portal_access_enabled;
+    }
+
+    private function canDisablePortalAccess(): bool
+    {
+        return $this->record->portal_access_enabled;
     }
 
     private function latestInvitation(): ?OrganizationInvitation
@@ -243,21 +376,32 @@ class ViewTenant extends ViewRecord
             ->select([
                 'id',
                 'organization_id',
+                'tenant_id',
                 'inviter_user_id',
+                'invited_by_user_id',
                 'email',
                 'role',
                 'full_name',
                 'token',
+                'token_hash',
+                'sent_at',
                 'expires_at',
                 'accepted_at',
+                'revoked_at',
                 'created_at',
                 'updated_at',
             ])
             ->forOrganization($organizationId)
-            ->where('email', $this->record->email)
-            ->where('role', $this->record->role)
-            ->whereNull('accepted_at')
-            ->latest('id')
+            ->where(function ($query): void {
+                $query
+                    ->where('tenant_id', $this->record->id)
+                    ->orWhere(function ($query): void {
+                        $query
+                            ->where('email', $this->record->email)
+                            ->where('role', $this->record->role);
+                    });
+            })
+            ->latestSentFirst()
             ->first();
 
         return $this->latestInvitation;

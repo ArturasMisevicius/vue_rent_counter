@@ -50,6 +50,121 @@
             </section>
         </div>
 
+        @php($calculationPreview = $page['calculation_preview'] ?? ['items' => [], 'blocking_errors' => [], 'warnings' => []])
+
+        <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-950">{{ __('admin.invoices.sections.calculation_preview') }}</h2>
+                    <p class="mt-1 text-sm text-slate-500">{{ __('admin.invoices.preview.description') }}</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    @if (! empty($calculationPreview['blocking_errors']))
+                        <x-filament::badge color="danger">
+                            {{ __('admin.invoices.preview.blocking_count', ['count' => count($calculationPreview['blocking_errors'])]) }}
+                        </x-filament::badge>
+                    @endif
+
+                    @if (! empty($calculationPreview['warnings']))
+                        <x-filament::badge color="warning">
+                            {{ __('admin.invoices.preview.warning_count', ['count' => count($calculationPreview['warnings'])]) }}
+                        </x-filament::badge>
+                    @endif
+                </div>
+            </div>
+
+            @if (! empty($calculationPreview['blocking_errors']))
+                <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+                    <p class="font-semibold">{{ __('admin.invoices.preview.blocking_errors') }}</p>
+                    <ul class="mt-2 list-disc space-y-1 ps-5">
+                        @foreach ($calculationPreview['blocking_errors'] as $issue)
+                            <li>{{ $issue['message'] }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if (! empty($calculationPreview['warnings']))
+                <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                    <p class="font-semibold">{{ __('admin.invoices.preview.warnings') }}</p>
+                    <ul class="mt-2 list-disc space-y-1 ps-5">
+                        @foreach ($calculationPreview['warnings'] as $issue)
+                            <li>{{ $issue['message'] }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3">{{ __('admin.invoices.preview.columns.status') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.preview.columns.item') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.preview.columns.source') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.preview.columns.formula') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.fields.quantity') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.fields.unit_price') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.fields.subtotal') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.fields.tax') }}</th>
+                            <th class="px-4 py-3 text-right">{{ __('admin.invoices.fields.total') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.invoices.fields.tenant_visible') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse ($calculationPreview['items'] as $item)
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <x-filament::badge :color="$item['status'] === 'blocked' ? 'danger' : ($item['status'] === 'warning' ? 'warning' : 'success')">
+                                        {{ $item['status_label'] }}
+                                    </x-filament::badge>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p class="font-medium text-slate-900">{{ $item['title'] }}</p>
+                                    @if (filled($item['description_for_tenant']))
+                                        <p class="mt-1 text-xs text-slate-500">{{ $item['description_for_tenant'] }}</p>
+                                    @endif
+                                    @if (! empty($item['blocking_errors']) || ! empty($item['warnings']))
+                                        <div class="mt-2 space-y-1 text-xs">
+                                            @foreach ($item['blocking_errors'] as $message)
+                                                <p class="text-red-700">{{ $message }}</p>
+                                            @endforeach
+                                            @foreach ($item['warnings'] as $message)
+                                                <p class="text-amber-700">{{ $message }}</p>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 text-slate-600">
+                                    @if (filled($item['source_url'] ?? null))
+                                        <a href="{{ $item['source_url'] }}" class="font-medium text-primary-600 hover:text-primary-500">
+                                            {{ $item['source'] }}
+                                        </a>
+                                    @else
+                                        {{ $item['source'] }}
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['formula'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['quantity'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['unit_price'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['subtotal'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['tax'] }}</td>
+                                <td class="px-4 py-4 text-right font-semibold text-slate-950">{{ $item['total'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $item['tenant_visibility_label'] }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="px-4 py-8 text-center text-slate-500">
+                                    {{ __('admin.invoices.pdf.empty_items') }}
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="mb-4">
                 <h2 class="text-lg font-semibold text-slate-950">{{ __('admin.invoices.sections.charges') }}</h2>

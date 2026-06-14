@@ -2,10 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\OrganizationStatus;
+use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Workspace\WorkspaceResolver;
+use App\Models\OrganizationUser;
+use App\Models\User;
 use App\Services\ImpersonationService;
 use Closure;
 use Illuminate\Http\Request;
@@ -34,6 +38,7 @@ class EnsureAccountIsAccessible
 
         if (
             $user->status === UserStatus::SUSPENDED ||
+            $this->hasBlockedManagerMembership($user) ||
             ! $this->workspaceResolver->hasValidOrganization($user) ||
             ($organization?->status instanceof OrganizationStatus && ! $organization->status->permitsAccess())
         ) {
@@ -49,5 +54,23 @@ class EnsureAccountIsAccessible
         $this->workspaceResolver->resolveForRequest($request);
 
         return $next($request);
+    }
+
+    private function hasBlockedManagerMembership(User $user): bool
+    {
+        if (! $user->isManager() || blank($user->organization_id)) {
+            return false;
+        }
+
+        return OrganizationUser::query()
+            ->where('organization_id', $user->organization_id)
+            ->where('user_id', $user->id)
+            ->where('role', UserRole::MANAGER->value)
+            ->whereIn('status', [
+                ManagerMembershipStatus::INVITED,
+                ManagerMembershipStatus::DISABLED,
+                ManagerMembershipStatus::EXPIRED,
+            ])
+            ->exists();
     }
 }

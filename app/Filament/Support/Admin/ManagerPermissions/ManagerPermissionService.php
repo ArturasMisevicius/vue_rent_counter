@@ -4,6 +4,7 @@ namespace App\Filament\Support\Admin\ManagerPermissions;
 
 use App\Enums\AuditLogAction;
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Exceptions\ManagerPermissions\InvalidPermissionActionException;
 use App\Exceptions\ManagerPermissions\InvalidPermissionResourceException;
 use App\Exceptions\ManagerPermissions\UserIsNotManagerException;
@@ -203,16 +204,26 @@ class ManagerPermissionService
 
     public function isManagerForOrganization(User $user, Organization $organization): bool
     {
+        if ($user->status !== UserStatus::ACTIVE) {
+            return false;
+        }
+
+        $membershipQuery = OrganizationUser::query()
+            ->where('organization_id', $organization->id)
+            ->where('user_id', $user->id)
+            ->where('role', UserRole::MANAGER->value);
+
+        if ((clone $membershipQuery)->exists()) {
+            return (clone $membershipQuery)
+                ->active()
+                ->exists();
+        }
+
         if ($user->organization_id === $organization->id && $user->role === UserRole::MANAGER) {
             return true;
         }
 
-        return OrganizationUser::query()
-            ->active()
-            ->where('organization_id', $organization->id)
-            ->where('user_id', $user->id)
-            ->where('role', UserRole::MANAGER->value)
-            ->exists();
+        return false;
     }
 
     /**
@@ -229,9 +240,22 @@ class ManagerPermissionService
 
     private function ensureManagerForOrganization(User $manager, Organization $organization): void
     {
-        if (! $this->isManagerForOrganization($manager, $organization)) {
+        if (! $this->belongsToOrganizationAsManager($manager, $organization)) {
             throw UserIsNotManagerException::forUser($manager, $organization);
         }
+    }
+
+    private function belongsToOrganizationAsManager(User $user, Organization $organization): bool
+    {
+        if ($user->organization_id === $organization->id && $user->role === UserRole::MANAGER) {
+            return true;
+        }
+
+        return OrganizationUser::query()
+            ->where('organization_id', $organization->id)
+            ->where('user_id', $user->id)
+            ->where('role', UserRole::MANAGER->value)
+            ->exists();
     }
 
     private function cacheKey(User $user, Organization $organization): string

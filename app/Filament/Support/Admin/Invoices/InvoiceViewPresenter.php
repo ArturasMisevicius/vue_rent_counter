@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Actions\Admin\Invoices\BuildInvoiceCalculationPreview;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Invoice;
@@ -16,6 +17,7 @@ final class InvoiceViewPresenter
 {
     public function __construct(
         private readonly InvoicePresentationService $invoicePresentationService,
+        private readonly BuildInvoiceCalculationPreview $calculationPreviewBuilder,
     ) {}
 
     /**
@@ -29,6 +31,7 @@ final class InvoiceViewPresenter
      *     total_display: string,
      *     payment_history: array<int, array{date: string, amount: string, reference: string}>,
      *     email_history: array<int, array{date: string, recipient_email: string}>,
+     *     calculation_preview: array<string, mixed>,
      *     draft_notice: string|null,
      *     overdue_notice: string|null,
      *     payment_history_empty: string,
@@ -60,6 +63,7 @@ final class InvoiceViewPresenter
             'total_display' => (string) ($presentation['total_amount_display'] ?? '—'),
             'payment_history' => $this->paymentHistory($invoice),
             'email_history' => $this->emailHistory($invoice),
+            'calculation_preview' => $this->calculationPreviewBuilder->handle($invoice),
             'draft_notice' => $this->draftNotice($invoice),
             'overdue_notice' => $this->overdueNotice($invoice),
             'payment_history_empty' => __('admin.invoices.empty.payment_history'),

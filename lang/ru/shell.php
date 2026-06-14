@@ -44,6 +44,7 @@ return [
             'reports' => 'Отчеты',
             'settings' => 'Настройки',
             'organization_users' => 'Пользователи организации',
+            'team_managers' => 'Команда / менеджеры',
             'projects' => 'Проекты',
             'tasks' => 'Задачи',
             'task_assignments' => 'Назначения задач',

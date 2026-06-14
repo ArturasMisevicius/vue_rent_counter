@@ -73,9 +73,15 @@ it('renders migrated public and nested tenant routes through the expected livewi
     ],
     'accept invitation' => [
         function ($test) {
-            $invitation = OrganizationInvitation::factory()->create();
+            $token = OrganizationInvitation::issueToken();
+            $tokenHash = OrganizationInvitation::hashToken($token);
 
-            return $test->get(route('invitation.show', $invitation->token));
+            OrganizationInvitation::factory()->create([
+                'token' => $tokenHash,
+                'token_hash' => $tokenHash,
+            ]);
+
+            return $test->get(route('invitation.show', $token));
         },
         AcceptInvitationPage::class,
     ],

@@ -32,6 +32,7 @@ class Attachment extends Model
         'disk',
         'path',
         'document_type',
+        'tenant_visible',
         'description',
         'metadata',
         'created_at',
@@ -51,6 +52,7 @@ class Attachment extends Model
         'disk',
         'path',
         'document_type',
+        'tenant_visible',
         'description',
         'metadata',
     ];
@@ -59,6 +61,7 @@ class Attachment extends Model
     {
         return [
             'size' => 'integer',
+            'tenant_visible' => 'boolean',
             'metadata' => 'array',
         ];
     }
@@ -98,6 +101,11 @@ class Attachment extends Model
         return $query
             ->orderByDesc('created_at')
             ->orderByDesc('id');
+    }
+
+    public function scopeTenantVisible(Builder $query): Builder
+    {
+        return $query->where('tenant_visible', true);
     }
 
     public function scopeForDocumentType(Builder $query, string|array|null $documentType): Builder

@@ -10,6 +10,7 @@ use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -59,6 +60,33 @@ class TenantForm
                             ->required(),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.portal_access'))
+                    ->schema([
+                        Toggle::make('create_portal_access')
+                            ->label(__('admin.tenants.fields.create_portal_access'))
+                            ->default(true)
+                            ->live()
+                            ->afterStateUpdated(function (bool $state, Set $set): void {
+                                if (! $state) {
+                                    $set('send_invitation_now', false);
+                                }
+                            }),
+                        Toggle::make('send_invitation_now')
+                            ->label(__('admin.tenants.fields.send_invitation_now'))
+                            ->default(true)
+                            ->live()
+                            ->disabled(fn (Get $get): bool => ! (bool) $get('create_portal_access')),
+                        TextInput::make('invitation_expiration_days')
+                            ->label(__('admin.tenants.fields.invitation_expiration_days'))
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(60)
+                            ->default(7)
+                            ->required()
+                            ->visible(fn (Get $get): bool => (bool) $get('create_portal_access') && (bool) $get('send_invitation_now')),
+                    ])
+                    ->columns(3)
+                    ->visible(fn (?User $record): bool => $record === null),
                 Section::make(__('admin.tenants.sections.property_assignment'))
                     ->schema([
                         Select::make('property_id')

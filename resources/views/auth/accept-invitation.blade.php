@@ -14,6 +14,25 @@
                 {{ $statusMessage }}
             </div>
         @else
+            <dl class="grid gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm shadow-sm">
+                <div class="flex items-start justify-between gap-4">
+                    <dt class="font-medium text-slate-500">{{ __('auth.invitation_details.organization') }}</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $invitation->organization->name }}</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <dt class="font-medium text-slate-500">{{ __('auth.invitation_details.tenant') }}</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $tenantName }}</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <dt class="font-medium text-slate-500">{{ __('auth.invitation_details.property') }}</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $propertyName ?? __('auth.invitation_details.no_property') }}</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <dt class="font-medium text-slate-500">{{ __('auth.invitation_details.email') }}</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $invitation->email }}</dd>
+                </div>
+            </dl>
+
             <form
                 method="POST"
                 action="{{ route('invitation.store', $token) }}"

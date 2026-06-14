@@ -54,7 +54,7 @@ $adminAccountNavigation = [
     ],
     [
         'route' => 'filament.admin.resources.organization-users.index',
-        'label' => 'shell.navigation.items.organization_users',
+        'label' => 'shell.navigation.items.team_managers',
     ],
 ];
 
@@ -220,6 +220,14 @@ return [
                     ],
                     'billing' => [
                         [
+                            'route' => 'filament.admin.pages.billing-review-center',
+                            'label' => 'admin.billing_review.title',
+                            'active_patterns' => [
+                                'filament.admin.pages.billing-review-center',
+                                'filament.admin.pages.billing-review-center.invoice-review',
+                            ],
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
                         ],
@@ -234,6 +242,10 @@ return [
                         [
                             'route' => 'filament.admin.resources.service-configurations.index',
                             'label' => 'admin.service_configurations.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.service-configuration-guide',
+                            'label' => 'admin.service_configurations.guide.navigation',
                         ],
                         [
                             'route' => 'filament.admin.resources.utility-services.index',
@@ -273,6 +285,14 @@ return [
                     ],
                     'billing' => [
                         [
+                            'route' => 'filament.admin.pages.billing-review-center',
+                            'label' => 'admin.billing_review.title',
+                            'active_patterns' => [
+                                'filament.admin.pages.billing-review-center',
+                                'filament.admin.pages.billing-review-center.invoice-review',
+                            ],
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
                         ],
@@ -287,6 +307,10 @@ return [
                         [
                             'route' => 'filament.admin.resources.service-configurations.index',
                             'label' => 'admin.service_configurations.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.service-configuration-guide',
+                            'label' => 'admin.service_configurations.guide.navigation',
                         ],
                         [
                             'route' => 'filament.admin.resources.utility-services.index',
@@ -326,6 +350,14 @@ return [
                     ],
                     'billing' => [
                         [
+                            'route' => 'filament.admin.pages.billing-review-center',
+                            'label' => 'admin.billing_review.title',
+                            'active_patterns' => [
+                                'filament.admin.pages.billing-review-center',
+                                'filament.admin.pages.billing-review-center.invoice-review',
+                            ],
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
                         ],
@@ -340,6 +372,10 @@ return [
                         [
                             'route' => 'filament.admin.resources.service-configurations.index',
                             'label' => 'admin.service_configurations.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.service-configuration-guide',
+                            'label' => 'admin.service_configurations.guide.navigation',
                         ],
                         [
                             'route' => 'filament.admin.resources.utility-services.index',
@@ -380,6 +416,11 @@ return [
                             'route' => 'filament.admin.pages.tenant-invoice-history',
                             'label' => 'tenant.navigation.invoices',
                             'icon' => 'heroicon-m-document-text',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.tenant-documents',
+                            'label' => 'tenant.navigation.documents',
+                            'icon' => 'heroicon-m-document-duplicate',
                         ],
                     ],
                     'account' => [],

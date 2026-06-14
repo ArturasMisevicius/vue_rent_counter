@@ -56,6 +56,7 @@ return [
             'reports' => 'Informes',
             'settings' => 'Configuración',
             'organization_users' => 'Usuarios de organización',
+            'team_managers' => 'Equipo / responsables',
             'projects' => 'Proyectos',
             'tasks' => 'Tareas',
             'task_assignments' => 'Asignaciones de tareas',

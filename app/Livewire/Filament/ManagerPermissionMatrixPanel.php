@@ -72,6 +72,9 @@ class ManagerPermissionMatrixPanel extends Component
 
         $this->matrix = app(ManagerPermissionService::class)->getMatrix($manager, $organization);
         $this->selectedPreset = $this->detectPreset($this->matrix);
+        $this->record->forceFill([
+            'permissions_preset' => $this->selectedPreset,
+        ])->save();
 
         Notification::make()
             ->success()

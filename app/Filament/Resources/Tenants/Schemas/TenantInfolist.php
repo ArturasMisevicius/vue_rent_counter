@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Tenants\Schemas;
 
+use App\Enums\InvitationStatus;
+use App\Enums\PortalAccessStatus;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
+use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -52,6 +55,35 @@ class TenantInfolist
                             ->state(fn (User $record): string => (string) (config('tenanto.locales')[$record->locale] ?? $record->locale)),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.portal_access'))
+                    ->schema([
+                        TextEntry::make('status')
+                            ->label(__('admin.tenants.fields.user_account_status'))
+                            ->badge(),
+                        TextEntry::make('portal_status')
+                            ->label(__('admin.tenants.fields.portal_status'))
+                            ->state(fn (User $record): string => $record->portalAccessStatus()->getLabel())
+                            ->badge()
+                            ->color(fn (User $record): string => self::portalStatusColor($record->portalAccessStatus())),
+                        TextEntry::make('invitation_status')
+                            ->label(__('admin.tenants.fields.invitation_status'))
+                            ->state(fn (User $record): string => self::invitationStatusLabel($record->latestTenantInvitationRecord()))
+                            ->badge()
+                            ->color(fn (User $record): string => self::invitationStatusColor($record->latestTenantInvitationRecord()?->invitationStatus())),
+                        TextEntry::make('latestTenantInvitation.sent_at')
+                            ->label(__('admin.tenants.fields.invitation_sent_at'))
+                            ->state(fn (User $record): string => self::dateTime($record->latestTenantInvitationRecord()?->sent_at)),
+                        TextEntry::make('latestTenantInvitation.expires_at')
+                            ->label(__('admin.tenants.fields.invitation_expires_at'))
+                            ->state(fn (User $record): string => self::dateTime($record->latestTenantInvitationRecord()?->expires_at)),
+                        TextEntry::make('latestTenantInvitation.accepted_at')
+                            ->label(__('admin.tenants.fields.invitation_accepted_at'))
+                            ->state(fn (User $record): string => self::dateTime($record->latestTenantInvitationRecord()?->accepted_at)),
+                        TextEntry::make('last_login_at')
+                            ->label(__('admin.tenants.fields.last_login'))
+                            ->state(fn (User $record): string => self::dateTime($record->last_login_at, __('admin.tenants.empty.never'))),
+                    ])
+                    ->columns(4),
                 Section::make(__('admin.tenants.sections.account_activity'))
                     ->schema([
                         TextEntry::make('email_verified_at')
@@ -109,5 +141,39 @@ class TenantInfolist
                             ->openUrlInNewTab(),
                     ]),
             ]);
+    }
+
+    private static function invitationStatusLabel(?OrganizationInvitation $invitation): string
+    {
+        return $invitation?->invitationStatus()->getLabel() ?? __('admin.tenants.empty.not_invited');
+    }
+
+    private static function portalStatusColor(PortalAccessStatus $status): string
+    {
+        return match ($status) {
+            PortalAccessStatus::ACTIVE => 'success',
+            PortalAccessStatus::INVITED => 'info',
+            PortalAccessStatus::INVITATION_EXPIRED => 'warning',
+            PortalAccessStatus::DISABLED => 'danger',
+            PortalAccessStatus::NOT_INVITED => 'gray',
+        };
+    }
+
+    private static function invitationStatusColor(?InvitationStatus $status): string
+    {
+        return match ($status) {
+            InvitationStatus::ACCEPTED => 'success',
+            InvitationStatus::PENDING => 'info',
+            InvitationStatus::EXPIRED => 'warning',
+            InvitationStatus::REVOKED => 'danger',
+            null => 'gray',
+        };
+    }
+
+    private static function dateTime(mixed $date, ?string $fallback = null): string
+    {
+        return $date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat())
+            ?? $fallback
+            ?? '—';
     }
 }

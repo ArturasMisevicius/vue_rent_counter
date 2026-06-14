@@ -37,6 +37,7 @@ class ServiceConfigurationPolicy
 
     public function delete(User $user, ServiceConfiguration $serviceConfiguration): bool
     {
-        return $this->canWriteManagedResource($user, 'service_configurations', 'delete', $serviceConfiguration->organization_id);
+        return $serviceConfiguration->canBeDeletedFromAdminWorkspace()
+            && $this->canWriteManagedResource($user, 'service_configurations', 'delete', $serviceConfiguration->organization_id);
     }
 }

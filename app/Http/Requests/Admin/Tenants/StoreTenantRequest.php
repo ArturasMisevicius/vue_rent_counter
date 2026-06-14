@@ -44,6 +44,17 @@ class StoreTenantRequest extends FormRequest
             'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
             'phone' => ['nullable', 'string', 'max:255'],
             'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
+            'create_portal_access' => ['required', 'boolean'],
+            'send_invitation_now' => [
+                'required',
+                'boolean',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ((bool) $value && ! (bool) $this->input('create_portal_access')) {
+                        $fail(__('admin.tenants.messages.portal_access_required_for_invitation'));
+                    }
+                },
+            ],
+            'invitation_expiration_days' => ['required', 'integer', 'min:1', 'max:60'],
             'property_id' => [
                 'nullable',
                 'integer',
@@ -95,6 +106,14 @@ class StoreTenantRequest extends FormRequest
             'phone.max' => ['max.string', 'phone', ['max' => 255]],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
+            'create_portal_access.required' => ['required', 'create_portal_access'],
+            'create_portal_access.boolean' => ['boolean', 'create_portal_access'],
+            'send_invitation_now.required' => ['required', 'send_invitation_now'],
+            'send_invitation_now.boolean' => ['boolean', 'send_invitation_now'],
+            'invitation_expiration_days.required' => ['required', 'invitation_expiration_days'],
+            'invitation_expiration_days.integer' => ['integer', 'invitation_expiration_days'],
+            'invitation_expiration_days.min' => ['min.numeric', 'invitation_expiration_days', ['min' => 1]],
+            'invitation_expiration_days.max' => ['max.numeric', 'invitation_expiration_days', ['max' => 60]],
             'property_id.integer' => ['integer', 'property'],
             'property_id.exists' => ['exists', 'property'],
             'unit_area_sqm.numeric' => ['numeric', 'unit_area_sqm'],
@@ -115,6 +134,9 @@ class StoreTenantRequest extends FormRequest
                 'email',
                 'phone',
                 'locale',
+                'create_portal_access',
+                'send_invitation_now',
+                'invitation_expiration_days',
                 'unit_area_sqm',
             ]),
         ];
@@ -127,9 +149,15 @@ class StoreTenantRequest extends FormRequest
             'email',
             'phone',
             'locale',
+            'create_portal_access',
+            'send_invitation_now',
+            'invitation_expiration_days',
             'property_id',
             'unit_area_sqm',
         ]);
+
+        $createPortalAccess = $this->boolean('create_portal_access', true);
+        $sendInvitationNow = $createPortalAccess && $this->boolean('send_invitation_now', true);
 
         $this->emptyStringsToNull([
             'property_id',
@@ -137,6 +165,9 @@ class StoreTenantRequest extends FormRequest
         ]);
 
         $this->merge([
+            'create_portal_access' => $createPortalAccess,
+            'send_invitation_now' => $sendInvitationNow,
+            'invitation_expiration_days' => $this->integer('invitation_expiration_days', 7),
             'subscription_limit' => true,
         ]);
     }

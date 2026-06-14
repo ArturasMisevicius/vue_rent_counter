@@ -64,6 +64,7 @@ class NotificationCenter extends Component
             'notifications' => $this->presentedNotifications,
             'pollSeconds' => $this->pollSeconds,
             'unreadCount' => $this->unreadCount,
+            'viewAllUrl' => route('filament.admin.pages.notifications', [], false),
         ]);
     }
 
@@ -77,7 +78,7 @@ class NotificationCenter extends Component
     }
 
     /**
-     * @return array<int, array{id: string, title: string, preview: string, relative_time: string, unread: bool, url: ?string}>
+     * @return array<int, array{id: string, type: string|null, type_label: string, title: string, preview: string, relative_time: string, unread: bool, url: ?string}>
      */
     #[Computed]
     public function presentedNotifications(): array

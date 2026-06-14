@@ -75,6 +75,33 @@
         </section>
     @endif
 
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <x-shared.stat-card
+            :label="__('dashboard.organization_contracts.tenants_without_contract')"
+            :value="(string) $dashboard['rental_contracts']['tenants_without_contract']"
+            :trend="__('dashboard.organization_contracts.tenants_without_contract_trend')"
+            icon="heroicon-m-user-minus"
+        />
+        <x-shared.stat-card
+            :label="__('dashboard.organization_contracts.expiring_soon')"
+            :value="(string) $dashboard['rental_contracts']['contracts_expiring_soon']"
+            :trend="__('dashboard.organization_contracts.expiring_soon_trend')"
+            icon="heroicon-m-clock"
+        />
+        <x-shared.stat-card
+            :label="__('dashboard.organization_contracts.expired')"
+            :value="(string) $dashboard['rental_contracts']['expired_contracts']"
+            :trend="__('dashboard.organization_contracts.expired_trend')"
+            icon="heroicon-m-exclamation-triangle"
+        />
+        <x-shared.stat-card
+            :label="__('dashboard.organization_contracts.active')"
+            :value="(string) $dashboard['rental_contracts']['active_contracts']"
+            :trend="__('dashboard.organization_contracts.active_trend')"
+            icon="heroicon-m-document-check"
+        />
+    </section>
+
     <section class="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">

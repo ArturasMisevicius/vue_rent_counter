@@ -2,8 +2,15 @@
 
 namespace App\Filament\Resources\Tenants\Tables;
 
+use App\Enums\InvitationStatus;
+use App\Enums\PortalAccessStatus;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
+use App\Filament\Actions\Admin\Tenants\DisableTenantPortalAccess;
+use App\Filament\Actions\Admin\Tenants\EnableTenantPortalAccess;
+use App\Filament\Actions\Admin\Tenants\ResendTenantInvitation;
+use App\Filament\Actions\Admin\Tenants\RevokeTenantInvitation;
+use App\Filament\Actions\Admin\Tenants\SendTenantInvitation;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Tenants\TenantResource;
@@ -11,13 +18,16 @@ use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Organization;
+use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\FiltersResetActionPosition;
@@ -82,6 +92,28 @@ class TenantsTable
                     ->label(__('admin.tenants.columns.status'))
                     ->badge()
                     ->sortable(),
+                TextColumn::make('portal_access_status')
+                    ->label(__('admin.tenants.columns.portal_access_status'))
+                    ->state(fn (User $record): string => $record->portalAccessStatus()->getLabel())
+                    ->badge()
+                    ->color(fn (User $record): string => self::portalStatusColor($record->portalAccessStatus()))
+                    ->toggleable(),
+                TextColumn::make('invitation_status')
+                    ->label(__('admin.tenants.columns.invitation_status'))
+                    ->state(fn (User $record): string => self::invitationStatusLabel($record->latestTenantInvitationRecord()))
+                    ->badge()
+                    ->color(fn (User $record): string => self::invitationStatusColor($record->latestTenantInvitationRecord()?->invitationStatus()))
+                    ->toggleable(),
+                TextColumn::make('latestTenantInvitation.sent_at')
+                    ->label(__('admin.tenants.columns.invitation_sent_at'))
+                    ->state(fn (User $record): string => self::dateTime($record->latestTenantInvitationRecord()?->sent_at))
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('latestTenantInvitation.accepted_at')
+                    ->label(__('admin.tenants.columns.accepted_at'))
+                    ->state(fn (User $record): string => self::dateTime($record->latestTenantInvitationRecord()?->accepted_at))
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('last_login_at')
                     ->label(__('admin.tenants.fields.last_login'))
                     ->state(fn (User $record): string => $record->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? __('admin.tenants.empty.never'))
@@ -198,6 +230,123 @@ class TenantsTable
                 ...(
                     TenantResource::canMutateSubscriptionScopedRecords()
                         ? [
+                            Action::make('sendInvitation')
+                                ->label(__('admin.tenants.actions.send_invitation'))
+                                ->icon('heroicon-m-envelope')
+                                ->visible(fn (User $record): bool => self::canSendInvitation($record))
+                                ->action(function (User $record, SendTenantInvitation $sendTenantInvitation): void {
+                                    $actor = self::currentUser();
+
+                                    abort_if(! $actor instanceof User, 403);
+
+                                    $sendTenantInvitation->handle($actor, $record);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title(__('admin.tenants.messages.invitation_sent', ['email' => $record->email]))
+                                        ->send();
+                                }),
+                            Action::make('resendInvitation')
+                                ->label(__('admin.tenants.actions.resend_invitation'))
+                                ->icon('heroicon-m-arrow-path')
+                                ->visible(fn (User $record): bool => self::canResendInvitation($record))
+                                ->action(function (User $record, ResendTenantInvitation $resendTenantInvitation): void {
+                                    $actor = self::currentUser();
+
+                                    abort_if(! $actor instanceof User, 403);
+
+                                    $resendTenantInvitation->handle($actor, $record);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title(__('admin.tenants.messages.invitation_resent'))
+                                        ->send();
+                                }),
+                            Action::make('copyInvitationLink')
+                                ->label(__('admin.tenants.actions.copy_invitation_link'))
+                                ->icon('heroicon-m-clipboard-document')
+                                ->modalHeading(__('admin.tenants.actions.copy_invitation_link'))
+                                ->modalDescription(__('admin.tenants.messages.copy_invitation_link_description'))
+                                ->schema([
+                                    TextInput::make('invitation_link')
+                                        ->label(__('admin.tenants.fields.invitation_link'))
+                                        ->readOnly()
+                                        ->copyable(copyMessage: __('admin.tenants.messages.invitation_link_copied')),
+                                ])
+                                ->mountUsing(function (Schema $form, User $record): void {
+                                    $actor = self::currentUser();
+
+                                    abort_if(! $actor instanceof User, 403);
+
+                                    $invitation = app(SendTenantInvitation::class)->handle($actor, $record, sendEmail: false);
+
+                                    $form->fill([
+                                        'invitation_link' => route('invitation.show', $invitation->acceptanceToken),
+                                    ]);
+                                })
+                                ->modalSubmitAction(false)
+                                ->modalCancelActionLabel(__('admin.actions.close'))
+                                ->visible(fn (User $record): bool => self::canCopyInvitationLink($record)),
+                            Action::make('revokeInvitation')
+                                ->label(__('admin.tenants.actions.revoke_invitation'))
+                                ->icon('heroicon-m-x-circle')
+                                ->color('danger')
+                                ->requiresConfirmation()
+                                ->visible(fn (User $record): bool => self::canRevokeInvitation($record))
+                                ->action(function (User $record, RevokeTenantInvitation $revokeTenantInvitation): void {
+                                    $actor = self::currentUser();
+                                    $invitation = $record->latestTenantInvitationRecord();
+
+                                    abort_if(! $actor instanceof User || ! $invitation instanceof OrganizationInvitation, 403);
+
+                                    $revokeTenantInvitation->handle($actor, $invitation);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title(__('admin.tenants.messages.invitation_revoked'))
+                                        ->send();
+                                }),
+                            Action::make('enablePortalAccess')
+                                ->label(__('admin.tenants.actions.enable_portal_access'))
+                                ->icon('heroicon-m-lock-open')
+                                ->color('success')
+                                ->visible(fn (User $record): bool => self::canEnablePortalAccess($record))
+                                ->action(function (User $record, EnableTenantPortalAccess $enableTenantPortalAccess): void {
+                                    $actor = self::currentUser();
+
+                                    abort_if(! $actor instanceof User, 403);
+
+                                    $enableTenantPortalAccess->handle($actor, $record);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title(__('admin.tenants.messages.portal_access_enabled'))
+                                        ->send();
+                                }),
+                            Action::make('disablePortalAccess')
+                                ->label(__('admin.tenants.actions.disable_portal_access'))
+                                ->icon('heroicon-m-lock-closed')
+                                ->color('warning')
+                                ->requiresConfirmation()
+                                ->visible(fn (User $record): bool => self::canDisablePortalAccess($record))
+                                ->action(function (User $record, DisableTenantPortalAccess $disableTenantPortalAccess): void {
+                                    $actor = self::currentUser();
+
+                                    abort_if(! $actor instanceof User, 403);
+
+                                    $disableTenantPortalAccess->handle($actor, $record);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title(__('admin.tenants.messages.portal_access_disabled'))
+                                        ->send();
+                                }),
+                        ]
+                        : []
+                ),
+                ...(
+                    TenantResource::canMutateSubscriptionScopedRecords()
+                        ? [
                             Action::make('toggleStatus')
                                 ->label(fn (User $record): string => $record->status === UserStatus::ACTIVE
                                     ? __('admin.tenants.actions.deactivate')
@@ -261,6 +410,80 @@ class TenantsTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function canSendInvitation(User $record): bool
+    {
+        return TenantResource::canEdit($record)
+            && ! $record->canAccessTenantPortal()
+            && ! $record->latestTenantInvitationRecord()?->isPending();
+    }
+
+    private static function canResendInvitation(User $record): bool
+    {
+        $invitation = $record->latestTenantInvitationRecord();
+
+        return TenantResource::canEdit($record)
+            && $invitation instanceof OrganizationInvitation
+            && ! $invitation->isAccepted()
+            && ! $record->canAccessTenantPortal();
+    }
+
+    private static function canCopyInvitationLink(User $record): bool
+    {
+        return TenantResource::canEdit($record)
+            && ! $record->canAccessTenantPortal();
+    }
+
+    private static function canRevokeInvitation(User $record): bool
+    {
+        return TenantResource::canEdit($record)
+            && $record->latestTenantInvitationRecord()?->isPending();
+    }
+
+    private static function canEnablePortalAccess(User $record): bool
+    {
+        return TenantResource::canEdit($record)
+            && $record->status === UserStatus::ACTIVE
+            && ! $record->portal_access_enabled;
+    }
+
+    private static function canDisablePortalAccess(User $record): bool
+    {
+        return TenantResource::canEdit($record)
+            && $record->portal_access_enabled;
+    }
+
+    private static function invitationStatusLabel(?OrganizationInvitation $invitation): string
+    {
+        return $invitation?->invitationStatus()->getLabel() ?? __('admin.tenants.empty.not_invited');
+    }
+
+    private static function portalStatusColor(PortalAccessStatus $status): string
+    {
+        return match ($status) {
+            PortalAccessStatus::ACTIVE => 'success',
+            PortalAccessStatus::INVITED => 'info',
+            PortalAccessStatus::INVITATION_EXPIRED => 'warning',
+            PortalAccessStatus::DISABLED => 'danger',
+            PortalAccessStatus::NOT_INVITED => 'gray',
+        };
+    }
+
+    private static function invitationStatusColor(?InvitationStatus $status): string
+    {
+        return match ($status) {
+            InvitationStatus::ACCEPTED => 'success',
+            InvitationStatus::PENDING => 'info',
+            InvitationStatus::EXPIRED => 'warning',
+            InvitationStatus::REVOKED => 'danger',
+            null => 'gray',
+        };
+    }
+
+    private static function dateTime(mixed $date): string
+    {
+        return $date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()) ?? '—';
     }
 
     private static function overrideFilterResetLabel(): void

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\AuditLogAction;
+use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Events\InvoiceFinalized;
+use App\Filament\Support\Admin\ExtraCharges\ExtraChargeInvoiceIntegrator;
+use App\Filament\Support\Admin\Invoices\InvoiceApprovalValidator;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\InvoiceGenerationAudit;
 use App\Models\InvoicePayment;
@@ -28,6 +32,8 @@ final class InvoiceService
         private readonly UniversalBillingCalculator $calculator,
         private readonly DashboardCacheService $dashboardCacheService,
         private readonly AuditLogger $auditLogger,
+        private readonly InvoiceApprovalValidator $invoiceApprovalValidator,
+        private readonly ExtraChargeInvoiceIntegrator $extraChargeInvoiceIntegrator,
     ) {}
 
     /**
@@ -41,6 +47,13 @@ final class InvoiceService
 
             if (array_key_exists('items', $payload)) {
                 $normalizedItems = $this->normalizeLineItems(is_array($payload['items']) ? $payload['items'] : []);
+            }
+
+            if ($normalizedItems !== null) {
+                $payload['items'] = $normalizedItems;
+                $payload['snapshot_data'] = $normalizedItems;
+                $payload['snapshot_created_at'] = now();
+                $payload['total_amount'] = $payload['total_amount'] ?? $this->sumLineItems($normalizedItems);
             }
 
             $invoice->update($payload);
@@ -131,6 +144,7 @@ final class InvoiceService
         CarbonInterface $billingPeriodEnd,
         string $dueDate,
         ?User $actor = null,
+        ?BillingPeriod $billingPeriod = null,
     ): Invoice {
         return DB::transaction(function () use (
             $organization,
@@ -139,9 +153,11 @@ final class InvoiceService
             $billingPeriodEnd,
             $dueDate,
             $actor,
+            $billingPeriod,
         ): Invoice {
             $invoice = Invoice::query()->create([
                 'organization_id' => $organization->id,
+                'billing_period_id' => $billingPeriod?->id,
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
                 'invoice_number' => 'INV-TEMP-'.Str::uuid(),
@@ -163,6 +179,10 @@ final class InvoiceService
                 'approval_metadata' => [
                     'workflow' => 'meter_reading_request',
                     'source' => 'billing:open-reading-invoice-cycle',
+                    'billing_period_id' => $billingPeriod?->id,
+                    'reading_submission_deadline' => $billingPeriod?->reading_submission_deadline?->toDateString() ?? $dueDate,
+                    'invoice_generation_date' => $billingPeriod?->invoice_generation_date?->toDateString(),
+                    'payment_due_date' => $billingPeriod?->payment_due_date?->toDateString(),
                 ],
                 'notes' => __('admin.invoices.reading_request.invoice_note'),
             ]);
@@ -253,8 +273,10 @@ final class InvoiceService
 
             $this->syncInvoiceItems($invoice, $items);
             $this->syncBillingRecords($invoice, $assignment, $items, $billingPeriodStart, $billingPeriodEnd);
+            $this->extraChargeInvoiceIntegrator->markIncluded($invoice, $items, $actor?->id);
 
             $freshInvoice = $invoice->fresh(['invoiceItems', 'payments', 'billingRecords']);
+            $this->invoiceApprovalValidator->ensureCanApprove($freshInvoice);
 
             InvoiceGenerationAudit::query()->create([
                 'invoice_id' => $freshInvoice->id,
@@ -379,6 +401,7 @@ final class InvoiceService
                 'approved_by' => $actor?->id ?? $invoice->approved_by,
                 'approved_at' => $invoice->approved_at ?? now(),
             ]);
+            $this->extraChargeInvoiceIntegrator->markIncluded($invoice, $invoice->items, $actor?->id);
 
             $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
 
@@ -584,28 +607,183 @@ final class InvoiceService
      */
     private function normalizeLineItems(array $items): array
     {
-        return array_values(array_map(function (mixed $item): array {
+        $normalized = [];
+
+        foreach (array_values($items) as $index => $item) {
             $resolvedItem = is_array($item) ? $item : [];
             $total = $resolvedItem['total'] ?? $resolvedItem['amount'] ?? 0;
             $unitPrice = $resolvedItem['unit_price'] ?? $resolvedItem['rate'] ?? $total;
             $quantity = $resolvedItem['quantity'] ?? 1;
+            $description = (string) ($resolvedItem['description'] ?? $resolvedItem['description_for_tenant'] ?? $resolvedItem['title'] ?? '');
+            $sourceType = $this->resolveSourceType($resolvedItem, $total);
+            $sourceId = $this->resolveSourceId($resolvedItem, $sourceType);
+            $subtotal = $this->calculator->money($resolvedItem['subtotal'] ?? $total);
+            $taxAmount = $this->calculator->money($resolvedItem['tax_amount'] ?? 0);
+            $discountAmount = $this->calculator->money($resolvedItem['discount_amount'] ?? 0);
+            $normalizedQuantity = $this->calculator->quantity($quantity);
+            $normalizedUnitPrice = $this->calculator->rate($unitPrice);
+            $normalizedTotal = $this->calculator->money($total);
+            $currency = (string) ($resolvedItem['currency'] ?? 'EUR');
+            $formulaLabel = (string) ($resolvedItem['formula_label'] ?? __('admin.invoices.formulas.quantity_times_unit_price'));
+            $tenantVisible = array_key_exists('tenant_visible', $resolvedItem)
+                ? (bool) $resolvedItem['tenant_visible']
+                : true;
+            $meterReadingSnapshot = $resolvedItem['meter_reading_snapshot'] ?? null;
+            $serviceSnapshot = $resolvedItem['service_snapshot'] ?? null;
+            $tariffSnapshot = $resolvedItem['tariff_snapshot'] ?? null;
+            $providerSnapshot = $resolvedItem['provider_snapshot'] ?? null;
 
-            return [
+            $normalized[] = [
+                'source_type' => $sourceType->value,
+                'source_id' => $sourceId,
+                'service_configuration_id' => $resolvedItem['service_configuration_id'] ?? null,
                 'utility_service_id' => $resolvedItem['utility_service_id'] ?? null,
-                'description' => (string) ($resolvedItem['description'] ?? ''),
+                'tariff_id' => $resolvedItem['tariff_id'] ?? null,
+                'provider_id' => $resolvedItem['provider_id'] ?? null,
+                'title' => (string) ($resolvedItem['title'] ?? $description),
+                'description' => $description,
+                'description_for_tenant' => (string) ($resolvedItem['description_for_tenant'] ?? $description),
+                'internal_note' => $resolvedItem['internal_note'] ?? null,
                 'period' => filled($resolvedItem['period'] ?? null)
                     ? (string) $resolvedItem['period']
                     : null,
-                'quantity' => $this->calculator->quantity($quantity),
+                'quantity' => $normalizedQuantity,
                 'unit' => $resolvedItem['unit'] ?? null,
-                'unit_price' => $this->calculator->rate($unitPrice),
-                'total' => $this->calculator->money($total),
+                'unit_price' => $normalizedUnitPrice,
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxAmount,
+                'discount_amount' => $discountAmount,
+                'total' => $normalizedTotal,
+                'currency' => $currency,
+                'formula_label' => $formulaLabel,
+                'calculation_snapshot' => $this->resolveCalculationSnapshot(
+                    resolvedItem: $resolvedItem,
+                    sourceType: $sourceType,
+                    sourceId: $sourceId,
+                    quantity: $normalizedQuantity,
+                    unitPrice: $normalizedUnitPrice,
+                    subtotal: $subtotal,
+                    taxAmount: $taxAmount,
+                    discountAmount: $discountAmount,
+                    total: $normalizedTotal,
+                    currency: $currency,
+                    formulaLabel: $formulaLabel,
+                    meterReadingSnapshot: is_array($meterReadingSnapshot) ? $meterReadingSnapshot : null,
+                    serviceSnapshot: is_array($serviceSnapshot) ? $serviceSnapshot : null,
+                    tariffSnapshot: is_array($tariffSnapshot) ? $tariffSnapshot : null,
+                    providerSnapshot: is_array($providerSnapshot) ? $providerSnapshot : null,
+                ),
+                'tenant_visible' => $tenantVisible,
+                'sort_order' => (int) ($resolvedItem['sort_order'] ?? $index + 1),
                 'consumption' => $this->calculator->quantity($resolvedItem['consumption'] ?? $quantity),
                 'rate' => $this->calculator->rate($resolvedItem['rate'] ?? $unitPrice),
                 'is_adjustment' => (bool) ($resolvedItem['is_adjustment'] ?? false),
-                'meter_reading_snapshot' => $resolvedItem['meter_reading_snapshot'] ?? null,
+                'meter_reading_snapshot' => $meterReadingSnapshot,
+                'service_snapshot' => $serviceSnapshot,
+                'tariff_snapshot' => $tariffSnapshot,
+                'provider_snapshot' => $providerSnapshot,
+                'billable' => (bool) ($resolvedItem['billable'] ?? true),
             ];
-        }, $items));
+        }
+
+        return $normalized;
+    }
+
+    private function resolveSourceType(array $item, string|int|float $total): InvoiceItemSourceType
+    {
+        $sourceType = InvoiceItemSourceType::tryFrom((string) ($item['source_type'] ?? ''));
+
+        if ($sourceType instanceof InvoiceItemSourceType) {
+            return $sourceType;
+        }
+
+        if (is_array($item['meter_reading_snapshot'] ?? null)) {
+            return InvoiceItemSourceType::METER_READING;
+        }
+
+        if (! empty($item['utility_service_id'])) {
+            return InvoiceItemSourceType::FIXED_SERVICE;
+        }
+
+        if ((bool) ($item['is_adjustment'] ?? false)) {
+            return ((float) $total) < 0
+                ? InvoiceItemSourceType::DISCOUNT
+                : InvoiceItemSourceType::CORRECTION;
+        }
+
+        if (((float) $total) < 0) {
+            return InvoiceItemSourceType::DISCOUNT;
+        }
+
+        return InvoiceItemSourceType::EXTRA_CHARGE;
+    }
+
+    private function resolveSourceId(array $item, InvoiceItemSourceType $sourceType): ?int
+    {
+        if (is_numeric($item['source_id'] ?? null)) {
+            return (int) $item['source_id'];
+        }
+
+        if ($sourceType === InvoiceItemSourceType::METER_READING) {
+            $endReadingId = data_get($item, 'meter_reading_snapshot.end.id');
+
+            return is_numeric($endReadingId) ? (int) $endReadingId : null;
+        }
+
+        if ($sourceType === InvoiceItemSourceType::FIXED_SERVICE && is_numeric($item['service_configuration_id'] ?? null)) {
+            return (int) $item['service_configuration_id'];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $resolvedItem
+     * @param  array<string, mixed>|null  $meterReadingSnapshot
+     * @param  array<string, mixed>|null  $serviceSnapshot
+     * @param  array<string, mixed>|null  $tariffSnapshot
+     * @param  array<string, mixed>|null  $providerSnapshot
+     * @return array<string, mixed>
+     */
+    private function resolveCalculationSnapshot(
+        array $resolvedItem,
+        InvoiceItemSourceType $sourceType,
+        ?int $sourceId,
+        string $quantity,
+        string $unitPrice,
+        string $subtotal,
+        string $taxAmount,
+        string $discountAmount,
+        string $total,
+        string $currency,
+        string $formulaLabel,
+        ?array $meterReadingSnapshot,
+        ?array $serviceSnapshot,
+        ?array $tariffSnapshot,
+        ?array $providerSnapshot,
+    ): array {
+        if (is_array($resolvedItem['calculation_snapshot'] ?? null)) {
+            return $resolvedItem['calculation_snapshot'];
+        }
+
+        return [
+            'source_type' => $sourceType->value,
+            'source_id' => $sourceId,
+            'source_status' => (string) ($resolvedItem['source_status'] ?? 'approved'),
+            'formula_label' => $formulaLabel,
+            'quantity' => $quantity,
+            'unit' => $resolvedItem['unit'] ?? null,
+            'unit_price' => $unitPrice,
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxAmount,
+            'discount_amount' => $discountAmount,
+            'total' => $total,
+            'currency' => $currency,
+            'meter_reading_snapshot' => $meterReadingSnapshot,
+            'service_snapshot' => $serviceSnapshot,
+            'tariff_snapshot' => $tariffSnapshot,
+            'provider_snapshot' => $providerSnapshot,
+        ];
     }
 
     /**
@@ -626,15 +804,27 @@ final class InvoiceService
             })
             ->map(function (array $adjustment): array {
                 $amount = $adjustment['amount'] ?? 0;
+                $description = (string) ($adjustment['label'] ?? __('admin.invoices.fields.adjustment'));
 
                 return [
-                    'description' => (string) ($adjustment['label'] ?? __('admin.invoices.fields.adjustment')),
+                    'source_type' => ((float) $amount) < 0
+                        ? InvoiceItemSourceType::DISCOUNT->value
+                        : InvoiceItemSourceType::CORRECTION->value,
+                    'source_status' => 'approved',
+                    'title' => $description,
+                    'description' => $description,
+                    'description_for_tenant' => $description,
                     'period' => null,
                     'quantity' => '1',
                     'unit' => null,
                     'unit_price' => $amount,
+                    'subtotal' => $amount,
+                    'tax_amount' => '0',
+                    'discount_amount' => '0',
                     'rate' => $amount,
                     'total' => $amount,
+                    'currency' => 'EUR',
+                    'formula_label' => __('admin.invoices.formulas.manual_amount'),
                     'consumption' => '1',
                     'is_adjustment' => true,
                     'meter_reading_snapshot' => null,
@@ -658,12 +848,32 @@ final class InvoiceService
         }
 
         $invoice->invoiceItems()->createMany(array_map(fn (array $item): array => [
+            'source_type' => $item['source_type'],
+            'source_id' => $item['source_id'],
+            'service_configuration_id' => $item['service_configuration_id'],
+            'utility_service_id' => $item['utility_service_id'],
+            'tariff_id' => $item['tariff_id'],
+            'provider_id' => $item['provider_id'],
+            'title' => $item['title'],
             'description' => $item['description'],
+            'description_for_tenant' => $item['description_for_tenant'],
+            'internal_note' => $item['internal_note'],
             'quantity' => $item['quantity'],
             'unit' => $item['unit'],
             'unit_price' => $item['unit_price'],
+            'subtotal' => $item['subtotal'],
+            'tax_amount' => $item['tax_amount'],
+            'discount_amount' => $item['discount_amount'],
             'total' => $item['total'],
+            'currency' => $item['currency'],
+            'formula_label' => $item['formula_label'],
+            'calculation_snapshot' => $item['calculation_snapshot'],
+            'tenant_visible' => $item['tenant_visible'],
+            'sort_order' => $item['sort_order'],
             'meter_reading_snapshot' => $item['meter_reading_snapshot'],
+            'service_snapshot' => $item['service_snapshot'],
+            'tariff_snapshot' => $item['tariff_snapshot'],
+            'provider_snapshot' => $item['provider_snapshot'],
         ], $items));
     }
 

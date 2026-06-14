@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Auth;
 
 use App\Filament\Actions\Auth\AcceptOrganizationInvitationAction;
+use App\Filament\Actions\Auth\AcceptTenantInvitation;
 use App\Filament\Actions\Preferences\ResolveGuestLocaleAction;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Auth\LoginRedirector;
@@ -33,6 +36,7 @@ class AcceptInvitationPage extends Component
         AcceptInvitationRequest $request,
         string $token,
         AcceptOrganizationInvitationAction $acceptInvitation,
+        AcceptTenantInvitation $acceptTenantInvitation,
         ResolveGuestLocaleAction $resolveGuestLocaleAction,
         LoginRedirector $loginRedirector,
         AuthenticatedSessionHistory $authenticatedSessionHistory,
@@ -51,11 +55,17 @@ class AcceptInvitationPage extends Component
 
         $locale = $resolveGuestLocaleAction->handle($request);
 
-        $user = $acceptInvitation->handle(
-            $invitation,
-            $request->validated(),
-            $locale,
-        );
+        $user = $invitation->tenant_id !== null
+            ? $acceptTenantInvitation->handle(
+                $invitation,
+                $request->validated(),
+                $locale,
+            )
+            : $acceptInvitation->handle(
+                $invitation,
+                $request->validated(),
+                $locale,
+            );
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -71,12 +81,15 @@ class AcceptInvitationPage extends Component
         $statusMessage = match (true) {
             $invitation === null => __('auth.invitation_expired'),
             $invitation->isAccepted() => session('status', __('auth.invitation_used')),
+            $invitation->isRevoked() => __('auth.invitation_revoked'),
             $invitation->isExpired() => __('auth.invitation_expired'),
             default => null,
         };
 
         return view('auth.accept-invitation', [
             'invitation' => $invitation,
+            'tenantName' => $invitation?->tenant?->name ?? $invitation?->full_name,
+            'propertyName' => $invitation?->tenant?->currentProperty?->displayName(),
             'statusMessage' => $statusMessage,
             'token' => $this->token,
         ])->extends('layouts.guest');

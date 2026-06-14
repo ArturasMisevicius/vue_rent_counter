@@ -20,7 +20,7 @@ class ListOrganizationUsers extends ListRecords
         $createAction = CreateAction::make();
 
         if (! $this->currentUser()?->isSuperadmin()) {
-            $createAction->label(__('superadmin.organizations.relations.managers.actions.create'));
+            $createAction->label(__('admin.organization_users.actions.invite_manager'));
         }
 
         return [

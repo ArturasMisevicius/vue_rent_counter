@@ -46,10 +46,12 @@ beforeEach(function (): void {
 function createSecuredInvitation(array $attributes = []): array
 {
     $token = OrganizationInvitation::issueToken();
+    $tokenHash = OrganizationInvitation::hashToken($token);
 
     $invitation = OrganizationInvitation::factory()->create([
         ...$attributes,
-        'token' => OrganizationInvitation::hashToken($token),
+        'token' => $tokenHash,
+        'token_hash' => $tokenHash,
     ]);
 
     return compact('invitation', 'token');

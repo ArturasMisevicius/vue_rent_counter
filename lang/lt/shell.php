@@ -44,6 +44,7 @@ return [
             'reports' => 'Ataskaitos',
             'settings' => 'Nustatymai',
             'organization_users' => 'Organizacijos naudotojai',
+            'team_managers' => 'Komanda / vadovai',
             'projects' => 'Projektai',
             'tasks' => 'Užduotys',
             'task_assignments' => 'Užduočių priskyrimai',

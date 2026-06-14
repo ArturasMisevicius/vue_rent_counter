@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\AuditLog;
 use App\Models\Building;
+use App\Models\ExtraCharge;
+use App\Models\ExtraChargeType;
 use App\Models\IntegrationHealthCheck;
 use App\Models\Invoice;
 use App\Models\Language;
@@ -15,6 +17,7 @@ use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\Provider;
+use App\Models\RentalContract;
 use App\Models\SecurityViolation;
 use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
@@ -27,6 +30,8 @@ use App\Models\User;
 use App\Models\UtilityService;
 use App\Policies\AuditLogPolicy;
 use App\Policies\BuildingPolicy;
+use App\Policies\ExtraChargePolicy;
+use App\Policies\ExtraChargeTypePolicy;
 use App\Policies\IntegrationHealthCheckPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LanguagePolicy;
@@ -38,6 +43,7 @@ use App\Policies\ProjectPolicy;
 use App\Policies\PropertyAssignmentPolicy;
 use App\Policies\PropertyPolicy;
 use App\Policies\ProviderPolicy;
+use App\Policies\RentalContractPolicy;
 use App\Policies\SecurityViolationPolicy;
 use App\Policies\ServiceConfigurationPolicy;
 use App\Policies\SubscriptionPolicy;
@@ -59,6 +65,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         AuditLog::class => AuditLogPolicy::class,
         Building::class => BuildingPolicy::class,
+        ExtraCharge::class => ExtraChargePolicy::class,
+        ExtraChargeType::class => ExtraChargeTypePolicy::class,
         IntegrationHealthCheck::class => IntegrationHealthCheckPolicy::class,
         Invoice::class => InvoicePolicy::class,
         Language::class => LanguagePolicy::class,
@@ -70,6 +78,7 @@ class AuthServiceProvider extends ServiceProvider
         PropertyAssignment::class => PropertyAssignmentPolicy::class,
         Provider::class => ProviderPolicy::class,
         Property::class => PropertyPolicy::class,
+        RentalContract::class => RentalContractPolicy::class,
         SecurityViolation::class => SecurityViolationPolicy::class,
         ServiceConfiguration::class => ServiceConfigurationPolicy::class,
         Subscription::class => SubscriptionPolicy::class,

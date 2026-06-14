@@ -3,21 +3,27 @@
 namespace App\Filament\Resources\Invoices\Pages;
 
 use App\Enums\PaymentMethod;
+use App\Filament\Actions\Admin\Invoices\AddManualInvoiceAdjustment;
 use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
+use App\Filament\Actions\Admin\Invoices\RecalculateInvoice;
 use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
+use App\Filament\Actions\Admin\Invoices\UpdateInvoiceTenantDescriptions;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Support\Admin\Invoices\InvoiceViewPresenter;
+use App\Filament\Support\Billing\InvoiceCalculationRows;
 use App\Services\Billing\InvoicePdfService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 
 class ViewInvoice extends ViewRecord
@@ -70,10 +76,101 @@ class ViewInvoice extends ViewRecord
             return [
                 EditAction::make()
                     ->label(__('admin.actions.edit')),
+                Action::make('recalculate')
+                    ->label(__('admin.invoices.actions.recalculate'))
+                    ->icon('heroicon-m-calculator')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalDescription(__('admin.invoices.messages.recalculate_confirmation'))
+                    ->authorize(fn (): bool => InvoiceResource::canEdit($this->record))
+                    ->action(function (RecalculateInvoice $recalculateInvoice): void {
+                        $recalculateInvoice->handle($this->record, auth()->user());
+                        $this->refreshRecord();
+
+                        Notification::make()
+                            ->title(__('admin.invoices.messages.recalculated'))
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('addManualAdjustment')
+                    ->label(__('admin.invoices.actions.add_manual_adjustment'))
+                    ->icon('heroicon-m-plus-circle')
+                    ->slideOver()
+                    ->modalHeading(__('admin.invoices.actions.add_manual_adjustment'))
+                    ->modalSubmitActionLabel(__('admin.invoices.actions.add_adjustment'))
+                    ->authorize(fn (): bool => InvoiceResource::canEdit($this->record))
+                    ->schema([
+                        TextInput::make('amount')
+                            ->label(__('admin.invoices.fields.adjustment'))
+                            ->numeric()
+                            ->required(),
+                        Textarea::make('description_for_tenant')
+                            ->label(__('admin.invoices.fields.description_for_tenant'))
+                            ->rows(3)
+                            ->required(),
+                        Textarea::make('internal_note')
+                            ->label(__('admin.invoices.fields.internal_note'))
+                            ->rows(3)
+                            ->required(),
+                        Toggle::make('tenant_visible')
+                            ->label(__('admin.invoices.fields.tenant_visible'))
+                            ->default(true),
+                    ])
+                    ->action(function (array $data, AddManualInvoiceAdjustment $addManualInvoiceAdjustment): void {
+                        $addManualInvoiceAdjustment->handle($this->record, $data, auth()->user());
+                        $this->refreshRecord();
+
+                        Notification::make()
+                            ->title(__('admin.invoices.messages.manual_adjustment_added'))
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('editTenantDescriptions')
+                    ->label(__('admin.invoices.actions.edit_tenant_descriptions'))
+                    ->icon('heroicon-m-pencil-square')
+                    ->slideOver()
+                    ->modalHeading(__('admin.invoices.actions.edit_tenant_descriptions'))
+                    ->modalSubmitActionLabel(__('admin.actions.save_changes'))
+                    ->authorize(fn (): bool => InvoiceResource::canEdit($this->record))
+                    ->fillForm(fn (): array => [
+                        'items' => collect(resolve(InvoiceCalculationRows::class)->forInvoice($this->record))
+                            ->map(fn (array $item): array => [
+                                'title' => (string) ($item['title'] ?? $item['description_for_tenant'] ?? $item['description'] ?? ''),
+                                'description_for_tenant' => (string) ($item['description_for_tenant'] ?? ''),
+                            ])
+                            ->all(),
+                    ])
+                    ->schema([
+                        Repeater::make('items')
+                            ->label(__('admin.invoices.fields.line_items'))
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label(__('admin.invoices.fields.title'))
+                                    ->disabled()
+                                    ->dehydrated(false),
+                                Textarea::make('description_for_tenant')
+                                    ->label(__('admin.invoices.fields.description_for_tenant'))
+                                    ->rows(3),
+                            ])
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->columnSpanFull(),
+                    ])
+                    ->action(function (array $data, UpdateInvoiceTenantDescriptions $updateInvoiceTenantDescriptions): void {
+                        $updateInvoiceTenantDescriptions->handle($this->record, $data, auth()->user());
+                        $this->refreshRecord();
+
+                        Notification::make()
+                            ->title(__('admin.invoices.messages.tenant_descriptions_updated'))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('finalize')
-                    ->label(__('admin.invoices.actions.finalize'))
+                    ->label(__('admin.invoices.actions.approve_invoice'))
                     ->icon('heroicon-m-lock-closed')
                     ->color('warning')
+                    ->visible(fn (): bool => $this->previewCanApprove() && ! $this->previewHasWarnings())
                     ->requiresConfirmation()
                     ->modalHeading(__('admin.invoices.actions.finalize_heading', [
                         'number' => $this->record->invoice_number,
@@ -82,6 +179,29 @@ class ViewInvoice extends ViewRecord
                     ->modalSubmitActionLabel(__('admin.invoices.actions.finalize_invoice'))
                     ->action(function (FinalizeInvoiceAction $finalizeInvoiceAction): void {
                         $finalizeInvoiceAction->handle($this->record);
+                        $this->refreshRecord();
+
+                        Notification::make()
+                            ->title(__('admin.invoices.messages.finalized_named', [
+                                'number' => $this->record->invoice_number,
+                            ]))
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('approveWithWarnings')
+                    ->label(__('admin.invoices.actions.approve_with_warnings'))
+                    ->icon('heroicon-m-shield-exclamation')
+                    ->color('warning')
+                    ->visible(fn (): bool => $this->previewCanApprove() && $this->previewHasWarnings())
+                    ->requiresConfirmation()
+                    ->modalHeading(__('admin.invoices.actions.approve_with_warnings'))
+                    ->modalDescription(__('admin.invoices.messages.approve_with_warnings_confirmation'))
+                    ->modalSubmitActionLabel(__('admin.invoices.actions.approve_with_warnings'))
+                    ->authorize(fn (): bool => InvoiceResource::canEdit($this->record))
+                    ->action(function (FinalizeInvoiceAction $finalizeInvoiceAction): void {
+                        $finalizeInvoiceAction->handle($this->record, [
+                            'approve_with_warnings' => true,
+                        ]);
                         $this->refreshRecord();
 
                         Notification::make()
@@ -217,5 +337,15 @@ class ViewInvoice extends ViewRecord
             ->findOrFail($this->record->getKey());
 
         $this->pageDataCache = null;
+    }
+
+    private function previewCanApprove(): bool
+    {
+        return (bool) data_get($this->pageData(), 'calculation_preview.can_approve', false);
+    }
+
+    private function previewHasWarnings(): bool
+    {
+        return (bool) data_get($this->pageData(), 'calculation_preview.has_warnings', false);
     }
 }

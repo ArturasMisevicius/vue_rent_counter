@@ -43,6 +43,16 @@ return [
         'limit_reached' => 'Se alcanzó el límite de :label.',
         'upgrade_action' => 'Mejorar plan',
     ],
+    'organization_contracts' => [
+        'tenants_without_contract' => 'Tenants Without Contract',
+        'tenants_without_contract_trend' => 'Tenants without an active rental contract.',
+        'expiring_soon' => 'Contracts Expiring Soon',
+        'expiring_soon_trend' => 'Active contracts ending in the next 30 days.',
+        'expired' => 'Expired Contracts',
+        'expired_trend' => 'Contracts marked expired.',
+        'active' => 'Active Contracts',
+        'active_trend' => 'Contracts currently active.',
+    ],
     'platform_sections' => [
         'revenue_by_plan' => 'Ingresos por plan durante los últimos 12 meses',
         'revenue_by_plan_description' => 'Sigue la evolución de cada plan con una tendencia mensual de ingresos.',

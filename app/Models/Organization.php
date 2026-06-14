@@ -224,6 +224,11 @@ class Organization extends Model
         return $this->hasMany(PropertyAssignment::class);
     }
 
+    public function rentalContracts(): HasMany
+    {
+        return $this->hasMany(RentalContract::class);
+    }
+
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
@@ -242,6 +247,21 @@ class Organization extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function billingPeriods(): HasMany
+    {
+        return $this->hasMany(BillingPeriod::class);
+    }
+
+    public function extraChargeTypes(): HasMany
+    {
+        return $this->hasMany(ExtraChargeType::class);
+    }
+
+    public function extraCharges(): HasMany
+    {
+        return $this->hasMany(ExtraCharge::class);
     }
 
     public function providers(): HasMany

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\UserRole;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
@@ -26,11 +27,17 @@ class OrganizationUserFactory extends Factory
                 UserRole::TENANT->value,
                 'viewer',
             ]),
+            'status' => ManagerMembershipStatus::ACTIVE,
             'permissions' => null,
+            'permissions_preset' => 'read_only',
             'joined_at' => now()->subDays(fake()->numberBetween(1, 45)),
             'left_at' => null,
             'is_active' => true,
             'invited_by' => User::factory()->superadmin(),
+            'invited_by_user_id' => null,
+            'invited_at' => now()->subDays(fake()->numberBetween(1, 45)),
+            'accepted_at' => now()->subDays(fake()->numberBetween(1, 44)),
+            'disabled_at' => null,
         ];
     }
 }

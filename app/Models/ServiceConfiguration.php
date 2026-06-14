@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\AssignmentScope;
+use App\Enums\BillingFrequency;
+use App\Enums\BillingMethod;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
+use App\Enums\ServiceConfigurationStatus;
+use App\Enums\ServiceType;
 use Database\Factories\ServiceConfigurationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServiceConfiguration extends Model
 {
@@ -20,6 +26,27 @@ class ServiceConfiguration extends Model
         'organization_id',
         'property_id',
         'utility_service_id',
+        'service_name',
+        'service_type',
+        'billing_method',
+        'unit',
+        'currency',
+        'fixed_amount',
+        'billing_frequency',
+        'assignment_scope',
+        'tenant_visible',
+        'tenant_visible_name',
+        'tenant_visible_description',
+        'show_formula_to_tenant',
+        'show_provider_to_tenant',
+        'show_readings_to_tenant',
+        'internal_note',
+        'status',
+        'starts_at',
+        'ends_at',
+        'meter_rules',
+        'assignment_rules',
+        'validation_result',
         'pricing_model',
         'rate_schedule',
         'distribution_method',
@@ -41,6 +68,27 @@ class ServiceConfiguration extends Model
         'organization_id',
         'property_id',
         'utility_service_id',
+        'service_name',
+        'service_type',
+        'billing_method',
+        'unit',
+        'currency',
+        'fixed_amount',
+        'billing_frequency',
+        'assignment_scope',
+        'tenant_visible',
+        'tenant_visible_name',
+        'tenant_visible_description',
+        'show_formula_to_tenant',
+        'show_provider_to_tenant',
+        'show_readings_to_tenant',
+        'internal_note',
+        'status',
+        'starts_at',
+        'ends_at',
+        'meter_rules',
+        'assignment_rules',
+        'validation_result',
         'pricing_model',
         'rate_schedule',
         'distribution_method',
@@ -59,6 +107,21 @@ class ServiceConfiguration extends Model
     protected function casts(): array
     {
         return [
+            'service_type' => ServiceType::class,
+            'billing_method' => BillingMethod::class,
+            'fixed_amount' => 'decimal:2',
+            'billing_frequency' => BillingFrequency::class,
+            'assignment_scope' => AssignmentScope::class,
+            'tenant_visible' => 'boolean',
+            'show_formula_to_tenant' => 'boolean',
+            'show_provider_to_tenant' => 'boolean',
+            'show_readings_to_tenant' => 'boolean',
+            'status' => ServiceConfigurationStatus::class,
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
+            'meter_rules' => 'array',
+            'assignment_rules' => 'array',
+            'validation_result' => 'array',
             'pricing_model' => PricingModel::class,
             'rate_schedule' => 'array',
             'distribution_method' => DistributionMethod::class,
@@ -95,11 +158,20 @@ class ServiceConfiguration extends Model
         return $this->belongsTo(Provider::class);
     }
 
+    public function invoiceItems(): HasMany
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query
             ->select(self::SUMMARY_COLUMNS)
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->whereIn('status', [
+                ServiceConfigurationStatus::ACTIVE->value,
+                ServiceConfigurationStatus::CONFIGURATION_ERROR->value,
+            ]);
     }
 
     public function scopeForOrganization(Builder $query, int $organizationId): Builder
@@ -209,7 +281,33 @@ class ServiceConfiguration extends Model
 
     public function requiresConsumptionData(): bool
     {
-        return ($this->pricing_model?->requiresConsumptionData() ?? false)
+        return ($this->billing_method?->requiresMeterRules() ?? false)
+            || ($this->pricing_model?->requiresConsumptionData() ?? false)
             || ($this->distribution_method?->requiresConsumptionData() ?? false);
+    }
+
+    public function hasConfigurationErrors(): bool
+    {
+        if ($this->status === ServiceConfigurationStatus::CONFIGURATION_ERROR) {
+            return true;
+        }
+
+        $blockingErrors = $this->validation_result['blocking_errors'] ?? [];
+
+        return is_array($blockingErrors) && $blockingErrors !== [];
+    }
+
+    public function canBeDeletedFromAdminWorkspace(): bool
+    {
+        return ! $this->invoiceItems()
+            ->select(['id', 'service_configuration_id'])
+            ->exists();
+    }
+
+    public function adminDeletionBlockedReason(): ?string
+    {
+        return $this->canBeDeletedFromAdminWorkspace()
+            ? null
+            : __('admin.service_configurations.messages.delete_blocked_used');
     }
 }
