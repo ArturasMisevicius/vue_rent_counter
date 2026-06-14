@@ -324,6 +324,7 @@ return [
         ],
         'helpers' => [
             'line_item_description' => 'Use este espacio para notas detalladas del servicio, como reparaciones, retirada de basura, internet o cuotas de piscina o sauna.',
+            'manual_line_items' => 'Use líneas manuales para servicios puntuales y detalles largos visibles para el inquilino que deban aparecer directamente en esta factura.',
         ],
         'columns' => [
             'invoice_number' => 'Número de factura',
@@ -450,6 +451,7 @@ return [
             'save_as_draft' => 'Guardar como borrador',
             'generate_and_finalize' => 'Generar y finalizar',
             'generate_line_items' => 'Generar líneas',
+            'start_manual_invoice' => 'Añadir servicio manual',
             'add_manual_line' => 'Añadir línea manual',
             'add_adjustment' => 'Añadir ajuste',
             'remove_line' => 'Eliminar',

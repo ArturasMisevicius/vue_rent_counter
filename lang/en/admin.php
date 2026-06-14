@@ -329,6 +329,7 @@ return [
         ],
         'helpers' => [
             'line_item_description' => 'Use this space for detailed service notes, such as repair work, garbage removal, internet, pool or sauna fees.',
+            'manual_line_items' => 'Use manual lines for one-off services and long tenant-facing details that should appear directly on this invoice.',
         ],
         'columns' => [
             'billing_period' => 'Billing Period',
@@ -453,6 +454,7 @@ return [
             'save_as_draft' => 'Save as Draft',
             'generate_and_finalize' => 'Generate and Finalize',
             'generate_line_items' => 'Generate Line Items',
+            'start_manual_invoice' => 'Add Manual Service Line',
             'add_manual_line' => 'Add Manual Line',
             'add_adjustment' => 'Add Adjustment',
             'remove_line' => 'Remove',

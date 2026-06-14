@@ -536,6 +536,74 @@ it('renders the single invoice create page contract for admins', function () {
         ->assertFormFieldExists('notes', fn (Textarea $field): bool => $field->getLabel() === 'Invoice Notes');
 });
 
+it('starts a manual invoice line without generated charges', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => 'Studio 12',
+    ]);
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Manual Tenant',
+        'email' => 'manual@example.test',
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => now()->subMonths(2),
+            'unassigned_at' => null,
+        ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $periodStart = now()->startOfMonth()->toDateString();
+    $periodEnd = now()->endOfMonth()->toDateString();
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateInvoice::class)
+        ->fillForm([
+            'tenant_user_id' => $tenant->id,
+            'billing_period_start' => $periodStart,
+            'billing_period_end' => $periodEnd,
+        ])
+        ->call('startManualInvoice')
+        ->assertHasNoFormErrors()
+        ->assertSet('data.line_items_generated', true)
+        ->assertSet('data.items', fn (array $items): bool => data_get(array_values($items), '0.period') === "{$periodStart} - {$periodEnd}"
+            && data_get(array_values($items), '0.unit') === 'service')
+        ->fillForm([
+            'items' => [[
+                'description' => 'Repair work, garbage removal, internet, pool and sauna fee details.',
+                'period' => "{$periodStart} - {$periodEnd}",
+                'unit' => 'service',
+                'quantity' => '1.00',
+                'rate' => '95.00',
+                'total' => '95.00',
+            ]],
+            'adjustments' => [],
+            'notes' => 'Manual invoice without generated readings',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $invoice = Invoice::query()
+        ->with(['invoiceItems'])
+        ->sole();
+
+    expect($invoice->organization_id)->toBe($organization->id)
+        ->and($invoice->property_id)->toBe($property->id)
+        ->and($invoice->tenant_user_id)->toBe($tenant->id)
+        ->and($invoice->status)->toBe(InvoiceStatus::DRAFT)
+        ->and($invoice->total_amount)->toBe('95.00')
+        ->and($invoice->invoiceItems)->toHaveCount(1)
+        ->and($invoice->invoiceItems->first()?->description)->toBe('Repair work, garbage removal, internet, pool and sauna fee details.');
+});
+
 it('generates line items and saves a single invoice draft from the create page', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();

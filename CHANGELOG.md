@@ -2,6 +2,21 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614150739 -->
+### Commit updates
+
+- updated `app/Filament/Resources/Invoices/Pages/CreateInvoice.php`
+- updated `app/Filament/Resources/Invoices/Schemas/CreateInvoiceForm.php`
+- added `app/Filament/Support/Admin/Invoices/ManualInvoiceLineItemDefaults.php`
+- updated `app/Http/Requests/Admin/Invoices/SaveInvoiceDraftRequest.php`
+- updated `docs/operations/service-configuration-guide.md`
+- updated `lang/en/admin.php`
+- updated `lang/es/admin.php`
+- updated `lang/lt/admin.php`
+- updated `lang/ru/admin.php`
+- updated `tests/Feature/Admin/InvoicesResourceTest.php`
+<!-- changelog:auto:end:staged-20260614150739 -->
+
 <!-- changelog:auto:start:staged-20260614145344 -->
 ### Commit updates
 

@@ -7,6 +7,7 @@ use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Invoices\Schemas\CreateInvoiceForm;
 use App\Filament\Support\Admin\Invoices\InvoiceDraftPreviewBuilder;
+use App\Filament\Support\Admin\Invoices\ManualInvoiceLineItemDefaults;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Http\Requests\Admin\Invoices\PreviewInvoiceDraftRequest;
 use App\Models\Organization;
@@ -77,6 +78,22 @@ class CreateInvoice extends CreateRecord
             ->title(__('admin.invoices.messages.no_generated_items'))
             ->body(__('admin.invoices.messages.no_generated_items_help'))
             ->send();
+    }
+
+    public function startManualInvoice(): void
+    {
+        $currentState = $this->data ?? [];
+        $items = is_array($currentState['items'] ?? null) ? $currentState['items'] : [];
+
+        $this->form->fill([
+            ...$currentState,
+            'items' => [
+                ...$items,
+                app(ManualInvoiceLineItemDefaults::class)->make($currentState),
+            ],
+            'adjustments' => $currentState['adjustments'] ?? [],
+            'line_items_generated' => true,
+        ]);
     }
 
     protected function handleRecordCreation(array $data): Model

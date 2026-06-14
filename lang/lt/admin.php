@@ -329,6 +329,7 @@ return [
         ],
         'helpers' => [
             'line_item_description' => 'Čia įrašykite išsamesnes paslaugos pastabas, pvz., remonto darbus, šiukšlių išvežimą, internetą, baseino ar pirties mokestį.',
+            'manual_line_items' => 'Rankines eilutes naudokite vienkartinėms paslaugoms ir ilgesniam nuomininkui matomam tekstui, kuris turi patekti tiesiai į šią sąskaitą.',
         ],
         'columns' => [
             'billing_period' => 'Atsiskaitymo laikotarpis',
@@ -453,6 +454,7 @@ return [
             'save_as_draft' => 'Išsaugoti kaip juodraštį',
             'generate_and_finalize' => 'Sugeneruoti ir patvirtinti',
             'generate_line_items' => 'Sugeneruoti eilutes',
+            'start_manual_invoice' => 'Pridėti rankinę paslaugą',
             'add_manual_line' => 'Pridėti rankinę eilutę',
             'add_adjustment' => 'Pridėti koregavimą',
             'remove_line' => 'Pašalinti',

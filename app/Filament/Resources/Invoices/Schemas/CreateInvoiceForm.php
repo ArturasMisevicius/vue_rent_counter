@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Invoices\Schemas;
 
+use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
@@ -68,13 +69,19 @@ class CreateInvoiceForm
                         Actions::make([
                             Action::make('generateLineItems')
                                 ->label(__('admin.invoices.actions.generate_line_items'))
+                                ->authorize(fn (): bool => InvoiceResource::canCreate())
                                 ->action('generateLineItems'),
+                            Action::make('startManualInvoice')
+                                ->label(__('admin.invoices.actions.start_manual_invoice'))
+                                ->authorize(fn (): bool => InvoiceResource::canCreate())
+                                ->action('startManualInvoice'),
                         ])
                             ->columnSpanFull()
-                            ->visible(fn (Get $get): bool => self::canGenerateLineItems($get)),
+                            ->visible(fn (Get $get): bool => self::canGenerateLineItems($get) && ! (bool) $get('line_items_generated')),
                     ])
                     ->columns(2),
                 Section::make(__('admin.invoices.sections.line_items'))
+                    ->description(__('admin.invoices.helpers.manual_line_items'))
                     ->schema([
                         Repeater::make('items')
                             ->label(__('admin.invoices.fields.line_items'))
