@@ -2,6 +2,12 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614140916 -->
+### Commit updates
+
+- updated `app/Livewire/Tenant/SubmitReadingPage.php`
+<!-- changelog:auto:end:staged-20260614140916 -->
+
 <!-- changelog:auto:start:staged-20260614140321 -->
 ### Commit updates
 

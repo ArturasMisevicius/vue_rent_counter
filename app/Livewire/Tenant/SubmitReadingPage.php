@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Filament\Actions\Tenant\Readings\CompleteReadingRequestInvoiceAction;
+use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenant\Portal\TenantMeterNameLocalizer;
 use App\Livewire\Concerns\AppliesShellLocale;
@@ -74,7 +74,6 @@ class SubmitReadingPage extends Component
         SubmitTenantReadingAction $submitTenantReadingAction,
         CompleteReadingRequestInvoiceAction $completeReadingRequestInvoiceAction,
     ): void {
-    {
         $this->resetErrorBag();
         $this->successMessage = null;
         $this->submittedReading = null;
