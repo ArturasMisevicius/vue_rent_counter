@@ -16,6 +16,7 @@ use App\Filament\Resources\Organizations\RelationManagers\ManagersRelationManage
 use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Superadmin\Organizations\OrganizationDashboardData;
 use App\Jobs\Superadmin\Organizations\SendOrganizationAnnouncementJob;
 use App\Models\AuditLog;
@@ -105,7 +106,7 @@ it('shows organization health metrics and full subscription usage gauges', funct
         ->assertSeeText(__('superadmin.organizations.overview.usage_labels.invoices'))
         ->assertSeeText((string) $organization->activityLogs()->count())
         ->assertSeeText((string) $organization->securityViolations()->count())
-        ->assertSeeText($activityLog->created_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
+        ->assertSeeText($activityLog->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '')
         ->assertSeeText('4 of 12')
         ->assertSeeText('5 of 8');
 });
@@ -254,7 +255,7 @@ it('shows portfolio, financial, usage, and subscription widgets on the org detai
         ->assertSeeText(SubscriptionPlan::BASIC->label())
         ->assertSeeText(SubscriptionStatus::ACTIVE->label())
         ->assertSeeText(SubscriptionDuration::MONTHLY->label())
-        ->assertSeeText($subscription->expires_at?->locale(app()->getLocale())->isoFormat('ll') ?? '')
+        ->assertSeeText($subscription->expires_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '')
         ->assertSeeText(__('superadmin.organizations.overview.payment_method_on_file'))
         ->assertSeeText(__('superadmin.organizations.overview.renewal_history'));
 });

@@ -52,6 +52,15 @@ class AttachmentResource extends Resource
         return __('superadmin.relation_resources.attachments.plural');
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ])
+            ->forSuperadminIndex();
+    }
+
     public static function getRelations(): array
     {
         return [

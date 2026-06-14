@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\Organization;
 use App\Models\User;
@@ -78,11 +79,10 @@ class CreateInvoiceForm
                         Repeater::make('items')
                             ->label(__('admin.invoices.fields.line_items'))
                             ->schema([
-                                TextInput::make('description')
-                                    ->label(__('admin.invoices.fields.description'))
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->columnSpan(2),
+                                InvoiceLineItemDescription::textarea(
+                                    Textarea::make('description')
+                                        ->label(__('admin.invoices.fields.description')),
+                                ),
                                 TextInput::make('period')
                                     ->label(__('admin.invoices.fields.period'))
                                     ->maxLength(255)

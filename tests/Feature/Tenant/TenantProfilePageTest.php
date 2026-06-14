@@ -204,12 +204,23 @@ it('shows the tenant avatar required validation message in the selected locale',
         'locale' => 'lt',
     ])->save();
 
+    $lithuanianAvatarRequiredMessage = trans(
+        'validation.required',
+        ['attribute' => trans('requests.attributes.avatar', [], 'lt')],
+        'lt',
+    );
+    $englishAvatarRequiredMessage = trans(
+        'validation.required',
+        ['attribute' => trans('requests.attributes.avatar', [], 'en')],
+        'en',
+    );
+
     Livewire::actingAs($tenant->user->fresh())
         ->test(Profile::class)
         ->call('saveProfileAvatar')
         ->assertHasErrors(['avatarForm.avatar'])
-        ->assertSeeText('Laukas „profilio nuotrauka“ yra privalomas.')
-        ->assertDontSeeText('The profilio nuotrauka field is required.');
+        ->assertSeeText($lithuanianAvatarRequiredMessage)
+        ->assertDontSeeText($englishAvatarRequiredMessage);
 });
 
 it('shows human-readable labels for supported locales only on the tenant profile form', function () {

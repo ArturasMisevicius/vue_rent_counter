@@ -327,6 +327,9 @@ return [
             'status_summary' => 'Summary',
             'unit' => 'Unit',
         ],
+        'helpers' => [
+            'line_item_description' => 'Use this space for detailed service notes, such as repair work, garbage removal, internet, pool or sauna fees.',
+        ],
         'columns' => [
             'billing_period' => 'Billing Period',
             'amount' => 'Amount',

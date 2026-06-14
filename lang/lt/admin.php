@@ -327,6 +327,9 @@ return [
             'status_summary' => 'Santrauka',
             'unit' => 'Vienetas',
         ],
+        'helpers' => [
+            'line_item_description' => 'Čia įrašykite išsamesnes paslaugos pastabas, pvz., remonto darbus, šiukšlių išvežimą, internetą, baseino ar pirties mokestį.',
+        ],
         'columns' => [
             'billing_period' => 'Atsiskaitymo laikotarpis',
             'amount' => 'Suma',

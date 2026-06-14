@@ -322,6 +322,9 @@ return [
             'invoice_notes' => 'Notas de factura',
             'unit' => 'Unidad',
         ],
+        'helpers' => [
+            'line_item_description' => 'Use este espacio para notas detalladas del servicio, como reparaciones, retirada de basura, internet o cuotas de piscina o sauna.',
+        ],
         'columns' => [
             'invoice_number' => 'Número de factura',
             'tenant' => 'Inquilino',

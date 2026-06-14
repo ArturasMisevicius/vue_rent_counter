@@ -48,7 +48,8 @@ Verified fallback state on 2026-03-19:
 
 Use the installed skill names below rather than the older shorthand aliases:
 
-- `superpowers/using-superpowers` first so the current session loads the required skill workflow
+- `using-superpowers` first when a task should follow the Superpowers brainstorming, planning, TDD, debugging, review, or branch-finishing workflow
+- `using-agent-skills` when a task spans spec, plan, build, test, review, simplify, performance, security, or ship phases from Addy Osmani's engineering lifecycle pack
 - `laravel-11-12-app-guidelines` instead of `tenanto-laravel-stack`
 - `pest-testing` whenever writing or debugging tests
 - `tailwindcss-development` instead of `tailwind-patterns`
@@ -95,6 +96,12 @@ When Boost MCP is actually connected, prefer:
 - `playwright` MCP for browser-level tenant/admin UI checks when the host agent exposes it
 
 In the current verified repository state, do not assume those Boost MCP tools are available until the `boost:mcp` command exists and a working MCP connection has been confirmed.
+
+For Addy Osmani's `browser-testing-with-devtools` skill, verify the user-global Chrome DevTools MCP server before browser-debugging work:
+
+```bash
+codex mcp list | rg '^chrome-devtools\\b'
+```
 
 ## 5. Tenant UX Baseline
 

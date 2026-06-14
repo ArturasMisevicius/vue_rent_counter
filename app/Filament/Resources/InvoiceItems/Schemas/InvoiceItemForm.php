@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\InvoiceItems\Schemas;
 
+use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -19,9 +21,10 @@ class InvoiceItemForm
                     ->searchable()
                     ->preload()
                     ->required(),
-                TextInput::make('description')
-                    ->label(__('superadmin.relation_resources.invoice_items.fields.description'))
-                    ->required(),
+                InvoiceLineItemDescription::textarea(
+                    Textarea::make('description')
+                        ->label(__('superadmin.relation_resources.invoice_items.fields.description')),
+                ),
                 TextInput::make('quantity')
                     ->label(__('superadmin.relation_resources.invoice_items.fields.quantity'))
                     ->required()

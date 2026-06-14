@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TimeEntryResource extends Resource
 {
@@ -48,6 +49,11 @@ class TimeEntryResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('superadmin.relation_resources.time_entries.plural');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->forSuperadminIndex();
     }
 
     public static function getRelations(): array

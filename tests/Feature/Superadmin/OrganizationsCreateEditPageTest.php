@@ -5,6 +5,7 @@ use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\Organizations\Pages\CreateOrganization;
 use App\Filament\Resources\Organizations\Pages\EditOrganization;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Organization;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\Subscription;
@@ -46,7 +47,7 @@ it('renders the create organization page without a slug field and with an expiry
                 ->startOfDay()
                 ->addMonths(SubscriptionDuration::YEARLY->months())
                 ->locale(app()->getLocale())
-                ->isoFormat('ll'),
+                ->translatedFormat(LocalizedDateFormatter::dateFormat()),
         ]));
 });
 

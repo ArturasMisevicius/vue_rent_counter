@@ -24,6 +24,18 @@ class PropertyAssignment extends Model
         'unassigned_at',
     ];
 
+    private const SUPERADMIN_INDEX_COLUMNS = [
+        'id',
+        'organization_id',
+        'property_id',
+        'tenant_user_id',
+        'unit_area_sqm',
+        'assigned_at',
+        'unassigned_at',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'property_id',
@@ -105,6 +117,18 @@ class PropertyAssignment extends Model
         return $query
             ->select(self::SUMMARY_COLUMNS)
             ->forOrganization($organizationId)
+            ->withTenantSummary()
+            ->withPropertySummary()
+            ->latestAssignedFirst();
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUPERADMIN_INDEX_COLUMNS)
+            ->with([
+                'organization:id,name',
+            ])
             ->withTenantSummary()
             ->withPropertySummary()
             ->latestAssignedFirst();

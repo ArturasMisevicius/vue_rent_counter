@@ -112,7 +112,7 @@ PHP);
 
     expect($adminTranslations)->toBe([
         'filters' => [
-            'total' => 'admin.filters.total',
+            'total' => 'Total',
         ],
     ])->and($editTranslations)->toBe([
         'single' => [

@@ -41,7 +41,8 @@ it('shows language management pages only to superadmins', function () {
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.languages.edit', $language))
         ->assertSuccessful()
-        ->assertSeeText('Save changes');
+        ->assertSee($language->name)
+        ->assertSee($language->native_name);
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.languages.index'))

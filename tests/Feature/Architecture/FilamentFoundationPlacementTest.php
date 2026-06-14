@@ -72,3 +72,23 @@ it('keeps moved foundation classes in their expected namespaces', function (): v
         }
     }
 });
+
+it('requires every filament resource to own its base eloquent query', function (): void {
+    $resourceClasses = collect(File::allFiles(app_path('Filament/Resources')))
+        ->filter(fn ($file) => Str::endsWith($file->getFilename(), 'Resource.php'))
+        ->map(function ($file): string {
+            $relativePath = Str::of($file->getPathname())
+                ->after(app_path().DIRECTORY_SEPARATOR)
+                ->replace(DIRECTORY_SEPARATOR, '\\')
+                ->beforeLast('.php');
+
+            return 'App\\'.$relativePath;
+        });
+
+    foreach ($resourceClasses as $resourceClass) {
+        $method = new ReflectionMethod($resourceClass, 'getEloquentQuery');
+
+        expect($method->class)
+            ->toBe($resourceClass, "{$resourceClass} must override getEloquentQuery().");
+    }
+});

@@ -14,6 +14,7 @@ use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -406,9 +407,14 @@ it('exposes the invoices list contract with quick tabs, filters, and status-scop
 
     $this->actingAs($superadmin);
 
-    Livewire::test(ListInvoices::class)
+    Livewire::actingAs($admin)
+        ->test(ListInvoices::class)
+        ->assertActionVisible('generateBulk');
+
+    Livewire::actingAs($superadmin)
+        ->test(ListInvoices::class)
         ->assertActionVisible('create')
-        ->assertActionVisible('generateBulk')
+        ->assertActionDoesNotExist('generateBulk')
         ->assertSet('activeTab', 'all')
         ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === 'Organization')
         ->assertTableColumnExists('invoice_number', fn (TextColumn $column): bool => $column->getLabel() === 'Invoice Number')
@@ -510,10 +516,22 @@ it('renders the single invoice create page contract for admins', function () {
     $this->actingAs($admin);
 
     Livewire::test(CreateInvoice::class)
+        ->set('data.line_items_generated', true)
+        ->set('data.items', [[
+            'description' => 'Repair details',
+            'period' => now()->startOfMonth()->format('F Y').' - '.now()->endOfMonth()->format('F Y'),
+            'unit' => 'service',
+            'quantity' => '1.00',
+            'rate' => '125.00',
+            'total' => '125.00',
+        ]])
         ->assertFormFieldExists('tenant_user_id', fn (Select $field): bool => $field->getLabel() === 'Tenant')
         ->assertFormFieldExists('billing_period_start', fn (DatePicker $field): bool => $field->getLabel() === 'Billing Period From')
         ->assertFormFieldExists('billing_period_end', fn (DatePicker $field): bool => $field->getLabel() === 'Billing Period To')
-        ->assertFormFieldExists('items', fn (Repeater $field): bool => $field->getLabel() === 'Line Items')
+        ->assertFormFieldExists('items', fn (Repeater $field): bool => $field->getLabel() === 'Line Items'
+            && collect($field->getChildSchemas(withHidden: true))
+                ->flatMap(fn ($schema): array => $schema->getFlatFields(withHidden: true))
+                ->first(fn (Field $childField): bool => $childField->getName() === 'description') instanceof Textarea)
         ->assertFormFieldExists('adjustments', fn (Repeater $field): bool => $field->getLabel() === 'Adjustments')
         ->assertFormFieldExists('notes', fn (Textarea $field): bool => $field->getLabel() === 'Invoice Notes');
 });
@@ -586,6 +604,69 @@ it('generates line items and saves a single invoice draft from the create page',
         ->and($invoice->total_amount)->toBe('57.00')
         ->and($invoice->invoiceItems)->toHaveCount(2)
         ->and($invoice->invoice_number)->toMatch('/^INV-\d{4}-\d{4}$/');
+});
+
+it('saves detailed manual service descriptions on invoice line items', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => 'Apartment 8C',
+    ]);
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Detailed Tenant',
+        'email' => 'detailed@example.test',
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => now()->subMonths(2),
+            'unassigned_at' => null,
+        ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $detailedDescription = str_repeat(
+        'Repair work, garbage removal, internet, pool and sauna fee details. ',
+        8,
+    );
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateInvoice::class)
+        ->fillForm([
+            'tenant_user_id' => $tenant->id,
+            'billing_period_start' => now()->startOfMonth()->toDateString(),
+            'billing_period_end' => now()->endOfMonth()->toDateString(),
+        ])
+        ->call('generateLineItems')
+        ->assertHasNoFormErrors()
+        ->fillForm([
+            'items' => [[
+                'description' => $detailedDescription,
+                'period' => now()->startOfMonth()->format('F Y').' - '.now()->endOfMonth()->format('F Y'),
+                'unit' => 'service',
+                'quantity' => '1.00',
+                'rate' => '125.00',
+                'total' => '125.00',
+            ]],
+            'adjustments' => [],
+            'notes' => 'Detailed service description test',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $invoice = Invoice::query()
+        ->with(['invoiceItems'])
+        ->sole();
+
+    expect($invoice->items[0]['description'] ?? null)->toBe($detailedDescription)
+        ->and($invoice->invoiceItems)->toHaveCount(1)
+        ->and($invoice->invoiceItems->first()?->description)->toBe($detailedDescription);
 });
 
 it('can generate and finalize a single invoice directly from the create page', function () {

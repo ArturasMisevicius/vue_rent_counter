@@ -6,6 +6,7 @@ namespace App\Http\Requests\Admin\Invoices;
 
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -47,7 +48,7 @@ class CreateInvoiceDraftRequest extends FormRequest
             'billing_period_end' => ['required', 'date', 'after_or_equal:billing_period_start'],
             'due_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:billing_period_end'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.description' => ['required', 'string', 'max:255'],
+            'items.*.description' => ['required', 'string', 'max:'.InvoiceLineItemDescription::MAX_LENGTH],
             'items.*.period' => ['sometimes', 'nullable', 'string', 'max:255'],
             'items.*.unit' => ['sometimes', 'nullable', 'string', 'max:50'],
             'items.*.quantity' => ['required', 'numeric', 'min:0'],
@@ -89,6 +90,9 @@ class CreateInvoiceDraftRequest extends FormRequest
                 'min' => 1,
             ]],
             'items.*.description.required' => ['required', 'items'],
+            'items.*.description.max' => ['max.string', 'items', [
+                'max' => InvoiceLineItemDescription::MAX_LENGTH,
+            ]],
             'items.*.quantity.required' => ['required', 'items'],
             'items.*.quantity.numeric' => ['numeric', 'items'],
             'items.*.quantity.min' => ['min.numeric', 'items', [

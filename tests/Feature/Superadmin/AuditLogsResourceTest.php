@@ -2,6 +2,7 @@
 
 use App\Enums\AuditLogAction;
 use App\Filament\Resources\AuditLogs\Pages\ListAuditLogs;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\AuditLog;
 use App\Models\Invoice;
 use App\Models\Organization;
@@ -70,7 +71,7 @@ it('renders the audit logs list page as a read-only superadmin surface', functio
         ->assertSeeText(AuditLog::subjectTypeLabel(Invoice::class))
         ->assertSeeText('321')
         ->assertSeeText('203.0.113.10')
-        ->assertSeeText($auditLog->occurred_at->format('F j, Y g:i A'))
+        ->assertSeeText($auditLog->occurred_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()))
         ->assertSeeText(__('superadmin.audit_logs.diff.before'))
         ->assertSeeText(__('superadmin.audit_logs.diff.after'))
         ->assertSeeText('Status')
@@ -101,7 +102,7 @@ it('renders the audit logs list page as a read-only superadmin surface', functio
         ->assertTableColumnStateSet('record_type_label', AuditLog::subjectTypeLabel(Invoice::class), $auditLog)
         ->assertTableColumnStateSet('subject_id', 321, $auditLog)
         ->assertTableColumnStateSet('ip_address', '203.0.113.10', $auditLog)
-        ->assertTableColumnStateSet('occurred_at', $auditLog->occurred_at->format('F j, Y g:i A'), $auditLog);
+        ->assertTableColumnStateSet('occurred_at', $auditLog->occurred_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()), $auditLog);
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.audit-logs.index'))

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\TimeEntryFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,28 @@ class TimeEntry extends Model
     use HasFactory;
 
     use SoftDeletes;
+
+    private const SUPERADMIN_INDEX_COLUMNS = [
+        'id',
+        'organization_id',
+        'user_id',
+        'task_id',
+        'project_id',
+        'assignment_id',
+        'hours',
+        'hourly_rate',
+        'cost_amount',
+        'description',
+        'approval_status',
+        'approved_at',
+        'rejected_at',
+        'rejection_reason',
+        'metadata',
+        'logged_at',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
 
     protected static function booted(): void
     {
@@ -87,5 +110,23 @@ class TimeEntry extends Model
     public function assignment(): BelongsTo
     {
         return $this->belongsTo(TaskAssignment::class, 'assignment_id');
+    }
+
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'assignment:id,role',
+            'task:id,title',
+            'user:id,name',
+        ]);
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUPERADMIN_INDEX_COLUMNS)
+            ->withIndexRelations()
+            ->orderByDesc('logged_at')
+            ->orderByDesc('id');
     }
 }

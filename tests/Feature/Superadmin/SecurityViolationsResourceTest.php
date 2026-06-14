@@ -3,6 +3,7 @@
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Filament\Resources\SecurityViolations\Pages\ListSecurityViolations;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\BlockedIpAddress;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
@@ -76,8 +77,8 @@ it('renders the security violations list with the required read-only contract', 
         ->assertSeeText(__('superadmin.security_violations.presenter.curl'))
         ->assertSeeText($authenticatedViolation->ip_address)
         ->assertSeeText($anonymousViolation->ip_address)
-        ->assertSeeText($authenticatedViolation->occurred_at->format('F j, Y g:i A'))
-        ->assertSeeText($anonymousViolation->occurred_at->format('F j, Y g:i A'));
+        ->assertSeeText($authenticatedViolation->occurred_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()))
+        ->assertSeeText($anonymousViolation->occurred_at->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()));
 
     $this->actingAs($superadmin);
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
+use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use App\Models\Invoice;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -59,9 +60,10 @@ class InvoiceForm
                         Repeater::make('items')
                             ->label(__('admin.invoices.fields.items'))
                             ->schema([
-                                TextInput::make('description')
-                                    ->label(__('admin.invoices.fields.description'))
-                                    ->required(),
+                                InvoiceLineItemDescription::textarea(
+                                    Textarea::make('description')
+                                        ->label(__('admin.invoices.fields.description')),
+                                ),
                                 TextInput::make('amount')
                                     ->label(__('admin.invoices.columns.amount'))
                                     ->numeric()

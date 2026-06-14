@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use App\Filament\Actions\Superadmin\Users\StartUserImpersonationAction;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Models\Building;
 use App\Models\DashboardCustomization;
 use App\Models\Invoice;
@@ -128,7 +129,7 @@ it('renders the superadmin users list page contract', function () {
         )
         ->assertTableColumnStateSet('role', UserRole::ADMIN->label(), $managedUser)
         ->assertTableColumnStateSet('organization.name', $organization->name, $managedUser)
-        ->assertTableColumnStateSet('last_login_at', $managedUser->last_login_at?->locale(app()->getLocale())->isoFormat('LLL'), $managedUser)
+        ->assertTableColumnStateSet('last_login_at', $managedUser->last_login_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat()), $managedUser)
         ->assertTableColumnStateSet('last_login_at', __('superadmin.users.placeholders.never'), $suspendedUser)
         ->assertTableColumnStateSet('status', UserStatus::ACTIVE->label(), $managedUser);
 

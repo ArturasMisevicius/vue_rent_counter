@@ -19,6 +19,26 @@ class Attachment extends Model
 
     use SoftDeletes;
 
+    private const SUPERADMIN_INDEX_COLUMNS = [
+        'id',
+        'organization_id',
+        'attachable_type',
+        'attachable_id',
+        'uploaded_by_user_id',
+        'filename',
+        'original_filename',
+        'mime_type',
+        'size',
+        'disk',
+        'path',
+        'document_type',
+        'description',
+        'metadata',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'attachable_type',
@@ -96,5 +116,21 @@ class Attachment extends Model
         return $query->with([
             'uploader:id,name,email',
         ]);
+    }
+
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+            'uploader:id,name,email',
+        ]);
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUPERADMIN_INDEX_COLUMNS)
+            ->withIndexRelations()
+            ->latestFirst();
     }
 }

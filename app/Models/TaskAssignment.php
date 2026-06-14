@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Filament\Support\Localization\LocalizedCodeLabel;
 use Database\Factories\TaskAssignmentFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,18 @@ class TaskAssignment extends Model
 {
     /** @use HasFactory<TaskAssignmentFactory> */
     use HasFactory;
+
+    private const SUPERADMIN_INDEX_COLUMNS = [
+        'id',
+        'task_id',
+        'user_id',
+        'role',
+        'assigned_at',
+        'completed_at',
+        'notes',
+        'created_at',
+        'updated_at',
+    ];
 
     protected $fillable = [
         'task_id',
@@ -44,6 +57,23 @@ class TaskAssignment extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class, 'assignment_id');
+    }
+
+    public function scopeWithIndexRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'task:id,title',
+            'user:id,name',
+        ]);
+    }
+
+    public function scopeForSuperadminIndex(Builder $query): Builder
+    {
+        return $query
+            ->select(self::SUPERADMIN_INDEX_COLUMNS)
+            ->withIndexRelations()
+            ->orderByDesc('assigned_at')
+            ->orderByDesc('id');
     }
 
     public function roleLabel(): string
