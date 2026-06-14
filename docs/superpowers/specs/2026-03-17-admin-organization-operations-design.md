@@ -184,6 +184,8 @@ Managers operate inside the same organization workspace but with a narrower pres
 - they do not see admin-only settings sections such as organization subscription controls
 - direct URL access to admin-only settings sections must still be rejected even if a user tries to bypass hidden navigation
 
+Admin-created manager accounts reuse the organization-invitation mechanism. The admin enters the manager's name, email, and locale; Tenanto creates an inactive manager placeholder, emails the invitation link, and the manager creates their own password from that link.
+
 ### Tenant Relationship to This Slice
 
 Tenants are managed subjects in this slice, not shell operators. The admin workspace needs to create, invite, assign, bill, and review them, but tenant self-service screens belong to the tenant portal slice.
@@ -431,6 +433,7 @@ Required coverage includes:
 - dashboard visibility and role-aware widget differences
 - profile and settings flows, including immediate language persistence
 - buildings and properties CRUD plus assignment history behavior
+- manager creation through invitation reuse and self-service password creation
 - tenant creation through invitation reuse and assignment-aware lifecycle behavior
 - meter CRUD and meter deletion guards
 - meter reading validation, import preview, anomaly behavior, and locked-state behavior
@@ -450,6 +453,7 @@ This slice is complete when:
 - Admin and Manager users can enter a real organization dashboard instead of a placeholder page
 - Admin users can configure organization settings and subscription-related controls while Managers see only the allowed subset
 - organization operators can manage buildings, properties, tenant assignments, meters, readings, pricing inputs, and invoices inside the shared shell
+- admin-created managers activate through invitation links instead of admin-assigned passwords
 - tenant creation reuses the invitation lifecycle already established in the foundation slice
 - invoice workflows support draft creation, finalization, payment tracking, and communication logging
 - reports are generated from live operational models rather than duplicate reporting tables

@@ -138,45 +138,50 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
     'tenant' => [UserRole::TENANT, 'filament.admin.pages.dashboard'],
 ]);
 
-it('activates an existing tenant placeholder when accepting an invitation', function () {
+it('activates an existing invited user placeholder when accepting an invitation', function (UserRole $role, string $email) {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
         'locale' => 'ru',
     ]);
 
-    $tenant = User::factory()->tenant()->create([
+    $invitedUser = User::factory()->create([
         'organization_id' => $organization->id,
-        'email' => 'tenant@example.com',
-        'name' => 'Pending Tenant',
+        'email' => $email,
+        'name' => 'Pending Invitee',
         'locale' => 'ru',
+        'role' => $role,
         'status' => UserStatus::INACTIVE,
     ]);
 
     ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'organization_id' => $organization->id,
         'inviter_user_id' => $admin->id,
-        'email' => $tenant->email,
-        'full_name' => 'Pat Tenant',
-        'role' => UserRole::TENANT,
+        'email' => $invitedUser->email,
+        'full_name' => 'Pat Invitee',
+        'role' => $role,
     ]);
 
     $this->post(route('invitation.store', $token), [
-        'name' => 'Pat Tenant',
+        'name' => 'Pat Invitee',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
     ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
-    $tenant = $tenant->fresh();
+    $invitedUser = $invitedUser->fresh();
 
-    $this->assertAuthenticatedAs($tenant);
+    $this->assertAuthenticatedAs($invitedUser);
 
-    expect($tenant)
-        ->name->toBe('Pat Tenant')
+    expect($invitedUser)
+        ->name->toBe('Pat Invitee')
         ->status->toBe(UserStatus::ACTIVE)
+        ->role->toBe($role)
         ->and(User::query()->where('email', $invitation->email)->count())->toBe(1)
         ->and($invitation->fresh()->accepted_at)->not->toBeNull();
-});
+})->with([
+    'manager' => [UserRole::MANAGER, 'manager-placeholder@example.com'],
+    'tenant' => [UserRole::TENANT, 'tenant-placeholder@example.com'],
+]);
 
 it('shows the expired state for an expired invitation', function () {
     ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([

@@ -857,6 +857,11 @@ return [
                 'actions' => [
                     'create' => 'Sukurti vadybininką',
                 ],
+                'messages' => [
+                    'manager_invited' => 'Vadybininkas pakviestas',
+                    'invitation_sent' => 'Kvietimas buvo išsiųstas adresu :email.',
+                    'invitation_onboarding_hint' => 'Vadybininko slaptažodis čia nenustatomas. Išsaugojus Tenanto išsiunčia kvietimo nuorodą el. paštu, o vadybininkas pats susikuria slaptažodį.',
+                ],
             ],
             'buildings' => [
                 'title' => 'Pastatai',

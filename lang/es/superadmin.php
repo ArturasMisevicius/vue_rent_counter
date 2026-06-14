@@ -832,6 +832,11 @@ return [
                 'actions' => [
                     'create' => 'Crear gestor',
                 ],
+                'messages' => [
+                    'manager_invited' => 'Gestor invitado',
+                    'invitation_sent' => 'Se ha enviado una invitación a :email.',
+                    'invitation_onboarding_hint' => 'La contraseña del gestor no se define aquí. Después de guardar, Tenanto envía un enlace de invitación por correo y el gestor crea su propia contraseña desde ese enlace.',
+                ],
             ],
         ],
         'status' => [

@@ -857,6 +857,11 @@ return [
                 'actions' => [
                     'create' => 'Создать менеджера',
                 ],
+                'messages' => [
+                    'manager_invited' => 'Менеджер приглашён',
+                    'invitation_sent' => 'Приглашение отправлено на :email.',
+                    'invitation_onboarding_hint' => 'Пароль менеджера здесь не задается. После сохранения Tenanto отправит приглашение на email, и менеджер сам создаст пароль по ссылке.',
+                ],
             ],
             'buildings' => [
                 'title' => 'Здания',

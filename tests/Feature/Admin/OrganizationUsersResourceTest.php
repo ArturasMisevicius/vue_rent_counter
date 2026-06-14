@@ -8,11 +8,13 @@ use App\Filament\Resources\OrganizationUsers\Pages\CreateOrganizationUser;
 use App\Filament\Resources\OrganizationUsers\Pages\ListOrganizationUsers;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Organization;
+use App\Models\OrganizationInvitation;
 use App\Models\OrganizationUser;
 use App\Models\User;
+use App\Notifications\Auth\OrganizationInvitationNotification;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -163,6 +165,8 @@ it('lets admins view and edit manager memberships in their current organization'
 });
 
 it('lets admins create manager accounts for their current organization', function (): void {
+    Notification::fake();
+
     ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
 
     $this->actingAs($admin)
@@ -170,6 +174,10 @@ it('lets admins create manager accounts for their current organization', functio
         ->assertSuccessful()
         ->assertSeeText(__('superadmin.organizations.relations.managers.actions.create'))
         ->assertSeeText(__('superadmin.users.fields.name'))
+        ->assertSeeText(__('superadmin.organizations.relations.managers.messages.invitation_onboarding_hint'))
+        ->assertDontSeeText(__('superadmin.users.fields.status'))
+        ->assertDontSeeText(__('superadmin.users.fields.password'))
+        ->assertDontSeeText(__('shell.profile.fields.password_confirmation'))
         ->assertDontSee('data-superadmin-surface="true"', false);
 
     $this->actingAs($admin);
@@ -178,10 +186,7 @@ it('lets admins create manager accounts for their current organization', functio
         ->fillForm([
             'name' => 'Operations Manager',
             'email' => 'operations.manager@example.com',
-            'status' => UserStatus::ACTIVE->value,
             'locale' => 'ru',
-            'password' => 'manager-password',
-            'password_confirmation' => 'manager-password',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -195,14 +200,30 @@ it('lets admins create manager accounts for their current organization', functio
         ->where('user_id', $manager->id)
         ->firstOrFail();
 
+    $invitation = OrganizationInvitation::query()
+        ->where('organization_id', $organization->id)
+        ->where('email', 'operations.manager@example.com')
+        ->whereNull('accepted_at')
+        ->firstOrFail();
+
     expect($manager->organization_id)->toBe($organization->id)
         ->and($manager->role)->toBe(UserRole::MANAGER)
-        ->and($manager->status)->toBe(UserStatus::ACTIVE)
+        ->and($manager->status)->toBe(UserStatus::INACTIVE)
         ->and($manager->locale)->toBe('ru')
-        ->and(Hash::check('manager-password', $manager->password))->toBeTrue()
         ->and($membership->role)->toBe(UserRole::MANAGER->value)
         ->and($membership->is_active)->toBeTrue()
-        ->and($membership->invited_by)->toBe($admin->id);
+        ->and($membership->invited_by)->toBe($admin->id)
+        ->and($invitation->role)->toBe(UserRole::MANAGER)
+        ->and($invitation->full_name)->toBe('Operations Manager');
+
+    Notification::assertSentOnDemand(
+        OrganizationInvitationNotification::class,
+        function (OrganizationInvitationNotification $notification, array $channels, object $notifiable) use ($invitation): bool {
+            return in_array('mail', $channels, true)
+                && ($notifiable->routes['mail'] ?? null) === $invitation->email
+                && $notification->invitation->is($invitation);
+        },
+    );
 });
 
 it('shows a read-only manager permission summary on the organization user view page', function (): void {

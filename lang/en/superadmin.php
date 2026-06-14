@@ -859,6 +859,11 @@ return [
                 'actions' => [
                     'create' => 'Create manager',
                 ],
+                'messages' => [
+                    'manager_invited' => 'Manager invited',
+                    'invitation_sent' => 'An invitation email was sent to :email.',
+                    'invitation_onboarding_hint' => 'Do not set a manager password here. After saving, Tenanto emails the manager an invitation link, and the manager creates their own password from that link.',
+                ],
             ],
             'buildings' => [
                 'title' => 'Buildings',

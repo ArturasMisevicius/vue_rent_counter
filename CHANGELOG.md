@@ -2,6 +2,20 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614144649 -->
+### Commit updates
+
+- updated `app/Filament/Actions/Admin/OrganizationUsers/CreateOrganizationManagerAction.php`
+- updated `app/Filament/Resources/OrganizationUsers/Pages/CreateOrganizationUser.php`
+- updated `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- updated `lang/en/superadmin.php`
+- updated `lang/es/superadmin.php`
+- updated `lang/lt/superadmin.php`
+- updated `lang/ru/superadmin.php`
+- updated `tests/Feature/Admin/OrganizationUsersResourceTest.php`
+- updated `tests/Feature/Auth/InvitationAcceptanceTest.php`
+<!-- changelog:auto:end:staged-20260614144649 -->
+
 <!-- changelog:auto:start:staged-20260614144323 -->
 ### Commit updates
 

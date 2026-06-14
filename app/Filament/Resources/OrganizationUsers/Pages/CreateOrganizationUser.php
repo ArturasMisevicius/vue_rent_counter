@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\OrganizationUsers\Pages;
 
-use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\OrganizationUsers\CreateOrganizationManagerAction;
 use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
 use App\Filament\Resources\Pages\Concerns\HasContainedSuperadminSurface;
@@ -11,6 +10,7 @@ use App\Models\Organization;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -50,6 +50,7 @@ class CreateOrganizationUser extends CreateRecord
         return $schema
             ->components([
                 Section::make(__('superadmin.users.sections.details'))
+                    ->description(__('superadmin.organizations.relations.managers.messages.invitation_onboarding_hint'))
                     ->schema([
                         TextInput::make('name')
                             ->label(__('superadmin.users.fields.name'))
@@ -61,27 +62,11 @@ class CreateOrganizationUser extends CreateRecord
                             ->required()
                             ->maxLength(255)
                             ->unique(table: User::class, column: 'email'),
-                        Select::make('status')
-                            ->label(__('superadmin.users.fields.status'))
-                            ->options(UserStatus::options())
-                            ->default(UserStatus::ACTIVE->value)
-                            ->required(),
                         Select::make('locale')
                             ->label(__('superadmin.users.fields.locale'))
                             ->options(config('tenanto.locales', []))
                             ->default(fn (): string => $this->currentUser()?->locale ?? config('app.locale', 'en'))
                             ->required(),
-                        TextInput::make('password')
-                            ->label(__('superadmin.users.fields.password'))
-                            ->password()
-                            ->required()
-                            ->minLength(8)
-                            ->same('password_confirmation'),
-                        TextInput::make('password_confirmation')
-                            ->label(__('shell.profile.fields.password_confirmation'))
-                            ->password()
-                            ->required()
-                            ->dehydrated(false),
                     ])
                     ->columns(2),
             ]);
@@ -108,11 +93,23 @@ class CreateOrganizationUser extends CreateRecord
             data: [
                 'name' => (string) $data['name'],
                 'email' => (string) $data['email'],
-                'status' => (string) $data['status'],
                 'locale' => (string) $data['locale'],
-                'password' => (string) $data['password'],
             ],
         );
+    }
+
+    protected function getCreatedNotification(): ?Notification
+    {
+        if ($this->currentUser()?->isSuperadmin()) {
+            return parent::getCreatedNotification();
+        }
+
+        return Notification::make()
+            ->success()
+            ->title(__('superadmin.organizations.relations.managers.messages.manager_invited'))
+            ->body(__('superadmin.organizations.relations.managers.messages.invitation_sent', [
+                'email' => (string) $this->record?->user?->email,
+            ]));
     }
 
     protected function shouldWrapSuperadminSurface(): bool
