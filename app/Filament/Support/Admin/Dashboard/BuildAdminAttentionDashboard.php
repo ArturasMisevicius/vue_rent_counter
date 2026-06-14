@@ -10,7 +10,6 @@ use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
 use App\Enums\KycVerificationStatus;
 use App\Enums\MeterReadingValidationStatus;
-use App\Enums\MoveOutProcessStatus;
 use App\Enums\PortalAccessStatus;
 use App\Enums\RentalContractStatus;
 use App\Enums\ServiceConfigurationStatus;

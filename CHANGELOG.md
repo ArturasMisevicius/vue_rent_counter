@@ -2,6 +2,18 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614174335 -->
+### Commit updates
+
+- updated `app/Filament/Resources/Properties/Tables/PropertiesTable.php`
+- updated `app/Filament/Support/Admin/Dashboard/BuildAdminAttentionDashboard.php`
+- updated `lang/en/dashboard.php`
+- updated `lang/es/dashboard.php`
+- updated `lang/lt/dashboard.php`
+- updated `lang/ru/dashboard.php`
+- updated `tests/Feature/Admin/AdminDashboardTest.php`
+<!-- changelog:auto:end:staged-20260614174335 -->
+
 <!-- changelog:auto:start:staged-20260614173715 -->
 ### Commit updates
 

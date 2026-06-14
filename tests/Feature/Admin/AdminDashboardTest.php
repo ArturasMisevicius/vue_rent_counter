@@ -8,6 +8,7 @@ use App\Enums\KycVerificationStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\RentalContractStatus;
 use App\Enums\ServiceConfigurationStatus;
+use App\Enums\TenantStatus;
 use App\Enums\UserStatus;
 use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
 use App\Models\Attachment;
@@ -20,6 +21,7 @@ use App\Models\InvoiceItem;
 use App\Models\ManagerPermission;
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\MoveOutProcess;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
@@ -250,6 +252,30 @@ it('counts billing, onboarding, contracts, documents, configuration, and integri
         'uploaded_by_user_id' => $workspace['admin']->id,
         'created_at' => now()->subDay(),
     ]);
+    MoveOutProcess::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['tenant'], 'tenant')
+        ->for($workspace['property'])
+        ->for($workspace['assignment'], 'propertyAssignment')
+        ->create([
+            'move_out_date' => '2026-03-28',
+            'final_readings_required' => true,
+            'final_readings_completed_at' => null,
+            'final_invoice_id' => null,
+        ]);
+    $movedOutTenant = User::factory()->tenant()->create([
+        'organization_id' => $workspace['organization']->id,
+        'tenant_status' => TenantStatus::MOVED_OUT,
+    ]);
+    Invoice::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['property'])
+        ->for($movedOutTenant, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::FINALIZED,
+            'billing_period_start' => '2026-02-01',
+            'billing_period_end' => '2026-02-28',
+        ]);
 
     $dashboard = app(BuildAdminAttentionDashboard::class)
         ->handle($workspace['organization']->id, $workspace['admin']->id)
@@ -274,6 +300,11 @@ it('counts billing, onboarding, contracts, documents, configuration, and integri
         'charges_included_twice' => 1,
         'kyc_pending_review' => 1,
         'documents_uploaded_recently' => 1,
+        'move_outs_scheduled_this_month' => 1,
+        'final_readings_pending' => 1,
+        'final_invoices_pending' => 1,
+        'properties_becoming_vacant' => 1,
+        'moved_out_tenants_with_unpaid_balance' => 1,
     ]);
 
     expect($overdue->fresh()->status)->toBe(InvoiceStatus::FINALIZED);
@@ -300,6 +331,7 @@ it('builds filtered action URLs for every attention surface', function (): void 
     $tenantCards = collect($dashboard['tenant_onboarding_cards'])->keyBy('key');
     $configurationCards = collect($dashboard['configuration_health_cards'])->keyBy('key');
     $contractCards = collect($dashboard['contract_cards'])->keyBy('key');
+    $moveOutCards = collect($dashboard['move_out_cards'])->keyBy('key');
     $integrityCards = collect($dashboard['data_integrity_cards'])->keyBy('key');
 
     expect($billingCards['waiting_for_readings']['url'])->toContain(route('filament.admin.pages.billing-review-center', [], false), 'attention=waiting_for_readings')
@@ -308,7 +340,9 @@ it('builds filtered action URLs for every attention surface', function (): void 
         ->and($configurationCards['configuration_errors_total']['url'])->toContain(route('filament.admin.resources.service-configurations.index', [], false), 'attention=configuration_errors')
         ->and($integrityCards['duplicate_active_readings']['url'])->toContain(route('filament.admin.pages.billing-cleanup-center', [], false), 'attention=duplicate_active_readings')
         ->and($integrityCards['duplicate_invoice_items']['url'])->toContain(route('filament.admin.pages.billing-cleanup-center', [], false), 'attention=duplicate_invoice_items')
-        ->and($contractCards['contracts_expiring_30_days']['url'])->toContain(route('filament.admin.resources.tenants.index', [], false), 'attention=contracts_expiring_30');
+        ->and($contractCards['contracts_expiring_30_days']['url'])->toContain(route('filament.admin.resources.tenants.index', [], false), 'attention=contracts_expiring_30')
+        ->and($moveOutCards['final_readings_pending']['url'])->toContain(route('filament.admin.resources.tenants.index', [], false), 'attention=final_readings_pending')
+        ->and($moveOutCards['properties_becoming_vacant']['url'])->toContain(route('filament.admin.resources.properties.index', [], false), 'attention=becoming_vacant');
 
     expect($dashboard['recent_activity'][0]['url'])
         ->toBe(route('filament.admin.resources.invoices.view', ['record' => $invoice->id]));

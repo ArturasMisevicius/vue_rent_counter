@@ -34,6 +34,7 @@ class PropertiesTable
         self::overrideFilterResetLabel();
 
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -214,6 +215,24 @@ class PropertiesTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'becoming_vacant' => $query
+                ->whereHas('moveOutProcesses', fn (Builder $moveOutQuery): Builder => $moveOutQuery
+                    ->open()
+                    ->whereDate('move_out_date', '>=', today()->toDateString())
+                    ->whereDate('move_out_date', '<=', today()->addDays(30)->toDateString())),
+            default => $query,
+        };
     }
 
     private static function overrideFilterResetLabel(): void
