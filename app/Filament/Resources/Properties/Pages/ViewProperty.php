@@ -11,9 +11,11 @@ use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Property;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -100,6 +102,10 @@ class ViewProperty extends ViewRecord
                                     ->default(fn (): ?float => $this->record->currentAssignment?->unit_area_sqm !== null
                                         ? (float) $this->record->currentAssignment->unit_area_sqm
                                         : ($this->record->floor_area_sqm !== null ? (float) $this->record->floor_area_sqm : null)),
+                                DatePicker::make('move_in_date')
+                                    ->label(__('admin.tenants.fields.move_in_date'))
+                                    ->default(today()->toDateString())
+                                    ->required(),
                             ])
                             ->action(function (array $data, AssignTenantToPropertyAction $assignTenantToPropertyAction): void {
                                 $tenant = User::query()
@@ -113,6 +119,7 @@ class ViewProperty extends ViewRecord
                                     $this->record,
                                     $tenant,
                                     isset($data['unit_area_sqm']) ? (float) $data['unit_area_sqm'] : null,
+                                    CarbonImmutable::parse((string) $data['move_in_date']),
                                 );
 
                                 $this->refreshRecord();

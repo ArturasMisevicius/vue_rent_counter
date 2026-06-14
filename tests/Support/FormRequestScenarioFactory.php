@@ -8,8 +8,12 @@ use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Enums\ExtraChargeStatus;
+use App\Enums\ExtraChargeTypeCode;
+use App\Enums\PaymentMethod;
 use App\Enums\PricingModel;
 use App\Enums\PropertyType;
+use App\Enums\RentalContractStatus;
 use App\Enums\ServiceType;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
@@ -19,7 +23,10 @@ use App\Enums\TenantDocumentStatus;
 use App\Enums\TenantDocumentType;
 use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
+use App\Http\Requests\Admin\ExtraCharges\ExtraChargeRequest;
+use App\Http\Requests\Admin\ExtraCharges\ExtraChargeTypeRequest;
 use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
+use App\Http\Requests\Admin\Invoices\CreateManualPaymentRequest;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Http\Requests\Admin\Invoices\OpenReadingInvoiceCycleRequest;
 use App\Http\Requests\Admin\Invoices\PreviewInvoiceDraftRequest;
@@ -34,6 +41,8 @@ use App\Http\Requests\Admin\Meters\MeterRequest;
 use App\Http\Requests\Admin\Properties\PropertyRequest;
 use App\Http\Requests\Admin\Properties\StorePropertyRequest;
 use App\Http\Requests\Admin\Providers\ProviderRequest;
+use App\Http\Requests\Admin\RentalContracts\StoreRentalContractRequest;
+use App\Http\Requests\Admin\RentalContracts\UpdateRentalContractRequest;
 use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
 use App\Http\Requests\Admin\Reports\ExportReportRequest;
 use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
@@ -77,6 +86,7 @@ use App\Http\Requests\Superadmin\Users\UpdateOrganizationRosterUserRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Http\Requests\Tenant\PropertyHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
+use App\Http\Requests\Tenant\SubmitPaymentProofRequest;
 use App\Http\Requests\Tenant\TenantDocumentFilterRequest;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -296,6 +306,19 @@ final class FormRequestScenarioFactory
                         'input' => self::withField($valid, 'selectedCategory', 'not-a-category'),
                     ],
                 ],
+            ],
+            'SubmitPaymentProofRequest' => [
+                'request' => static fn (array $context): FormRequest => new SubmitPaymentProofRequest,
+                'valid' => static fn (array $context): array => [
+                    'amount' => '125.50',
+                    'payment_date' => now()->toDateString(),
+                    'payment_method' => PaymentMethod::BANK_TRANSFER->value,
+                    'reference' => 'INV-REF',
+                    'transaction_id' => 'TRX-123',
+                    'tenant_comment' => 'Paid by bank transfer.',
+                ],
+                'required' => ['amount', 'payment_date', 'payment_method'],
+                'authorize' => self::tenantOnly(),
             ],
             'PropertyHistoryFilterRequest' => [
                 'request' => static fn (array $context): FormRequest => new PropertyHistoryFilterRequest,
@@ -631,6 +654,49 @@ final class FormRequestScenarioFactory
                 'required' => ['rejection_reason'],
                 'authorize' => self::adminLikeOnly(),
             ],
+            'ExtraChargeTypeRequest' => [
+                'request' => static fn (array $context): FormRequest => (new ExtraChargeTypeRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'name' => 'Cleaning fee '.fake()->unique()->numberBetween(100, 999),
+                    'type' => ExtraChargeTypeCode::ONE_TIME_CHARGE->value,
+                    'default_amount' => '25.00',
+                    'currency' => 'EUR',
+                    'is_recurring' => false,
+                    'is_taxable' => true,
+                    'tenant_visible_by_default' => true,
+                    'requires_comment' => false,
+                    'requires_attachment' => false,
+                    'is_active' => true,
+                ],
+                'required' => ['name', 'type', 'default_amount', 'currency', 'is_recurring', 'is_taxable', 'tenant_visible_by_default', 'requires_comment', 'requires_attachment', 'is_active'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'ExtraChargeRequest' => [
+                'request' => static fn (array $context): FormRequest => (new ExtraChargeRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'tenant_id' => $context['tenant']->id,
+                    'property_id' => $context['property']->id,
+                    'extra_charge_type_id' => \App\Models\ExtraChargeType::factory()
+                        ->for($context['organization'])
+                        ->create(['name' => 'Parking '.fake()->unique()->numberBetween(100, 999)])
+                        ->id,
+                    'title' => 'Parking fee',
+                    'description_for_tenant' => 'Monthly parking fee.',
+                    'internal_note' => 'Approved by office.',
+                    'amount' => '25.00',
+                    'currency' => 'EUR',
+                    'quantity' => '1',
+                    'unit_price' => '25.00',
+                    'tax_amount' => '0',
+                    'total_amount' => '25.00',
+                    'status' => ExtraChargeStatus::DRAFT->value,
+                    'is_recurring' => false,
+                    'starts_at' => now()->toDateString(),
+                    'ends_at' => now()->addMonth()->toDateString(),
+                ],
+                'required' => ['tenant_id', 'property_id', 'extra_charge_type_id', 'title', 'amount', 'currency', 'quantity', 'unit_price', 'is_recurring'],
+                'authorize' => self::adminLikeOnly(),
+            ],
             'TenantDocumentRequest' => [
                 'request' => static fn (array $context): FormRequest => (new TenantDocumentRequest)->forOrganization($context['organization']->id),
                 'valid' => static fn (array $context): array => [
@@ -667,6 +733,65 @@ final class FormRequestScenarioFactory
                     'rejection_reason' => 'The uploaded document needs a clearer photo.',
                 ],
                 'required' => ['rejection_reason'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'CreateManualPaymentRequest' => [
+                'request' => static fn (array $context): FormRequest => new CreateManualPaymentRequest,
+                'valid' => static fn (array $context): array => [
+                    'invoice_id' => $context['invoice']->id,
+                    'amount' => '50.00',
+                    'currency' => 'EUR',
+                    'payment_method' => PaymentMethod::BANK_TRANSFER->value,
+                    'payment_date' => now()->toDateString(),
+                    'reference' => 'INV-REF',
+                    'transaction_id' => 'TRX-ADMIN',
+                    'internal_note' => 'Manual payment.',
+                    'tenant_comment' => 'Received.',
+                    'confirm_immediately' => true,
+                ],
+                'required' => ['amount', 'payment_method', 'payment_date'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'StoreRentalContractRequest' => [
+                'request' => static fn (array $context): FormRequest => (new StoreRentalContractRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'tenant_id' => $context['tenant']->id,
+                    'property_id' => $context['property']->id,
+                    'property_assignment_id' => null,
+                    'contract_number' => 'RC-'.fake()->unique()->numberBetween(1000, 9999),
+                    'status' => RentalContractStatus::ACTIVE->value,
+                    'start_date' => now()->toDateString(),
+                    'end_date' => now()->addYear()->toDateString(),
+                    'signed_date' => now()->toDateString(),
+                    'rent_amount' => '650.00',
+                    'deposit_amount' => '650.00',
+                    'currency' => 'EUR',
+                    'tenant_visible' => true,
+                    'internal_notes' => 'Internal contract note.',
+                    'tenant_visible_notes' => 'Visible contract note.',
+                ],
+                'required' => ['tenant_id', 'property_id', 'contract_number', 'status', 'start_date', 'end_date', 'currency', 'tenant_visible'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'UpdateRentalContractRequest' => [
+                'request' => static fn (array $context): FormRequest => (new UpdateRentalContractRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'tenant_id' => $context['tenant']->id,
+                    'property_id' => $context['property']->id,
+                    'property_assignment_id' => null,
+                    'contract_number' => 'RC-UPD-'.fake()->unique()->numberBetween(1000, 9999),
+                    'status' => RentalContractStatus::ACTIVE->value,
+                    'start_date' => now()->toDateString(),
+                    'end_date' => now()->addYear()->toDateString(),
+                    'signed_date' => now()->toDateString(),
+                    'rent_amount' => '700.00',
+                    'deposit_amount' => '700.00',
+                    'currency' => 'EUR',
+                    'tenant_visible' => true,
+                    'internal_notes' => 'Updated internal note.',
+                    'tenant_visible_notes' => 'Updated visible note.',
+                ],
+                'required' => ['tenant_id', 'property_id', 'contract_number', 'status', 'start_date', 'end_date', 'currency', 'tenant_visible'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'RejectMeterReadingRequest' => [

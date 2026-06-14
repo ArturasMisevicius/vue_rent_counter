@@ -284,6 +284,16 @@ return [
                             'label' => 'admin.utility_services.plural',
                         ],
                     ],
+                    'help' => [
+                        [
+                            'route' => 'filament.admin.pages.help-center',
+                            'label' => 'help.navigation.center',
+                            'active_patterns' => [
+                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.service-configuration-guide',
+                            ],
+                        ],
+                    ],
                     'reports' => [
                         [
                             'route' => 'filament.admin.pages.reports',
@@ -363,6 +373,16 @@ return [
                         [
                             'route' => 'filament.admin.resources.utility-services.index',
                             'label' => 'admin.utility_services.plural',
+                        ],
+                    ],
+                    'help' => [
+                        [
+                            'route' => 'filament.admin.pages.help-center',
+                            'label' => 'help.navigation.center',
+                            'active_patterns' => [
+                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.service-configuration-guide',
+                            ],
                         ],
                     ],
                     'reports' => [
@@ -446,6 +466,16 @@ return [
                             'label' => 'admin.utility_services.plural',
                         ],
                     ],
+                    'help' => [
+                        [
+                            'route' => 'filament.admin.pages.help-center',
+                            'label' => 'help.navigation.center',
+                            'active_patterns' => [
+                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.service-configuration-guide',
+                            ],
+                        ],
+                    ],
                     'reports' => [
                         [
                             'route' => 'filament.admin.pages.reports',
@@ -485,6 +515,11 @@ return [
                             'route' => 'filament.admin.pages.tenant-documents',
                             'label' => 'tenant.navigation.documents',
                             'icon' => 'heroicon-m-document-duplicate',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.tenant-help',
+                            'label' => 'help.navigation.tenant',
+                            'icon' => 'heroicon-m-question-mark-circle',
                         ],
                     ],
                     'account' => [],

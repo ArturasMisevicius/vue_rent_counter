@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AuditLogAction;
 use App\Enums\BillingMethod;
 use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
@@ -10,6 +11,7 @@ use App\Enums\ServiceConfigurationStatus;
 use App\Enums\UserStatus;
 use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
 use App\Models\Attachment;
+use App\Models\AuditLog;
 use App\Models\BillingPeriod;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -279,6 +281,16 @@ it('counts billing, onboarding, contracts, documents, configuration, and integri
 
 it('builds filtered action URLs for every attention surface', function (): void {
     $workspace = attentionDashboardWorkspace();
+    $invoice = attentionInvoice($workspace, [
+        'invoice_number' => 'INV-ACTIVITY-LINK',
+    ]);
+    AuditLog::factory()->for($workspace['organization'])->for($workspace['admin'], 'actor')->create([
+        'action' => AuditLogAction::UPDATED,
+        'subject_type' => Invoice::class,
+        'subject_id' => $invoice->id,
+        'description' => 'Invoice updated',
+        'occurred_at' => now(),
+    ]);
 
     $dashboard = app(BuildAdminAttentionDashboard::class)
         ->handle($workspace['organization']->id, $workspace['admin']->id)
@@ -297,6 +309,9 @@ it('builds filtered action URLs for every attention surface', function (): void 
         ->and($integrityCards['duplicate_active_readings']['url'])->toContain(route('filament.admin.pages.billing-cleanup-center', [], false), 'attention=duplicate_active_readings')
         ->and($integrityCards['duplicate_invoice_items']['url'])->toContain(route('filament.admin.pages.billing-cleanup-center', [], false), 'attention=duplicate_invoice_items')
         ->and($contractCards['contracts_expiring_30_days']['url'])->toContain(route('filament.admin.resources.tenants.index', [], false), 'attention=contracts_expiring_30');
+
+    expect($dashboard['recent_activity'][0]['url'])
+        ->toBe(route('filament.admin.resources.invoices.view', ['record' => $invoice->id]));
 });
 
 it('sorts blocking attention above medium and low priority items', function (): void {

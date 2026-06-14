@@ -317,12 +317,12 @@ it('creates updates assigns reassigns and unassigns properties through the admin
         ->unit_number->toBe('21A')
         ->type->toBe(PropertyType::OFFICE);
 
-    $firstAssignment = app(AssignTenantToPropertyAction::class)->handle($updated, $tenantA, 48.5);
+    $firstAssignment = app(AssignTenantToPropertyAction::class)->handle($updated, $tenantA, 48.5, now()->subDay());
 
     expect($updated->fresh()->currentTenant?->is($tenantA))->toBeTrue()
         ->and($firstAssignment->unassigned_at)->toBeNull();
 
-    $secondAssignment = app(AssignTenantToPropertyAction::class)->handle($updated->fresh(), $tenantB, 50.25);
+    $secondAssignment = app(AssignTenantToPropertyAction::class)->handle($updated->fresh(), $tenantB, 50.25, now());
 
     expect($firstAssignment->fresh()->unassigned_at)->not->toBeNull()
         ->and($updated->fresh()->currentTenant?->is($tenantB))->toBeTrue()

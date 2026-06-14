@@ -15,6 +15,7 @@ use App\Enums\PaymentStatus;
 use App\Jobs\SendInvoiceReminderJob;
 use App\Models\AuditLog;
 use App\Models\Invoice;
+use App\Models\Organization;
 use App\Models\User;
 use App\Services\Billing\InvoicePresentationService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -215,9 +216,9 @@ it('marks overdue invoices automatically but skips paid invoices', function (): 
         'paid_at' => now()->subDay(),
     ]);
 
-    $result = app(MarkOverdueInvoices::class)->handle(now(), $workspace['admin']);
+    $marked = app(MarkOverdueInvoices::class)->handle(now(), $workspace['admin']);
 
-    expect($result['marked_overdue'])->toBe(1)
+    expect($marked)->toBe(1)
         ->and($workspace['invoice']->fresh()->status)->toBe(InvoiceStatus::OVERDUE)
         ->and($workspace['invoice']->fresh()->payment_status)->toBe(InvoicePaymentStatus::OVERDUE)
         ->and($paidWorkspace['invoice']->fresh()->status)->toBe(InvoiceStatus::PAID)
@@ -304,7 +305,7 @@ it('blocks admins from recording payments for another organization invoice', fun
 
 /**
  * @param  array<string, mixed>  $invoiceOverrides
- * @return array{organization: \App\Models\Organization, admin: User, tenant: User, invoice: Invoice}
+ * @return array{organization: Organization, admin: User, tenant: User, invoice: Invoice}
  */
 function paymentTrackingWorkspace(array $invoiceOverrides = []): array
 {

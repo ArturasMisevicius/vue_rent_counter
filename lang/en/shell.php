@@ -22,6 +22,7 @@ return [
             'platform' => 'Platform',
             'properties' => 'Properties',
             'billing' => 'Billing',
+            'help' => 'Help',
             'reports' => 'Reports',
             'my_home' => 'My Home',
             'organization' => 'Organization',

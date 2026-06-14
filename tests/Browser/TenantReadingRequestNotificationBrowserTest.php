@@ -43,7 +43,7 @@ it('lets tenants open current invoice reading requests from the browser', functi
     $this->actingAs($tenantWorkspace['tenant']);
 
     visit(route('tenant.home', [], false))
-        ->assertPathIs('/tenant')
+        ->assertPathIs(route('filament.admin.pages.dashboard', [], false))
         ->assertSee($tenantWorkspace['tenant']->name)
         ->assertSee(__('tenant.pages.home.current_invoice'))
         ->assertSee(__('tenant.actions.submit_readings'))
@@ -92,7 +92,7 @@ it('lets tenants open finalized invoice notifications from the browser', functio
     $this->actingAs($tenantWorkspace['tenant']);
 
     visit(route('tenant.home', [], false))
-        ->assertPathIs('/tenant')
+        ->assertPathIs(route('filament.admin.pages.dashboard', [], false))
         ->assertSee($tenantWorkspace['tenant']->name)
         ->click('[data-shell-notifications-slot="desktop"] [data-shell-notifications="center"] > button')
         ->assertSee(__('admin.invoices.invoice_ready.database_title'))

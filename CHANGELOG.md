@@ -2,6 +2,54 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614170709 -->
+### Commit updates
+
+- added `app/Filament/Resources/ListingLeads/ListingLeadResource.php`
+- added `app/Filament/Resources/ListingLeads/Pages/CreateListingLead.php`
+- added `app/Filament/Resources/ListingLeads/Pages/EditListingLead.php`
+- added `app/Filament/Resources/ListingLeads/Pages/ListListingLeads.php`
+- added `app/Filament/Resources/ListingLeads/Pages/ViewListingLead.php`
+- added `app/Filament/Resources/ListingLeads/Schemas/ListingLeadForm.php`
+- added `app/Filament/Resources/ListingLeads/Schemas/ListingLeadInfolist.php`
+- added `app/Filament/Resources/ListingLeads/Tables/ListingLeadsTable.php`
+- updated `app/Filament/Resources/Properties/Pages/ViewProperty.php`
+- updated `app/Filament/Resources/Tenants/Pages/ViewTenant.php`
+- updated `app/Filament/Support/Admin/Dashboard/BuildAdminAttentionDashboard.php`
+- updated `app/Http/Requests/Admin/ExtraCharges/ExtraChargeRequest.php`
+- updated `app/Http/Requests/Admin/ExtraCharges/ExtraChargeTypeRequest.php`
+- updated `app/Http/Requests/Admin/RentalContracts/UpdateRentalContractRequest.php`
+- updated `app/Livewire/Pages/Dashboard/AdminDashboard.php`
+- updated `app/Providers/Filament/AppPanelProvider.php`
+- updated `config/tenanto.php`
+- added `database/factories/LeadContactFactory.php`
+- added `database/factories/LeadImportBatchFactory.php`
+- added `database/factories/LeadOutreachActivityFactory.php`
+- added `database/factories/LeadOutreachTemplateFactory.php`
+- added `database/factories/LeadSourceFactory.php`
+- added `database/factories/ListingLeadFactory.php`
+- updated `lang/en/enums.php`
+- added `lang/en/help.php`
+- updated `lang/en/shell.php`
+- updated `lang/es/enums.php`
+- added `lang/es/help.php`
+- updated `lang/es/shell.php`
+- updated `lang/lt/enums.php`
+- added `lang/lt/help.php`
+- updated `lang/lt/shell.php`
+- updated `lang/ru/enums.php`
+- added `lang/ru/help.php`
+- updated `lang/ru/shell.php`
+- added `resources/views/filament/pages/help-center.blade.php`
+- added `resources/views/filament/pages/tenant-help.blade.php`
+- added `resources/views/filament/resources/listing-leads/outreach-timeline.blade.php`
+- updated `tests/Browser/TenantReadingRequestNotificationBrowserTest.php`
+- updated `tests/Feature/Admin/AdminDashboardTest.php`
+- updated `tests/Feature/Admin/PropertiesResourceTest.php`
+- updated `tests/Feature/Billing/PaymentTrackingAndReconciliationTest.php`
+- updated `tests/Support/FormRequestScenarioFactory.php`
+<!-- changelog:auto:end:staged-20260614170709 -->
+
 <!-- changelog:auto:start:staged-20260614170152 -->
 ### Commit updates
 

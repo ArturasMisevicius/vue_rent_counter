@@ -78,6 +78,14 @@ class ExtraChargeRequest extends FormRequest
     /**
      * @return array<string, string>
      */
+    public function messages(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public function attributes(): array
     {
         return $this->translatedAttributes([

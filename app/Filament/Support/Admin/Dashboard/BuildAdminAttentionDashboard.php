@@ -21,6 +21,7 @@ use App\Filament\Support\Superadmin\AuditLogs\AuditLogTablePresenter;
 use App\Models\Attachment;
 use App\Models\AuditLog;
 use App\Models\BillingPeriod;
+use App\Models\ExtraCharge;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
@@ -879,7 +880,7 @@ final class BuildAdminAttentionDashboard
                 'who' => AuditLogTablePresenter::actorLabel($record),
                 'what' => AuditLogTablePresenter::feedLabel($record),
                 'when' => $record->occurred_at?->locale(app()->getLocale())->diffForHumans() ?? __('dashboard.not_available'),
-                'url' => $this->resourceUrl('filament.admin.pages.dashboard'),
+                'url' => $this->activityUrl($record),
                 'tone' => $this->activityTone($record),
             ])
             ->all();
@@ -946,6 +947,27 @@ final class BuildAdminAttentionDashboard
     private function billingReviewUrl(string $attention): string
     {
         return $this->resourceUrl('filament.admin.pages.billing-review-center', ['attention' => $attention]);
+    }
+
+    private function activityUrl(AuditLog $record): string
+    {
+        if ($record->subject_id === null || blank($record->subject_type)) {
+            return $this->resourceUrl('filament.admin.pages.dashboard');
+        }
+
+        return match ($record->subject_type) {
+            ExtraCharge::class => $this->resourceUrl('filament.admin.resources.extra-charges.view', ['record' => $record->subject_id]),
+            Invoice::class => $this->resourceUrl('filament.admin.resources.invoices.view', ['record' => $record->subject_id]),
+            InvoiceItem::class => $this->resourceUrl('filament.admin.resources.invoice-items.view', ['record' => $record->subject_id]),
+            InvoicePayment::class => $this->resourceUrl('filament.admin.resources.payments.view', ['record' => $record->subject_id]),
+            MeterReading::class => $this->resourceUrl('filament.admin.resources.meter-readings.view', ['record' => $record->subject_id]),
+            OrganizationInvitation::class => $this->resourceUrl('filament.admin.resources.tenants.index', ['portal_status' => PortalAccessStatus::INVITED->value]),
+            Property::class => $this->resourceUrl('filament.admin.resources.properties.view', ['record' => $record->subject_id]),
+            ServiceConfiguration::class => $this->resourceUrl('filament.admin.resources.service-configurations.view', ['record' => $record->subject_id]),
+            User::class => $this->resourceUrl('filament.admin.resources.tenants.view', ['record' => $record->subject_id]),
+            UserKycProfile::class => $this->resourceUrl('filament.admin.resources.user-kyc-profiles.view', ['record' => $record->subject_id]),
+            default => $this->resourceUrl('filament.admin.pages.dashboard'),
+        };
     }
 
     private function cleanupUrl(string $attention): string

@@ -72,6 +72,7 @@ class AppPanelProvider extends PanelProvider
                 NavigationGroup::make(__('shell.navigation.groups.platform')),
                 NavigationGroup::make(__('shell.navigation.groups.properties')),
                 NavigationGroup::make(__('shell.navigation.groups.billing')),
+                NavigationGroup::make(__('shell.navigation.groups.help')),
                 NavigationGroup::make(__('shell.navigation.groups.reports')),
                 NavigationGroup::make(__('shell.navigation.groups.my_home')),
                 NavigationGroup::make(__('shell.navigation.groups.account')),

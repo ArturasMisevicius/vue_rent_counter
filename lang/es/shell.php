@@ -34,6 +34,7 @@ return [
             'platform' => 'Plataforma',
             'properties' => 'Propiedades',
             'billing' => 'Facturación',
+            'help' => 'Help',
             'reports' => 'Informes',
             'my_home' => 'Mi inicio',
             'organization' => 'Organización',

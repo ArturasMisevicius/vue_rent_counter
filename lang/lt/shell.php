@@ -22,6 +22,7 @@ return [
             'platform' => 'Platforma',
             'properties' => 'Turtas',
             'billing' => 'Apskaita',
+            'help' => 'Help',
             'reports' => 'Ataskaitos',
             'my_home' => 'Mano namai',
             'organization' => 'Organizacija',

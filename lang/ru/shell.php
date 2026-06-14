@@ -22,6 +22,7 @@ return [
             'platform' => 'Платформа',
             'properties' => 'Недвижимость',
             'billing' => 'Биллинг',
+            'help' => 'Help',
             'reports' => 'Отчеты',
             'my_home' => 'Мой дом',
             'organization' => 'Организация',

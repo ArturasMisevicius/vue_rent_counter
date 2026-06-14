@@ -6,6 +6,7 @@ namespace App\Livewire\Pages\Dashboard;
 
 use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Help\SetupChecklistBuilder;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -52,6 +53,7 @@ final class AdminDashboard extends Component
         return view('livewire.pages.dashboard.admin-dashboard', [
             'dashboard' => $this->dashboard,
             'showSubscriptionUsage' => $this->showSubscriptionUsage,
+            'setupChecklist' => app(SetupChecklistBuilder::class)->forUser($this->user()),
         ]);
     }
 
