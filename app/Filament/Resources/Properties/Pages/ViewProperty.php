@@ -2,14 +2,21 @@
 
 namespace App\Filament\Resources\Properties\Pages;
 
+use App\Enums\PortalAccessAfterMoveOut;
+use App\Enums\PropertyAssignmentStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Actions\Admin\TenantMoveOut\CompleteTenantMoveOut;
+use App\Filament\Actions\Admin\TenantMoveOut\GenerateFinalInvoice;
+use App\Filament\Actions\Admin\TenantMoveOut\ScheduleTenantMoveOut;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Models\MoveOutProcess;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -17,8 +24,12 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 
 class ViewProperty extends ViewRecord
 {
@@ -129,6 +140,73 @@ class ViewProperty extends ViewRecord
                                     ->success()
                                     ->send();
                             }),
+                        Action::make('scheduleMoveOut')
+                            ->label(__('admin.move_out.actions.schedule'))
+                            ->icon('heroicon-m-calendar-days')
+                            ->color('warning')
+                            ->slideOver()
+                            ->schema(self::moveOutWizardSchema())
+                            ->visible(fn (): bool => $this->currentAssignmentCanMoveOut())
+                            ->action(function (array $data, ScheduleTenantMoveOut $scheduleTenantMoveOut): void {
+                                $actor = auth()->user();
+                                $assignment = $this->record->currentAssignment;
+
+                                abort_if(! $actor instanceof User || ! $assignment instanceof PropertyAssignment, 403);
+
+                                $scheduleTenantMoveOut->handle($actor, $assignment, $data);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->title(__('admin.move_out.messages.scheduled'))
+                                    ->success()
+                                    ->send();
+                            }),
+                        Action::make('generateFinalInvoice')
+                            ->label(__('admin.move_out.actions.generate_final_invoice'))
+                            ->icon('heroicon-m-document-text')
+                            ->visible(fn (): bool => $this->currentMoveOutProcess() instanceof MoveOutProcess)
+                            ->action(function (GenerateFinalInvoice $generateFinalInvoice): void {
+                                $actor = auth()->user();
+                                $process = $this->currentMoveOutProcess();
+
+                                abort_if(! $actor instanceof User || ! $process instanceof MoveOutProcess, 403);
+
+                                $generateFinalInvoice->handle($actor, $process, [
+                                    'allow_without_final_readings' => ! $process->final_readings_required,
+                                ]);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->title(__('admin.move_out.messages.final_invoice_generated'))
+                                    ->success()
+                                    ->send();
+                            }),
+                        Action::make('completeMoveOut')
+                            ->label(__('admin.move_out.actions.complete'))
+                            ->icon('heroicon-m-check-circle')
+                            ->color('success')
+                            ->requiresConfirmation()
+                            ->schema([
+                                Toggle::make('allow_without_final_readings')
+                                    ->label(__('admin.move_out.fields.allow_without_final_readings')),
+                                Toggle::make('allow_without_final_invoice')
+                                    ->label(__('admin.move_out.fields.allow_without_final_invoice')),
+                            ])
+                            ->visible(fn (): bool => $this->currentMoveOutProcess() instanceof MoveOutProcess)
+                            ->action(function (array $data, CompleteTenantMoveOut $completeTenantMoveOut): void {
+                                $actor = auth()->user();
+                                $process = $this->currentMoveOutProcess();
+
+                                abort_if(! $actor instanceof User || ! $process instanceof MoveOutProcess, 403);
+
+                                $completeTenantMoveOut->handle($actor, $process, $data);
+                                $this->refreshRecord();
+
+                                Notification::make()
+                                    ->title(__('admin.move_out.messages.completed'))
+                                    ->success()
+                                    ->send();
+                            }),
                         Action::make('unassignTenant')
                             ->label(__('admin.properties.actions.unassign_tenant'))
                             ->color('danger')
@@ -168,6 +246,73 @@ class ViewProperty extends ViewRecord
             ->orderBy('name')
             ->pluck('name', 'id')
             ->all();
+    }
+
+    /**
+     * @return array<int, Wizard>
+     */
+    private static function moveOutWizardSchema(): array
+    {
+        return [
+            Wizard::make([
+                Step::make(__('admin.move_out.wizard.steps.schedule'))
+                    ->schema([
+                        DatePicker::make('move_out_date')
+                            ->label(__('admin.tenants.fields.move_out_date'))
+                            ->default(today()->toDateString())
+                            ->required(),
+                        Textarea::make('reason')
+                            ->label(__('admin.move_out.fields.reason'))
+                            ->rows(3),
+                    ]),
+                Step::make(__('admin.move_out.wizard.steps.final_readings'))
+                    ->schema([
+                        Toggle::make('final_readings_required')
+                            ->label(__('admin.move_out.fields.final_readings_required'))
+                            ->default(true),
+                    ]),
+                Step::make(__('admin.move_out.wizard.steps.outstanding_balance'))
+                    ->schema([
+                        Textarea::make('internal_note')
+                            ->label(__('admin.move_out.fields.internal_note'))
+                            ->rows(3),
+                    ]),
+                Step::make(__('admin.move_out.wizard.steps.contract_documents'))
+                    ->schema([
+                        Textarea::make('contract_note')
+                            ->label(__('admin.move_out.fields.contract_note'))
+                            ->rows(2),
+                    ]),
+                Step::make(__('admin.move_out.wizard.steps.portal_access'))
+                    ->schema([
+                        Select::make('portal_access_after_move_out')
+                            ->label(__('admin.move_out.fields.portal_access_after_move_out'))
+                            ->options(PortalAccessAfterMoveOut::options())
+                            ->default(PortalAccessAfterMoveOut::KEEP_HISTORICAL_ACCESS->value)
+                            ->required(),
+                    ]),
+            ]),
+        ];
+    }
+
+    private function currentAssignmentCanMoveOut(): bool
+    {
+        return $this->record->currentAssignment instanceof PropertyAssignment
+            && $this->record->currentAssignment->status === PropertyAssignmentStatus::ACTIVE
+            && ! ($this->currentMoveOutProcess() instanceof MoveOutProcess);
+    }
+
+    private function currentMoveOutProcess(): ?MoveOutProcess
+    {
+        $assignment = $this->record->currentAssignment;
+
+        if (! $assignment instanceof PropertyAssignment) {
+            return null;
+        }
+
+        return $assignment->activeMoveOutProcess()
+            ->select(['id', 'organization_id', 'tenant_id', 'property_id', 'property_assignment_id', 'status', 'move_out_date', 'final_readings_required', 'final_readings_completed_at', 'final_invoice_id', 'contract_id', 'portal_access_after_move_out', 'reason'])
+            ->first();
     }
 
     private function refreshRecord(): void

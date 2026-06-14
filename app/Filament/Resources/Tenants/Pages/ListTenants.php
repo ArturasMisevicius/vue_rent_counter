@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
@@ -19,6 +20,7 @@ class ListTenants extends ListRecords
     {
         if (TenantResource::shouldShowBlockedCreateAction('tenants')) {
             return [
+                ContextualHelpAction::make('tenant.profile'),
                 TenantResource::makeSubscriptionInfoAction(
                     name: 'create',
                     resource: 'tenants',
@@ -28,10 +30,13 @@ class ListTenants extends ListRecords
         }
 
         if (! TenantResource::canCreate()) {
-            return [];
+            return [
+                ContextualHelpAction::make('tenant.profile'),
+            ];
         }
 
         return [
+            ContextualHelpAction::make('tenant.profile'),
             Action::make('create')
                 ->label(__('admin.tenants.actions.create_tenant'))
                 ->url(TenantResource::getUrl('create'))

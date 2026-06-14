@@ -31,6 +31,7 @@ class LeadContactFactory extends Factory
             'do_not_contact' => false,
             'do_not_contact_reason' => null,
             'do_not_contact_at' => null,
+            'last_contacted_at' => null,
             'marked_do_not_contact_by_user_id' => null,
         ];
     }

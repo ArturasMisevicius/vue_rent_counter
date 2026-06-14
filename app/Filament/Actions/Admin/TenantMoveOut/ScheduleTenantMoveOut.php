@@ -54,6 +54,12 @@ final class ScheduleTenantMoveOut
         return DB::transaction(function () use ($actor, $assignment, $data, $moveOutDate, $portalPolicy): MoveOutProcess {
             $contract = $this->activeContract($assignment);
 
+            if ($assignment->moveOutProcesses()->open()->exists()) {
+                throw ValidationException::withMessages([
+                    'assignment' => __('admin.move_out.messages.open_process_exists'),
+                ]);
+            }
+
             $process = MoveOutProcess::query()->create([
                 'organization_id' => $assignment->organization_id,
                 'tenant_id' => $assignment->tenant_user_id,
@@ -83,6 +89,12 @@ final class ScheduleTenantMoveOut
             $assignment->tenant?->forceFill([
                 'tenant_status' => TenantStatus::MOVE_OUT_SCHEDULED,
             ])->save();
+
+            app(UpdatePropertyOccupancyStatus::class)->handle(
+                $assignment->property()->firstOrFail(),
+                actor: $actor,
+                preserveManualHold: false,
+            );
 
             $this->auditLogger->record(
                 AuditLogAction::CREATED,

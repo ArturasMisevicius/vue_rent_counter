@@ -11,9 +11,11 @@ use App\Filament\Actions\Admin\BillingReview\ApproveReading;
 use App\Filament\Actions\Admin\BillingReview\CorrectReading;
 use App\Filament\Actions\Admin\BillingReview\RecalculateInvoice;
 use App\Filament\Actions\Admin\BillingReview\RejectReading;
+use App\Filament\Actions\Admin\BillingReview\RequestReadingResubmission;
 use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\BillingReview\SendReadingReminder;
 use App\Filament\Actions\Admin\BillingReview\VoidReading;
+use App\Filament\Pages\BillingReviewCenter;
 use App\Filament\Support\Admin\BillingReview\BuildBillingReviewForPeriod;
 use App\Models\AuditLog;
 use App\Models\Building;
@@ -35,6 +37,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -68,6 +71,18 @@ it('allows managers to access the billing review center when allowed', function 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.billing-review-center'))
         ->assertSuccessful();
+});
+
+it('renders the invoice review page with reading resubmission actions', function (): void {
+    $workspace = billingReviewWorkspace(['current_status' => MeterReadingValidationStatus::PENDING]);
+
+    $this->actingAs($workspace['admin'])
+        ->get(route('filament.admin.pages.billing-review-center.invoice-review', ['invoice' => $workspace['invoice']->id]))
+        ->assertSuccessful()
+        ->assertSee('Invoice Review')
+        ->assertSee('Submitted readings')
+        ->assertSee('Resubmission comment')
+        ->assertSee('Request resubmission');
 });
 
 it('blocks tenants from the billing review center', function (): void {
@@ -128,12 +143,97 @@ it('counts the billing review summary correctly', function (): void {
         'total_invoices' => 5,
         'waiting_for_readings' => 1,
         'submitted_readings' => 4,
+        'waiting_confirmation' => 3,
         'ready_for_review' => 1,
         'configuration_errors' => 1,
         'approved' => 1,
         'sent' => 1,
         'overdue' => 1,
     ]);
+});
+
+it('shows pending submitted missing and anomalous readings in the review center', function (): void {
+    $workspace = billingReviewWorkspace([
+        'current_status' => MeterReadingValidationStatus::FLAGGED,
+        'current_value' => '900',
+    ]);
+
+    $missingMeter = Meter::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['property'])
+        ->create([
+            'name' => 'Missing Water Meter',
+            'identifier' => 'MISSING-MTR',
+            'type' => MeterType::WATER,
+            'unit' => 'm3',
+        ]);
+
+    $this->actingAs($workspace['admin'])
+        ->get(route('filament.admin.pages.billing-review-center'))
+        ->assertSuccessful()
+        ->assertSee('Pending Readings')
+        ->assertSee('Billing Tenant')
+        ->assertSee('Pending review')
+        ->assertSee('High consumption')
+        ->assertSee('Skipped meter')
+        ->assertSee('MISSING-MTR')
+        ->assertSee($missingMeter->displayName());
+});
+
+it('requests tenant resubmission from the billing review center', function (): void {
+    Notification::fake();
+
+    $workspace = billingReviewWorkspace([
+        'current_status' => MeterReadingValidationStatus::PENDING,
+        'approval_status' => 'readings_submitted',
+    ]);
+    $workspace['invoice']->forceFill([
+        'approval_metadata' => [
+            'workflow' => 'meter_reading_request',
+            'linked_meters' => [
+                [
+                    'id' => $workspace['meter']->id,
+                    'name' => $workspace['meter']->displayName(),
+                    'status' => 'submitted',
+                ],
+            ],
+            'required_inputs' => [
+                [
+                    'type' => 'meter_reading',
+                    'meter_id' => $workspace['meter']->id,
+                    'name' => $workspace['meter']->displayName(),
+                    'status' => 'submitted',
+                ],
+            ],
+        ],
+    ])->save();
+
+    Livewire::actingAs($workspace['admin'])
+        ->test(BillingReviewCenter::class)
+        ->set("resubmissionComments.{$workspace['current_reading']->id}", 'Please resubmit a clear meter photo.')
+        ->call('requestResubmission', $workspace['invoice']->id, $workspace['current_reading']->id)
+        ->assertHasNoErrors();
+
+    $invoice = $workspace['invoice']->fresh();
+
+    expect($workspace['current_reading']->fresh()->validation_status)->toBe(MeterReadingValidationStatus::REJECTED)
+        ->and($invoice->approval_status)->toBe('waiting_for_readings')
+        ->and($invoice->approval_metadata['request_status'] ?? null)->toBe('needs_resubmission')
+        ->and($invoice->approval_metadata['resubmission_comment'] ?? null)->toBe('Please resubmit a clear meter photo.')
+        ->and($invoice->approval_metadata['linked_meters'][0]['status'] ?? null)->toBe('needs_resubmission')
+        ->and($invoice->approval_metadata['required_inputs'][0]['status'] ?? null)->toBe('needs_resubmission');
+});
+
+it('requires a resubmission comment', function (): void {
+    $workspace = billingReviewWorkspace(['current_status' => MeterReadingValidationStatus::PENDING]);
+    $this->actingAs($workspace['admin']);
+
+    expect(fn () => app(RequestReadingResubmission::class)->handle(
+        $workspace['invoice'],
+        $workspace['current_reading'],
+        '',
+        $workspace['admin'],
+    ))->toThrow(ValidationException::class);
 });
 
 it('does not approve an invoice with missing readings', function (): void {

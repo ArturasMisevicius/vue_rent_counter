@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ServiceConfigurations\Pages;
 
 use App\Filament\Actions\Admin\ServiceConfigurations\UpdateServiceConfigurationAction;
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Models\ServiceConfiguration;
 use Filament\Actions\DeleteAction;
@@ -19,6 +20,7 @@ class EditServiceConfiguration extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ContextualHelpAction::make('service_configurations.edit'),
             ViewAction::make(),
             DeleteAction::make(),
         ];

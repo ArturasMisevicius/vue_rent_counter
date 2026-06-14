@@ -48,6 +48,7 @@ return [
     'fields' => [
         'tariff' => 'The price per unit used to calculate meter-based invoice items. Example: 0.25 EUR per kWh.',
         'previous_reading' => 'The last approved reading from the previous billing period.',
+        'current_reading' => 'Enter the current number shown on the meter. The system calculates consumption from the previous approved reading.',
         'tenant_visible_description' => 'This text is shown to the tenant on invoices or document pages. Do not write internal notes here.',
         'internal_note' => 'Visible only to admins and managers. Tenants will not see this.',
         'billing_period' => 'The period for which invoices and readings are collected. Example: March 2026.',

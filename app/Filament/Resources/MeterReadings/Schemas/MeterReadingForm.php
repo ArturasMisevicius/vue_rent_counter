@@ -46,6 +46,7 @@ class MeterReadingForm
                             ->required(),
                         TextInput::make('reading_value')
                             ->label(__('admin.meter_readings.fields.reading_value'))
+                            ->helperText(__('help.fields.current_reading'))
                             ->numeric()
                             ->required(),
                         DatePicker::make('reading_date')

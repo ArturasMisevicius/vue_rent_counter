@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Building;
@@ -81,8 +82,22 @@ it('rejects manual meter submissions for another property in the same organizati
     $otherMeter = Meter::factory()->for($organization)->for($otherProperty)->create([
         'identifier' => 'TEN-FOREIGN-001',
     ]);
+    $invoice = Invoice::factory()
+        ->for($organization)
+        ->for($assignedProperty)
+        ->for($tenant, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => now()->startOfMonth()->toDateString(),
+            'billing_period_end' => now()->endOfMonth()->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+        ]);
 
     Livewire::actingAs($tenant)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $otherMeter->id)
         ->set('readingValue', '88.000')

@@ -11,6 +11,7 @@ use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -64,7 +65,7 @@ class Documents extends Component
     }
 
     #[Computed]
-    public function documents(): \Illuminate\Database\Eloquent\Collection
+    public function documents(): Collection
     {
         return app(TenantDocumentIndexQuery::class)->for(
             $this->tenant,

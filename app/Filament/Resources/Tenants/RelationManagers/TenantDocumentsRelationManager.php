@@ -54,7 +54,7 @@ class TenantDocumentsRelationManager extends RelationManager
     {
         $count = $ownerRecord->getAttribute('tenant_documents_count');
 
-        return (string) ($count ?? $ownerRecord->tenantDocuments()->count());
+        return $count === null ? null : (string) $count;
     }
 
     public function table(Table $table): Table

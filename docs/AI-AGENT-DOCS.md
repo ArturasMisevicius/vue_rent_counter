@@ -50,6 +50,7 @@ Generated or hidden agent metadata:
 When changing behavior:
 
 - Update the closest user-facing or developer-facing doc in the same turn.
+- Any change to billing, readings, invoices, tenant onboarding, or rental contracts must also update the related in-app help article or contextual help entry when user-facing behavior changes.
 - Keep docs factual and dated when they describe verified state.
 - Prefer links to canonical docs instead of copying long rule blocks into every file.
 - Mark assumptions as assumptions.

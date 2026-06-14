@@ -61,7 +61,7 @@ final class ContextualHelpAction
 
         $routeName = $user->isTenant()
             ? 'filament.admin.pages.tenant-help'
-            : 'filament.admin.pages.help-center';
+            : 'filament.admin.pages.help';
 
         return Route::has($routeName) ? route($routeName, ['page' => $pageKey]) : null;
     }

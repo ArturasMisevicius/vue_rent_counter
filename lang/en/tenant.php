@@ -140,6 +140,7 @@ return [
             'previous_reading' => 'Previous reading: :value :unit on :date',
             'lower_than_previous_warning' => 'This reading is lower than the previous recorded value and will be rejected on submission because it would create negative consumption.',
             'unauthorized_meter' => 'This meter is not available in your tenant portal.',
+            'move_out_submissions_disabled' => 'You have moved out, so new meter readings can no longer be submitted for this property.',
             'validation' => [
                 'meter_required' => 'Choose one of your assigned meters before submitting.',
                 'meter_invalid' => 'The selected meter is not valid. Choose a meter from your tenant portal.',

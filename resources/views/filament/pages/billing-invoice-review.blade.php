@@ -84,6 +84,9 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <p class="font-semibold text-slate-950">{{ $reading['meter_name'] }}</p>
                                 <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{{ $reading['status_label'] }}</span>
+                                @foreach ($reading['issue_labels'] as $label)
+                                    <span class="rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ $label }}</span>
+                                @endforeach
                             </div>
                             <p class="mt-1 text-sm text-slate-600">
                                 {{ $reading['reading_value'] }} {{ $reading['meter_unit'] }} · {{ $reading['reading_date'] }}
@@ -113,6 +116,13 @@
                                     <input type="text" wire:model="rejectionComments.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.rejection_comment') }}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
                                     <button type="button" wire:click="rejectReading({{ $reading['reading_id'] }})" class="rounded-md border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">
                                         {{ __('admin.billing_review.actions.reject_reading') }}
+                                    </button>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <input type="text" wire:model="resubmissionComments.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.resubmission_comment') }}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                    <button type="button" wire:click="requestResubmission({{ $reading['reading_id'] }})" class="rounded-md border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50">
+                                        {{ __('admin.billing_review.actions.request_resubmission') }}
                                     </button>
                                 </div>
 

@@ -3,6 +3,7 @@
 use App\Enums\BillingReadinessStatus;
 use App\Enums\InvoiceStatus;
 use App\Enums\PropertyAssignmentStatus;
+use App\Enums\TenantStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
@@ -150,7 +151,8 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->assertSeeText('Property Assignment')
         ->assertSeeText('Billing Setup')
         ->assertSeeText('Phone Number')
-        ->assertDontSeeText('Initial Status');
+        ->assertSeeText('Tenant Status')
+        ->assertSeeText('Preferred Portal Language');
 
     actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $tenant))
@@ -546,6 +548,8 @@ it('creates tenants through the wizard action with assignment metadata, audit lo
         'email' => 'wizard.tenant@example.com',
         'phone' => '+37060001010',
         'locale' => 'en',
+        'portal_locale' => 'lt',
+        'tenant_status' => TenantStatus::ACTIVE->value,
         'property_id' => $property->id,
         'unit_area_sqm' => 44.25,
         'move_in_date' => '2026-07-01',
@@ -561,6 +565,8 @@ it('creates tenants through the wizard action with assignment metadata, audit lo
     $assignment = $tenant->currentPropertyAssignment;
 
     expect($tenant->name)->toBe('Wizard Tenant')
+        ->and($tenant->tenant_status)->toBe(TenantStatus::ACTIVE)
+        ->and($tenant->locale)->toBe('lt')
         ->and(Hash::check('AdminPickedPassword123!', (string) $tenant->password))->toBeFalse()
         ->and($tenant->latestTenantInvitationRecord())->toBeNull()
         ->and($tenant->portalAccessStatus()->value)->toBe('not_invited')
@@ -632,10 +638,14 @@ it('requires move-in dates and prevents duplicate active primary property assign
     ]))->toThrow(ValidationException::class);
 });
 
-it('warns on duplicate tenant phones in the same organization', function () {
+it('warns on duplicate tenant emails and phones in the same organization', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
+    ]);
+    User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'email' => 'duplicate.email@example.com',
     ]);
     User::factory()->tenant()->create([
         'organization_id' => $organization->id,
@@ -647,6 +657,20 @@ it('warns on duplicate tenant phones in the same organization', function () {
     ]);
 
     actingAs($admin);
+
+    try {
+        app(CreateTenantWithAssignment::class)->handle($admin, [
+            'name' => 'Duplicate Email',
+            'email' => 'duplicate.email@example.com',
+            'locale' => 'en',
+            'property_id' => null,
+        ]);
+
+        expect('duplicate email validation')->toBe('thrown');
+    } catch (ValidationException $exception) {
+        expect($exception->errors()['email'][0] ?? null)
+            ->toBe(__('admin.tenants.messages.duplicate_email_warning'));
+    }
 
     expect(fn () => app(CreateTenantWithAssignment::class)->handle($admin, [
         'name' => 'Duplicate Phone',

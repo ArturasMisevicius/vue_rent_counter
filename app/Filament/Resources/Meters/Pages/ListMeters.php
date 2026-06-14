@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Meters\Pages;
 
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Resources\Meters\MeterResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -18,6 +19,7 @@ class ListMeters extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ContextualHelpAction::make('meters.index'),
             CreateAction::make(),
         ];
     }

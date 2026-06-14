@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Enums\PropertyOccupancyStatus;
 use App\Enums\PropertyType;
 use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Resources\Buildings\BuildingResource;
@@ -70,7 +71,7 @@ class PropertiesTable
                     ->label(__('admin.properties.columns.status'))
                     ->state(fn (Property $record): string => $record->occupancyStatusLabel())
                     ->badge()
-                    ->color(fn (Property $record): string => $record->isOccupied() ? 'success' : 'gray'),
+                    ->color(fn (Property $record): string => $record->occupancyStatus()->color()),
                 TextColumn::make('created_at')
                     ->label(__('admin.properties.columns.date_created'))
                     ->state(fn (Property $record): string => $record->created_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
@@ -120,14 +121,15 @@ class PropertiesTable
                 SelectFilter::make('occupancy_status')
                     ->label(__('admin.properties.columns.status'))
                     ->placeholder(__('admin.properties.filters.all_statuses'))
-                    ->options([
-                        'occupied' => __('admin.properties.filters.occupancy.occupied'),
-                        'vacant' => __('admin.properties.filters.occupancy.vacant'),
-                    ])
+                    ->options(PropertyOccupancyStatus::options())
                     ->query(function ($query, array $data): void {
                         match ($data['value'] ?? null) {
-                            'occupied' => $query->whereHas('currentAssignment'),
-                            'vacant' => $query->whereDoesntHave('currentAssignment'),
+                            PropertyOccupancyStatus::OCCUPIED->value => $query->where('occupancy_status', PropertyOccupancyStatus::OCCUPIED->value),
+                            PropertyOccupancyStatus::VACANT->value => $query->where('occupancy_status', PropertyOccupancyStatus::VACANT->value),
+                            PropertyOccupancyStatus::MOVE_IN_SCHEDULED->value => $query->where('occupancy_status', PropertyOccupancyStatus::MOVE_IN_SCHEDULED->value),
+                            PropertyOccupancyStatus::MOVE_OUT_SCHEDULED->value => $query->where('occupancy_status', PropertyOccupancyStatus::MOVE_OUT_SCHEDULED->value),
+                            PropertyOccupancyStatus::UNAVAILABLE->value => $query->where('occupancy_status', PropertyOccupancyStatus::UNAVAILABLE->value),
+                            PropertyOccupancyStatus::MAINTENANCE->value => $query->where('occupancy_status', PropertyOccupancyStatus::MAINTENANCE->value),
                             default => null,
                         };
                     }),

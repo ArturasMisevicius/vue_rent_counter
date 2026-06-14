@@ -53,9 +53,9 @@ final class CreateTenantWithAssignment
                 'phone' => $validated['phone'],
                 'role' => UserRole::TENANT,
                 'status' => UserStatus::INACTIVE,
-                'tenant_status' => TenantStatus::DRAFT,
+                'tenant_status' => TenantStatus::from((string) $validated['tenant_status']),
                 'portal_access_enabled' => false,
-                'locale' => $validated['locale'],
+                'locale' => $validated['portal_locale'],
                 'password' => Str::random(32),
             ]);
 
@@ -72,6 +72,7 @@ final class CreateTenantWithAssignment
                         'email' => $tenant->email,
                         'phone' => $tenant->phone,
                         'locale' => $tenant->locale,
+                        'tenant_status' => $tenant->tenant_status?->value,
                         'internal_note' => $validated['internal_note'] ?? null,
                     ],
                 ],
@@ -156,6 +157,8 @@ final class CreateTenantWithAssignment
      *     phone: string|null,
      *     internal_note: string|null,
      *     locale: string,
+     *     portal_locale: string,
+     *     tenant_status: string,
      *     create_portal_access: bool,
      *     send_invitation_now: bool,
      *     invitation_expiration_days: int,
@@ -190,6 +193,8 @@ final class CreateTenantWithAssignment
         return [
             'phone' => $validated['phone'] ?? null,
             'internal_note' => $validated['internal_note'] ?? null,
+            'portal_locale' => $validated['portal_locale'] ?? $validated['locale'],
+            'tenant_status' => $validated['tenant_status'] ?? TenantStatus::DRAFT->value,
             'property_id' => $validated['property_id'] ?? null,
             'unit_area_sqm' => $validated['unit_area_sqm'] ?? null,
             'move_in_date' => $validated['move_in_date'] ?? null,

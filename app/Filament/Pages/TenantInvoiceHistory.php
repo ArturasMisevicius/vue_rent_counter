@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use BackedEnum;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,13 @@ class TenantInvoiceHistory extends TenantPortalPage
     public static function getNavigationLabel(): string
     {
         return __('tenant.navigation.invoices');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ContextualHelpAction::make('tenant.invoices'),
+        ];
     }
 
     public static function canAccess(): bool

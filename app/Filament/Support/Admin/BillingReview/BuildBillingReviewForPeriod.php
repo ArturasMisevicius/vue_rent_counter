@@ -168,12 +168,20 @@ final readonly class BuildBillingReviewForPeriod
 
         $submittedReadings = $readings
             ->flatten(1)
-            ->map(fn (MeterReading $reading): array => $this->readingData(
-                $reading->meter,
-                $reading,
-                $previousReadings->get($reading->meter_id),
-                ['blocking' => [], 'warnings' => []],
-            )->toArray())
+            ->map(function (MeterReading $reading) use ($previousReadings, $readingData): array {
+                $requiredReading = $readingData[$reading->meter_id] ?? null;
+
+                if ($requiredReading instanceof BillingReadingReviewData && $requiredReading->readingId === $reading->id) {
+                    return $requiredReading->toArray();
+                }
+
+                return $this->readingData(
+                    $reading->meter,
+                    $reading,
+                    $previousReadings->get($reading->meter_id),
+                    ['blocking' => [], 'warnings' => []],
+                )->toArray();
+            })
             ->values()
             ->all();
         $missingReadings = collect($readingData)
@@ -252,6 +260,8 @@ final readonly class BuildBillingReviewForPeriod
             totalInvoices: $collection->count(),
             waitingForReadings: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->missingReadings !== [])->count(),
             submittedReadings: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->submittedReadingsCount > 0)->count(),
+            waitingConfirmation: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->submittedReadingsCount > 0
+                && in_array($data->approvalStatus, ['readings_submitted', 'ready_for_review'], true))->count(),
             readyForReview: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->canApprove)->count(),
             configurationErrors: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->hasConfigurationErrors())->count(),
             approved: $collection->filter(fn (BillingInvoiceReviewData $data): bool => $data->approvalStatus === 'approved')->count(),
@@ -510,6 +520,12 @@ final readonly class BuildBillingReviewForPeriod
             ]);
         }
 
+        if ($currentReading->validation_status === MeterReadingValidationStatus::FLAGGED) {
+            $warnings[] = __('admin.billing_review.warnings.high_or_unusual_consumption', [
+                'meter' => $meter->displayName(),
+            ]);
+        }
+
         return ['blocking' => $blocking, 'warnings' => $warnings];
     }
 
@@ -519,16 +535,25 @@ final readonly class BuildBillingReviewForPeriod
     private function readingData(Meter $meter, ?MeterReading $currentReading, ?MeterReading $previousReading, array $issues): BillingReadingReviewData
     {
         $consumption = null;
+        $negativeConsumption = false;
 
         if ($currentReading instanceof MeterReading && $previousReading instanceof MeterReading) {
             $consumption = $this->calculator->quantity(
                 $this->calculator->subtract($currentReading->reading_value, $previousReading->reading_value, 3),
             );
+            $negativeConsumption = $this->calculator->compare($consumption, '0', 3) < 0;
         }
 
         $status = $currentReading?->validation_status instanceof MeterReadingValidationStatus
             ? $currentReading->validation_status->value
             : 'missing';
+        $pendingReview = in_array($status, [
+            MeterReadingValidationStatus::PENDING->value,
+            MeterReadingValidationStatus::FLAGGED->value,
+        ], true);
+        $highConsumption = $currentReading?->validation_status === MeterReadingValidationStatus::FLAGGED;
+        $missing = ! $currentReading instanceof MeterReading;
+        $strangeReading = $pendingReview || $negativeConsumption || $issues['blocking'] !== [] || $issues['warnings'] !== [];
 
         return new BillingReadingReviewData(
             meterId: (int) $meter->id,
@@ -545,10 +570,33 @@ final readonly class BuildBillingReviewForPeriod
             statusLabel: $currentReading?->validation_status?->getLabel() ?? __('admin.billing_review.statuses.missing'),
             submittedBy: $currentReading?->submittedBy?->name,
             submittedAt: $currentReading?->created_at?->diffForHumans(),
-            missing: ! $currentReading instanceof MeterReading,
+            missing: $missing,
+            pendingReview: $pendingReview,
+            negativeConsumption: $negativeConsumption,
+            highConsumption: $highConsumption,
+            strangeReading: $strangeReading,
             blockingErrors: $issues['blocking'],
             warnings: $issues['warnings'],
+            issueLabels: $this->readingIssueLabels($missing, $pendingReview, $negativeConsumption, $highConsumption, $strangeReading),
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function readingIssueLabels(bool $missing, bool $pendingReview, bool $negativeConsumption, bool $highConsumption, bool $strangeReading): array
+    {
+        return collect([
+            $missing ? __('admin.billing_review.issue_labels.skipped_meter') : null,
+            $pendingReview ? __('admin.billing_review.issue_labels.pending_review') : null,
+            $negativeConsumption ? __('admin.billing_review.issue_labels.negative_consumption') : null,
+            $highConsumption ? __('admin.billing_review.issue_labels.high_consumption') : null,
+            $strangeReading && ! $missing ? __('admin.billing_review.issue_labels.strange_reading') : null,
+        ])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

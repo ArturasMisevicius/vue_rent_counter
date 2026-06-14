@@ -144,12 +144,20 @@ class PropertyAssignment extends Model
     public function scopeActiveDuring(Builder $query, CarbonInterface $periodStart, CarbonInterface $periodEnd): Builder
     {
         return $query
-            ->where('status', PropertyAssignmentStatus::ACTIVE->value)
+            ->whereIn('status', [
+                PropertyAssignmentStatus::ACTIVE->value,
+                PropertyAssignmentStatus::MOVE_OUT_SCHEDULED->value,
+            ])
             ->where('assigned_at', '<=', $periodEnd)
             ->where(function (Builder $query) use ($periodStart): void {
                 $query
                     ->whereNull('unassigned_at')
                     ->orWhere('unassigned_at', '>=', $periodStart);
+            })
+            ->where(function (Builder $query) use ($periodStart): void {
+                $query
+                    ->whereNull('billing_end_date')
+                    ->orWhereDate('billing_end_date', '>=', $periodStart);
             });
     }
 

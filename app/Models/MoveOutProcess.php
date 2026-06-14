@@ -56,10 +56,7 @@ class MoveOutProcess extends Model
 
     public function scopeOpen(Builder $query): Builder
     {
-        return $query->whereNotIn('status', [
-            MoveOutProcessStatus::COMPLETED->value,
-            MoveOutProcessStatus::CANCELLED->value,
-        ]);
+        return $query->whereIn('status', MoveOutProcessStatus::openValues());
     }
 
     public function organization(): BelongsTo

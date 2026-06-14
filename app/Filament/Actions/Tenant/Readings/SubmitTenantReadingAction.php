@@ -7,6 +7,7 @@ namespace App\Filament\Actions\Tenant\Readings;
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
+use App\Enums\TenantStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
 use App\Filament\Support\Workspace\WorkspaceResolver;
@@ -40,6 +41,10 @@ class SubmitTenantReadingAction
         ?string $notes = null,
         string|int|null $invoiceId = null,
     ): MeterReading {
+        if ($tenant->tenant_status === TenantStatus::MOVED_OUT) {
+            throw new AuthorizationException(__('tenant.pages.readings.move_out_submissions_disabled'));
+        }
+
         $workspace = $this->workspaceResolver->resolveFor($tenant);
 
         if (! $workspace->isTenant() || $workspace->organizationId === null || $workspace->propertyId === null) {

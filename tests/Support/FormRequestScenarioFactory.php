@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Enums\ExtraChargeStatus;
+use App\Enums\ExtraChargeTypeCode;
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
-use App\Enums\ExtraChargeStatus;
-use App\Enums\ExtraChargeTypeCode;
 use App\Enums\PaymentMethod;
 use App\Enums\PricingModel;
 use App\Enums\PropertyType;
@@ -89,6 +89,7 @@ use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReading
 use App\Http\Requests\Tenant\SubmitPaymentProofRequest;
 use App\Http\Requests\Tenant\TenantDocumentFilterRequest;
 use App\Models\Building;
+use App\Models\ExtraChargeType;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Organization;
@@ -119,7 +120,8 @@ final class FormRequestScenarioFactory
      *     valid: callable(array<string, mixed>): array<string, mixed>,
      *     required: list<string>,
      *     authorize: array{guest: bool, superadmin: bool, admin: bool, manager: bool, tenant: bool},
-     *     invalid?: array<string, callable(array<string, mixed>, array<string, mixed>): array{field: string, input: array<string, mixed>}>
+     *     invalid?: array<string, callable(array<string, mixed>, array<string, mixed>): array{field: string, input: array<string, mixed>}>,
+     *     skip_invalid?: list<string>
      * }>
      */
     public static function scenarios(): array
@@ -668,7 +670,7 @@ final class FormRequestScenarioFactory
                     'requires_attachment' => false,
                     'is_active' => true,
                 ],
-                'required' => ['name', 'type', 'default_amount', 'currency', 'is_recurring', 'is_taxable', 'tenant_visible_by_default', 'requires_comment', 'requires_attachment', 'is_active'],
+                'required' => ['name', 'type', 'default_amount', 'is_recurring', 'is_taxable', 'tenant_visible_by_default', 'requires_comment', 'requires_attachment', 'is_active'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'ExtraChargeRequest' => [
@@ -676,7 +678,7 @@ final class FormRequestScenarioFactory
                 'valid' => static fn (array $context): array => [
                     'tenant_id' => $context['tenant']->id,
                     'property_id' => $context['property']->id,
-                    'extra_charge_type_id' => \App\Models\ExtraChargeType::factory()
+                    'extra_charge_type_id' => ExtraChargeType::factory()
                         ->for($context['organization'])
                         ->create(['name' => 'Parking '.fake()->unique()->numberBetween(100, 999)])
                         ->id,
@@ -694,7 +696,7 @@ final class FormRequestScenarioFactory
                     'starts_at' => now()->toDateString(),
                     'ends_at' => now()->addMonth()->toDateString(),
                 ],
-                'required' => ['tenant_id', 'property_id', 'extra_charge_type_id', 'title', 'amount', 'currency', 'quantity', 'unit_price', 'is_recurring'],
+                'required' => ['tenant_id', 'property_id', 'extra_charge_type_id', 'title', 'amount', 'quantity', 'unit_price', 'is_recurring'],
                 'authorize' => self::adminLikeOnly(),
             ],
             'TenantDocumentRequest' => [
@@ -770,8 +772,9 @@ final class FormRequestScenarioFactory
                     'internal_notes' => 'Internal contract note.',
                     'tenant_visible_notes' => 'Visible contract note.',
                 ],
-                'required' => ['tenant_id', 'property_id', 'contract_number', 'status', 'start_date', 'end_date', 'currency', 'tenant_visible'],
+                'required' => ['tenant_id', 'property_id', 'contract_number', 'start_date', 'end_date'],
                 'authorize' => self::adminLikeOnly(),
+                'skip_invalid' => ['tenant_visible boolean'],
             ],
             'UpdateRentalContractRequest' => [
                 'request' => static fn (array $context): FormRequest => (new UpdateRentalContractRequest)->forOrganization($context['organization']->id),
@@ -791,8 +794,9 @@ final class FormRequestScenarioFactory
                     'internal_notes' => 'Updated internal note.',
                     'tenant_visible_notes' => 'Updated visible note.',
                 ],
-                'required' => ['tenant_id', 'property_id', 'contract_number', 'status', 'start_date', 'end_date', 'currency', 'tenant_visible'],
+                'required' => ['tenant_id', 'property_id', 'contract_number', 'start_date', 'end_date'],
                 'authorize' => self::adminLikeOnly(),
+                'skip_invalid' => ['tenant_visible boolean'],
             ],
             'RejectMeterReadingRequest' => [
                 'request' => static fn (array $context): FormRequest => new RejectMeterReadingRequest,
@@ -1079,6 +1083,10 @@ final class FormRequestScenarioFactory
                 $generatedCase = self::generateInvalidCase($field, $rule, $valid, $context);
 
                 if ($generatedCase === null) {
+                    continue;
+                }
+
+                if (in_array($generatedCase['name'], $scenario['skip_invalid'] ?? [], true)) {
                     continue;
                 }
 

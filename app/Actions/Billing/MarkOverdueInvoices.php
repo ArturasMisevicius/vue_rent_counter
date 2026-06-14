@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Actions\Billing;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\InvoicePaymentStatus;
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Notifications\Billing\InvoiceMarkedOverdueNotification;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,10 +81,21 @@ class MarkOverdueInvoices
                     if ($beforeStatus !== InvoicePaymentStatus::OVERDUE
                         && $updated->payment_status === InvoicePaymentStatus::OVERDUE) {
                         $marked++;
+                        $this->notifyAdmins($updated);
                     }
                 }
             });
 
         return $marked;
+    }
+
+    private function notifyAdmins(Invoice $invoice): void
+    {
+        User::query()
+            ->select(['id', 'organization_id', 'name', 'email', 'role'])
+            ->forOrganization($invoice->organization_id)
+            ->adminLike()
+            ->get()
+            ->each(fn (User $admin): mixed => $admin->notify(new InvoiceMarkedOverdueNotification($invoice)));
     }
 }

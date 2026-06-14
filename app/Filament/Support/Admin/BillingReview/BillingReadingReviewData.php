@@ -9,6 +9,7 @@ final readonly class BillingReadingReviewData
     /**
      * @param  array<int, string>  $blockingErrors
      * @param  array<int, string>  $warnings
+     * @param  array<int, string>  $issueLabels
      */
     public function __construct(
         public int $meterId,
@@ -26,8 +27,13 @@ final readonly class BillingReadingReviewData
         public ?string $submittedBy,
         public ?string $submittedAt,
         public bool $missing,
+        public bool $pendingReview,
+        public bool $negativeConsumption,
+        public bool $highConsumption,
+        public bool $strangeReading,
         public array $blockingErrors = [],
         public array $warnings = [],
+        public array $issueLabels = [],
     ) {}
 
     public function isApproved(): bool
@@ -56,8 +62,13 @@ final readonly class BillingReadingReviewData
             'submitted_by' => $this->submittedBy,
             'submitted_at' => $this->submittedAt,
             'missing' => $this->missing,
+            'pending_review' => $this->pendingReview,
+            'negative_consumption' => $this->negativeConsumption,
+            'high_consumption' => $this->highConsumption,
+            'strange_reading' => $this->strangeReading,
             'blocking_errors' => $this->blockingErrors,
             'warnings' => $this->warnings,
+            'issue_labels' => $this->issueLabels,
         ];
     }
 }

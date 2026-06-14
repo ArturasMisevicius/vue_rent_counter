@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tenants\Pages;
 
 use App\Filament\Actions\Admin\Tenants\CreateTenantWithAssignment;
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Resources\Tenants\Pages\Concerns\InteractsWithTenantLeaseAgreementFormData;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
@@ -28,6 +29,13 @@ class CreateTenant extends CreateRecord
     protected static bool $canCreateAnother = true;
 
     private ?TenantCreationResult $creationResult = null;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ContextualHelpAction::make('tenant.create'),
+        ];
+    }
 
     public function getTitle(): string
     {

@@ -154,6 +154,15 @@ class ExtraChargesTable
                     ->label(__('admin.actions.delete'))
                     ->authorize(fn (ExtraCharge $record): bool => ExtraChargeResource::canDelete($record)),
             ])
+            ->emptyStateHeading(__('admin.extra_charges.empty_state.heading'))
+            ->emptyStateDescription(__('admin.extra_charges.empty_state.description'))
+            ->emptyStateActions([
+                Action::make('createExtraCharge')
+                    ->label(__('admin.extra_charges.empty_state.action'))
+                    ->icon('heroicon-m-plus')
+                    ->button()
+                    ->url(fn (): string => ExtraChargeResource::getUrl('create')),
+            ])
             ->defaultSort('created_at', 'desc');
     }
 

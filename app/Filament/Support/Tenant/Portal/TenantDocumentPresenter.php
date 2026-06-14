@@ -78,7 +78,7 @@ class TenantDocumentPresenter
     private function iconFor(TenantDocumentType $type): string
     {
         return match ($type) {
-            TenantDocumentType::INVOICE, TenantDocumentType::INVOICE_PDF, TenantDocumentType::PAYMENT_RECEIPT => 'heroicon-m-document-currency-euro',
+            TenantDocumentType::INVOICE, TenantDocumentType::INVOICE_PDF, TenantDocumentType::PAYMENT_RECEIPT => 'heroicon-m-banknotes',
             TenantDocumentType::RENTAL_CONTRACT, TenantDocumentType::CONTRACT_APPENDIX => 'heroicon-m-document-check',
             TenantDocumentType::KYC_IDENTITY, TenantDocumentType::KYC_ADDRESS => 'heroicon-m-identification',
             TenantDocumentType::METER_PHOTO => 'heroicon-m-camera',

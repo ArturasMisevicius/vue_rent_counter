@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Tenants;
 
 use App\Enums\PropertyAssignmentStatus;
+use App\Enums\TenantStatus;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use App\Models\Property;
 use App\Models\User;
@@ -45,7 +46,30 @@ class StoreTenantRequest extends FormRequest
             'first_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
+            'email' => [
+                'bail',
+                'required',
+                'email:rfc',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (blank($value) || $this->organizationId === null) {
+                        return;
+                    }
+
+                    $exists = User::query()
+                        ->select(['id', 'organization_id', 'role', 'email'])
+                        ->forOrganization($this->organizationId)
+                        ->tenants()
+                        ->where('email', $value)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail(__('admin.tenants.messages.duplicate_email_warning'));
+                    }
+                },
+                Rule::unique('users', 'email'),
+                'disposable_email',
+            ],
             'phone' => [
                 'nullable',
                 'string',
@@ -69,6 +93,14 @@ class StoreTenantRequest extends FormRequest
             ],
             'internal_note' => ['nullable', 'string', 'max:1000'],
             'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
+            'portal_locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
+            'tenant_status' => ['required', Rule::in(TenantStatus::onlyValues(
+                TenantStatus::DRAFT,
+                TenantStatus::ACTIVE,
+                TenantStatus::INACTIVE,
+                TenantStatus::MOVED_OUT,
+                TenantStatus::ARCHIVED,
+            ))],
             'create_portal_access' => ['required', 'boolean'],
             'send_invitation_now' => [
                 'required',
@@ -159,6 +191,10 @@ class StoreTenantRequest extends FormRequest
             'internal_note.max' => ['max.string', 'internal_note', ['max' => 1000]],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
+            'portal_locale.required' => ['required', 'portal_locale'],
+            'portal_locale.in' => ['in', 'portal_locale'],
+            'tenant_status.required' => ['required', 'tenant_status'],
+            'tenant_status.in' => ['in', 'tenant_status'],
             'create_portal_access.required' => ['required', 'create_portal_access'],
             'create_portal_access.boolean' => ['boolean', 'create_portal_access'],
             'send_invitation_now.required' => ['required', 'send_invitation_now'],
@@ -204,6 +240,8 @@ class StoreTenantRequest extends FormRequest
                 'phone',
                 'internal_note',
                 'locale',
+                'portal_locale',
+                'tenant_status',
                 'create_portal_access',
                 'send_invitation_now',
                 'invitation_expiration_days',
@@ -228,6 +266,8 @@ class StoreTenantRequest extends FormRequest
             'phone',
             'internal_note',
             'locale',
+            'portal_locale',
+            'tenant_status',
             'create_portal_access',
             'send_invitation_now',
             'invitation_expiration_days',
@@ -262,6 +302,8 @@ class StoreTenantRequest extends FormRequest
 
         $this->merge([
             'name' => $name,
+            'portal_locale' => $this->input('portal_locale') ?: $this->input('locale'),
+            'tenant_status' => $this->input('tenant_status') ?: TenantStatus::DRAFT->value,
             'create_portal_access' => $createPortalAccess,
             'send_invitation_now' => $sendInvitationNow,
             'invitation_expiration_days' => $this->integer('invitation_expiration_days', 7),

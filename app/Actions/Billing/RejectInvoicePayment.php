@@ -9,6 +9,7 @@ use App\Enums\PaymentStatus;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Models\InvoicePayment;
 use App\Models\User;
+use App\Notifications\Billing\InvoicePaymentRejectedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -38,7 +39,7 @@ class RejectInvoicePayment
             ]);
         }
 
-        return DB::transaction(function () use ($payment, $actor, $reason): InvoicePayment {
+        $rejectedPayment = DB::transaction(function () use ($payment, $actor, $reason): InvoicePayment {
             $before = $this->paymentSnapshot($payment);
             $payment->forceFill([
                 'status' => PaymentStatus::FAILED,
@@ -67,6 +68,10 @@ class RejectInvoicePayment
 
             return $freshPayment;
         });
+
+        $this->notifyTenant($rejectedPayment);
+
+        return $rejectedPayment;
     }
 
     /**
@@ -93,5 +98,12 @@ class RejectInvoicePayment
             'invoice_id' => $payment->invoice_id,
             'payment_id' => $payment->id,
         ];
+    }
+
+    private function notifyTenant(InvoicePayment $payment): void
+    {
+        $payment->loadMissing('tenant:id,organization_id,name,email');
+
+        $payment->tenant?->notify(new InvoicePaymentRejectedNotification($payment));
     }
 }

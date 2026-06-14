@@ -286,10 +286,10 @@ return [
                     ],
                     'help' => [
                         [
-                            'route' => 'filament.admin.pages.help-center',
+                            'route' => 'filament.admin.pages.help',
                             'label' => 'help.navigation.center',
                             'active_patterns' => [
-                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.help',
                                 'filament.admin.pages.service-configuration-guide',
                             ],
                         ],
@@ -377,10 +377,10 @@ return [
                     ],
                     'help' => [
                         [
-                            'route' => 'filament.admin.pages.help-center',
+                            'route' => 'filament.admin.pages.help',
                             'label' => 'help.navigation.center',
                             'active_patterns' => [
-                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.help',
                                 'filament.admin.pages.service-configuration-guide',
                             ],
                         ],
@@ -468,10 +468,10 @@ return [
                     ],
                     'help' => [
                         [
-                            'route' => 'filament.admin.pages.help-center',
+                            'route' => 'filament.admin.pages.help',
                             'label' => 'help.navigation.center',
                             'active_patterns' => [
-                                'filament.admin.pages.help-center',
+                                'filament.admin.pages.help',
                                 'filament.admin.pages.service-configuration-guide',
                             ],
                         ],

@@ -59,6 +59,7 @@ class TariffForm
                             ->maxLength(10),
                         TextInput::make('configuration.rate')
                             ->label(__('admin.tariffs.fields.rate'))
+                            ->helperText(__('help.fields.tariff'))
                             ->numeric(),
                         DateTimePicker::make('active_from')
                             ->label(__('admin.tariffs.fields.active_from'))

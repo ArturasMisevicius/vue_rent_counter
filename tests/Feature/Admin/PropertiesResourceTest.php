@@ -322,15 +322,24 @@ it('creates updates assigns reassigns and unassigns properties through the admin
     expect($updated->fresh()->currentTenant?->is($tenantA))->toBeTrue()
         ->and($firstAssignment->unassigned_at)->toBeNull();
 
-    $secondAssignment = app(AssignTenantToPropertyAction::class)->handle($updated->fresh(), $tenantB, 50.25, now());
-
-    expect($firstAssignment->fresh()->unassigned_at)->not->toBeNull()
-        ->and($updated->fresh()->currentTenant?->is($tenantB))->toBeTrue()
-        ->and($secondAssignment->tenant->is($tenantB))->toBeTrue();
+    expect(fn () => app(AssignTenantToPropertyAction::class)->handle($updated->fresh(), $tenantB, 50.25, now()))
+        ->toThrow(ValidationException::class);
 
     $closedAssignment = app(UnassignTenantFromPropertyAction::class)->handle($updated->fresh());
 
     expect($closedAssignment)->not->toBeNull()
+        ->and($closedAssignment->tenant->is($tenantA))->toBeTrue()
+        ->and($firstAssignment->fresh()->unassigned_at)->not->toBeNull()
+        ->and($updated->fresh()->currentAssignment)->toBeNull();
+
+    $secondAssignment = app(AssignTenantToPropertyAction::class)->handle($updated->fresh(), $tenantB, 50.25, now());
+
+    expect($updated->fresh()->currentTenant?->is($tenantB))->toBeTrue()
+        ->and($secondAssignment->tenant->is($tenantB))->toBeTrue();
+
+    $closedSecondAssignment = app(UnassignTenantFromPropertyAction::class)->handle($updated->fresh());
+
+    expect($closedSecondAssignment)->not->toBeNull()
         ->and($updated->fresh()->currentAssignment)->toBeNull()
         ->and($updated->assignments()->count())->toBe(2);
 });

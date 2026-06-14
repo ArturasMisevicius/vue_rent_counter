@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Tenants\Tables;
 
 use App\Enums\InvitationStatus;
+use App\Enums\InvoiceStatus;
+use App\Enums\MoveOutProcessStatus;
 use App\Enums\PortalAccessStatus;
 use App\Enums\RentalContractStatus;
 use App\Enums\TenantStatus;
@@ -472,6 +474,22 @@ class TenantsTable
             'moved_out_active_contracts' => $query
                 ->where('tenant_status', TenantStatus::MOVED_OUT)
                 ->whereHas('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery->active()),
+            'move_outs_scheduled' => $query
+                ->whereHas('moveOutProcesses', fn (Builder $moveOutQuery): Builder => $moveOutQuery
+                    ->whereIn('status', MoveOutProcessStatus::openValues())),
+            'final_readings_pending' => $query
+                ->whereHas('moveOutProcesses', fn (Builder $moveOutQuery): Builder => $moveOutQuery
+                    ->whereIn('status', MoveOutProcessStatus::openValues())
+                    ->where('final_readings_required', true)
+                    ->whereNull('final_readings_completed_at')),
+            'final_invoices_pending' => $query
+                ->whereHas('moveOutProcesses', fn (Builder $moveOutQuery): Builder => $moveOutQuery
+                    ->whereIn('status', MoveOutProcessStatus::openValues())
+                    ->whereNull('final_invoice_id')),
+            'moved_out_unpaid_balance' => $query
+                ->where('tenant_status', TenantStatus::MOVED_OUT)
+                ->whereHas('tenantInvoices', fn (Builder $invoiceQuery): Builder => $invoiceQuery
+                    ->whereNotIn('status', [InvoiceStatus::PAID, InvoiceStatus::VOID])),
             default => $query,
         };
     }

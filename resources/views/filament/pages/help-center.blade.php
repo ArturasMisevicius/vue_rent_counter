@@ -22,7 +22,7 @@
 
         <section class="flex flex-wrap gap-2">
             <a
-                href="{{ route('filament.admin.pages.help-center') }}"
+                href="{{ route('filament.admin.pages.help') }}"
                 wire:navigate
                 class="rounded-lg border px-3 py-2 text-sm font-semibold transition {{ $category === null ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300' }}"
             >
@@ -31,7 +31,7 @@
 
             @forelse ($this->categories as $option)
                 <a
-                    href="{{ route('filament.admin.pages.help-center', ['category' => $option['value']]) }}"
+                    href="{{ route('filament.admin.pages.help', ['category' => $option['value']]) }}"
                     wire:navigate
                     class="rounded-lg border px-3 py-2 text-sm font-semibold transition {{ $category === $option['value'] ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300' }}"
                 >

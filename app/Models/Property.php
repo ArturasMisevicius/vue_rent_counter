@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PropertyOccupancyStatus;
 use App\Enums\PropertyType;
 use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use Database\Factories\PropertyFactory;
@@ -29,6 +30,7 @@ class Property extends Model
         'unit_number',
         'type',
         'floor_area_sqm',
+        'occupancy_status',
         'created_at',
         'updated_at',
     ];
@@ -42,6 +44,7 @@ class Property extends Model
         'unit_number',
         'type',
         'floor_area_sqm',
+        'occupancy_status',
         'created_at',
         'updated_at',
     ];
@@ -54,12 +57,14 @@ class Property extends Model
         'unit_number',
         'type',
         'floor_area_sqm',
+        'occupancy_status',
     ];
 
     protected function casts(): array
     {
         return [
             'type' => PropertyType::class,
+            'occupancy_status' => PropertyOccupancyStatus::class,
             'floor' => 'integer',
             'floor_area_sqm' => 'decimal:2',
         ];
@@ -143,6 +148,7 @@ class Property extends Model
                 'unit_number',
                 'type',
                 'floor_area_sqm',
+                'occupancy_status',
             ])
             ->where('organization_id', $organizationId)
             ->with([
@@ -233,14 +239,27 @@ class Property extends Model
 
     public function isOccupied(): bool
     {
-        return $this->currentAssignment !== null;
+        return $this->occupancyStatus() === PropertyOccupancyStatus::OCCUPIED;
     }
 
     public function occupancyStatusLabel(): string
     {
-        return $this->isOccupied()
-            ? __('admin.properties.statuses.occupied')
-            : __('admin.properties.statuses.vacant');
+        return $this->occupancyStatus()->label();
+    }
+
+    public function occupancyStatus(): PropertyOccupancyStatus
+    {
+        if ($this->occupancy_status instanceof PropertyOccupancyStatus) {
+            return $this->occupancy_status;
+        }
+
+        if (is_string($this->occupancy_status) && $this->occupancy_status !== '') {
+            return PropertyOccupancyStatus::tryFrom($this->occupancy_status) ?? PropertyOccupancyStatus::VACANT;
+        }
+
+        return $this->currentAssignment !== null
+            ? PropertyOccupancyStatus::OCCUPIED
+            : PropertyOccupancyStatus::VACANT;
     }
 
     public function floorDisplay(): string

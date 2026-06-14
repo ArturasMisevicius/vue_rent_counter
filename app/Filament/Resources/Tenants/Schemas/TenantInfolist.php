@@ -9,6 +9,7 @@ use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenants\CheckTenantBillingReadiness;
 use App\Filament\Support\Tenants\TenantBillingReadinessResult;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
+use App\Models\MoveOutProcess;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
@@ -130,6 +131,39 @@ class TenantInfolist
                             ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.tenancy'))
+                    ->schema([
+                        TextEntry::make('tenant_status')
+                            ->label(__('admin.tenants.fields.tenant_status'))
+                            ->badge(),
+                        TextEntry::make('currentPropertyAssignment.status')
+                            ->label(__('admin.tenants.fields.assignment_status'))
+                            ->badge()
+                            ->default('—'),
+                        TextEntry::make('currentPropertyAssignment.assigned_at')
+                            ->label(__('admin.tenants.fields.move_in_date'))
+                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
+                        TextEntry::make('currentPropertyAssignment.move_out_date')
+                            ->label(__('admin.tenants.fields.move_out_date'))
+                            ->state(fn (User $record): string => $record->currentPropertyAssignment?->move_out_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
+                        TextEntry::make('move_out_status')
+                            ->label(__('admin.move_out.fields.status'))
+                            ->state(fn (User $record): string => self::currentMoveOutProcess($record)?->status?->label() ?? '—')
+                            ->badge()
+                            ->color(fn (User $record): string => self::currentMoveOutProcess($record) instanceof MoveOutProcess ? 'warning' : 'gray'),
+                        TextEntry::make('final_readings')
+                            ->label(__('admin.move_out.fields.final_readings'))
+                            ->state(fn (User $record): string => self::finalReadingsStatus($record)),
+                        TextEntry::make('final_invoice')
+                            ->label(__('admin.move_out.fields.final_invoice'))
+                            ->state(fn (User $record): string => self::currentMoveOutProcess($record)?->final_invoice_id !== null
+                                ? '#'.self::currentMoveOutProcess($record)?->final_invoice_id
+                                : '—'),
+                        TextEntry::make('portal_access_after_move_out')
+                            ->label(__('admin.move_out.fields.portal_access_after_move_out'))
+                            ->state(fn (User $record): string => self::currentMoveOutProcess($record)?->portal_access_after_move_out?->label() ?? '—'),
+                    ])
+                    ->columns(4),
                 Section::make(__('admin.tenants.sections.billing_readiness'))
                     ->schema([
                         TextEntry::make('billing_readiness_status')
@@ -210,5 +244,39 @@ class TenantInfolist
         }
 
         return implode("\n", $items);
+    }
+
+    private static function currentMoveOutProcess(User $record): ?MoveOutProcess
+    {
+        $assignment = $record->currentPropertyAssignment;
+
+        if ($assignment === null) {
+            return null;
+        }
+
+        if ($assignment->relationLoaded('activeMoveOutProcess')) {
+            return $assignment->activeMoveOutProcess->first();
+        }
+
+        return $assignment->activeMoveOutProcess()
+            ->select(['id', 'organization_id', 'tenant_id', 'property_id', 'property_assignment_id', 'status', 'move_out_date', 'final_readings_required', 'final_readings_completed_at', 'final_invoice_id', 'portal_access_after_move_out', 'completed_at'])
+            ->first();
+    }
+
+    private static function finalReadingsStatus(User $record): string
+    {
+        $process = self::currentMoveOutProcess($record);
+
+        if (! $process instanceof MoveOutProcess) {
+            return '—';
+        }
+
+        if (! $process->final_readings_required) {
+            return __('admin.move_out.messages.final_readings_not_required');
+        }
+
+        return $process->final_readings_completed_at !== null
+            ? __('admin.move_out.messages.final_readings_completed')
+            : __('admin.move_out.messages.final_readings_pending');
     }
 }

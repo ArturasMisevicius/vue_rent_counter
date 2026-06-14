@@ -15,6 +15,7 @@ final readonly class AdminAttentionDashboardData
      * @param  list<array<string, mixed>>  $configurationHealthCards
      * @param  list<array<string, mixed>>  $contractCards
      * @param  list<array<string, mixed>>  $documentCards
+     * @param  list<array<string, mixed>>  $moveOutCards
      * @param  list<array<string, mixed>>  $dataIntegrityCards
      * @param  list<array<string, mixed>>  $needsActionItems
      * @param  list<array<string, mixed>>  $billingProgressSteps
@@ -32,6 +33,7 @@ final readonly class AdminAttentionDashboardData
         public array $configurationHealthCards,
         public array $contractCards,
         public array $documentCards,
+        public array $moveOutCards,
         public array $dataIntegrityCards,
         public array $needsActionItems,
         public array $billingProgressSteps,
@@ -65,6 +67,7 @@ final readonly class AdminAttentionDashboardData
             'configuration_health_cards' => $this->configurationHealthCards,
             'contract_cards' => $this->contractCards,
             'document_cards' => $this->documentCards,
+            'move_out_cards' => $this->moveOutCards,
             'data_integrity_cards' => $this->dataIntegrityCards,
             'needs_action_items' => $this->needsActionItems,
             'billing_progress' => [

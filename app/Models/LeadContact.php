@@ -29,6 +29,7 @@ class LeadContact extends Model
         'do_not_contact',
         'do_not_contact_reason',
         'do_not_contact_at',
+        'last_contacted_at',
         'marked_do_not_contact_by_user_id',
         'created_at',
         'updated_at',
@@ -45,6 +46,7 @@ class LeadContact extends Model
         'do_not_contact',
         'do_not_contact_reason',
         'do_not_contact_at',
+        'last_contacted_at',
         'marked_do_not_contact_by_user_id',
     ];
 
@@ -54,6 +56,7 @@ class LeadContact extends Model
             'preferred_channel' => LeadOutreachChannel::class,
             'do_not_contact' => 'boolean',
             'do_not_contact_at' => 'datetime',
+            'last_contacted_at' => 'datetime',
         ];
     }
 

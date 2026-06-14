@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Filament\Actions\Admin\BillingReview\ApproveInvoice;
+use App\Filament\Actions\Admin\BillingReview\ApproveReading;
+use App\Filament\Actions\Admin\BillingReview\CorrectReading;
 use App\Filament\Actions\Admin\BillingReview\RecalculateInvoice;
+use App\Filament\Actions\Admin\BillingReview\RejectReading;
+use App\Filament\Actions\Admin\BillingReview\RequestReadingResubmission;
 use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\BillingReview\SendReadingReminder;
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Support\Admin\BillingReview\BillingReviewAccess;
 use App\Filament\Support\Admin\BillingReview\BuildBillingReviewForPeriod;
 use App\Models\BillingPeriod;
 use App\Models\Invoice;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -38,6 +44,31 @@ class BillingReviewCenter extends Page
 
     #[Url(as: 'billing_period_id')]
     public ?int $billingPeriodId = null;
+
+    /**
+     * @var array<int, string>
+     */
+    public array $rejectionComments = [];
+
+    /**
+     * @var array<int, string>
+     */
+    public array $resubmissionComments = [];
+
+    /**
+     * @var array<int, string>
+     */
+    public array $correctionValues = [];
+
+    /**
+     * @var array<int, string>
+     */
+    public array $correctionReasons = [];
+
+    /**
+     * @var array<int, bool>
+     */
+    public array $confirmNegativeConsumption = [];
 
     public function mount(): void
     {
@@ -72,6 +103,7 @@ class BillingReviewCenter extends Page
     protected function getHeaderActions(): array
     {
         return [
+            ContextualHelpAction::make('invoices.review'),
             Action::make('invoices')
                 ->label(__('admin.invoices.plural'))
                 ->color('gray')
@@ -80,7 +112,7 @@ class BillingReviewCenter extends Page
     }
 
     /**
-     * @return array{summary: array<string, int>, invoices: array<int, array<string, mixed>>}
+     * @return array{summary: array<string, int>, invoices: array<int, array<string, mixed>>, pending_readings: array<int, array<string, mixed>>}
      */
     #[Computed]
     public function review(): array
@@ -91,12 +123,16 @@ class BillingReviewCenter extends Page
             (string) $this->period['billing_period_end'],
         );
 
+        $invoices = collect($review['invoices'])
+            ->filter(fn ($invoice): bool => $this->matchesAttentionFilter($invoice))
+            ->map(fn ($invoice): array => $invoice->toArray())
+            ->values()
+            ->all();
+
         return [
             'summary' => $review['summary']->toArray(),
-            'invoices' => collect($review['invoices'])
-                ->filter(fn ($invoice): bool => $this->matchesAttentionFilter($invoice))
-                ->map(fn ($invoice): array => $invoice->toArray())
-                ->all(),
+            'invoices' => $invoices,
+            'pending_readings' => $this->pendingReadings($invoices),
         ];
     }
 
@@ -105,6 +141,9 @@ class BillingReviewCenter extends Page
         return match ($this->attention) {
             'waiting_readings', 'waiting_for_readings' => $invoice->missingReadings !== [],
             'submitted_readings' => $invoice->submittedReadingsCount > 0,
+            'pending_readings' => $invoice->submittedReadingsCount > 0 || $invoice->missingReadings !== [],
+            'waiting_confirmation' => $invoice->submittedReadingsCount > 0
+                && in_array($invoice->approvalStatus, ['readings_submitted', 'ready_for_review'], true),
             'ready_for_review' => $invoice->canApprove,
             'configuration_errors' => $invoice->blockingErrors !== [],
             'overdue' => $invoice->isOverdue,
@@ -119,6 +158,69 @@ class BillingReviewCenter extends Page
 
         Notification::make()
             ->title(__('admin.billing_review.messages.invoice_recalculated'))
+            ->success()
+            ->send();
+    }
+
+    public function approveReading(int $readingId, ApproveReading $approveReading): void
+    {
+        $approveReading->handle(
+            $this->reading($readingId),
+            $this->user(),
+            (bool) ($this->confirmNegativeConsumption[$readingId] ?? false),
+        );
+
+        Notification::make()
+            ->title(__('admin.billing_review.messages.reading_approved'))
+            ->success()
+            ->send();
+    }
+
+    public function rejectReading(int $readingId, RejectReading $rejectReading): void
+    {
+        $rejectReading->handle(
+            $this->reading($readingId),
+            (string) ($this->rejectionComments[$readingId] ?? ''),
+            $this->user(),
+        );
+
+        unset($this->rejectionComments[$readingId]);
+
+        Notification::make()
+            ->title(__('admin.billing_review.messages.reading_rejected'))
+            ->success()
+            ->send();
+    }
+
+    public function correctReading(int $readingId, CorrectReading $correctReading): void
+    {
+        $correctReading->handle($this->reading($readingId), [
+            'reading_value' => $this->correctionValues[$readingId] ?? null,
+            'reason' => $this->correctionReasons[$readingId] ?? null,
+            'confirm_negative_consumption' => (bool) ($this->confirmNegativeConsumption[$readingId] ?? false),
+        ], $this->user());
+
+        unset($this->correctionValues[$readingId], $this->correctionReasons[$readingId]);
+
+        Notification::make()
+            ->title(__('admin.billing_review.messages.reading_corrected'))
+            ->success()
+            ->send();
+    }
+
+    public function requestResubmission(int $invoiceId, int $readingId, RequestReadingResubmission $requestReadingResubmission): void
+    {
+        $requestReadingResubmission->handle(
+            $this->invoice($invoiceId),
+            $this->reading($readingId),
+            (string) ($this->resubmissionComments[$readingId] ?? ''),
+            $this->user(),
+        );
+
+        unset($this->resubmissionComments[$readingId]);
+
+        Notification::make()
+            ->title(__('admin.billing_review.messages.resubmission_requested'))
             ->success()
             ->send();
     }
@@ -156,10 +258,67 @@ class BillingReviewCenter extends Page
     private function invoice(int $invoiceId): Invoice
     {
         return Invoice::query()
-            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'approval_metadata', 'updated_at'])
+            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'automation_level', 'approval_metadata', 'updated_at'])
             ->forOrganization($this->organization()->id)
             ->whereKey($invoiceId)
             ->firstOrFail();
+    }
+
+    private function reading(int $readingId): MeterReading
+    {
+        return MeterReading::query()
+            ->select(['id', 'organization_id', 'property_id', 'meter_id', 'submitted_by_user_id', 'reading_value', 'reading_date', 'validation_status', 'submission_method', 'notes', 'created_at', 'updated_at'])
+            ->forOrganization($this->organization()->id)
+            ->whereKey($readingId)
+            ->firstOrFail();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $invoices
+     * @return array<int, array<string, mixed>>
+     */
+    private function pendingReadings(array $invoices): array
+    {
+        return collect($invoices)
+            ->flatMap(function (array $invoice): array {
+                $submitted = collect($invoice['submitted_readings'] ?? [])
+                    ->map(fn (array $reading): array => $this->pendingReadingRow($invoice, $reading, 'submitted'));
+                $missing = collect($invoice['missing_readings'] ?? [])
+                    ->map(fn (array $reading): array => $this->pendingReadingRow($invoice, $reading, 'missing'));
+
+                return $submitted->merge($missing)->all();
+            })
+            ->filter(fn (array $row): bool => $row['row_type'] === 'missing'
+                || $row['pending_review']
+                || $row['negative_consumption']
+                || $row['high_consumption']
+                || $row['strange_reading']
+                || $row['blocking_errors'] !== []
+                || in_array($row['approval_status'], ['readings_submitted', 'ready_for_review'], true))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $invoice
+     * @param  array<string, mixed>  $reading
+     * @return array<string, mixed>
+     */
+    private function pendingReadingRow(array $invoice, array $reading, string $rowType): array
+    {
+        return [
+            ...$reading,
+            'row_type' => $rowType,
+            'invoice_id' => $invoice['invoice_id'],
+            'invoice_number' => $invoice['invoice_number'],
+            'tenant_name' => $invoice['tenant_name'],
+            'tenant_email' => $invoice['tenant_email'],
+            'property_name' => $invoice['property_name'],
+            'billing_period' => $invoice['billing_period'],
+            'approval_status' => $invoice['approval_status'],
+            'review_url' => $invoice['review_url'],
+            'can_approve_invoice' => $invoice['can_approve'],
+        ];
     }
 
     private function organization(): Organization

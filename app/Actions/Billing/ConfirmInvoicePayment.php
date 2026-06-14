@@ -10,6 +10,7 @@ use App\Enums\PaymentStatus;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Models\InvoicePayment;
 use App\Models\User;
+use App\Notifications\Billing\InvoicePaymentConfirmedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -48,7 +49,7 @@ class ConfirmInvoicePayment
             ]);
         }
 
-        return DB::transaction(function () use ($payment, $actor): InvoicePayment {
+        $confirmedPayment = DB::transaction(function () use ($payment, $actor): InvoicePayment {
             $before = $this->paymentSnapshot($payment);
             $payment->forceFill([
                 'status' => PaymentStatus::CONFIRMED,
@@ -88,6 +89,10 @@ class ConfirmInvoicePayment
 
             return $freshPayment->refresh();
         });
+
+        $this->notifyTenant($confirmedPayment);
+
+        return $confirmedPayment;
     }
 
     /**
@@ -119,5 +124,12 @@ class ConfirmInvoicePayment
             'invoice_id' => $payment->invoice_id,
             'payment_id' => $payment->id,
         ];
+    }
+
+    private function notifyTenant(InvoicePayment $payment): void
+    {
+        $payment->loadMissing('tenant:id,organization_id,name,email');
+
+        $payment->tenant?->notify(new InvoicePaymentConfirmedNotification($payment));
     }
 }

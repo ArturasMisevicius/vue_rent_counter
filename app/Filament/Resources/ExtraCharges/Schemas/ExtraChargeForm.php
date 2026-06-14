@@ -79,6 +79,7 @@ class ExtraChargeForm
                         : Hidden::make('property_id')->default($propertyId),
                     Select::make('billing_period_id')
                         ->label(__('admin.extra_charges.fields.billing_period'))
+                        ->helperText(__('help.fields.billing_period'))
                         ->options(fn (Get $get): array => self::billingPeriodOptions($get('organization_id')))
                         ->searchable()
                         ->preload(),
@@ -104,11 +105,13 @@ class ExtraChargeForm
                         ->maxLength(255),
                     Textarea::make('description_for_tenant')
                         ->label(__('admin.extra_charges.fields.description_for_tenant'))
+                        ->helperText(__('help.fields.tenant_visible_description'))
                         ->rows(4)
                         ->required(fn (Get $get): bool => self::requiresTenantDescription($get('extra_charge_type_id')))
                         ->columnSpanFull(),
                     Textarea::make('internal_note')
                         ->label(__('admin.extra_charges.fields.internal_note'))
+                        ->helperText(__('help.fields.internal_note'))
                         ->rows(4)
                         ->columnSpanFull(),
                 ])

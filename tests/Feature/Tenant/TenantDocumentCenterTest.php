@@ -15,6 +15,7 @@ use App\Livewire\Tenant\Documents;
 use App\Models\AuditLog;
 use App\Models\ManagerPermission;
 use App\Models\Organization;
+use App\Models\Property;
 use App\Models\TenantDocument;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,6 +47,27 @@ it('lets tenants see their own visible documents', function (): void {
     Livewire::test(Documents::class)
         ->assertSee($document->title)
         ->assertSee('Your signed lease document.');
+});
+
+it('filters tenant documents by category', function (): void {
+    $workspace = tenantDocumentWorkspace();
+    tenantDocumentFor($workspace, [
+        'title' => 'Visible Contract',
+        'document_type' => TenantDocumentType::RENTAL_CONTRACT,
+    ]);
+    tenantDocumentFor($workspace, [
+        'title' => 'June Invoice PDF',
+        'document_type' => TenantDocumentType::INVOICE_PDF,
+    ]);
+
+    actingAs($workspace['tenant']);
+
+    Livewire::test(Documents::class)
+        ->assertSee('Visible Contract')
+        ->assertSee('June Invoice PDF')
+        ->set('selectedCategory', TenantDocumentType::INVOICE_PDF->value)
+        ->assertSee('June Invoice PDF')
+        ->assertDontSee('Visible Contract');
 });
 
 it('hides internal-only documents and internal notes from tenants', function (): void {
@@ -239,7 +261,7 @@ it('marks expired documents as expired', function (): void {
  *     organization: Organization,
  *     admin: User,
  *     tenant: User,
- *     property: \App\Models\Property
+ *     property: Property
  * }
  */
 function tenantDocumentWorkspace(): array
@@ -256,7 +278,7 @@ function tenantDocumentWorkspace(): array
 }
 
 /**
- * @param  array{organization: Organization, admin: User, tenant: User, property: \App\Models\Property}  $workspace
+ * @param  array{organization: Organization, admin: User, tenant: User, property: Property}  $workspace
  * @param  array<string, mixed>  $overrides
  */
 function tenantDocumentFor(array $workspace, array $overrides = []): TenantDocument

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ServiceConfigurations\Pages;
 
 use App\Filament\Actions\Admin\ServiceConfigurations\CreateServiceConfigurationAction;
+use App\Filament\Actions\Help\ContextualHelpAction;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Organization;
@@ -17,6 +18,13 @@ class CreateServiceConfiguration extends CreateRecord
     protected static string $resource = ServiceConfigurationResource::class;
 
     protected static string|array $routeMiddleware = 'manager.permission:service_configurations,create';
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ContextualHelpAction::make('service_configurations.create'),
+        ];
+    }
 
     protected function handleRecordCreation(array $data): Model
     {

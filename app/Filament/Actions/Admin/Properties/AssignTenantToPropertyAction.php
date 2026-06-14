@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\Properties;
 
 use App\Enums\PropertyAssignmentStatus;
+use App\Enums\PropertyOccupancyStatus;
+use App\Filament\Actions\Admin\TenantMoveOut\UpdatePropertyOccupancyStatus;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
@@ -46,13 +48,29 @@ class AssignTenantToPropertyAction
                     'unit_area_sqm' => $unitAreaSqm,
                     'assigned_at' => $moveInDate,
                     'unassigned_at' => $moveOutDate,
+                    'billing_start_date' => $moveInDate,
+                    'billing_end_date' => $moveOutDate,
                     'status' => $status,
                     'is_primary' => $isPrimary,
                     'occupants_count' => $occupantsCount,
                     'updated_by_user_id' => $actor?->id,
                 ]);
 
+                app(UpdatePropertyOccupancyStatus::class)->handle(
+                    $property->fresh() ?? $property,
+                    $status === PropertyAssignmentStatus::SCHEDULED
+                        ? PropertyOccupancyStatus::MOVE_IN_SCHEDULED
+                        : PropertyOccupancyStatus::OCCUPIED,
+                    $actor,
+                );
+
                 return $currentAssignment->fresh();
+            }
+
+            if ($isPrimary && $currentAssignment !== null) {
+                throw ValidationException::withMessages([
+                    'property_id' => __('admin.properties.messages.active_primary_assignment_blocks_new_tenant'),
+                ]);
             }
 
             PropertyAssignment::query()
@@ -66,15 +84,7 @@ class AssignTenantToPropertyAction
                     'updated_at' => $timestamp,
                 ]);
 
-            if ($currentAssignment !== null) {
-                $currentAssignment->update([
-                    'unassigned_at' => $timestamp,
-                    'status' => PropertyAssignmentStatus::ENDED,
-                    'updated_by_user_id' => $actor?->id,
-                ]);
-            }
-
-            return PropertyAssignment::query()->create([
+            $assignment = PropertyAssignment::query()->create([
                 'organization_id' => $property->organization_id,
                 'property_id' => $property->id,
                 'tenant_user_id' => $tenant->id,
@@ -84,9 +94,21 @@ class AssignTenantToPropertyAction
                 'occupants_count' => $occupantsCount,
                 'assigned_at' => $moveInDate,
                 'unassigned_at' => $moveOutDate,
+                'billing_start_date' => $moveInDate,
+                'billing_end_date' => $moveOutDate,
                 'created_by_user_id' => $actor?->id,
                 'updated_by_user_id' => $actor?->id,
             ]);
+
+            app(UpdatePropertyOccupancyStatus::class)->handle(
+                $property->fresh() ?? $property,
+                $status === PropertyAssignmentStatus::SCHEDULED
+                    ? PropertyOccupancyStatus::MOVE_IN_SCHEDULED
+                    : PropertyOccupancyStatus::OCCUPIED,
+                $actor,
+            );
+
+            return $assignment;
         });
     }
 }

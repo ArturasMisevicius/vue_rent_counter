@@ -55,7 +55,7 @@ class ListingLeadPolicy
 
     public function convert(User $user, ListingLead $lead): bool
     {
-        return $lead->canConvert() && $this->update($user, $lead);
+        return $this->update($user, $lead);
     }
 
     public function export(User $user): bool

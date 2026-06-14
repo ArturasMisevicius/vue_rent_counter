@@ -9,6 +9,7 @@ use App\Filament\Actions\Admin\BillingReview\ApproveReading;
 use App\Filament\Actions\Admin\BillingReview\CorrectReading;
 use App\Filament\Actions\Admin\BillingReview\RecalculateInvoice;
 use App\Filament\Actions\Admin\BillingReview\RejectReading;
+use App\Filament\Actions\Admin\BillingReview\RequestReadingResubmission;
 use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\BillingReview\SendReadingReminder;
 use App\Filament\Actions\Admin\BillingReview\VoidReading;
@@ -39,6 +40,11 @@ class BillingInvoiceReview extends Page
      * @var array<int, string>
      */
     public array $rejectionComments = [];
+
+    /**
+     * @var array<int, string>
+     */
+    public array $resubmissionComments = [];
 
     /**
      * @var array<int, string>
@@ -137,6 +143,20 @@ class BillingInvoiceReview extends Page
         Notification::make()->title(__('admin.billing_review.messages.reading_corrected'))->success()->send();
     }
 
+    public function requestResubmission(int $readingId, RequestReadingResubmission $requestReadingResubmission): void
+    {
+        $requestReadingResubmission->handle(
+            $this->invoice(),
+            $this->reading($readingId),
+            (string) ($this->resubmissionComments[$readingId] ?? ''),
+            $this->user(),
+        );
+
+        unset($this->resubmissionComments[$readingId]);
+
+        Notification::make()->title(__('admin.billing_review.messages.resubmission_requested'))->success()->send();
+    }
+
     public function voidReading(int $readingId, VoidReading $voidReading): void
     {
         $voidReading->handle(
@@ -181,7 +201,7 @@ class BillingInvoiceReview extends Page
     private function invoice(): Invoice
     {
         return Invoice::query()
-            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'approval_metadata', 'updated_at'])
+            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'automation_level', 'approval_metadata', 'updated_at'])
             ->forOrganization($this->organization()->id)
             ->whereKey($this->invoiceId)
             ->firstOrFail();

@@ -17,10 +17,15 @@ use App\Models\AuditLog;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\User;
+use App\Notifications\Billing\InvoiceMarkedOverdueNotification;
+use App\Notifications\Billing\InvoicePaymentConfirmedNotification;
+use App\Notifications\Billing\InvoicePaymentRejectedNotification;
+use App\Notifications\Billing\TenantPaymentProofSubmittedNotification;
 use App\Services\Billing\InvoicePresentationService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -28,11 +33,15 @@ use Illuminate\Validation\ValidationException;
 uses(RefreshDatabase::class);
 
 it('lets a tenant submit payment proof for their own invoice without closing the invoice', function (): void {
+    Notification::fake();
     Storage::fake('local');
     $workspace = paymentTrackingWorkspace([
         'total_amount' => 161.50,
         'balance_amount' => 161.50,
         'payment_reference' => 'INV-2026-00015',
+    ]);
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $workspace['organization']->id,
     ]);
 
     $payment = app(SubmitTenantPaymentProof::class)->handle($workspace['invoice'], $workspace['tenant'], [
@@ -56,6 +65,14 @@ it('lets a tenant submit payment proof for their own invoice without closing the
             ->where('action', AuditLogAction::CREATED)
             ->where('metadata->context->mutation', 'payment.proof_submitted')
             ->exists())->toBeTrue();
+
+    Notification::assertSentTo(
+        $workspace['admin'],
+        TenantPaymentProofSubmittedNotification::class,
+        fn (TenantPaymentProofSubmittedNotification $notification): bool => $notification->toArray($workspace['admin'])['payment_id'] === $payment->id,
+    );
+    Notification::assertSentTo($manager, TenantPaymentProofSubmittedNotification::class);
+    Notification::assertNotSentTo($workspace['tenant'], TenantPaymentProofSubmittedNotification::class);
 
     $attachment = $payment->attachments->firstOrFail();
 
@@ -86,6 +103,7 @@ it('blocks tenant payment proof for another tenant invoice', function (): void {
 });
 
 it('reconciles partial, full, and overpaid manual payments from confirmed payments only', function (): void {
+    Notification::fake();
     $workspace = paymentTrackingWorkspace([
         'total_amount' => 300,
         'balance_amount' => 300,
@@ -98,6 +116,13 @@ it('reconciles partial, full, and overpaid manual payments from confirmed paymen
         'reference' => 'CASH-1',
         'confirm_immediately' => true,
     ]);
+
+    Notification::assertSentTo(
+        $workspace['tenant'],
+        InvoicePaymentConfirmedNotification::class,
+        fn (InvoicePaymentConfirmedNotification $notification): bool => (float) $notification->payment->amount === 100.0
+            && $notification->toArray($workspace['tenant'])['invoice_id'] === $workspace['invoice']->id,
+    );
 
     $invoice = $workspace['invoice']->fresh();
 
@@ -139,6 +164,7 @@ it('reconciles partial, full, and overpaid manual payments from confirmed paymen
 });
 
 it('requires a rejection reason and leaves invoice totals unchanged', function (): void {
+    Notification::fake();
     $workspace = paymentTrackingWorkspace([
         'total_amount' => 200,
         'balance_amount' => 200,
@@ -166,6 +192,13 @@ it('requires a rejection reason and leaves invoice totals unchanged', function (
             ->where('action', AuditLogAction::REJECTED)
             ->where('metadata->context->mutation', 'payment.rejected')
             ->exists())->toBeTrue();
+
+    Notification::assertSentTo(
+        $workspace['tenant'],
+        InvoicePaymentRejectedNotification::class,
+        fn (InvoicePaymentRejectedNotification $notification): bool => $notification->payment->rejection_reason === 'Receipt is unreadable.'
+            && $notification->toArray($workspace['tenant'])['reason'] === 'Receipt is unreadable.',
+    );
 });
 
 it('requires a void reason and recalculates invoice balance after voiding a confirmed payment', function (): void {
@@ -200,6 +233,7 @@ it('requires a void reason and recalculates invoice balance after voiding a conf
 });
 
 it('marks overdue invoices automatically but skips paid invoices', function (): void {
+    Notification::fake();
     $workspace = paymentTrackingWorkspace([
         'due_date' => now()->subDay()->toDateString(),
         'total_amount' => 100,
@@ -223,6 +257,13 @@ it('marks overdue invoices automatically but skips paid invoices', function (): 
         ->and($workspace['invoice']->fresh()->payment_status)->toBe(InvoicePaymentStatus::OVERDUE)
         ->and($paidWorkspace['invoice']->fresh()->status)->toBe(InvoiceStatus::PAID)
         ->and($paidWorkspace['invoice']->fresh()->payment_status)->toBe(InvoicePaymentStatus::PAID);
+
+    Notification::assertSentTo(
+        $workspace['admin'],
+        InvoiceMarkedOverdueNotification::class,
+        fn (InvoiceMarkedOverdueNotification $notification): bool => $notification->toArray($workspace['admin'])['invoice_id'] === $workspace['invoice']->id,
+    );
+    Notification::assertNotSentTo($paidWorkspace['admin'], InvoiceMarkedOverdueNotification::class);
 });
 
 it('queues overdue reminders only when the invoice still has open balance and no pending payment review', function (): void {

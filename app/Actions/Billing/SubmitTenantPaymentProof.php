@@ -9,12 +9,14 @@ use App\Enums\InvoicePaymentStatus;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Enums\UserRole;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Http\Requests\Tenant\SubmitPaymentProofRequest;
 use App\Models\Attachment;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\User;
+use App\Notifications\Billing\TenantPaymentProofSubmittedNotification;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +52,7 @@ class SubmitTenantPaymentProof
 
         $this->ensureProofOrReferenceForBankTransfer($paymentMethod, $validated);
 
-        return DB::transaction(function () use ($invoice, $tenant, $validated, $paymentMethod): InvoicePayment {
+        $payment = DB::transaction(function () use ($invoice, $tenant, $validated, $paymentMethod): InvoicePayment {
             $payment = InvoicePayment::query()->create([
                 'invoice_id' => $invoice->id,
                 'organization_id' => $invoice->organization_id,
@@ -95,6 +97,10 @@ class SubmitTenantPaymentProof
 
             return $payment->fresh(['attachments']);
         });
+
+        $this->notifyAdmins($payment, $tenant);
+
+        return $payment;
     }
 
     private function ensureTenantOwnsInvoice(Invoice $invoice, User $tenant): void
@@ -197,6 +203,24 @@ class SubmitTenantPaymentProof
             'invoice_id' => $payment->invoice_id,
             'payment_id' => $payment->id,
         ];
+    }
+
+    private function notifyAdmins(InvoicePayment $payment, User $tenant): void
+    {
+        $payment = $payment->fresh(['invoice', 'tenant']) ?? $payment;
+
+        User::query()
+            ->select(['id', 'organization_id', 'name', 'email', 'role'])
+            ->where('organization_id', $payment->organization_id)
+            ->whereIn('role', [
+                UserRole::ADMIN,
+                UserRole::MANAGER,
+            ])
+            ->whereKeyNot($tenant->id)
+            ->get()
+            ->each(fn (User $admin): mixed => $admin->notify(
+                new TenantPaymentProofSubmittedNotification($payment),
+            ));
     }
 
     private function storage(): FilesystemAdapter

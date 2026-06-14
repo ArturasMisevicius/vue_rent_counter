@@ -82,6 +82,7 @@ class RecordOutreachActivity
         ]);
 
         $this->updateLeadFromActivity($lead, $direction, $activity->next_follow_up_at);
+        $this->updateContactFromActivity($lead, $direction);
 
         $this->auditLogger->record(
             AuditLogAction::CREATED,
@@ -138,5 +139,18 @@ class RecordOutreachActivity
         if ($attributes !== []) {
             $lead->forceFill($attributes)->save();
         }
+    }
+
+    private function updateContactFromActivity(ListingLead $lead, LeadOutreachDirection $direction): void
+    {
+        if (! in_array($direction, [LeadOutreachDirection::OUTBOUND, LeadOutreachDirection::INBOUND], true)) {
+            return;
+        }
+
+        $lead->contact()
+            ->select(['id', 'last_contacted_at'])
+            ->first()
+            ?->forceFill(['last_contacted_at' => now()])
+            ->save();
     }
 }

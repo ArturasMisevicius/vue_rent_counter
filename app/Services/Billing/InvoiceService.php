@@ -94,6 +94,7 @@ final class InvoiceService
                 'organization_id' => $organization->id,
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
+                'property_assignment_id' => $assignment->id,
                 'invoice_number' => 'INV-TEMP-'.Str::uuid(),
                 'billing_period_start' => $billingPeriodStart,
                 'billing_period_end' => $billingPeriodEnd,
@@ -166,6 +167,7 @@ final class InvoiceService
                 'billing_period_id' => $billingPeriod?->id,
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
+                'property_assignment_id' => $assignment->id,
                 'invoice_number' => 'INV-TEMP-'.Str::uuid(),
                 'billing_period_start' => $billingPeriodStart->toDateString(),
                 'billing_period_end' => $billingPeriodEnd->toDateString(),
@@ -271,6 +273,7 @@ final class InvoiceService
                 'organization_id' => $organization->id,
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
+                'property_assignment_id' => $assignment->id,
                 'invoice_number' => sprintf(
                     'INV-%s-%d-%d',
                     $billingPeriodStart->format('Ym'),

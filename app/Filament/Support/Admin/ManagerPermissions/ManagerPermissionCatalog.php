@@ -26,6 +26,7 @@ class ManagerPermissionCatalog
             'billing',
             'extra_charges',
             'invoices',
+            'payments',
             'tariffs',
             'providers',
             'service_configurations',
@@ -125,6 +126,7 @@ class ManagerPermissionCatalog
             'billing' => __('admin.manager_permissions.resources.billing'),
             'extra_charges' => __('admin.extra_charges.plural'),
             'invoices' => __('admin.invoices.plural'),
+            'payments' => __('admin.payments.plural'),
             'tariffs' => __('admin.tariffs.plural'),
             'providers' => __('admin.providers.plural'),
             'service_configurations' => __('admin.service_configurations.plural'),
@@ -195,13 +197,11 @@ class ManagerPermissionCatalog
             ->all();
 
         $billingResources = [
+            'meter_readings',
             'billing',
             'extra_charges',
             'invoices',
-            'tariffs',
-            'providers',
-            'service_configurations',
-            'utility_services',
+            'payments',
         ];
 
         $propertyResources = [
@@ -211,7 +211,6 @@ class ManagerPermissionCatalog
             'tenant_documents',
             'rental_contracts',
             'meters',
-            'meter_readings',
         ];
 
         return [
@@ -219,7 +218,15 @@ class ManagerPermissionCatalog
                 'name' => __('admin.manager_permissions.presets.read_only'),
                 'matrix' => self::defaultMatrix(),
             ],
+            'read_only_manager' => [
+                'name' => __('admin.manager_permissions.presets.read_only'),
+                'matrix' => self::defaultMatrix(),
+            ],
             'full_access' => [
+                'name' => __('admin.manager_permissions.presets.full_access'),
+                'matrix' => $full,
+            ],
+            'full_manager' => [
                 'name' => __('admin.manager_permissions.presets.full_access'),
                 'matrix' => $full,
             ],
@@ -246,7 +253,7 @@ class ManagerPermissionCatalog
             ->all();
 
         if ($organization->status === OrganizationStatus::PENDING || self::hasRestrictedTrialPlan($organization)) {
-            foreach (['billing', 'extra_charges', 'invoices', 'tariffs', 'providers', 'service_configurations', 'utility_services'] as $resource) {
+            foreach (['billing', 'extra_charges', 'invoices', 'payments', 'tariffs', 'providers', 'service_configurations', 'utility_services'] as $resource) {
                 $availability[$resource] = [
                     'available' => false,
                     'reason' => __('admin.manager_permissions.plan_restricted', [

@@ -35,6 +35,7 @@
                 'total_invoices',
                 'waiting_for_readings',
                 'submitted_readings',
+                'waiting_confirmation',
                 'ready_for_review',
                 'configuration_errors',
                 'approved',
@@ -46,6 +47,141 @@
                     <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $summary[$metric] ?? 0 }}</p>
                 </article>
             @endforeach
+        </section>
+
+        <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-200 px-5 py-4">
+                <h2 class="text-base font-semibold text-slate-950">{{ __('admin.billing_review.pending_readings.title') }}</h2>
+                <p class="mt-1 text-sm text-slate-600">{{ __('admin.billing_review.pending_readings.description') }}</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.tenant') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.property') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.meter') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.submitted_by') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.reading') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.issues') }}</th>
+                            <th class="px-4 py-3">{{ __('admin.billing_review.pending_readings.actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse ($review['pending_readings'] as $reading)
+                            <tr wire:key="pending-reading-{{ $reading['row_type'] }}-{{ $reading['reading_id'] ?? $reading['invoice_id'].'-'.$reading['meter_id'] }}">
+                                <td class="px-4 py-4 align-top">
+                                    <div class="font-medium text-slate-950">{{ $reading['tenant_name'] }}</div>
+                                    <div class="text-xs text-slate-500">{{ $reading['invoice_number'] }}</div>
+                                </td>
+                                <td class="px-4 py-4 align-top">
+                                    <div class="text-slate-900">{{ $reading['property_name'] }}</div>
+                                    <div class="text-xs text-slate-500">{{ $reading['billing_period'] }}</div>
+                                </td>
+                                <td class="px-4 py-4 align-top">
+                                    <div class="font-medium text-slate-900">{{ $reading['meter_name'] }}</div>
+                                    <div class="text-xs text-slate-500">{{ $reading['meter_identifier'] ?? $reading['meter_unit'] ?? '-' }}</div>
+                                </td>
+                                <td class="px-4 py-4 align-top text-slate-700">
+                                    @if ($reading['row_type'] === 'missing')
+                                        <span class="rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ __('admin.billing_review.pending_readings.not_submitted') }}</span>
+                                    @else
+                                        <div>{{ $reading['submitted_by'] ?? __('admin.billing_review.pending_readings.missing_submitter') }}</div>
+                                        <div class="text-xs text-slate-500">{{ $reading['submitted_at'] }}</div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 align-top text-slate-700">
+                                    @if ($reading['row_type'] === 'missing')
+                                        <span class="text-slate-500">{{ __('admin.billing_review.statuses.missing') }}</span>
+                                    @else
+                                        <div>{{ __('admin.billing_review.pending_readings.previous') }}: {{ $reading['previous_reading_value'] ?? '-' }}</div>
+                                        <div>{{ __('admin.billing_review.pending_readings.current') }}: {{ $reading['reading_value'] ?? '-' }}</div>
+                                        <div>{{ __('admin.billing_review.pending_readings.consumption') }}: {{ $reading['consumption'] ?? '-' }}</div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 align-top">
+                                    <div class="flex max-w-xs flex-wrap gap-1">
+                                        @forelse ($reading['issue_labels'] as $label)
+                                            <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{{ $label }}</span>
+                                        @empty
+                                            <span class="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">{{ __('admin.billing_review.pending_readings.waiting_confirmation') }}</span>
+                                        @endforelse
+                                    </div>
+
+                                    @if ($reading['blocking_errors'] !== [])
+                                        <div class="mt-2 space-y-1 text-xs text-rose-700">
+                                            @foreach ($reading['blocking_errors'] as $error)
+                                                <p>{{ $error }}</p>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @if ($reading['warnings'] !== [])
+                                        <div class="mt-2 space-y-1 text-xs text-amber-700">
+                                            @foreach ($reading['warnings'] as $warning)
+                                                <p>{{ $warning }}</p>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 align-top">
+                                    <div class="flex min-w-72 flex-col gap-2">
+                                        <div class="flex flex-wrap gap-2">
+                                            <a href="{{ $reading['review_url'] }}" class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                                                {{ __('admin.billing_review.actions.review') }}
+                                            </a>
+
+                                            @if ($reading['row_type'] === 'missing')
+                                                <button type="button" wire:click="sendReminder({{ $reading['invoice_id'] }})" class="rounded-md border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-50">
+                                                    {{ __('admin.billing_review.actions.send_reminder') }}
+                                                </button>
+                                            @elseif ($reading['reading_id'])
+                                                <button type="button" wire:click="approveReading({{ $reading['reading_id'] }})" class="rounded-md bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
+                                                    {{ __('admin.billing_review.actions.approve_reading') }}
+                                                </button>
+                                                <button type="button" wire:click="rejectReading({{ $reading['reading_id'] }})" class="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50">
+                                                    {{ __('admin.billing_review.actions.reject_reading') }}
+                                                </button>
+                                                <button type="button" wire:click="correctReading({{ $reading['reading_id'] }})" class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                                                    {{ __('admin.billing_review.actions.correct_reading') }}
+                                                </button>
+                                            @endif
+                                        </div>
+
+                                        @if ($reading['row_type'] === 'submitted' && $reading['reading_id'])
+                                            <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-600">
+                                                <input type="checkbox" wire:model="confirmNegativeConsumption.{{ $reading['reading_id'] }}" class="rounded border-slate-300 text-slate-950">
+                                                {{ __('admin.billing_review.actions.accept_warning') }}
+                                            </label>
+
+                                            <input type="text" wire:model="rejectionComments.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.rejection_comment') }}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+
+                                            <div class="grid gap-2 sm:grid-cols-2">
+                                                <input type="text" wire:model="correctionValues.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.corrected_value') }}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                                <input type="text" wire:model="correctionReasons.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.correction_reason') }}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                            </div>
+
+                                            <div class="flex gap-2">
+                                                <input type="text" wire:model="resubmissionComments.{{ $reading['reading_id'] }}" placeholder="{{ __('admin.billing_review.fields.resubmission_comment') }}" class="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                                <button type="button" wire:click="requestResubmission({{ $reading['invoice_id'] }}, {{ $reading['reading_id'] }})" class="rounded-md border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50">
+                                                    {{ __('admin.billing_review.actions.request_resubmission') }}
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
+                                    {{ __('admin.billing_review.pending_readings.no_rows') }}
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">

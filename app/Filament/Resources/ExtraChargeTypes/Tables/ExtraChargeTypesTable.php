@@ -9,6 +9,7 @@ use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\ExtraChargeType;
 use App\Models\Organization;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -83,6 +84,15 @@ class ExtraChargeTypesTable
                 DeleteAction::make()
                     ->label(__('admin.actions.delete'))
                     ->authorize(fn (ExtraChargeType $record): bool => ExtraChargeTypeResource::canDelete($record)),
+            ])
+            ->emptyStateHeading(__('admin.extra_charge_types.empty_state.heading'))
+            ->emptyStateDescription(__('admin.extra_charge_types.empty_state.description'))
+            ->emptyStateActions([
+                Action::make('createExtraChargeType')
+                    ->label(__('admin.extra_charge_types.empty_state.action'))
+                    ->icon('heroicon-m-plus')
+                    ->button()
+                    ->url(fn (): string => ExtraChargeTypeResource::getUrl('create')),
             ])
             ->defaultSort('name');
     }

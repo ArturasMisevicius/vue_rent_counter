@@ -3,5 +3,6 @@
 return [
     'nav_groups' => [
         'property_management' => 'Propiedad Management',
+        'leads' => 'Leads',
     ],
 ];

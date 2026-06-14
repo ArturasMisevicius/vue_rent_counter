@@ -23,6 +23,11 @@ class PropertyInfolist
                         TextEntry::make('floor_area_sqm')
                             ->label(__('admin.properties.fields.area'))
                             ->state(fn (Property $record): string => $record->areaDisplay()),
+                        TextEntry::make('occupancy_status')
+                            ->label(__('admin.properties.fields.occupancy_status'))
+                            ->state(fn (Property $record): string => $record->occupancyStatusLabel())
+                            ->badge()
+                            ->color(fn (Property $record): string => $record->occupancyStatus()->color()),
                         TextEntry::make('currentAssignment.tenant.name')
                             ->label(__('admin.properties.fields.tenant'))
                             ->state(fn (Property $record): string => $record->currentAssignment?->tenant?->name ?? __('admin.properties.empty.vacant'))
@@ -53,6 +58,10 @@ class PropertyInfolist
                             ->label(__('admin.tenants.fields.status'))
                             ->badge()
                             ->default('—'),
+                        TextEntry::make('currentAssignment.move_out_date')
+                            ->label(__('admin.tenants.fields.move_out_date'))
+                            ->state(fn (Property $record): string => $record->currentAssignment?->move_out_date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—')
+                            ->visible(fn (Property $record): bool => $record->currentAssignment?->move_out_date !== null),
                         TextEntry::make('currentAssignment.assigned_at')
                             ->label(__('admin.properties.fields.date_assigned'))
                             ->state(fn (Property $record): string => $record->currentAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),

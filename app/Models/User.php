@@ -200,7 +200,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $query->with([
             'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,status,is_primary,occupants_count,assigned_at,unassigned_at,move_out_date,billing_start_date,billing_end_date',
-            'currentPropertyAssignment.property:id,organization_id,building_id,name,floor,unit_number,type,floor_area_sqm',
+            'currentPropertyAssignment.activeMoveOutProcess:id,organization_id,tenant_id,property_id,property_assignment_id,status,move_out_date,final_readings_required,final_readings_completed_at,final_invoice_id,portal_access_after_move_out,completed_at',
+            'currentPropertyAssignment.property:id,organization_id,building_id,name,floor,unit_number,type,floor_area_sqm,occupancy_status',
             'currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
         ]);
     }
@@ -290,7 +291,8 @@ class User extends Authenticatable implements FilamentUser
             ])
             ->withCurrentPropertySummary()
             ->withPaidInvoiceSummary()
-            ->withTenantDeletionSummary();
+            ->withTenantDeletionSummary()
+            ->withCount('tenantDocuments');
     }
 
     public function organization(): BelongsTo

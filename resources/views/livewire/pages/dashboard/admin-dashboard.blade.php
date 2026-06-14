@@ -5,6 +5,7 @@
         ['key' => 'configuration_health_cards', 'title' => __('dashboard.attention.sections.configuration_health'), 'icon' => 'heroicon-m-wrench-screwdriver'],
         ['key' => 'contract_cards', 'title' => __('dashboard.attention.sections.contracts'), 'icon' => 'heroicon-m-document-text'],
         ['key' => 'document_cards', 'title' => __('dashboard.attention.sections.documents'), 'icon' => 'heroicon-m-paper-clip'],
+        ['key' => 'move_out_cards', 'title' => __('dashboard.attention.sections.move_outs'), 'icon' => 'heroicon-m-arrow-right-start-on-rectangle'],
         ['key' => 'data_integrity_cards', 'title' => __('dashboard.attention.sections.data_integrity'), 'icon' => 'heroicon-m-shield-exclamation'],
     ];
 @endphp
@@ -33,6 +34,56 @@
             </div>
         </div>
     </section>
+
+    @if ($setupChecklist !== [])
+        @php
+            $completedSetupItems = count(array_filter($setupChecklist, fn ($item) => (bool) ($item['complete'] ?? false)));
+        @endphp
+
+        <section class="space-y-4">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-950">{{ __('help.checklist.heading') }}</h3>
+                    <p class="mt-1 text-sm text-slate-600">{{ __('help.checklist.description') }}</p>
+                </div>
+                <p class="text-sm font-semibold text-slate-700">{{ $completedSetupItems }} / {{ count($setupChecklist) }}</p>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                @forelse ($setupChecklist as $item)
+                    <a
+                        href="{{ $item['url'] }}"
+                        wire:navigate
+                        class="rounded-lg border bg-white p-4 transition hover:bg-slate-50 {{ $item['complete'] ? 'border-emerald-200' : 'border-slate-200' }}"
+                    >
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-slate-950">{{ $item['label'] }}</p>
+                                <p class="mt-2 text-sm leading-5 text-slate-600">{{ $item['description'] }}</p>
+                            </div>
+                            @if ($item['complete'])
+                                <x-heroicon-m-check-circle class="size-5 shrink-0 text-emerald-600" />
+                            @else
+                                <x-heroicon-m-clock class="size-5 shrink-0 text-slate-400" />
+                            @endif
+                        </div>
+                        <div class="mt-4 flex items-center justify-between gap-3">
+                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $item['complete'] ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
+                                {{ $item['status'] }}
+                            </span>
+                            <span class="text-sm font-semibold text-emerald-700">{{ $item['action'] }}</span>
+                        </div>
+                    </a>
+                @empty
+                    <x-shared.empty-state
+                        icon="heroicon-m-list-bullet"
+                        :title="__('help.empty.no_results_heading')"
+                        :description="__('help.empty.no_results_description')"
+                    />
+                @endforelse
+            </div>
+        </section>
+    @endif
 
     @if ($dashboard['top_cards'] !== [])
         <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-6">

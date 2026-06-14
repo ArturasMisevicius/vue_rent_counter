@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Tenant\Portal;
 
+use App\Enums\TenantDocumentStatus;
 use App\Enums\TenantDocumentType;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\TenantDocument;
@@ -61,7 +62,7 @@ class TenantDocumentIndexQuery
         $documents = TenantDocument::query()
             ->select(['id', 'organization_id', 'tenant_id', 'property_id', 'document_type', 'tenant_visible', 'status', 'archived_at'])
             ->tenantVisible()
-            ->whereIn('status', \App\Enums\TenantDocumentStatus::tenantPortalValues())
+            ->whereIn('status', TenantDocumentStatus::tenantPortalValues())
             ->whereNull('archived_at')
             ->forOrganization($workspace->organizationId)
             ->forTenant($workspace->userId)
@@ -79,7 +80,7 @@ class TenantDocumentIndexQuery
 
         foreach (TenantDocumentType::cases() as $type) {
             $counts[$type->value] = $documents
-                ->where('document_type', $type)
+                ->filter(fn (TenantDocument $document): bool => $document->document_type === $type)
                 ->count();
         }
 

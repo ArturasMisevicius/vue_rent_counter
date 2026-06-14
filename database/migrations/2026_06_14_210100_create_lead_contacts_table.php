@@ -20,12 +20,14 @@ return new class extends Migration
             $table->boolean('do_not_contact')->default(false);
             $table->text('do_not_contact_reason')->nullable();
             $table->timestamp('do_not_contact_at')->nullable();
+            $table->timestamp('last_contacted_at')->nullable();
             $table->foreignId('marked_do_not_contact_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
             $table->index(['organization_id', 'normalized_phone']);
             $table->index(['organization_id', 'normalized_email']);
             $table->index(['organization_id', 'do_not_contact']);
+            $table->index(['last_contacted_at']);
             $table->index(['marked_do_not_contact_by_user_id']);
         });
     }

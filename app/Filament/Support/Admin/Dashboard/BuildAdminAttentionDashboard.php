@@ -10,6 +10,7 @@ use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
 use App\Enums\KycVerificationStatus;
 use App\Enums\MeterReadingValidationStatus;
+use App\Enums\MoveOutProcessStatus;
 use App\Enums\PortalAccessStatus;
 use App\Enums\RentalContractStatus;
 use App\Enums\ServiceConfigurationStatus;
@@ -27,6 +28,7 @@ use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\MoveOutProcess;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
@@ -66,6 +68,7 @@ final class BuildAdminAttentionDashboard
         $configurationCounts = $this->configurationCounts($organizationId);
         $contractCounts = $this->contractCounts($organizationId);
         $documentCounts = $this->documentCounts($organizationId);
+        $moveOutCounts = $this->moveOutCounts($organizationId, $period);
         $dataIntegrityCounts = $this->dataIntegrityCounts($organizationId, $period);
         $counts = [
             ...$billingCounts,
@@ -74,6 +77,7 @@ final class BuildAdminAttentionDashboard
             ...$configurationCounts,
             ...$contractCounts,
             ...$documentCounts,
+            ...$moveOutCounts,
             ...$dataIntegrityCounts,
         ];
 
@@ -85,6 +89,7 @@ final class BuildAdminAttentionDashboard
             $configurationCounts,
             $contractCounts,
             $documentCounts,
+            $moveOutCounts,
             $dataIntegrityCounts,
             $visibility,
         );
@@ -102,6 +107,7 @@ final class BuildAdminAttentionDashboard
             configurationHealthCards: $visibility['configuration_health'] ? $this->configurationHealthCards($configurationCounts) : [],
             contractCards: $visibility['contracts'] ? $this->contractCards($contractCounts) : [],
             documentCards: $visibility['documents'] ? $this->documentCards($documentCounts) : [],
+            moveOutCards: $visibility['move_outs'] ? $this->moveOutCards($moveOutCounts) : [],
             dataIntegrityCards: $visibility['data_integrity'] ? $this->dataIntegrityCards($dataIntegrityCounts) : [],
             needsActionItems: $needsActionItems,
             billingProgressSteps: $this->billingProgressSteps($billingCounts),
@@ -174,6 +180,7 @@ final class BuildAdminAttentionDashboard
                 'configuration' => true,
                 'contracts' => true,
                 'documents' => true,
+                'move_outs' => true,
                 'data_integrity' => true,
                 'subscription' => true,
             ];
@@ -189,6 +196,7 @@ final class BuildAdminAttentionDashboard
                 'configuration' => false,
                 'contracts' => false,
                 'documents' => false,
+                'move_outs' => false,
                 'data_integrity' => false,
                 'subscription' => false,
             ];
@@ -208,6 +216,7 @@ final class BuildAdminAttentionDashboard
                 'configuration' => false,
                 'contracts' => false,
                 'documents' => false,
+                'move_outs' => false,
                 'data_integrity' => false,
                 'subscription' => false,
             ];
@@ -229,6 +238,7 @@ final class BuildAdminAttentionDashboard
             'configuration' => $configuration,
             'contracts' => $contracts,
             'documents' => $tenants || $contracts,
+            'move_outs' => $tenants || $billing || $contracts,
             'data_integrity' => $billing || $readings || $configuration,
             'subscription' => false,
         ];
@@ -542,6 +552,46 @@ final class BuildAdminAttentionDashboard
         ];
     }
 
+    /**
+     * @return array<string, int>
+     */
+    private function moveOutCounts(int $organizationId, ?BillingPeriod $period): array
+    {
+        $periodStart = $this->periodStart($period);
+        $periodEnd = $this->periodEnd($period);
+
+        $openProcesses = MoveOutProcess::query()
+            ->select(['id', 'organization_id', 'status', 'move_out_date', 'final_readings_required', 'final_readings_completed_at', 'final_invoice_id'])
+            ->forOrganization($organizationId)
+            ->open();
+
+        return [
+            'move_outs_scheduled_this_month' => (clone $openProcesses)
+                ->whereDate('move_out_date', '>=', $periodStart->toDateString())
+                ->whereDate('move_out_date', '<=', $periodEnd->toDateString())
+                ->count(),
+            'final_readings_pending' => (clone $openProcesses)
+                ->where('final_readings_required', true)
+                ->whereNull('final_readings_completed_at')
+                ->count(),
+            'final_invoices_pending' => (clone $openProcesses)
+                ->whereNull('final_invoice_id')
+                ->count(),
+            'properties_becoming_vacant' => (clone $openProcesses)
+                ->whereDate('move_out_date', '>=', today()->toDateString())
+                ->whereDate('move_out_date', '<=', today()->addDays(30)->toDateString())
+                ->count(),
+            'moved_out_tenants_with_unpaid_balance' => User::query()
+                ->select(['id', 'organization_id', 'role', 'tenant_status'])
+                ->forOrganization($organizationId)
+                ->tenants()
+                ->where('tenant_status', TenantStatus::MOVED_OUT)
+                ->whereHas('tenantInvoices', fn (Builder $query): Builder => $query
+                    ->whereNotIn('status', [InvoiceStatus::PAID, InvoiceStatus::VOID]))
+                ->count(),
+        ];
+    }
+
     private function duplicateReadingCount(int $organizationId, CarbonImmutable $periodStart, CarbonImmutable $periodEnd): int
     {
         return MeterReading::query()
@@ -794,6 +844,20 @@ final class BuildAdminAttentionDashboard
     /**
      * @return list<array<string, mixed>>
      */
+    private function moveOutCards(array $counts): array
+    {
+        return [
+            $this->card('move_outs_scheduled_this_month', __('dashboard.attention.cards.move_outs_scheduled_this_month'), $counts['move_outs_scheduled_this_month'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'move_outs_scheduled']), 'warning', __('dashboard.attention.actions.open_move_outs')),
+            $this->card('final_readings_pending', __('dashboard.attention.cards.final_readings_pending'), $counts['final_readings_pending'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'final_readings_pending']), 'danger', __('dashboard.attention.actions.record_readings')),
+            $this->card('final_invoices_pending', __('dashboard.attention.cards.final_invoices_pending'), $counts['final_invoices_pending'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'final_invoices_pending']), 'warning', __('dashboard.attention.actions.generate_final_invoice')),
+            $this->card('properties_becoming_vacant', __('dashboard.attention.cards.properties_becoming_vacant'), $counts['properties_becoming_vacant'], $this->resourceUrl('filament.admin.resources.properties.index', ['attention' => 'becoming_vacant']), 'info', __('dashboard.attention.actions.open_properties')),
+            $this->card('moved_out_tenants_with_unpaid_balance', __('dashboard.attention.cards.moved_out_tenants_with_unpaid_balance'), $counts['moved_out_tenants_with_unpaid_balance'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'moved_out_unpaid_balance']), 'danger', __('dashboard.attention.actions.review_balance')),
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function dataIntegrityCards(array $counts): array
     {
         return [
@@ -819,6 +883,7 @@ final class BuildAdminAttentionDashboard
         array $configurationCounts,
         array $contractCounts,
         array $documentCounts,
+        array $moveOutCounts,
         array $dataIntegrityCounts,
         array $visibility,
     ): array {
@@ -830,10 +895,14 @@ final class BuildAdminAttentionDashboard
             $visibility['billing'] ? $this->priorityItem('overdue_invoices', 'high', __('dashboard.attention.needs_action.overdue_invoices', ['count' => $billingCounts['invoices_overdue']]), $billingCounts['invoices_overdue'], $this->resourceUrl('filament.admin.resources.invoices.index', ['status' => InvoiceStatus::OVERDUE->value]), __('dashboard.attention.actions.view_overdue')) : null,
             $visibility['billing'] ? $this->priorityItem('submitted_readings', 'high', __('dashboard.attention.needs_action.submitted_readings', ['count' => $readingCounts['submitted_readings']]), $readingCounts['submitted_readings'], $this->resourceUrl('filament.admin.resources.meter-readings.index', ['validation_status' => MeterReadingValidationStatus::PENDING->value]), __('dashboard.attention.actions.review')) : null,
             $visibility['contracts'] ? $this->priorityItem('expired_contracts', 'high', __('dashboard.attention.needs_action.expired_contracts', ['count' => $contractCounts['contracts_expired']]), $contractCounts['contracts_expired'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'contracts_expired']), __('dashboard.attention.actions.renew_or_terminate')) : null,
+            $visibility['move_outs'] ? $this->priorityItem('final_readings_pending', 'high', __('dashboard.attention.needs_action.final_readings_pending', ['count' => $moveOutCounts['final_readings_pending']]), $moveOutCounts['final_readings_pending'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'final_readings_pending']), __('dashboard.attention.actions.record_readings')) : null,
+            $visibility['move_outs'] ? $this->priorityItem('moved_out_unpaid_balance', 'high', __('dashboard.attention.needs_action.moved_out_unpaid_balance', ['count' => $moveOutCounts['moved_out_tenants_with_unpaid_balance']]), $moveOutCounts['moved_out_tenants_with_unpaid_balance'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'moved_out_unpaid_balance']), __('dashboard.attention.actions.review_balance')) : null,
             $visibility['tenant_onboarding'] ? $this->priorityItem('expired_invitations', 'high', __('dashboard.attention.needs_action.expired_invitations', ['count' => $tenantCounts['tenants_invitation_expired']]), $tenantCounts['tenants_invitation_expired'], $this->resourceUrl('filament.admin.resources.tenants.index', ['portal_status' => PortalAccessStatus::INVITATION_EXPIRED->value]), __('dashboard.attention.actions.resend')) : null,
             $visibility['tenant_onboarding'] ? $this->priorityItem('properties_without_tenant', 'medium', __('dashboard.attention.needs_action.properties_without_tenant', ['count' => $tenantCounts['properties_without_tenant']]), $tenantCounts['properties_without_tenant'], $this->resourceUrl('filament.admin.resources.tenants.create'), __('dashboard.attention.actions.create_tenant')) : null,
             $visibility['tenant_onboarding'] ? $this->priorityItem('tenants_not_invited', 'medium', __('dashboard.attention.needs_action.tenants_not_invited', ['count' => $tenantCounts['tenants_not_invited']]), $tenantCounts['tenants_not_invited'], $this->resourceUrl('filament.admin.resources.tenants.index', ['portal_status' => PortalAccessStatus::NOT_INVITED->value]), __('dashboard.attention.actions.send_invitations')) : null,
             $visibility['contracts'] ? $this->priorityItem('contracts_expiring', 'medium', __('dashboard.attention.needs_action.contracts_expiring', ['count' => $contractCounts['contracts_expiring_30_days']]), $contractCounts['contracts_expiring_30_days'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'contracts_expiring_30']), __('dashboard.attention.actions.open_contracts')) : null,
+            $visibility['move_outs'] ? $this->priorityItem('move_outs_scheduled', 'medium', __('dashboard.attention.needs_action.move_outs_scheduled', ['count' => $moveOutCounts['move_outs_scheduled_this_month']]), $moveOutCounts['move_outs_scheduled_this_month'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'move_outs_scheduled']), __('dashboard.attention.actions.open_move_outs')) : null,
+            $visibility['move_outs'] ? $this->priorityItem('final_invoices_pending', 'medium', __('dashboard.attention.needs_action.final_invoices_pending', ['count' => $moveOutCounts['final_invoices_pending']]), $moveOutCounts['final_invoices_pending'], $this->resourceUrl('filament.admin.resources.tenants.index', ['attention' => 'final_invoices_pending']), __('dashboard.attention.actions.generate_final_invoice')) : null,
             $visibility['billing'] ? $this->priorityItem('missing_readings', 'medium', __('dashboard.attention.needs_action.missing_readings', ['count' => $readingCounts['missing_readings']]), $readingCounts['missing_readings'], $this->billingReviewUrl('waiting_for_readings'), __('dashboard.attention.actions.send_reminders')) : null,
             $visibility['documents'] ? $this->priorityItem('kyc_pending_review', 'medium', __('dashboard.attention.needs_action.kyc_pending_review', ['count' => $documentCounts['kyc_pending_review']]), $documentCounts['kyc_pending_review'], $this->resourceUrl('filament.admin.resources.user-kyc-profiles.index', ['verification_status' => KycVerificationStatus::PENDING->value]), __('dashboard.attention.actions.review_kyc')) : null,
             $this->priorityItem('unread_notifications', 'low', __('dashboard.attention.needs_action.unread_notifications', ['count' => $unreadNotificationsCount]), $unreadNotificationsCount, $this->resourceUrl('filament.admin.pages.notifications'), __('dashboard.attention.actions.view')),

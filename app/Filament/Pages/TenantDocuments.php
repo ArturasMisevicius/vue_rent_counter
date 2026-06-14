@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Filament\Actions\Help\ContextualHelpAction;
 use BackedEnum;
 use Filament\Support\Icons\Heroicon;
 
@@ -20,5 +21,12 @@ class TenantDocuments extends TenantPortalPage
     public static function getNavigationLabel(): string
     {
         return __('tenant.navigation.documents');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ContextualHelpAction::make('tenant.documents'),
+        ];
     }
 }

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Enums\BillingReadinessStatus;
 use App\Enums\PropertyAssignmentStatus;
+use App\Enums\TenantStatus;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Tenants\CheckTenantBillingReadiness;
 use App\Filament\Support\Tenants\TenantBillingReadinessResult;
@@ -80,6 +81,13 @@ class TenantForm
                                 ->label(__('admin.tenants.fields.preferred_language'))
                                 ->options(config('tenanto.locales', []))
                                 ->default(app()->getLocale())
+                                ->required()
+                                ->live()
+                                ->afterStateUpdated(fn (mixed $state, Set $set): mixed => $set('portal_locale', $state)),
+                            Select::make('tenant_status')
+                                ->label(__('admin.tenants.fields.tenant_status'))
+                                ->options(self::tenantStatusOptions())
+                                ->default(TenantStatus::DRAFT->value)
                                 ->required(),
                             Textarea::make('internal_note')
                                 ->label(__('admin.tenants.fields.internal_note'))
@@ -186,6 +194,11 @@ class TenantForm
                                 ->default(7)
                                 ->required()
                                 ->visible(fn (Get $get): bool => (bool) $get('create_portal_access') && (bool) $get('send_invitation_now')),
+                            Select::make('portal_locale')
+                                ->label(__('admin.tenants.fields.preferred_portal_language'))
+                                ->options(config('tenanto.locales', []))
+                                ->default(fn (Get $get): mixed => $get('locale') ?: app()->getLocale())
+                                ->required(),
                         ])
                         ->columns(3),
                 ]),
@@ -553,8 +566,10 @@ class TenantForm
         $rows = [
             __('admin.tenants.wizard.review.tenant', ['tenant' => $name !== '' ? $name : '—']),
             __('admin.tenants.wizard.review.email', ['email' => (string) ($get('email') ?: '—')]),
+            __('admin.tenants.wizard.review.status', ['status' => self::tenantStatusLabel($get('tenant_status'))]),
             __('admin.tenants.wizard.review.property', ['property' => $property?->tenantAssignmentLabel() ?? __('admin.tenants.empty.unassigned')]),
             __('admin.tenants.wizard.review.move_in_date', ['date' => (string) ($get('move_in_date') ?: '—')]),
+            __('admin.tenants.wizard.review.portal_language', ['language' => self::localeLabel($get('portal_locale') ?: $get('locale'))]),
             __('admin.tenants.wizard.review.portal_invitation', ['status' => $invitation]),
             __('admin.tenants.wizard.review.billing_readiness', ['status' => (string) $readiness->status->getLabel()]),
         ];
@@ -598,5 +613,39 @@ class TenantForm
             property: $property,
             tenantHasPortalAccess: (bool) $get('create_portal_access') && (bool) $get('send_invitation_now'),
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function tenantStatusOptions(): array
+    {
+        return collect(TenantStatus::options())
+            ->only([
+                TenantStatus::DRAFT->value,
+                TenantStatus::ACTIVE->value,
+                TenantStatus::INACTIVE->value,
+                TenantStatus::MOVED_OUT->value,
+                TenantStatus::ARCHIVED->value,
+            ])
+            ->all();
+    }
+
+    private static function tenantStatusLabel(mixed $status): string
+    {
+        if (! is_string($status) || $status === '') {
+            return '—';
+        }
+
+        return TenantStatus::tryFrom($status)?->getLabel() ?? $status;
+    }
+
+    private static function localeLabel(mixed $locale): string
+    {
+        if (! is_string($locale) || $locale === '') {
+            return '—';
+        }
+
+        return (string) (config('tenanto.locales')[$locale] ?? $locale);
     }
 }
