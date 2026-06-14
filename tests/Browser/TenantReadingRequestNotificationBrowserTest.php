@@ -15,7 +15,7 @@ beforeEach(function (): void {
         ->timeout(15_000);
 });
 
-it('lets tenants open reading request notifications from the browser', function (): void {
+it('lets tenants open current invoice reading requests from the browser', function (): void {
     $workspace = createOrgWithAdmin();
     $workspace['admin']->forceFill([
         'onboarding_tour_completed_at' => now(),
@@ -26,7 +26,7 @@ it('lets tenants open reading request notifications from the browser', function 
         'onboarding_tour_completed_at' => now(),
     ])->save();
 
-    Meter::factory()
+    $meter = Meter::factory()
         ->for($workspace['organization'])
         ->for($tenantWorkspace['property'])
         ->create([
@@ -40,25 +40,29 @@ it('lets tenants open reading request notifications from the browser', function 
         'due_date' => now()->subMonthNoOverflow()->endOfMonth()->addDays(14)->toDateString(),
     ], $workspace['admin']);
 
-    $readingPath = route('filament.admin.pages.tenant-submit-meter-reading', [], false);
+    $this->actingAs($tenantWorkspace['tenant']);
 
     visit(route('tenant.home', [], false))
-        ->assertPathIs('/login')
-        ->type('#email', $tenantWorkspace['tenant']->email)
-        ->type('#password', 'password')
-        ->press(__('auth.login_button'))
-        ->wait()
+        ->assertPathIs('/tenant')
         ->assertSee($tenantWorkspace['tenant']->name)
-        ->click('[data-shell-notifications-slot="desktop"] [data-shell-notifications="center"] > button')
-        ->assertSee(__('admin.invoices.reading_request.database_title'))
-        ->press(__('admin.invoices.reading_request.database_title'))
+        ->assertSee(__('tenant.pages.home.current_invoice'))
+        ->assertSee(__('tenant.actions.submit_readings'))
+        ->click('[data-tenant-current-invoice="true"]')
         ->wait()
-        ->assertPathIs($readingPath)
+        ->assertPathIs(route('filament.admin.pages.tenant-submit-meter-reading', [], false))
         ->assertSee(__('tenant.pages.readings.title'))
         ->assertSee(__('tenant.pages.readings.invoice_request_heading', [
             'number' => 'INV-',
         ]))
         ->assertSee('MTR-BROWSER-READING')
+        ->assertSee(__('tenant.pages.readings.previous_reading_column'))
+        ->assertSee(__('tenant.pages.readings.current_reading_column'))
+        ->assertSee(__('tenant.pages.readings.consumption_column'))
+        ->type("#reading_{$meter->id}_value", '125.000')
+        ->press(__('tenant.pages.readings.submit_all'))
+        ->wait()
+        ->assertSee(__('tenant.pages.readings.submitted_review_status'))
+        ->assertSee('125.000')
         ->assertNoJavaScriptErrors();
 });
 
@@ -85,13 +89,10 @@ it('lets tenants open finalized invoice notifications from the browser', functio
     $tenantWorkspace['tenant']->notify(new InvoiceReadyForTenantNotification($invoice));
 
     $invoiceHistoryPath = route('filament.admin.pages.tenant-invoice-history', [], false);
+    $this->actingAs($tenantWorkspace['tenant']);
 
     visit(route('tenant.home', [], false))
-        ->assertPathIs('/login')
-        ->type('#email', $tenantWorkspace['tenant']->email)
-        ->type('#password', 'password')
-        ->press(__('auth.login_button'))
-        ->wait()
+        ->assertPathIs('/tenant')
         ->assertSee($tenantWorkspace['tenant']->name)
         ->click('[data-shell-notifications-slot="desktop"] [data-shell-notifications="center"] > button')
         ->assertSee(__('admin.invoices.invoice_ready.database_title'))

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
@@ -105,6 +106,35 @@ it('shows the my property link on the tenant home screen', function () {
         ->assertSuccessful()
         ->assertSeeText('My Property')
         ->assertSee(route('filament.admin.pages.tenant-property-details'), false);
+});
+
+it('links the tenant home reading action to the current invoice request', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $invoice = Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'invoice_number' => 'REQ-HOME-001',
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => '2026-05-01',
+            'billing_period_end' => '2026-05-31',
+            'due_date' => '2026-06-14',
+            'automation_level' => 'reading_request',
+            'approval_status' => 'waiting_for_readings',
+        ]);
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSeeText('Current Invoice')
+        ->assertSeeText('Submit Readings')
+        ->assertSeeText('REQ-HOME-001')
+        ->assertSee(route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => $invoice->id]), false);
 });
 
 it('links tenant home sidebar cards to the detailed tenant pages', function () {

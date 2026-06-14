@@ -15,6 +15,8 @@ use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\TariffType;
+use App\Enums\TenantDocumentStatus;
+use App\Enums\TenantDocumentType;
 use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
 use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
@@ -42,6 +44,8 @@ use App\Http\Requests\Admin\Settings\RenewSubscriptionRequest;
 use App\Http\Requests\Admin\Settings\UpdateNotificationPreferencesRequest;
 use App\Http\Requests\Admin\Settings\UpdateOrganizationSettingsRequest;
 use App\Http\Requests\Admin\Tariffs\TariffRequest;
+use App\Http\Requests\Admin\TenantDocuments\RejectTenantDocumentRequest;
+use App\Http\Requests\Admin\TenantDocuments\TenantDocumentRequest;
 use App\Http\Requests\Admin\Tenants\ReassignTenantRequest;
 use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
 use App\Http\Requests\Admin\Tenants\UpdateTenantRequest;
@@ -73,6 +77,7 @@ use App\Http\Requests\Superadmin\Users\UpdateOrganizationRosterUserRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Http\Requests\Tenant\PropertyHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
+use App\Http\Requests\Tenant\TenantDocumentFilterRequest;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -277,6 +282,20 @@ final class FormRequestScenarioFactory
                 ],
                 'required' => [],
                 'authorize' => self::tenantOnly(),
+            ],
+            'TenantDocumentFilterRequest' => [
+                'request' => static fn (array $context): FormRequest => new TenantDocumentFilterRequest,
+                'valid' => static fn (array $context): array => [
+                    'selectedCategory' => TenantDocumentType::INVOICE_PDF->value,
+                ],
+                'required' => [],
+                'authorize' => self::tenantOnly(),
+                'invalid' => [
+                    'unknown category' => static fn (array $valid, array $context): array => [
+                        'field' => 'selectedCategory',
+                        'input' => self::withField($valid, 'selectedCategory', 'not-a-category'),
+                    ],
+                ],
             ],
             'PropertyHistoryFilterRequest' => [
                 'request' => static fn (array $context): FormRequest => new PropertyHistoryFilterRequest,
@@ -608,6 +627,44 @@ final class FormRequestScenarioFactory
                 'request' => static fn (array $context): FormRequest => new RejectKycProfileRequest,
                 'valid' => static fn (array $context): array => [
                     'rejection_reason' => 'The submitted KYC documents need clearer scans.',
+                ],
+                'required' => ['rejection_reason'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'TenantDocumentRequest' => [
+                'request' => static fn (array $context): FormRequest => (new TenantDocumentRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'tenant_id' => $context['tenant']->id,
+                    'property_id' => $context['property']->id,
+                    'related_type' => null,
+                    'related_id' => null,
+                    'document_type' => TenantDocumentType::KYC_IDENTITY->value,
+                    'title' => 'Identity document',
+                    'description_for_tenant' => 'Identity document uploaded for review.',
+                    'internal_note' => 'Back office note.',
+                    'status' => TenantDocumentStatus::PENDING_REVIEW->value,
+                    'tenant_visible' => true,
+                    'expires_at' => now()->addYear()->toDateString(),
+                ],
+                'required' => ['tenant_id', 'document_type', 'title', 'description_for_tenant', 'status', 'tenant_visible'],
+                'authorize' => self::adminLikeAndTenantOnly(),
+                'invalid' => [
+                    'foreign tenant' => static fn (array $valid, array $context): array => [
+                        'field' => 'tenant_id',
+                        'input' => self::withField($valid, 'tenant_id', User::factory()->tenant()->create([
+                            'organization_id' => $context['otherOrganization']->id,
+                        ])->id),
+                    ],
+                    'unknown status' => static fn (array $valid, array $context): array => [
+                        'field' => 'status',
+                        'input' => self::withField($valid, 'status', 'unknown'),
+                    ],
+                ],
+            ],
+            'RejectTenantDocumentRequest' => [
+                'request' => static fn (array $context): FormRequest => new RejectTenantDocumentRequest,
+                'valid' => static fn (array $context): array => [
+                    'rejection_reason' => 'The uploaded document needs a clearer photo.',
                 ],
                 'required' => ['rejection_reason'],
                 'authorize' => self::adminLikeOnly(),

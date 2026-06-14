@@ -134,7 +134,7 @@ final class InvoiceCalculationRows
             'currency' => $item->currency ?: $invoiceCurrency,
             'formula_label' => $item->formula_label,
             'calculation_snapshot' => $item->calculation_snapshot,
-            'tenant_visible' => $item->tenant_visible,
+            'tenant_visible' => $item->tenant_visible ?? true,
             'sort_order' => $item->sort_order,
             'is_adjustment' => false,
             'meter_reading_snapshot' => $item->meter_reading_snapshot,
@@ -152,8 +152,8 @@ final class InvoiceCalculationRows
         $sourceType = InvoiceItemSourceType::tryFrom((string) ($row['source_type'] ?? ''));
         $description = (string) ($row['description'] ?? $row['description_for_tenant'] ?? $row['title'] ?? '');
         $tenantDescription = (string) ($row['description_for_tenant'] ?? $description);
-        $total = (string) ($row['total'] ?? $row['amount'] ?? '0');
-        $unitPrice = (string) ($row['unit_price'] ?? $row['rate'] ?? $row['amount'] ?? $total);
+        $total = $this->numericValue($row, 'total', $row['amount'] ?? '0');
+        $unitPrice = $this->numericValue($row, 'unit_price', $row['rate'] ?? $row['amount'] ?? $total);
         $calculationSnapshot = is_array($row['calculation_snapshot'] ?? null)
             ? $row['calculation_snapshot']
             : [];
@@ -176,7 +176,7 @@ final class InvoiceCalculationRows
             'quantity' => (string) ($row['quantity'] ?? '1'),
             'unit' => (string) ($row['unit'] ?? ''),
             'unit_price' => $unitPrice,
-            'subtotal' => (string) ($row['subtotal'] ?? $total),
+            'subtotal' => $this->numericValue($row, 'subtotal', $total),
             'tax_amount' => (string) ($row['tax_amount'] ?? '0'),
             'discount_amount' => (string) ($row['discount_amount'] ?? '0'),
             'total' => $total,
@@ -197,5 +197,21 @@ final class InvoiceCalculationRows
                 ? $row['provider_snapshot']
                 : data_get($calculationSnapshot, 'provider_snapshot'),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function numericValue(array $row, string $key, mixed $fallback): string
+    {
+        if (! array_key_exists($key, $row)) {
+            return (string) $fallback;
+        }
+
+        if ($row[$key] === null || $row[$key] === '') {
+            return '';
+        }
+
+        return (string) $row[$key];
     }
 }

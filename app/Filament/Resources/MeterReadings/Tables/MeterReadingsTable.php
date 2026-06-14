@@ -26,6 +26,7 @@ class MeterReadingsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -134,6 +135,63 @@ class MeterReadingsTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $validationStatus = request()->query('validation_status');
+
+        if (is_string($validationStatus) && $validationStatus !== '') {
+            $query->forValidationStatusValue($validationStatus);
+        }
+
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'orphan_readings' => $query->where(function (Builder $orphanQuery): void {
+                $orphanQuery
+                    ->whereNull('meter_id')
+                    ->orWhereNull('property_id');
+            }),
+            'duplicate_readings' => $query->whereIn('id', self::duplicateReadingIdsForCurrentWorkspace()),
+            default => $query,
+        };
+    }
+
+    /**
+     * @return list<int>
+     */
+    private static function duplicateReadingIdsForCurrentWorkspace(): array
+    {
+        $user = self::currentUser();
+
+        return MeterReading::query()
+            ->select(['id', 'organization_id', 'meter_id', 'reading_date', 'validation_status'])
+            ->when(
+                ! ($user?->isSuperadmin() ?? false),
+                fn (Builder $query): Builder => $user?->organization_id === null
+                    ? $query->whereKey(-1)
+                    : $query->forOrganization((int) $user->organization_id),
+            )
+            ->whereIn('validation_status', [
+                MeterReadingValidationStatus::PENDING,
+                MeterReadingValidationStatus::VALID,
+                MeterReadingValidationStatus::FLAGGED,
+            ])
+            ->get()
+            ->groupBy(fn (MeterReading $reading): string => implode(':', [
+                $reading->meter_id,
+                $reading->reading_date?->toDateString(),
+            ]))
+            ->filter(fn ($group): bool => $group->count() > 1)
+            ->flatMap(fn ($group) => $group->pluck('id'))
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
     }
 
     private static function formatDecimal(float $value, int $precision): string

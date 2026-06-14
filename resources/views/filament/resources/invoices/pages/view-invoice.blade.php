@@ -228,8 +228,20 @@
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 not-first:mt-3">
                         <div class="flex items-start justify-between gap-4">
                             <div class="space-y-1">
-                                <p class="font-medium text-slate-900">{{ $payment['date'] }}</p>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-medium text-slate-900">{{ $payment['date'] }}</p>
+                                    <x-filament::badge :color="$payment['status_color'] ?? 'gray'">
+                                        {{ $payment['status'] }}
+                                    </x-filament::badge>
+                                </div>
+                                <p class="text-sm text-slate-500">{{ __('admin.payments.columns.method') }}: {{ $payment['method'] }}</p>
                                 <p class="text-sm text-slate-500">{{ __('admin.invoices.fields.payment_reference') }}: {{ $payment['reference'] }}</p>
+                                @if (filled($payment['rejection_reason'] ?? null))
+                                    <p class="text-sm text-red-700">{{ $payment['rejection_reason'] }}</p>
+                                @endif
+                                @if (filled($payment['void_reason'] ?? null))
+                                    <p class="text-sm text-amber-700">{{ $payment['void_reason'] }}</p>
+                                @endif
                             </div>
                             <p class="font-semibold text-slate-950">{{ $payment['amount'] }}</p>
                         </div>

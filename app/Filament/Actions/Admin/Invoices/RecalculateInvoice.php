@@ -47,6 +47,7 @@ final class RecalculateInvoice
             'tenant_user_id' => $invoice->tenant_user_id,
             'billing_period_start' => $invoice->billing_period_start->toDateString(),
             'billing_period_end' => $invoice->billing_period_end->toDateString(),
+            'ignore_invoice_id' => $invoice->id,
         ]);
 
         $updatedInvoice = $this->invoiceService->updateDraft($invoice, [

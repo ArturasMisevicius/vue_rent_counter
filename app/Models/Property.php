@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\PropertyType;
@@ -85,7 +87,7 @@ class Property extends Model
     public function scopeWithCurrentAssignmentSummary(Builder $query): Builder
     {
         return $query->with([
-            'currentAssignment:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
+            'currentAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,status,is_primary,occupants_count,assigned_at,unassigned_at,move_out_date,billing_start_date,billing_end_date',
             'currentAssignment.tenant:id,name',
         ]);
     }
@@ -93,7 +95,7 @@ class Property extends Model
     public function scopeWithAssignmentHistory(Builder $query): Builder
     {
         return $query->with([
-            'assignments:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
+            'assignments:id,organization_id,property_id,tenant_user_id,unit_area_sqm,status,is_primary,occupants_count,assigned_at,unassigned_at,move_out_date,billing_start_date,billing_end_date',
             'assignments.tenant:id,name',
         ]);
     }
@@ -217,6 +219,11 @@ class Property extends Model
     public function rentalContracts(): HasMany
     {
         return $this->hasMany(RentalContract::class);
+    }
+
+    public function moveOutProcesses(): HasMany
+    {
+        return $this->hasMany(MoveOutProcess::class);
     }
 
     public function getCurrentTenantAttribute(): ?User

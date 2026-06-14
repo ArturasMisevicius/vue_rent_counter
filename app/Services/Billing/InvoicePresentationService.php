@@ -66,7 +66,8 @@ final class InvoicePresentationService
             'tenant:id,organization_id,name,email',
             'property:id,organization_id,building_id,name,unit_number',
             'property.building:id,organization_id,name',
-            'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+            'payments:id,invoice_id,organization_id,tenant_id,property_id,amount,currency,method,payment_method,status,payment_date,reference,transaction_id,paid_at,confirmed_at,rejected_at,rejection_reason,voided_at,void_reason,tenant_comment,created_at',
+            'payments.attachments:id,organization_id,attachable_type,attachable_id,uploaded_by_user_id,filename,original_filename,mime_type,size,disk,path,document_type,tenant_visible,created_at',
             'invoiceItems:id,invoice_id,source_type,source_id,title,description,description_for_tenant,quantity,unit,unit_price,subtotal,tax_amount,discount_amount,total,currency,formula_label,calculation_snapshot,tenant_visible,sort_order,meter_reading_snapshot,service_snapshot,tariff_snapshot,provider_snapshot',
         ]);
 
@@ -108,11 +109,22 @@ final class InvoicePresentationService
             'items' => $items,
             'payments' => $invoice->payments
                 ->map(fn (InvoicePayment $payment): array => [
-                    'method_label' => (string) ($payment->method?->label() ?? __('dashboard.not_available')),
-                    'paid_at_display' => LocalizedDateFormatter::dateTime($payment->paid_at),
+                    'method_label' => $payment->methodLabel(),
+                    'status' => $payment->status?->value ?? '',
+                    'status_label' => $payment->statusLabel(),
+                    'paid_at_display' => LocalizedDateFormatter::dateTime($payment->paid_at ?? $payment->created_at),
+                    'payment_date_display' => LocalizedDateFormatter::date($payment->payment_date),
                     'amount_display' => EuMoneyFormatter::format($this->calculator->money($payment->amount ?? '0'), $currency),
                     'reference' => (string) ($payment->reference ?? ''),
-                    'notes' => (string) ($payment->notes ?? ''),
+                    'rejection_reason' => (string) ($payment->rejection_reason ?? ''),
+                    'attachments' => $payment->attachments
+                        ->filter(fn ($attachment): bool => (bool) $attachment->tenant_visible)
+                        ->map(fn ($attachment): array => [
+                            'name' => (string) ($attachment->original_filename ?: $attachment->filename),
+                            'url' => route('tenant.attachments.show', ['attachment' => $attachment]),
+                        ])
+                        ->values()
+                        ->all(),
                 ])
                 ->all(),
         ];

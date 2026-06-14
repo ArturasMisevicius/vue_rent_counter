@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -68,6 +69,14 @@ class ViewProperty extends ViewRecord
             ...(
                 PropertyResource::canEdit($this->record)
                     ? [
+                        Action::make('createTenantForProperty')
+                            ->label(__('admin.properties.actions.create_tenant_for_property'))
+                            ->icon('heroicon-m-user-plus')
+                            ->url(fn (): string => TenantResource::getUrl('create', [
+                                'property_id' => $this->record->id,
+                            ]))
+                            ->visible(fn (): bool => $this->record->currentAssignment === null && TenantResource::canCreate())
+                            ->button(),
                         Action::make('assignTenant')
                             ->label($this->record->currentAssignment === null
                                 ? __('admin.properties.actions.assign_tenant')

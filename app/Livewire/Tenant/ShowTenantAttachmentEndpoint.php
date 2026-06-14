@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\Tenant;
 
+use App\Actions\Billing\SubmitTenantPaymentProof;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Attachment;
 use App\Models\ExtraCharge;
+use App\Models\InvoicePayment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -47,6 +49,21 @@ final class ShowTenantAttachmentEndpoint extends Component
             return $user->isSuperadmin()
                 || ($user->isAdminLike() && $user->organization_id === $attachment->organization_id)
                 || $attachable->id === $user->id;
+        }
+
+        if ($attachment->document_type === SubmitTenantPaymentProof::DOCUMENT_TYPE) {
+            if (! $attachable instanceof InvoicePayment) {
+                abort(404);
+            }
+
+            if ($user->isSuperadmin() || ($user->isAdminLike() && $user->organization_id === $attachment->organization_id)) {
+                return true;
+            }
+
+            return $user->isTenant()
+                && $attachment->tenant_visible
+                && $attachable->tenant_id === $user->id
+                && $attachable->organization_id === $user->organization_id;
         }
 
         if (! $attachable instanceof ExtraCharge) {

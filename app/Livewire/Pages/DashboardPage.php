@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Pages;
 
 use App\Enums\UserRole;
-use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
+use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
+use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Superadmin\Dashboard\PlatformDashboardData;
 use App\Filament\Support\Tenant\Portal\TenantHomePresenter;
 use App\Livewire\Pages\Dashboard\AdminDashboard;
@@ -55,9 +56,19 @@ final class DashboardPage extends Component
     #[Computed]
     public function buildAdminData(): array
     {
+        $organizationId = $this->user()->organization_id;
+
         return [
             'role' => $this->user()->role->value,
-            'data' => app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10),
+            'data' => $organizationId === null
+                ? []
+                : app(DashboardCacheService::class)->remember(
+                    $this->user(),
+                    'admin-attention-dashboard',
+                    fn (): array => app(BuildAdminAttentionDashboard::class)
+                        ->handle($organizationId, $this->user()->id)
+                        ->toArray(),
+                ),
         ];
     }
 

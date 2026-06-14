@@ -17,6 +17,8 @@ use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
 use App\Livewire\Tenant\DownloadInvoiceEndpoint;
+use App\Livewire\Tenant\DownloadTenantDocumentEndpoint;
+use App\Livewire\Tenant\Documents;
 use App\Livewire\Tenant\InvoiceHistory;
 use App\Livewire\Tenant\ShowTenantAttachmentEndpoint;
 use App\Livewire\Tenant\SubmitMeterReading;
@@ -125,6 +127,16 @@ it('renders migrated public and nested tenant routes through the expected livewi
         },
         InvoiceHistory::class,
     ],
+    'tenant documents' => [
+        function ($test) {
+            $tenant = TenantPortalFactory::new()
+                ->withAssignedProperty()
+                ->create();
+
+            return $test->actingAs($tenant->user)->get(route('filament.admin.pages.tenant-documents'));
+        },
+        Documents::class,
+    ],
 ]);
 
 it('renders tenant property and profile routes without legacy livewire page wrappers', function (): void {
@@ -191,11 +203,13 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     ],
     'guest locale switch' => ['language.switch', SwitchGuestLocaleEndpoint::class.'@change'],
     'tenant invoice download' => ['tenant.invoices.download', DownloadInvoiceEndpoint::class.'@download'],
+    'tenant document download' => ['tenant.documents.download', DownloadTenantDocumentEndpoint::class.'@download'],
     'kyc attachment' => ['kyc.attachments.show', ShowKycAttachmentEndpoint::class.'@show'],
     'tenant attachment' => ['tenant.attachments.show', ShowTenantAttachmentEndpoint::class.'@show'],
     'tenant home alias' => ['tenant.home', TenantPortalRouteEndpoint::class.'@show'],
     'tenant reading alias' => ['tenant.readings.create', TenantPortalRouteEndpoint::class.'@show'],
     'tenant invoices alias' => ['tenant.invoices.index', TenantPortalRouteEndpoint::class.'@show'],
+    'tenant documents alias' => ['tenant.documents.index', TenantPortalRouteEndpoint::class.'@show'],
     'tenant property alias' => ['tenant.property.show', TenantPortalRouteEndpoint::class.'@show'],
     'tenant profile alias' => ['tenant.profile.edit', TenantPortalRouteEndpoint::class.'@show'],
     'logout' => ['logout', LogoutEndpoint::class.'@logout'],

@@ -51,6 +51,20 @@ return [
         'expired_title' => 'Contrato de alquiler vencido',
         'expired_body' => 'El contrato de alquiler :number ha vencido.',
     ],
+    'tenant_documents' => [
+        'available_title' => 'Document available',
+        'available_body' => ':title is now available in your document center.',
+        'rental_contract_visible_title' => 'Rental contract available',
+        'rental_contract_visible_body' => ':title is now available in your document center.',
+        'rejected_title' => 'Document rejected',
+        'rejected_body' => ':title was rejected and needs your attention.',
+        'kyc_uploaded_title' => 'KYC document uploaded',
+        'kyc_uploaded_body' => ':tenant uploaded a KYC document for review.',
+        'requires_review_title' => 'Document requires review',
+        'requires_review_body' => ':title is waiting for review.',
+        'expires_soon_title' => 'Document expires soon',
+        'expires_soon_body' => ':title expires in :days days.',
+    ],
     'domain' => [
         'invoice_created' => [
             'title' => 'Borrador de factura :number creado',

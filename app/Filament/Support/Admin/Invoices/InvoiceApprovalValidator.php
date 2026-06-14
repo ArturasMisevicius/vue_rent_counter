@@ -6,6 +6,8 @@ namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceItemSourceType;
 use App\Enums\MeterReadingValidationStatus;
+use App\Filament\Support\Admin\BillingIntegrity\BillingIntegrityIssue;
+use App\Filament\Support\Admin\BillingIntegrity\DetectBillingDuplicates;
 use App\Filament\Support\Billing\InvoiceCalculationRows;
 use App\Models\Invoice;
 use App\Models\MeterReading;
@@ -15,6 +17,7 @@ final class InvoiceApprovalValidator
 {
     public function __construct(
         private readonly InvoiceCalculationRows $calculationRows,
+        private readonly DetectBillingDuplicates $duplicateDetector,
     ) {}
 
     /**
@@ -40,6 +43,8 @@ final class InvoiceApprovalValidator
         if ($this->shouldCheckReadings($invoice, $rows)) {
             $this->validateCurrentReadings($invoice, $blockingErrors);
         }
+
+        $this->validateDuplicateIntegrity($invoice, $blockingErrors);
 
         return [
             'blocking_errors' => $blockingErrors,
@@ -204,6 +209,21 @@ final class InvoiceApprovalValidator
         if (in_array(MeterReadingValidationStatus::REJECTED->value, $statuses, true)) {
             $blockingErrors[] = $this->issue(__('admin.invoices.validation.rejected_readings'));
         }
+    }
+
+    /**
+     * @param  array<int, array{message: string, item_index: int|null}>  $blockingErrors
+     */
+    private function validateDuplicateIntegrity(Invoice $invoice, array &$blockingErrors): void
+    {
+        $this->duplicateDetector
+            ->forInvoice($invoice)
+            ->filter(fn (BillingIntegrityIssue $issue): bool => $issue->severity === 'blocking')
+            ->each(function (BillingIntegrityIssue $issue) use (&$blockingErrors): void {
+                $blockingErrors[] = $this->issue(__('admin.invoices.validation.duplicate_integrity_problem', [
+                    'problem' => $issue->label(),
+                ]));
+            });
     }
 
     private function requiresTariff(InvoiceItemSourceType $sourceType): bool

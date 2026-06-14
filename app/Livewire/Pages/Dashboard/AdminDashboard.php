@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Dashboard;
 
-use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
-use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
+use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -57,7 +57,7 @@ final class AdminDashboard extends Component
 
     public function refreshDashboardOnInterval(): void
     {
-        $refreshedData = app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10);
+        $refreshedData = $this->buildDashboardData();
 
         if ($refreshedData === $this->dashboardData) {
             $this->skipRender();
@@ -75,7 +75,7 @@ final class AdminDashboard extends Component
     #[Computed]
     public function dashboard(): array
     {
-        $data = $this->dashboardData ?: app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10);
+        $data = $this->dashboardData ?: $this->buildDashboardData();
 
         return array_replace_recursive(
             $this->defaultDashboard(),
@@ -89,21 +89,31 @@ final class AdminDashboard extends Component
     protected function defaultDashboard(): array
     {
         return [
-            'metrics' => [
-                'total_properties' => 0,
-                'active_tenants' => 0,
-                'pending_invoices' => 0,
-                'revenue_this_month' => EuMoneyFormatter::format(0),
+            'summary' => [
+                'organization_name' => __('dashboard.not_available'),
+                'billing_period' => __('dashboard.attention.empty.no_period'),
+                'billing_completion' => 0,
+                'has_urgent_actions' => false,
+                'empty_title' => __('dashboard.attention.empty.no_urgent_actions_title'),
+                'empty_description' => __('dashboard.attention.empty.no_urgent_actions_description'),
             ],
-            'subscription_usage' => [],
-            'recent_invoices' => [],
-            'upcoming_reading_deadlines' => [],
-            'rental_contracts' => [
-                'tenants_without_contract' => 0,
-                'contracts_expiring_soon' => 0,
-                'expired_contracts' => 0,
-                'active_contracts' => 0,
+            'top_cards' => [],
+            'billing_cards' => [],
+            'tenant_onboarding_cards' => [],
+            'configuration_health_cards' => [],
+            'contract_cards' => [],
+            'document_cards' => [],
+            'data_integrity_cards' => [],
+            'needs_action_items' => [],
+            'billing_progress' => [
+                'period' => __('dashboard.attention.empty.no_period'),
+                'completion' => 0,
+                'total_invoices' => 0,
+                'stages' => [],
             ],
+            'recent_activity' => [],
+            'visible_widgets' => [],
+            'counts' => [],
         ];
     }
 
@@ -114,5 +124,21 @@ final class AdminDashboard extends Component
         abort_unless($user instanceof User, 403);
 
         return $user;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDashboardData(): array
+    {
+        $user = $this->user();
+
+        return app(DashboardCacheService::class)->remember(
+            $user,
+            'admin-attention-dashboard',
+            fn (): array => app(BuildAdminAttentionDashboard::class)
+                ->handle($this->organizationId, $user->id)
+                ->toArray(),
+        );
     }
 }

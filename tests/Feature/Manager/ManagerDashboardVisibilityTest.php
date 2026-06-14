@@ -1,46 +1,42 @@
 <?php
 
 use App\Enums\InvoiceStatus;
+use App\Models\BillingPeriod;
 use App\Models\Building;
 use App\Models\Invoice;
-use App\Models\Meter;
-use App\Models\MeterReading;
+use App\Models\ManagerPermission;
 use App\Models\Organization;
 use App\Models\Property;
-use App\Models\PropertyAssignment;
-use App\Models\Subscription;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('does not show subscription usage bars to managers', function () {
+beforeEach(function (): void {
+    Carbon::setTestNow('2026-03-15 09:00:00');
+});
+
+afterEach(function (): void {
+    Carbon::setTestNow();
+});
+
+it('shows only permitted attention widgets to managers', function (): void {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
-
-    Subscription::factory()->for($organization)->active()->create([
-        'property_limit_snapshot' => 10,
-        'tenant_limit_snapshot' => 25,
-        'meter_limit_snapshot' => 50,
-        'invoice_limit_snapshot' => 100,
-    ]);
-
     $building = Building::factory()->for($organization)->create();
-    $property = Property::factory()->for($organization)->for($building)->create([
-        'name' => 'North Unit',
-    ]);
+    $property = Property::factory()->for($organization)->for($building)->create();
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
         'name' => 'Taylor Tenant',
     ]);
-
-    PropertyAssignment::factory()
-        ->for($organization)
-        ->for($property)
-        ->for($tenant, 'tenant')
-        ->create();
+    $period = BillingPeriod::factory()->for($organization)->create([
+        'name' => 'March 2026',
+        'starts_at' => '2026-03-01',
+        'ends_at' => '2026-03-31',
+    ]);
 
     Invoice::factory()
         ->for($organization)
@@ -48,35 +44,25 @@ it('does not show subscription usage bars to managers', function () {
         ->for($tenant, 'tenant')
         ->create([
             'invoice_number' => 'INV-300001',
-            'status' => InvoiceStatus::FINALIZED,
+            'billing_period_id' => $period->id,
+            'billing_period_start' => '2026-03-01',
+            'billing_period_end' => '2026-03-31',
+            'status' => InvoiceStatus::DRAFT,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
         ]);
 
-    $meter = Meter::factory()
-        ->for($organization)
-        ->for($property)
-        ->create([
-            'identifier' => 'MTR-300001',
-        ]);
-
-    MeterReading::factory()
-        ->for($organization)
-        ->for($property)
-        ->for($meter)
-        ->for($manager, 'submittedBy')
-        ->create([
-            'reading_date' => now()->subDays(31)->toDateString(),
-        ]);
+    ManagerPermission::syncForManager($manager, $organization, [
+        'billing' => ['can_create' => false, 'can_edit' => true, 'can_delete' => false],
+    ]);
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('Total Properties')
-        ->assertSeeText('Recent Invoices')
-        ->assertSeeText('Upcoming Reading Deadlines')
-        ->assertSeeText('Taylor Tenant')
-        ->assertSeeText('North Unit')
-        ->assertSeeText('Process Payment')
-        ->assertSeeText('MTR-300001')
-        ->assertDontSeeText('Subscription Usage')
-        ->assertDontSeeText('1 / 10');
+        ->assertSeeText('Admin Attention Dashboard')
+        ->assertSeeText('Billing progress')
+        ->assertSeeText('Waiting for readings')
+        ->assertDontSeeText('Tenant onboarding')
+        ->assertDontSeeText('Contract attention')
+        ->assertDontSeeText('Service configuration health');
 });

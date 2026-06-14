@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\Invoices;
 
 use App\Filament\Actions\Admin\BillingPeriods\ResolveBillingPeriodForInvoiceCycleAction;
+use App\Filament\Support\Admin\Invoices\ReadingRequestInvoiceSnapshotBuilder;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Http\Requests\Admin\Invoices\OpenReadingInvoiceCycleRequest;
 use App\Models\BillingPeriod;
@@ -24,6 +25,7 @@ class OpenReadingInvoiceCycleAction
         private readonly InvoiceService $invoiceService,
         private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
         private readonly ResolveBillingPeriodForInvoiceCycleAction $resolveBillingPeriodForInvoiceCycle,
+        private readonly ReadingRequestInvoiceSnapshotBuilder $readingRequestInvoiceSnapshotBuilder,
     ) {}
 
     /**
@@ -90,6 +92,14 @@ class OpenReadingInvoiceCycleAction
                 'tenant:id,organization_id,name,email,role,status,locale',
                 'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
                 'property.building:id,organization_id,name',
+                'property.meters' => fn ($meterQuery) => $meterQuery
+                    ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
+                    ->active()
+                    ->ordered(),
+                'property.serviceConfigurations' => fn ($configurationQuery) => $configurationQuery
+                    ->activeOn($periodEnd)
+                    ->with(['utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge,description'])
+                    ->ordered(),
             ])
             ->chunkById(100, function (Collection $assignments) use (
                 $organization,
@@ -119,6 +129,14 @@ class OpenReadingInvoiceCycleAction
                         continue;
                     }
 
+                    $readingRequestSnapshot = $this->readingRequestInvoiceSnapshotBuilder->handle(
+                        assignment: $assignment,
+                        billingPeriod: $billingPeriod,
+                        periodStart: $periodStart,
+                        periodEnd: $periodEnd,
+                        deadline: $dueDate,
+                    );
+
                     $invoice = $this->invoiceService->createReadingRequestDraft(
                         $organization,
                         $assignment,
@@ -127,6 +145,7 @@ class OpenReadingInvoiceCycleAction
                         $dueDate,
                         $actor,
                         $billingPeriod,
+                        $readingRequestSnapshot,
                     );
 
                     $assignment->tenant->notify(new InvoiceReadingRequestNotification($invoice));

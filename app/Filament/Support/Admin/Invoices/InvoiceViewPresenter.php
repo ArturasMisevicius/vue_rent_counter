@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\PaymentStatus;
 use App\Filament\Actions\Admin\Invoices\BuildInvoiceCalculationPreview;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
@@ -29,7 +30,7 @@ final class InvoiceViewPresenter
      *     subtotal_display: string,
      *     adjustments_display: string|null,
      *     total_display: string,
-     *     payment_history: array<int, array{date: string, amount: string, reference: string}>,
+     *     payment_history: array<int, array{id: int, date: string, amount: string, method: string, status: string, status_color: string, reference: string, rejection_reason: string|null, void_reason: string|null}>,
      *     email_history: array<int, array{date: string, recipient_email: string}>,
      *     calculation_preview: array<string, mixed>,
      *     draft_notice: string|null,
@@ -44,7 +45,7 @@ final class InvoiceViewPresenter
             'tenant:id,organization_id,name,email',
             'property:id,organization_id,building_id,name,unit_number',
             'property.building:id,organization_id,name',
-            'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+            'payments:id,invoice_id,organization_id,tenant_id,property_id,amount,currency,method,payment_method,status,reference,paid_at,payment_date,created_at,confirmed_at,rejection_reason,void_reason',
             'emailLogs:id,invoice_id,organization_id,sent_by_user_id,recipient_email,subject,status,sent_at,personal_message',
             'reminderLogs:id,invoice_id,organization_id,sent_by_user_id,recipient_email,channel,sent_at,notes',
         ]);
@@ -155,16 +156,26 @@ final class InvoiceViewPresenter
     }
 
     /**
-     * @return array<int, array{date: string, amount: string, reference: string}>
+     * @return array<int, array{id: int, date: string, amount: string, method: string, status: string, status_color: string, reference: string, rejection_reason: string|null, void_reason: string|null}>
      */
     private function paymentHistory(Invoice $invoice): array
     {
         return $invoice->payments
-            ->sortByDesc(fn (InvoicePayment $payment): int => $payment->paid_at?->getTimestamp() ?? 0)
+            ->sortByDesc(fn (InvoicePayment $payment): int => $payment->confirmed_at?->getTimestamp()
+                ?? $payment->payment_date?->getTimestamp()
+                ?? $payment->paid_at?->getTimestamp()
+                ?? $payment->created_at?->getTimestamp()
+                ?? 0)
             ->map(fn (InvoicePayment $payment): array => [
-                'date' => $this->formatDateTime($payment->paid_at),
-                'amount' => $this->formatCurrency((string) $invoice->currency, (float) $payment->amount),
+                'id' => (int) $payment->id,
+                'date' => $this->formatDateTime($payment->payment_date ?? $payment->paid_at ?? $payment->created_at),
+                'amount' => $this->formatCurrency((string) ($payment->currency ?: $invoice->currency), (float) $payment->amount),
+                'method' => $payment->methodLabel(),
+                'status' => $payment->statusLabel(),
+                'status_color' => $this->paymentStatusColor($payment),
                 'reference' => filled($payment->reference) ? (string) $payment->reference : '—',
+                'rejection_reason' => filled($payment->rejection_reason) ? (string) $payment->rejection_reason : null,
+                'void_reason' => filled($payment->void_reason) ? (string) $payment->void_reason : null,
             ])
             ->values()
             ->all();
@@ -219,6 +230,17 @@ final class InvoiceViewPresenter
     private function formatCurrency(string $currency, float $amount): string
     {
         return EuMoneyFormatter::format($amount, $currency);
+    }
+
+    private function paymentStatusColor(InvoicePayment $payment): string
+    {
+        return match ($payment->status) {
+            PaymentStatus::PENDING => 'warning',
+            PaymentStatus::CONFIRMED => 'success',
+            PaymentStatus::FAILED, PaymentStatus::VOIDED => 'danger',
+            PaymentStatus::REFUNDED, PaymentStatus::PARTIALLY_REFUNDED => 'info',
+            default => 'gray',
+        };
     }
 
     /**

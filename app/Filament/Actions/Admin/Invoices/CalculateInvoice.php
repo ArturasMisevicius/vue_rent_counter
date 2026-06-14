@@ -14,7 +14,7 @@ final class CalculateInvoice
     ) {}
 
     /**
-     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string}  $attributes
+     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string, ignore_invoice_id?: int|string}  $attributes
      * @return array{property_id: int, property_name: string, tenant_name: string, items: array<int, array<string, mixed>>, total_amount: string}
      */
     public function handle(Organization $organization, array $attributes): array
@@ -23,7 +23,7 @@ final class CalculateInvoice
     }
 
     /**
-     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string}  $attributes
+     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string, ignore_invoice_id?: int|string}  $attributes
      * @return array{property_id: int, property_name: string, tenant_name: string, items: array<int, array<string, mixed>>, total_amount: string}
      */
     public function __invoke(Organization $organization, array $attributes): array

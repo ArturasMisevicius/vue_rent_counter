@@ -19,7 +19,7 @@ interface BillingServiceInterface
     public function previewBulkInvoices(Organization $organization, array $attributes): array;
 
     /**
-     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string}  $attributes
+     * @param  array{tenant_user_id: int|string, billing_period_start: string, billing_period_end: string, ignore_invoice_id?: int|string}  $attributes
      * @return array{
      *     property_id: int,
      *     property_name: string,

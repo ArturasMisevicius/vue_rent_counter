@@ -1,9 +1,12 @@
 <?php
 
+use App\Enums\BillingReadinessStatus;
 use App\Enums\InvoiceStatus;
+use App\Enums\PropertyAssignmentStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
+use App\Filament\Actions\Admin\Tenants\CreateTenantWithAssignment;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
@@ -19,8 +22,10 @@ use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Tenants\CheckTenantBillingReadiness;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Attachment;
+use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -30,6 +35,7 @@ use App\Models\OrganizationActivityLog;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\ServiceConfiguration;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
@@ -40,6 +46,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -126,7 +133,7 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
         ->assertSeeText('Tenants')
-        ->assertSeeText('New Tenant')
+        ->assertSeeText('Create Tenant')
         ->assertSeeText($tenant->name)
         ->assertSeeText($tenant->email)
         ->assertSeeText($tenant->phone)
@@ -137,9 +144,11 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->get(route('filament.admin.resources.tenants.create'))
         ->assertSuccessful()
         ->assertSeeText('New Tenant')
+        ->assertSeeText('Tenant Details')
         ->assertSeeText('Personal Information')
         ->assertSeeText('Do not set a tenant password here.')
         ->assertSeeText('Property Assignment')
+        ->assertSeeText('Billing Setup')
         ->assertSeeText('Phone Number')
         ->assertDontSeeText('Initial Status');
 
@@ -198,14 +207,14 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->assertSuccessful()
         ->assertSeeText($tenant->name)
         ->assertSeeText($otherTenant->name)
-        ->assertSeeText('New Tenant');
+        ->assertSeeText('Create Tenant');
 
     actingAs($superadmin)
         ->get(route('filament.admin.resources.tenants.create'))
         ->assertSuccessful()
         ->assertSeeText('New Tenant')
         ->assertSeeText('Organization')
-        ->assertSeeText('Personal Information')
+        ->assertSeeText('Tenant Details')
         ->assertSeeText('Property Assignment');
 });
 
@@ -443,6 +452,7 @@ it('creates invited tenants with phone and assignment data, updates them, and to
         'locale' => 'lt',
         'property_id' => $property->id,
         'unit_area_sqm' => 48.5,
+        'move_in_date' => '2026-07-01',
     ]);
 
     expect($tenant)
@@ -498,6 +508,224 @@ it('creates invited tenants with phone and assignment data, updates them, and to
 
     expect($activated->status)->toBe(UserStatus::ACTIVE)
         ->and($deactivated->status)->toBe(UserStatus::INACTIVE);
+});
+
+it('creates tenants through the wizard action with assignment metadata, audit logs, and no admin-set password', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $property = Property::factory()
+        ->for($organization)
+        ->for(Building::factory()->for($organization))
+        ->create([
+            'name' => 'Wizard-12',
+            'floor_area_sqm' => 44.25,
+        ]);
+
+    ServiceConfiguration::factory()
+        ->for($organization)
+        ->for($property)
+        ->fixedMonthly('39.00')
+        ->create([
+            'effective_from' => now()->subDay(),
+            'effective_until' => null,
+        ]);
+
+    Subscription::factory()->for($organization)->active()->create([
+        'tenant_limit_snapshot' => 5,
+    ]);
+
+    actingAs($admin);
+
+    $result = app(CreateTenantWithAssignment::class)->handle($admin, [
+        'first_name' => 'Wizard',
+        'last_name' => 'Tenant',
+        'email' => 'wizard.tenant@example.com',
+        'phone' => '+37060001010',
+        'locale' => 'en',
+        'property_id' => $property->id,
+        'unit_area_sqm' => 44.25,
+        'move_in_date' => '2026-07-01',
+        'assignment_status' => PropertyAssignmentStatus::ACTIVE->value,
+        'is_primary' => true,
+        'occupants_count' => 2,
+        'create_portal_access' => true,
+        'send_invitation_now' => false,
+        'password' => 'AdminPickedPassword123!',
+    ]);
+
+    $tenant = $result->tenant->fresh(['currentPropertyAssignment']);
+    $assignment = $tenant->currentPropertyAssignment;
+
+    expect($tenant->name)->toBe('Wizard Tenant')
+        ->and(Hash::check('AdminPickedPassword123!', (string) $tenant->password))->toBeFalse()
+        ->and($tenant->latestTenantInvitationRecord())->toBeNull()
+        ->and($tenant->portalAccessStatus()->value)->toBe('not_invited')
+        ->and($assignment)->not->toBeNull()
+        ->and($assignment?->property_id)->toBe($property->id)
+        ->and($assignment?->status)->toBe(PropertyAssignmentStatus::ACTIVE)
+        ->and($assignment?->is_primary)->toBeTrue()
+        ->and($assignment?->occupants_count)->toBe(2)
+        ->and($assignment?->assigned_at?->toDateString())->toBe('2026-07-01')
+        ->and($assignment?->created_by_user_id)->toBe($admin->id)
+        ->and($result->billingReadiness->status)->toBe(BillingReadinessStatus::READY);
+
+    $mutations = AuditLog::query()
+        ->where('organization_id', $organization->id)
+        ->get()
+        ->map(fn (AuditLog $log): mixed => data_get($log->metadata, 'context.mutation'))
+        ->all();
+
+    expect($mutations)->toContain('tenant.created')
+        ->and($mutations)->toContain('tenant_property_assignment.created');
+
+    Notification::assertNothingSent();
+});
+
+it('requires move-in dates and prevents duplicate active primary property assignments', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $property = Property::factory()
+        ->for($organization)
+        ->for(Building::factory()->for($organization))
+        ->create();
+
+    Subscription::factory()->for($organization)->active()->create([
+        'tenant_limit_snapshot' => 5,
+    ]);
+
+    actingAs($admin);
+
+    expect(fn () => app(CreateTenantWithAssignment::class)->handle($admin, [
+        'name' => 'No Move In',
+        'email' => 'no.movein@example.com',
+        'locale' => 'en',
+        'property_id' => $property->id,
+        'assignment_status' => PropertyAssignmentStatus::ACTIVE->value,
+    ]))->toThrow(ValidationException::class);
+
+    $existingTenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($existingTenant, 'tenant')
+        ->create([
+            'status' => PropertyAssignmentStatus::ACTIVE,
+            'is_primary' => true,
+            'assigned_at' => now()->subDay(),
+        ]);
+
+    expect(fn () => app(CreateTenantWithAssignment::class)->handle($admin, [
+        'name' => 'Second Tenant',
+        'email' => 'second.tenant@example.com',
+        'locale' => 'en',
+        'property_id' => $property->id,
+        'move_in_date' => '2026-07-01',
+        'assignment_status' => PropertyAssignmentStatus::ACTIVE->value,
+    ]))->toThrow(ValidationException::class);
+});
+
+it('warns on duplicate tenant phones in the same organization', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'phone' => '+37060009999',
+    ]);
+
+    Subscription::factory()->for($organization)->active()->create([
+        'tenant_limit_snapshot' => 5,
+    ]);
+
+    actingAs($admin);
+
+    expect(fn () => app(CreateTenantWithAssignment::class)->handle($admin, [
+        'name' => 'Duplicate Phone',
+        'email' => 'duplicate.phone@example.com',
+        'phone' => '+37060009999',
+        'locale' => 'en',
+        'property_id' => null,
+    ]))->toThrow(ValidationException::class);
+});
+
+it('checks tenant billing readiness for missing assignments, tariffs, and opening readings', function () {
+    $organization = Organization::factory()->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $readiness = app(CheckTenantBillingReadiness::class)->handle($tenant);
+
+    expect($readiness->status)->toBe(BillingReadinessStatus::NOT_CONFIGURED);
+
+    $property = Property::factory()
+        ->for($organization)
+        ->for(Building::factory()->for($organization))
+        ->create();
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create();
+
+    ServiceConfiguration::factory()
+        ->for($organization)
+        ->for($property)
+        ->fixedMonthly('10.00')
+        ->create([
+            'fixed_amount' => null,
+            'tariff_id' => null,
+            'effective_from' => now()->subDay(),
+            'effective_until' => null,
+        ]);
+
+    $blocked = app(CheckTenantBillingReadiness::class)->handle($tenant->fresh(['currentPropertyAssignment.property']));
+
+    expect($blocked->status)->toBe(BillingReadinessStatus::BLOCKED)
+        ->and($blocked->blockingErrors)->not->toBeEmpty();
+
+    $meterProperty = Property::factory()
+        ->for($organization)
+        ->for(Building::factory()->for($organization))
+        ->create();
+    $portalTenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::ACTIVE,
+        'portal_access_enabled' => true,
+    ]);
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($meterProperty)
+        ->for($portalTenant, 'tenant')
+        ->create();
+    Meter::factory()
+        ->for($organization)
+        ->for($meterProperty)
+        ->create([
+            'identifier' => 'OPEN-MISSING',
+        ]);
+    ServiceConfiguration::factory()
+        ->for($organization)
+        ->for($meterProperty)
+        ->create([
+            'effective_from' => now()->subDay(),
+            'effective_until' => null,
+        ]);
+
+    $warning = app(CheckTenantBillingReadiness::class)->handle($portalTenant->fresh(['currentPropertyAssignment.property']));
+
+    expect($warning->status)->toBe(BillingReadinessStatus::WARNING)
+        ->and(implode(' ', $warning->warnings))->toContain('Opening reading');
 });
 
 it('lets admins attach and replace a lease agreement for a tenant', function () {
@@ -650,6 +878,7 @@ it('allows superadmins to create tenants by selecting an organization', function
             'locale' => 'en',
             'property_id' => $property->id,
             'unit_area_sqm' => 63.5,
+            'move_in_date' => '2026-07-01',
         ])
         ->call('create')
         ->assertHasNoFormErrors();

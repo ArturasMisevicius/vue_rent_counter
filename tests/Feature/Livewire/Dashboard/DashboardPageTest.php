@@ -50,8 +50,8 @@ it('renders the admin dashboard through the parent dashboard page component', fu
     Auth::login($admin);
 
     Livewire::test(DashboardPage::class)
-        ->assertSeeText('Recent Invoices')
-        ->assertSeeText('Upcoming Reading Deadlines');
+        ->assertSeeText('Admin Attention Dashboard')
+        ->assertSeeText('Needs action today');
 });
 
 it('renders the tenant dashboard through the parent dashboard page component', function () {

@@ -80,10 +80,13 @@ final class CompleteReadingRequestInvoiceAction
                 'approval_metadata' => [
                     ...$metadata,
                     'workflow' => $metadata['workflow'] ?? 'meter_reading_request',
+                    'request_status' => 'readings_submitted',
                     'meter_readings_submitted_at' => now()->toISOString(),
                     'submitted_by_tenant_user_id' => $tenant->id,
                     'submitted_meter_reading_ids' => $submittedReadingIds,
                     'submitted_reading_count' => count($submittedReadingIds),
+                    'linked_meters' => $this->markLinkedMetersSubmitted($metadata, $readings),
+                    'required_inputs' => $this->markRequiredInputsSubmitted($metadata, $readings),
                 ],
             ])->save();
 
@@ -148,7 +151,7 @@ final class CompleteReadingRequestInvoiceAction
             ->forTenant($tenantId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->where('approval_status', 'pending');
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending']);
     }
 
     /**
@@ -166,6 +169,78 @@ final class CompleteReadingRequestInvoiceAction
             ->map(fn (MeterReading $reading): int => (int) $reading->id)
             ->unique()
             ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     * @param  list<MeterReading>  $readings
+     * @return list<array<string, mixed>>
+     */
+    private function markLinkedMetersSubmitted(array $metadata, array $readings): array
+    {
+        $readingByMeter = $this->readingsByMeter($readings);
+
+        return collect($metadata['linked_meters'] ?? [])
+            ->filter(fn (mixed $meter): bool => is_array($meter))
+            ->map(function (array $meter) use ($readingByMeter): array {
+                $meterId = (int) ($meter['id'] ?? 0);
+                $reading = $readingByMeter[$meterId] ?? null;
+
+                if (! $reading instanceof MeterReading) {
+                    return $meter;
+                }
+
+                return [
+                    ...$meter,
+                    'status' => 'submitted',
+                    'submitted_meter_reading_id' => (int) $reading->id,
+                    'submitted_at' => now()->toISOString(),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     * @param  list<MeterReading>  $readings
+     * @return list<array<string, mixed>>
+     */
+    private function markRequiredInputsSubmitted(array $metadata, array $readings): array
+    {
+        $readingByMeter = $this->readingsByMeter($readings);
+
+        return collect($metadata['required_inputs'] ?? [])
+            ->filter(fn (mixed $input): bool => is_array($input))
+            ->map(function (array $input) use ($readingByMeter): array {
+                $meterId = (int) ($input['meter_id'] ?? 0);
+                $reading = $readingByMeter[$meterId] ?? null;
+
+                if (! $reading instanceof MeterReading) {
+                    return $input;
+                }
+
+                return [
+                    ...$input,
+                    'status' => 'submitted',
+                    'submitted_meter_reading_id' => (int) $reading->id,
+                    'submitted_at' => now()->toISOString(),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  list<MeterReading>  $readings
+     * @return array<int, MeterReading>
+     */
+    private function readingsByMeter(array $readings): array
+    {
+        return collect($readings)
+            ->filter(fn (mixed $reading): bool => $reading instanceof MeterReading && $reading->id !== null)
+            ->mapWithKeys(fn (MeterReading $reading): array => [(int) $reading->meter_id => $reading])
             ->all();
     }
 

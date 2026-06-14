@@ -11,7 +11,7 @@
 
                 <div class="flex flex-wrap gap-3">
                     <x-tenant.action :href="$summary['submit_reading_url']" variant="primary">
-                        {{ __('tenant.actions.submit_new_reading') }}
+                        {{ ($summary['current_invoice'] ?? null) ? __('tenant.actions.submit_readings') : __('tenant.actions.submit_new_reading') }}
                     </x-tenant.action>
 
                     <x-tenant.action :href="$summary['property_url']">

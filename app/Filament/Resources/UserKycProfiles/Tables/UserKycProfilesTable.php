@@ -22,6 +22,7 @@ class UserKycProfilesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.user_kyc_profiles.columns.organization'))
@@ -67,5 +68,32 @@ class UserKycProfilesTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $verificationStatus = request()->query('verification_status');
+
+        if (is_string($verificationStatus) && $verificationStatus !== '') {
+            $query->where('verification_status', $verificationStatus);
+        }
+
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'documents_expiring' => $query->whereHas('attachments', fn (Builder $attachmentQuery): Builder => $attachmentQuery
+                ->whereNotNull('metadata')),
+            'recent_uploads' => $query->whereHas('attachments', fn (Builder $attachmentQuery): Builder => $attachmentQuery
+                ->where('created_at', '>=', now()->subDays(7))),
+            'internal_documents' => $query->whereHas('attachments', fn (Builder $attachmentQuery): Builder => $attachmentQuery
+                ->where('tenant_visible', false)
+                ->whereNotNull('document_type')),
+            'orphan_documents' => $query->whereKey(-1),
+            default => $query,
+        };
     }
 }

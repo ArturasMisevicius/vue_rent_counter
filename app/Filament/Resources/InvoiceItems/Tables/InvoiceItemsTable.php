@@ -5,6 +5,7 @@ namespace App\Filament\Resources\InvoiceItems\Tables;
 use App\Enums\InvoiceItemSourceType;
 use App\Filament\Support\Billing\InvoiceContentLocalizer;
 use App\Models\InvoiceItem;
+use App\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -12,12 +13,15 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceItemsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('invoice.invoice_number')->label(__('admin.invoices.singular'))
                     ->searchable(),
@@ -116,5 +120,57 @@ class InvoiceItemsTable
         }
 
         return InvoiceItemSourceType::tryFrom((string) $state)?->label() ?? '-';
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'orphan_invoice_items' => $query->whereDoesntHave('invoice'),
+            'duplicate_invoice_items' => $query->whereIn('id', self::duplicateInvoiceItemIdsForCurrentWorkspace()),
+            default => $query,
+        };
+    }
+
+    /**
+     * @return list<int>
+     */
+    private static function duplicateInvoiceItemIdsForCurrentWorkspace(): array
+    {
+        $user = self::currentUser();
+
+        return InvoiceItem::query()
+            ->select(['id', 'invoice_id', 'source_type', 'source_id', 'service_configuration_id', 'utility_service_id'])
+            ->when(
+                ! ($user?->isSuperadmin() ?? false),
+                fn (Builder $query): Builder => $user?->organization_id === null
+                    ? $query->whereKey(-1)
+                    : $query->whereHas('invoice', fn (Builder $invoiceQuery): Builder => $invoiceQuery->forOrganization((int) $user->organization_id)),
+            )
+            ->get()
+            ->groupBy(fn (InvoiceItem $item): string => implode(':', [
+                $item->invoice_id,
+                $item->source_type?->value,
+                $item->source_id,
+                $item->service_configuration_id,
+                $item->utility_service_id,
+            ]))
+            ->filter(fn ($group): bool => $group->count() > 1)
+            ->flatMap(fn ($group) => $group->pluck('id'))
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
+    }
+
+    private static function currentUser(): ?User
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Tenant\Portal;
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
@@ -104,6 +105,9 @@ class TenantHomePresenter
         $property = $this->primaryProperty($assignedProperties, $propertyId) ?? $currentProperty;
         $meters = $property?->meters ?? Collection::make();
         $hasAssignment = $property !== null;
+        $currentReadingRequestInvoice = $property instanceof Property
+            ? $this->currentReadingRequestInvoice($organizationId, $tenantId, $property->id)
+            : null;
         $outstandingInvoices = $property
             ? Invoice::query()
                 ->forTenantWorkspace($organizationId, $tenantId)
@@ -151,7 +155,10 @@ class TenantHomePresenter
                 'address' => $property?->address,
             ],
             'property_url' => route('filament.admin.pages.tenant-property-details'),
-            'submit_reading_url' => route('filament.admin.pages.tenant-submit-meter-reading'),
+            'submit_reading_url' => $currentReadingRequestInvoice instanceof Invoice
+                ? route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => $currentReadingRequestInvoice->id])
+                : route('filament.admin.pages.tenant-submit-meter-reading'),
+            'current_invoice' => $this->currentInvoiceSummary($currentReadingRequestInvoice),
             'has_outstanding_balance' => $outstandingInvoices->isNotEmpty(),
             'outstanding_label' => $outstandingInvoices->isNotEmpty()
                 ? __('tenant.status.outstanding_balance')
@@ -245,6 +252,56 @@ class TenantHomePresenter
             ->filter()
             ->values()
             ->all();
+    }
+
+    private function currentReadingRequestInvoice(int $organizationId, int $tenantId, int $propertyId): ?Invoice
+    {
+        return Invoice::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'invoice_number',
+                'billing_period_start',
+                'billing_period_end',
+                'due_date',
+                'status',
+                'automation_level',
+                'approval_status',
+                'approval_metadata',
+                'created_at',
+            ])
+            ->forOrganization($organizationId)
+            ->forTenant($tenantId)
+            ->forProperty($propertyId)
+            ->where('status', InvoiceStatus::DRAFT->value)
+            ->where('automation_level', 'reading_request')
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
+            ->latest('created_at')
+            ->first();
+    }
+
+    /**
+     * @return array{id: int, number: string, period: string, due: string}|null
+     */
+    private function currentInvoiceSummary(?Invoice $invoice): ?array
+    {
+        if (! $invoice instanceof Invoice) {
+            return null;
+        }
+
+        return [
+            'id' => (int) $invoice->id,
+            'number' => (string) $invoice->invoice_number,
+            'period' => __('tenant.pages.readings.invoice_request_period', [
+                'from' => LocalizedDateFormatter::date($invoice->billing_period_start),
+                'to' => LocalizedDateFormatter::date($invoice->billing_period_end),
+            ]),
+            'due' => __('tenant.pages.readings.invoice_request_due', [
+                'date' => LocalizedDateFormatter::date($invoice->due_date),
+            ]),
+        ];
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 
+use App\Console\Commands\MarkOverdueInvoicesCommand;
 use App\Console\Commands\OpenReadingInvoiceCycleCommand;
+use App\Console\Commands\SendPaymentRemindersCommand;
 use App\Enums\ProjectStatus;
 use App\Filament\Actions\Admin\RentalContracts\ExpireRentalContractsAction;
 use App\Filament\Actions\Admin\RentalContracts\SendContractExpiryReminderAction;
@@ -263,6 +265,14 @@ Schedule::command('projects:alert-unapproved')
 
 Schedule::command(OpenReadingInvoiceCycleCommand::class)
     ->monthlyOn(1, '08:00')
+    ->withoutOverlapping();
+
+Schedule::command(MarkOverdueInvoicesCommand::class)
+    ->dailyAt('06:30')
+    ->withoutOverlapping();
+
+Schedule::command(SendPaymentRemindersCommand::class)
+    ->dailyAt('07:00')
     ->withoutOverlapping();
 
 Schedule::command('rental-contracts:maintain')

@@ -234,7 +234,7 @@ class ViewInvoice extends ViewRecord
                         ->label(__('admin.invoices.fields.payment_amount'))
                         ->numeric()
                         ->required()
-                        ->default((float) $this->record->total_amount),
+                        ->default((float) $this->record->outstanding_balance),
                     DatePicker::make('paid_at')
                         ->label(__('admin.invoices.fields.payment_date'))
                         ->required()
@@ -330,7 +330,7 @@ class ViewInvoice extends ViewRecord
     {
         $this->record = InvoiceResource::getEloquentQuery()
             ->with([
-                'payments:id,invoice_id,organization_id,recorded_by_user_id,amount,method,reference,paid_at,notes',
+                'payments:id,invoice_id,organization_id,tenant_id,property_id,recorded_by_user_id,amount,currency,method,payment_method,status,reference,paid_at,payment_date,created_at,confirmed_at,rejection_reason,void_reason,notes',
                 'emailLogs:id,invoice_id,organization_id,sent_by_user_id,recipient_email,subject,status,sent_at,personal_message',
                 'reminderLogs:id,invoice_id,organization_id,sent_by_user_id,recipient_email,channel,sent_at,notes',
             ])

@@ -32,8 +32,9 @@ it('refreshes the admin dashboard when an invoice finalized event is received', 
     $admin = seedRealtimeAdminDashboardUser();
 
     $component = Livewire::actingAs($admin)
-        ->test(AdminDashboard::class)
-        ->assertDontSeeText('INV-REFRESH-001');
+        ->test(AdminDashboard::class);
+
+    expect($component->instance()->dashboard['counts']['invoices_overdue'])->toBe(0);
 
     $assignment = PropertyAssignment::query()
         ->select(['id', 'organization_id', 'property_id', 'tenant_user_id'])
@@ -50,6 +51,7 @@ it('refreshes the admin dashboard when an invoice finalized event is received', 
             'invoice_number' => 'INV-REFRESH-001',
             'status' => InvoiceStatus::FINALIZED,
             'finalized_at' => now(),
+            'due_date' => now()->subDay()->toDateString(),
             'total_amount' => 88.40,
             'amount_paid' => 0,
         ]);
@@ -57,8 +59,9 @@ it('refreshes the admin dashboard when an invoice finalized event is received', 
     app(DashboardCacheService::class)->touchOrganization($admin->organization_id);
 
     $component
-        ->dispatch('invoice.finalized')
-        ->assertSeeText('INV-REFRESH-001');
+        ->dispatch('invoice.finalized');
+
+    expect($component->instance()->dashboard['counts']['invoices_overdue'])->toBe(1);
 });
 
 it('dispatches the invoice finalized broadcast event when a draft invoice is finalized', function () {

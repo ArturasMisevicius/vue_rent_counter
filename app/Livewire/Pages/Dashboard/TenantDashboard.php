@@ -101,6 +101,7 @@ class TenantDashboard extends Component
             ],
             'property_url' => route('filament.admin.pages.tenant-property-details'),
             'submit_reading_url' => route('filament.admin.pages.tenant-submit-meter-reading'),
+            'current_invoice' => null,
             'has_outstanding_balance' => false,
             'outstanding_label' => __('tenant.status.all_paid_up'),
             'outstanding_total' => 0,

@@ -6,6 +6,8 @@ use App\Enums\InvitationStatus;
 use App\Enums\PortalAccessStatus;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Tenants\CheckTenantBillingReadiness;
+use App\Filament\Support\Tenants\TenantBillingReadinessResult;
 use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -128,6 +130,19 @@ class TenantInfolist
                             ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.billing_readiness'))
+                    ->schema([
+                        TextEntry::make('billing_readiness_status')
+                            ->label(__('admin.tenants.billing_readiness.status'))
+                            ->state(fn (User $record): string => self::billingReadiness($record)->status->getLabel())
+                            ->badge()
+                            ->color(fn (User $record): string => self::billingReadiness($record)->status->color()),
+                        TextEntry::make('billing_readiness_next_steps')
+                            ->label(__('admin.tenants.billing_readiness.next_steps'))
+                            ->state(fn (User $record): string => self::billingReadinessSummary($record))
+                            ->default('—'),
+                    ])
+                    ->columns(2),
                 Section::make(__('admin.tenants.sections.lease_agreement'))
                     ->schema([
                         TextEntry::make('leaseAgreement.original_filename')
@@ -175,5 +190,25 @@ class TenantInfolist
         return $date?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateTimeFormat())
             ?? $fallback
             ?? '—';
+    }
+
+    private static function billingReadiness(User $record): TenantBillingReadinessResult
+    {
+        return app(CheckTenantBillingReadiness::class)->handle($record);
+    }
+
+    private static function billingReadinessSummary(User $record): string
+    {
+        $readiness = self::billingReadiness($record);
+        $items = [
+            ...$readiness->blockingErrors,
+            ...$readiness->warnings,
+        ];
+
+        if ($items === []) {
+            return __('admin.tenants.billing_readiness.messages.ready');
+        }
+
+        return implode("\n", $items);
     }
 }

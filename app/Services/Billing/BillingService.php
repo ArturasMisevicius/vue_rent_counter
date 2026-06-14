@@ -85,7 +85,13 @@ final class BillingService implements BillingServiceInterface
             $periodEnd,
         );
 
-        $this->ensureCanCreateInvoiceForPeriod($organization, $assignment, $periodStart, $periodEnd);
+        $this->ensureCanCreateInvoiceForPeriod(
+            $organization,
+            $assignment,
+            $periodStart,
+            $periodEnd,
+            is_numeric($attributes['ignore_invoice_id'] ?? null) ? (int) $attributes['ignore_invoice_id'] : null,
+        );
 
         $lineItems = $this->buildLineItemPayload($assignment, $periodStart, $periodEnd);
 
@@ -675,6 +681,7 @@ final class BillingService implements BillingServiceInterface
         PropertyAssignment $assignment,
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
+        ?int $ignoreInvoiceId = null,
     ): void {
         $hasExistingInvoice = Invoice::query()
             ->select(['id'])
@@ -682,6 +689,10 @@ final class BillingService implements BillingServiceInterface
             ->forProperty($assignment->property_id)
             ->forTenant($assignment->tenant_user_id)
             ->forBillingPeriod($periodStart, $periodEnd)
+            ->when(
+                $ignoreInvoiceId !== null,
+                fn ($query) => $query->whereKeyNot($ignoreInvoiceId),
+            )
             ->exists();
 
         if (! $hasExistingInvoice) {
@@ -918,8 +929,8 @@ final class BillingService implements BillingServiceInterface
         }
 
         return (string) (
-            $configuration->tenant_visible_name
-            ?: $configuration->tenant_visible_description
+            $configuration->tenant_visible_description
+            ?: $configuration->tenant_visible_name
             ?: $fallback
         );
     }
@@ -946,6 +957,7 @@ final class BillingService implements BillingServiceInterface
 
         return __('admin.invoices.formulas.quantity_times_unit_price_with_values', [
             'quantity' => $quantity,
+            'unit' => (string) ($configuration->unit ?: $configuration->utilityService?->unit_of_measurement ?? ''),
             'unit_price' => $pricing['unit_rate'],
         ]);
     }

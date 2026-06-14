@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ServiceConfigurations\Tables;
 
+use App\Enums\AssignmentScope;
 use App\Enums\BillingMethod;
 use App\Enums\ServiceConfigurationStatus;
 use App\Filament\Actions\Admin\ServiceConfigurations\ArchiveServiceConfigurationAction;
@@ -31,6 +32,7 @@ class ServiceConfigurationsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -221,5 +223,52 @@ class ServiceConfigurationsTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'configuration_errors' => $query->where('is_active', true)->where('status', ServiceConfigurationStatus::CONFIGURATION_ERROR),
+            'missing_tariff' => $query
+                ->where('is_active', true)
+                ->whereNull('tariff_id')
+                ->whereIn('billing_method', [
+                    BillingMethod::METER_BASED,
+                    BillingMethod::FIXED_MONTHLY,
+                    BillingMethod::PERCENTAGE,
+                    BillingMethod::FORMULA_BASED,
+                ]),
+            'without_assignment' => $query
+                ->where('is_active', true)
+                ->whereNull('property_id')
+                ->whereIn('assignment_scope', [AssignmentScope::PROPERTY, AssignmentScope::TENANT]),
+            'meter_without_meters' => $query
+                ->where('is_active', true)
+                ->where('billing_method', BillingMethod::METER_BASED)
+                ->whereDoesntHave('property.meters'),
+            'fixed_without_amount' => $query
+                ->where('is_active', true)
+                ->where('billing_method', BillingMethod::FIXED_MONTHLY)
+                ->where(function (Builder $amountQuery): void {
+                    $amountQuery
+                        ->whereNull('fixed_amount')
+                        ->orWhere('fixed_amount', '<=', 0);
+                }),
+            'tenant_description_missing' => $query
+                ->where('is_active', true)
+                ->where('tenant_visible', true)
+                ->where(function (Builder $descriptionQuery): void {
+                    $descriptionQuery
+                        ->whereNull('tenant_visible_description')
+                        ->orWhere('tenant_visible_description', '');
+                }),
+            default => $query,
+        };
     }
 }

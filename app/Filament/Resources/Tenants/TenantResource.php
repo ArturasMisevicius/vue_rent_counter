@@ -8,10 +8,12 @@ use App\Filament\Resources\Tenants\Pages\EditTenant;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Filament\Resources\Tenants\Pages\ViewTenant;
 use App\Filament\Resources\Tenants\RelationManagers\AuditTrailRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\ExtraChargesRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\RentalContractsRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\TenantDocumentsRelationManager;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
@@ -203,7 +205,9 @@ class TenantResource extends Resource
         return [
             MetersRelationManager::class,
             ReadingsRelationManager::class,
+            ExtraChargesRelationManager::class,
             InvoicesRelationManager::class,
+            TenantDocumentsRelationManager::class,
             RentalContractsRelationManager::class,
             AuditTrailRelationManager::class,
         ];

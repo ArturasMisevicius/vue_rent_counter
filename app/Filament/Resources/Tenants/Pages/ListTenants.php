@@ -22,7 +22,7 @@ class ListTenants extends ListRecords
                 TenantResource::makeSubscriptionInfoAction(
                     name: 'create',
                     resource: 'tenants',
-                    label: __('admin.tenants.actions.new_tenant'),
+                    label: __('admin.tenants.actions.create_tenant'),
                 ),
             ];
         }
@@ -33,7 +33,7 @@ class ListTenants extends ListRecords
 
         return [
             Action::make('create')
-                ->label(__('admin.tenants.actions.new_tenant'))
+                ->label(__('admin.tenants.actions.create_tenant'))
                 ->url(TenantResource::getUrl('create'))
                 ->icon('heroicon-m-plus')
                 ->button(),

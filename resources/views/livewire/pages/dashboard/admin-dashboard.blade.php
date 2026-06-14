@@ -1,209 +1,211 @@
-<div wire:poll.visible.30s="refreshDashboardOnInterval" class="space-y-6">
-    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">{{ __('dashboard.organization_eyebrow') }}</p>
-        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{{ __('dashboard.organization_heading') }}</h2>
-        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{{ __('dashboard.organization_body') }}</p>
-    </section>
+@php
+    $sections = [
+        ['key' => 'billing_cards', 'title' => __('dashboard.attention.sections.billing_progress'), 'icon' => 'heroicon-m-banknotes'],
+        ['key' => 'tenant_onboarding_cards', 'title' => __('dashboard.attention.sections.tenant_onboarding'), 'icon' => 'heroicon-m-user-plus'],
+        ['key' => 'configuration_health_cards', 'title' => __('dashboard.attention.sections.configuration_health'), 'icon' => 'heroicon-m-wrench-screwdriver'],
+        ['key' => 'contract_cards', 'title' => __('dashboard.attention.sections.contracts'), 'icon' => 'heroicon-m-document-text'],
+        ['key' => 'document_cards', 'title' => __('dashboard.attention.sections.documents'), 'icon' => 'heroicon-m-paper-clip'],
+        ['key' => 'data_integrity_cards', 'title' => __('dashboard.attention.sections.data_integrity'), 'icon' => 'heroicon-m-shield-exclamation'],
+    ];
+@endphp
 
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <x-shared.stat-card
-            :label="__('dashboard.organization_metrics.total_properties')"
-            :value="(string) $dashboard['metrics']['total_properties']"
-            :trend="__('dashboard.organization_metrics.total_properties_trend')"
-            icon="heroicon-m-building-office-2"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_metrics.active_tenants')"
-            :value="(string) $dashboard['metrics']['active_tenants']"
-            :trend="__('dashboard.organization_metrics.active_tenants_trend')"
-            icon="heroicon-m-users"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_metrics.pending_invoices')"
-            :value="(string) $dashboard['metrics']['pending_invoices']"
-            :trend="__('dashboard.organization_metrics.pending_invoices_trend')"
-            icon="heroicon-m-document-text"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_metrics.revenue_this_month')"
-            :value="$dashboard['metrics']['revenue_this_month']"
-            :trend="__('dashboard.organization_metrics.revenue_this_month_trend')"
-            icon="heroicon-m-banknotes"
-        />
-    </section>
+<div wire:poll.visible.30s="refreshDashboardOnInterval" class="space-y-8">
+    <section class="border-b border-slate-200 pb-6">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div class="space-y-3">
+                <p class="text-sm font-semibold text-emerald-700">{{ __('dashboard.attention.header.greeting') }}</p>
+                <h2 class="text-3xl font-semibold tracking-tight text-slate-950">{{ __('dashboard.attention.header.title') }}</h2>
 
-    @if ($showSubscriptionUsage)
-        <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="space-y-1">
-                <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.organization_usage.heading') }}</h3>
-                <p class="text-sm text-slate-500">{{ __('dashboard.organization_usage.description') }}</p>
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
+                    <span>{{ __('dashboard.attention.header.organization', ['organization' => $dashboard['summary']['organization_name']]) }}</span>
+                    <span>{{ __('dashboard.attention.header.period', ['period' => $dashboard['summary']['billing_period']]) }}</span>
+                </div>
             </div>
 
-            <div class="mt-5 grid gap-4 md:grid-cols-2">
-                @foreach ($dashboard['subscription_usage'] as $usage)
-                    @php($barColor = match ($usage['tone']) {
-                        'danger' => 'bg-rose-500',
-                        'warning' => 'bg-amber-500',
-                        default => 'bg-slate-900',
+            <div class="w-full max-w-sm">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="font-semibold text-slate-700">{{ __('dashboard.attention.header.billing_completion') }}</span>
+                    <span class="font-semibold text-slate-950">{{ $dashboard['summary']['billing_completion'] }}%</span>
+                </div>
+                <div class="mt-2 h-2 rounded-full bg-slate-200">
+                    <div class="h-2 rounded-full bg-emerald-600" style="width: {{ $dashboard['summary']['billing_completion'] }}%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @if ($dashboard['top_cards'] !== [])
+        <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+            @foreach ($dashboard['top_cards'] as $card)
+                @php($toneClass = match ($card['tone'] ?? 'default') {
+                    'danger' => 'border-rose-200 bg-rose-50 text-rose-700',
+                    'warning' => 'border-amber-200 bg-amber-50 text-amber-700',
+                    'success' => 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                    'info' => 'border-sky-200 bg-sky-50 text-sky-700',
+                    default => 'border-slate-200 bg-white text-slate-700',
+                })
+
+                <a
+                    href="{{ $card['url'] ?? '#' }}"
+                    wire:navigate
+                    class="group rounded-lg border {{ $toneClass }} p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="truncate text-xs font-semibold uppercase text-current">{{ $card['label'] ?? '' }}</p>
+                            <p class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{{ $card['count'] ?? 0 }}</p>
+                        </div>
+                        <x-dynamic-component :component="$card['icon'] ?? 'heroicon-m-circle-stack'" class="size-5 shrink-0" />
+                    </div>
+                    <p class="mt-3 text-sm font-semibold text-slate-700">{{ $card['action'] ?? '' }}</p>
+                </a>
+            @endforeach
+        </section>
+    @endif
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-2">
+            <x-heroicon-m-exclamation-triangle class="size-5 text-amber-600" />
+            <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.attention.sections.needs_action') }}</h3>
+        </div>
+
+        @if ($dashboard['needs_action_items'] !== [])
+            <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3">{{ __('dashboard.attention.table.priority') }}</th>
+                            <th class="px-4 py-3">{{ __('dashboard.attention.table.issue') }}</th>
+                            <th class="px-4 py-3 text-right">{{ __('dashboard.attention.table.count') }}</th>
+                            <th class="px-4 py-3 text-right">{{ __('dashboard.attention.table.action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($dashboard['needs_action_items'] as $item)
+                            @php($priorityClass = match ($item['priority']) {
+                                'high' => 'bg-rose-100 text-rose-700',
+                                'medium' => 'bg-amber-100 text-amber-700',
+                                default => 'bg-slate-100 text-slate-700',
+                            })
+
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $priorityClass }}">
+                                        {{ $item['priority_label'] }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 font-medium text-slate-900">{{ $item['issue'] }}</td>
+                                <td class="px-4 py-3 text-right font-semibold text-slate-950">{{ $item['count'] }}</td>
+                                <td class="px-4 py-3 text-right">
+                                    <a href="{{ $item['url'] }}" wire:navigate class="font-semibold text-emerald-700 hover:text-emerald-900">
+                                        {{ $item['action'] }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <x-shared.empty-state
+                icon="heroicon-m-check-circle"
+                :title="$dashboard['summary']['empty_title']"
+                :description="$dashboard['summary']['empty_description']"
+            />
+        @endif
+    </section>
+
+    @if (($dashboard['visible_widgets']['billing'] ?? false) && $dashboard['billing_progress']['stages'] !== [])
+        <section class="space-y-4">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <h3 class="text-lg font-semibold text-slate-950">
+                    {{ __('dashboard.attention.sections.billing_for_period', ['period' => $dashboard['billing_progress']['period']]) }}
+                </h3>
+                <p class="text-sm font-medium text-slate-600">
+                    {{ __('dashboard.attention.progress.total_invoices', ['count' => $dashboard['billing_progress']['total_invoices']]) }}
+                </p>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+                @foreach ($dashboard['billing_progress']['stages'] as $stage)
+                    @php($stageClass = match ($stage['tone']) {
+                        'warning' => 'border-amber-200 bg-amber-50',
+                        'success' => 'border-emerald-200 bg-emerald-50',
+                        'info' => 'border-sky-200 bg-sky-50',
+                        default => 'border-slate-200 bg-white',
                     })
 
-                    <article class="rounded-2xl border border-slate-200 px-4 py-4">
-                        <div class="flex items-center justify-between gap-4">
-                            <p class="text-sm font-semibold text-slate-950">{{ $usage['label'] }}</p>
-                            <p class="text-sm text-slate-600">{{ $usage['summary'] }}</p>
-                        </div>
-
-                        <div class="mt-3 h-3 rounded-full bg-slate-100">
-                            <div class="{{ $barColor }} h-3 rounded-full transition-all" style="width: {{ $usage['percent'] }}%"></div>
-                        </div>
-
-                        @if ($usage['limit_reached'])
-                            <div class="mt-3 flex items-start justify-between gap-4">
-                                <p class="text-sm font-medium text-rose-600">{{ $usage['message'] }}</p>
-                                <a
-                                    href="{{ route('filament.admin.pages.settings') }}#subscription"
-                                    wire:navigate
-                                    class="inline-flex shrink-0 items-center justify-center rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"
-                                >
-                                    {{ __('dashboard.organization_usage.upgrade_action') }}
-                                </a>
-                            </div>
-                        @endif
-                    </article>
+                    <div class="rounded-lg border {{ $stageClass }} p-4">
+                        <p class="text-xs font-semibold uppercase text-slate-500">{{ $stage['label'] }}</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $stage['count'] }}</p>
+                    </div>
                 @endforeach
             </div>
         </section>
     @endif
 
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <x-shared.stat-card
-            :label="__('dashboard.organization_contracts.tenants_without_contract')"
-            :value="(string) $dashboard['rental_contracts']['tenants_without_contract']"
-            :trend="__('dashboard.organization_contracts.tenants_without_contract_trend')"
-            icon="heroicon-m-user-minus"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_contracts.expiring_soon')"
-            :value="(string) $dashboard['rental_contracts']['contracts_expiring_soon']"
-            :trend="__('dashboard.organization_contracts.expiring_soon_trend')"
-            icon="heroicon-m-clock"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_contracts.expired')"
-            :value="(string) $dashboard['rental_contracts']['expired_contracts']"
-            :trend="__('dashboard.organization_contracts.expired_trend')"
-            icon="heroicon-m-exclamation-triangle"
-        />
-        <x-shared.stat-card
-            :label="__('dashboard.organization_contracts.active')"
-            :value="(string) $dashboard['rental_contracts']['active_contracts']"
-            :trend="__('dashboard.organization_contracts.active_trend')"
-            icon="heroicon-m-document-check"
-        />
-    </section>
+    @foreach ($sections as $section)
+        @continue(($dashboard[$section['key']] ?? []) === [])
 
-    <section class="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="flex items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.organization_widgets.recent_invoices') }}</h3>
-                    <p class="text-sm text-slate-500">{{ __('dashboard.organization_widgets.recent_invoices_description') }}</p>
-                </div>
-
-                <a
-                    href="{{ route('filament.admin.resources.invoices.index') }}"
-                    wire:navigate
-                    class="text-sm font-semibold text-slate-700 transition hover:text-slate-950"
-                >
-                    {{ __('dashboard.organization_widgets.view_all') }}
-                </a>
+        <section class="space-y-4">
+            <div class="flex items-center gap-2">
+                <x-dynamic-component :component="$section['icon']" class="size-5 text-slate-500" />
+                <h3 class="text-lg font-semibold text-slate-950">{{ $section['title'] }}</h3>
             </div>
 
-            <div class="mt-4 space-y-3">
-                @forelse ($dashboard['recent_invoices'] as $invoice)
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="min-w-0 space-y-1">
-                                <a
-                                    href="{{ route('filament.admin.resources.invoices.view', $invoice['id']) }}"
-                                    wire:navigate
-                                    class="text-sm font-semibold text-slate-950 transition hover:text-slate-700"
-                                >
-                                    {{ $invoice['tenant'] }}
-                                </a>
-                                <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                    {{ $invoice['number'] }}
-                                </p>
-                                <p class="text-sm text-slate-600">{{ $invoice['property'] }}</p>
-                                <p class="text-xs uppercase tracking-wide text-slate-500">{{ $invoice['billing_period'] }}</p>
-                            </div>
-
-                            <div class="space-y-2 text-right">
-                                <p class="text-sm font-semibold text-slate-950">{{ $invoice['amount'] }}</p>
-                                <span class="inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-                                    {{ $invoice['status'] }}
-                                </span>
-
-                                @if ($invoice['can_process_payment'])
-                                    <div>
-                                        <a
-                                            href="{{ route('filament.admin.resources.invoices.view', $invoice['id']) }}"
-                                            wire:navigate
-                                            class="text-sm font-semibold text-emerald-700 transition hover:text-emerald-900"
-                                        >
-                                            {{ __('dashboard.organization_widgets.process_payment') }}
-                                        </a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <x-shared.empty-state
-                        icon="heroicon-m-document-text"
-                        :title="__('dashboard.organization_widgets.recent_invoices')"
-                        :description="__('dashboard.organization_widgets.no_recent_invoices')"
-                    />
-                @endforelse
-            </div>
-        </article>
-
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="space-y-1">
-                <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.organization_widgets.upcoming_reading_deadlines') }}</h3>
-                <p class="text-sm text-slate-500">{{ __('dashboard.organization_widgets.upcoming_reading_deadlines_description') }}</p>
-            </div>
-
-            <div class="mt-4 space-y-3">
-                @forelse ($dashboard['upcoming_reading_deadlines'] as $deadline)
-                    @php($toneClass = match ($deadline['tone']) {
-                        'danger' => 'text-rose-600',
-                        'warning' => 'text-amber-600',
-                        default => 'text-slate-500',
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                @foreach ($dashboard[$section['key']] as $card)
+                    @php($cardClass = match ($card['tone'] ?? 'default') {
+                        'danger' => 'border-rose-200 hover:border-rose-300',
+                        'warning' => 'border-amber-200 hover:border-amber-300',
+                        'success' => 'border-emerald-200 hover:border-emerald-300',
+                        'info' => 'border-sky-200 hover:border-sky-300',
+                        default => 'border-slate-200 hover:border-slate-300',
                     })
 
                     <a
-                        href="{{ route('filament.admin.resources.meter-readings.create', ['meter' => $deadline['meter_id']]) }}"
+                        href="{{ $card['url'] ?? '#' }}"
                         wire:navigate
-                        class="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition hover:border-slate-300 hover:bg-white"
+                        class="group rounded-lg border {{ $cardClass }} bg-white p-4 transition hover:bg-slate-50"
                     >
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="space-y-1">
-                                <p class="font-mono text-sm font-semibold text-slate-950">{{ $deadline['meter_identifier'] }}</p>
-                                <p class="text-sm text-slate-600">{{ $deadline['property_name'] }}</p>
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-slate-700">{{ $card['label'] ?? '' }}</p>
+                                <p class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{{ $card['count'] ?? 0 }}</p>
                             </div>
-
-                            <p class="text-sm font-semibold {{ $toneClass }}">{{ $deadline['due_label'] }}</p>
+                            <x-dynamic-component :component="$card['icon'] ?? 'heroicon-m-circle-stack'" class="size-5 shrink-0 text-slate-400 transition group-hover:text-slate-700" />
                         </div>
+                        <p class="mt-3 text-sm font-semibold text-emerald-700">{{ $card['action'] ?? '' }}</p>
                     </a>
-                @empty
-                    <x-shared.empty-state
-                        icon="heroicon-m-clipboard-document-list"
-                        :title="__('dashboard.organization_widgets.upcoming_reading_deadlines')"
-                        :description="__('dashboard.organization_widgets.no_upcoming_deadlines')"
-                    />
-                @endforelse
+                @endforeach
             </div>
-        </article>
+        </section>
+    @endforeach
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-2">
+            <x-heroicon-m-clock class="size-5 text-slate-500" />
+            <h3 class="text-lg font-semibold text-slate-950">{{ __('dashboard.attention.sections.recent_activity') }}</h3>
+        </div>
+
+        @if ($dashboard['recent_activity'] !== [])
+            <div class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+                @foreach ($dashboard['recent_activity'] as $activity)
+                    <a href="{{ $activity['url'] }}" wire:navigate class="flex flex-col gap-1 px-4 py-3 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
+                        <span class="text-sm text-slate-700">
+                            <span class="font-semibold text-slate-950">{{ $activity['who'] }}</span>
+                            {{ $activity['what'] }}
+                        </span>
+                        <span class="text-xs font-medium text-slate-500">{{ $activity['when'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @else
+            <x-shared.empty-state
+                icon="heroicon-m-clock"
+                :title="__('dashboard.attention.empty.no_activity_title')"
+                :description="__('dashboard.attention.empty.no_activity_description')"
+            />
+        @endif
     </section>
 </div>

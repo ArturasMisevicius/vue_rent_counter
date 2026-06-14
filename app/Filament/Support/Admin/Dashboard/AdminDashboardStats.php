@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Admin\Dashboard;
 
 use App\Enums\InvoiceStatus;

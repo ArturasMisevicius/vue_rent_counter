@@ -66,6 +66,7 @@
                         <x-tenant.invoice-card
                             :invoice="$invoice"
                             :presentation="$invoicePresentations[$invoice->id] ?? null"
+                            :payment-form="$paymentForms[$invoice->id] ?? []"
                             :period-display="__('tenant.pages.invoices.period', [
                                 'start' => $invoice->billing_period_start?->toDateString() ?? '—',
                                 'end' => $invoice->billing_period_end?->toDateString() ?? '—',

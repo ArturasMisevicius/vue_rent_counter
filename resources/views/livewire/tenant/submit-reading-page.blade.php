@@ -23,6 +23,9 @@
                                 <div class="min-w-0">
                                     <p class="font-semibold text-slate-950">{{ $reading['meter_name'] }}</p>
                                     <p class="mt-1 text-sm text-slate-500">{{ $reading['meter_identifier'] }}</p>
+                                    <p class="mt-2 inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                        {{ __('tenant.pages.readings.submitted_review_status') }}
+                                    </p>
                                 </div>
                                 <div class="text-left sm:text-right">
                                     <p class="font-display text-2xl tracking-tight text-slate-950 sm:text-3xl">{{ $reading['value'] }} {{ $reading['unit'] }}</p>
@@ -45,6 +48,27 @@
                         </p>
                         <p class="mt-1 text-sm leading-6 text-amber-900">{{ $readingRequestInvoiceSummary['period'] }}</p>
                         <p class="text-sm leading-6 text-amber-900">{{ $readingRequestInvoiceSummary['due'] }}</p>
+
+                        @if ($readingRequestInvoiceSummary['required_inputs'] !== [])
+                            <div class="mt-4 rounded-2xl border border-amber-200 bg-white/70 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-normal text-amber-700">
+                                    {{ __('tenant.pages.readings.required_inputs_heading') }}
+                                </p>
+                                <ul class="mt-3 space-y-2 text-sm text-amber-950">
+                                    @forelse ($readingRequestInvoiceSummary['required_inputs'] as $input)
+                                        <li class="flex items-start justify-between gap-3">
+                                            <span class="min-w-0">
+                                                <span class="block font-semibold">{{ $input['meter_name'] }}</span>
+                                                <span class="block text-amber-800">{{ $input['meter_identifier'] }}</span>
+                                            </span>
+                                            <span class="shrink-0 font-medium text-amber-800">{{ $input['unit'] }}</span>
+                                        </li>
+                                    @empty
+                                        <li>{{ __('tenant.pages.readings.required_inputs_empty') }}</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        @endif
                     </div>
                 </x-tenant.card>
             @endif
@@ -98,7 +122,14 @@
                             </p>
                         @endforeach
 
-                        <div class="flex flex-col gap-4">
+                        <div class="hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-normal text-slate-500 lg:grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(18rem,0.9fr)_minmax(12rem,0.7fr)] lg:gap-4" data-tenant-reading-table-heading>
+                            <span>{{ __('tenant.pages.readings.meter') }}</span>
+                            <span>{{ __('tenant.pages.readings.previous_reading_column') }}</span>
+                            <span>{{ __('tenant.pages.readings.current_reading_column') }}</span>
+                            <span>{{ __('tenant.pages.readings.consumption_column') }}</span>
+                        </div>
+
+                        <div class="flex flex-col gap-4" data-tenant-reading-table>
                             @foreach ($readingRows as $row)
                                 @php
                                     $meterId = (string) $row['id'];

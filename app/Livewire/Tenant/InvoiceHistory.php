@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Tenant;
 
+use App\Actions\Billing\SubmitTenantPaymentProof;
+use App\Enums\PaymentMethod;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
@@ -20,6 +22,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -27,10 +30,21 @@ class InvoiceHistory extends Component
 {
     use AppliesShellLocale;
     use ResolvesTenantWorkspace;
+    use WithFileUploads;
     use WithPagination;
 
     #[Url(as: 'status')]
     public string $selectedStatus = 'all';
+
+    /**
+     * @var array<int, array<string, mixed>>
+     */
+    public array $paymentForms = [];
+
+    /**
+     * @var array<int, mixed>
+     */
+    public array $paymentProofFiles = [];
 
     public function mount(): void
     {
@@ -48,6 +62,7 @@ class InvoiceHistory extends Component
     public function render(): View
     {
         $invoices = $this->invoices;
+        $this->ensurePaymentForms($invoices->items());
         $invoicePresentationService = app(InvoicePresentationService::class);
         $invoicePresentations = collect($invoices->items())
             ->mapWithKeys(fn (Invoice $invoice): array => [
@@ -59,6 +74,7 @@ class InvoiceHistory extends Component
             'invoices' => $invoices,
             'invoicePresentations' => $invoicePresentations,
             'paymentGuidance' => $this->paymentGuidance,
+            'paymentForms' => $this->paymentForms,
             'selectedStatus' => $this->selectedStatus,
             'tenant' => $this->tenant,
         ]);
@@ -106,6 +122,52 @@ class InvoiceHistory extends Component
         $this->resetPage();
 
         unset($this->invoices, $this->statusFilter);
+    }
+
+    public function submitPaymentProof(int $invoiceId, SubmitTenantPaymentProof $submitTenantPaymentProof): void
+    {
+        $invoice = Invoice::query()
+            ->select([
+                'id',
+                'organization_id',
+                'billing_period_id',
+                'property_id',
+                'tenant_user_id',
+                'invoice_number',
+                'billing_period_start',
+                'billing_period_end',
+                'status',
+                'payment_status',
+                'currency',
+                'total_amount',
+                'amount_paid',
+                'paid_amount',
+                'balance_amount',
+                'due_date',
+                'paid_at',
+                'payment_reference',
+                'overdue_at',
+            ])
+            ->findOrFail($invoiceId);
+        $tenant = $this->tenant;
+
+        Gate::forUser($tenant)->authorize('view', $invoice);
+
+        $form = $this->paymentForms[$invoiceId] ?? [];
+
+        $submitTenantPaymentProof->handle($invoice, $tenant, [
+            'amount' => $form['amount'] ?? null,
+            'payment_date' => $form['payment_date'] ?? null,
+            'payment_method' => $form['payment_method'] ?? null,
+            'reference' => $form['reference'] ?? null,
+            'transaction_id' => $form['transaction_id'] ?? null,
+            'tenant_comment' => $form['tenant_comment'] ?? null,
+            'proof_file' => $this->paymentProofFiles[$invoiceId] ?? null,
+        ]);
+
+        unset($this->paymentProofFiles[$invoiceId], $this->paymentForms[$invoiceId], $this->invoices);
+
+        session()->flash('payment-proof-submitted-'.$invoiceId, __('tenant.pages.invoices.payment_proof_submitted'));
     }
 
     #[On('shell-locale-updated')]
@@ -172,5 +234,26 @@ class InvoiceHistory extends Component
         return app(PaymentInstructionsResolver::class)->resolve(
             $this->tenant->organization?->settings,
         );
+    }
+
+    /**
+     * @param  array<int, Invoice>  $invoices
+     */
+    private function ensurePaymentForms(array $invoices): void
+    {
+        foreach ($invoices as $invoice) {
+            if (array_key_exists($invoice->id, $this->paymentForms)) {
+                continue;
+            }
+
+            $this->paymentForms[$invoice->id] = [
+                'amount' => number_format($invoice->outstanding_balance, 2, '.', ''),
+                'payment_date' => now()->toDateString(),
+                'payment_method' => PaymentMethod::BANK_TRANSFER->value,
+                'reference' => $invoice->payment_reference ?: $invoice->invoice_number,
+                'transaction_id' => '',
+                'tenant_comment' => '',
+            ];
+        }
     }
 }

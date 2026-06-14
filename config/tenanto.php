@@ -34,6 +34,18 @@ $organizationNavigation = [
         'label' => 'admin.invoices.plural',
     ],
     [
+        'route' => 'filament.admin.pages.billing-cleanup-center',
+        'label' => 'admin.billing_cleanup.navigation',
+    ],
+    [
+        'route' => 'filament.admin.resources.extra-charges.index',
+        'label' => 'admin.extra_charges.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.extra-charge-types.index',
+        'label' => 'admin.extra_charge_types.plural',
+    ],
+    [
         'route' => 'filament.admin.resources.providers.index',
         'label' => 'admin.providers.plural',
     ],
@@ -75,6 +87,10 @@ return [
 
     'subscription' => [
         'grace_period_days' => 7,
+    ],
+
+    'billing' => [
+        'extra_charge_manager_approval_threshold' => env('TENANTO_EXTRA_CHARGE_MANAGER_APPROVAL_THRESHOLD', '100.00'),
     ],
 
     'shell' => [
@@ -228,8 +244,24 @@ return [
                             ],
                         ],
                         [
+                            'route' => 'filament.admin.pages.billing-cleanup-center',
+                            'label' => 'admin.billing_cleanup.navigation',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.payments.index',
+                            'label' => 'admin.payments.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charges.index',
+                            'label' => 'admin.extra_charges.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charge-types.index',
+                            'label' => 'admin.extra_charge_types.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.tariffs.index',
@@ -293,8 +325,24 @@ return [
                             ],
                         ],
                         [
+                            'route' => 'filament.admin.pages.billing-cleanup-center',
+                            'label' => 'admin.billing_cleanup.navigation',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.payments.index',
+                            'label' => 'admin.payments.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charges.index',
+                            'label' => 'admin.extra_charges.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charge-types.index',
+                            'label' => 'admin.extra_charge_types.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.tariffs.index',
@@ -358,8 +406,24 @@ return [
                             ],
                         ],
                         [
+                            'route' => 'filament.admin.pages.billing-cleanup-center',
+                            'label' => 'admin.billing_cleanup.navigation',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.payments.index',
+                            'label' => 'admin.payments.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charges.index',
+                            'label' => 'admin.extra_charges.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.extra-charge-types.index',
+                            'label' => 'admin.extra_charge_types.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.tariffs.index',

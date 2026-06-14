@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoicePaymentStatus;
 use App\Enums\InvoiceStatus;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -24,19 +25,26 @@ class Invoice extends Model
         'billing_period_id',
         'property_id',
         'tenant_user_id',
+        'property_assignment_id',
+        'move_out_process_id',
+        'invoice_type',
+        'is_final',
         'invoice_number',
         'billing_period_start',
         'billing_period_end',
         'status',
+        'payment_status',
         'currency',
         'total_amount',
         'amount_paid',
         'paid_amount',
+        'balance_amount',
         'due_date',
         'finalized_at',
         'paid_at',
         'last_reminder_sent_at',
         'payment_reference',
+        'overdue_at',
         'items',
         'snapshot_data',
         'snapshot_created_at',
@@ -60,17 +68,24 @@ class Invoice extends Model
         'billing_period_id',
         'property_id',
         'tenant_user_id',
+        'property_assignment_id',
+        'move_out_process_id',
+        'invoice_type',
+        'is_final',
         'invoice_number',
         'billing_period_start',
         'billing_period_end',
         'status',
+        'payment_status',
         'currency',
         'total_amount',
         'amount_paid',
         'paid_amount',
+        'balance_amount',
         'due_date',
         'paid_at',
         'last_reminder_sent_at',
+        'overdue_at',
         'items',
         'snapshot_data',
         'document_path',
@@ -81,19 +96,26 @@ class Invoice extends Model
         'billing_period_id',
         'property_id',
         'tenant_user_id',
+        'property_assignment_id',
+        'move_out_process_id',
+        'invoice_type',
+        'is_final',
         'invoice_number',
         'billing_period_start',
         'billing_period_end',
         'status',
+        'payment_status',
         'currency',
         'total_amount',
         'amount_paid',
         'paid_amount',
+        'balance_amount',
         'due_date',
         'finalized_at',
         'paid_at',
         'last_reminder_sent_at',
         'payment_reference',
+        'overdue_at',
         'snapshot_data',
         'snapshot_created_at',
         'items',
@@ -115,19 +137,23 @@ class Invoice extends Model
             'billing_period_start' => 'date',
             'billing_period_end' => 'date',
             'status' => InvoiceStatus::class,
+            'payment_status' => InvoicePaymentStatus::class,
             'total_amount' => 'decimal:2',
             'amount_paid' => 'decimal:2',
             'paid_amount' => 'decimal:2',
+            'balance_amount' => 'decimal:2',
             'due_date' => 'date',
             'finalized_at' => 'datetime',
             'paid_at' => 'datetime',
             'last_reminder_sent_at' => 'datetime',
+            'overdue_at' => 'datetime',
             'snapshot_data' => 'array',
             'snapshot_created_at' => 'datetime',
             'generated_at' => 'datetime',
             'approval_deadline' => 'datetime',
             'approval_metadata' => 'array',
             'approved_at' => 'datetime',
+            'is_final' => 'boolean',
         ];
     }
 
@@ -163,7 +189,19 @@ class Invoice extends Model
     {
         return $query
             ->withoutWriteOff()
-            ->whereIn('status', InvoiceStatus::outstandingValues());
+            ->where(function (Builder $statusQuery): void {
+                $statusQuery
+                    ->whereIn('status', InvoiceStatus::outstandingValues())
+                    ->orWhere(function (Builder $paymentStatusQuery): void {
+                        $paymentStatusQuery
+                            ->whereIn('status', [
+                                InvoiceStatus::FINALIZED,
+                                InvoiceStatus::PARTIALLY_PAID,
+                                InvoiceStatus::OVERDUE,
+                            ])
+                            ->whereIn('payment_status', InvoicePaymentStatus::openBalanceValues());
+                    });
+            });
     }
 
     public function scopePendingAttention(Builder $query): Builder
@@ -294,7 +332,8 @@ class Invoice extends Model
             'tenant:id,organization_id,name,email',
             'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
             'property.building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
-            'payments:id,invoice_id,organization_id,amount,method,reference,paid_at,notes',
+            'payments:id,invoice_id,organization_id,tenant_id,property_id,amount,currency,method,payment_method,status,payment_date,reference,transaction_id,paid_at,notes,tenant_comment,confirmed_at,rejected_at,rejection_reason,voided_at,void_reason,created_at',
+            'payments.attachments:id,organization_id,attachable_type,attachable_id,uploaded_by_user_id,filename,original_filename,mime_type,size,disk,path,document_type,tenant_visible,created_at',
         ]);
     }
 
@@ -448,6 +487,43 @@ class Invoice extends Model
         });
     }
 
+    public function scopeForEffectivePaymentStatusValues(
+        Builder $query,
+        array|string|null $statuses,
+        CarbonInterface|string|null $asOf = null,
+    ): Builder {
+        $resolvedStatuses = collect(is_array($statuses) ? $statuses : [$statuses])
+            ->filter(fn (mixed $value): bool => filled($value))
+            ->map(fn (mixed $value): string => (string) $value)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($resolvedStatuses === []) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $statusQuery) use ($resolvedStatuses, $asOf): void {
+            foreach ($resolvedStatuses as $statusValue) {
+                $status = InvoicePaymentStatus::tryFrom($statusValue);
+
+                if (! $status instanceof InvoicePaymentStatus) {
+                    continue;
+                }
+
+                $statusQuery->orWhere(function (Builder $candidateQuery) use ($status, $asOf): void {
+                    if ($status === InvoicePaymentStatus::OVERDUE) {
+                        $candidateQuery->whereOverdueAsOf($asOf);
+
+                        return;
+                    }
+
+                    $candidateQuery->where('payment_status', $status);
+                });
+            }
+        });
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -466,6 +542,16 @@ class Invoice extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(User::class, 'tenant_user_id');
+    }
+
+    public function propertyAssignment(): BelongsTo
+    {
+        return $this->belongsTo(PropertyAssignment::class);
+    }
+
+    public function moveOutProcess(): BelongsTo
+    {
+        return $this->belongsTo(MoveOutProcess::class);
     }
 
     public function currencyDefinition(): BelongsTo
@@ -539,9 +625,14 @@ class Invoice extends Model
         return max((float) $this->amount_paid, (float) $this->paid_amount);
     }
 
-    public function getOutstandingBalanceAttribute(): float
+    public function getNormalizedBalanceAmountAttribute(): float
     {
         return max(0, (float) $this->total_amount - $this->normalized_paid_amount);
+    }
+
+    public function getOutstandingBalanceAttribute(): float
+    {
+        return $this->normalized_balance_amount;
     }
 
     public function overdueReferenceDate(): ?CarbonInterface
@@ -629,6 +720,39 @@ class Invoice extends Model
         }
 
         return $status;
+    }
+
+    public function effectivePaymentStatus(CarbonInterface|string|null $asOf = null): InvoicePaymentStatus
+    {
+        $status = $this->status instanceof InvoiceStatus
+            ? $this->status
+            : InvoiceStatus::tryFrom((string) $this->status);
+
+        if ($status === InvoiceStatus::VOID) {
+            return InvoicePaymentStatus::VOIDED;
+        }
+
+        $totalAmount = (float) $this->total_amount;
+        $paidAmount = $this->normalized_paid_amount;
+        $balanceAmount = max(0, $totalAmount - $paidAmount);
+
+        if ($paidAmount > $totalAmount && $totalAmount > 0) {
+            return InvoicePaymentStatus::OVERPAID;
+        }
+
+        if ($totalAmount > 0 && $balanceAmount <= 0 && $paidAmount >= $totalAmount) {
+            return InvoicePaymentStatus::PAID;
+        }
+
+        if ($this->isOverdue($asOf)) {
+            return InvoicePaymentStatus::OVERDUE;
+        }
+
+        if ($paidAmount > 0) {
+            return InvoicePaymentStatus::PARTIALLY_PAID;
+        }
+
+        return InvoicePaymentStatus::UNPAID;
     }
 
     public function canViewFromAdminWorkspace(): bool

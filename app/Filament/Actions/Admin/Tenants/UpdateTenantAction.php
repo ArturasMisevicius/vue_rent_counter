@@ -40,6 +40,7 @@ class UpdateTenantAction
                     $validated['property'],
                     $tenant->fresh(),
                     $validated['unit_area_sqm'],
+                    now(),
                 );
             } elseif ($tenant->fresh()->currentProperty !== null) {
                 $tenant->fresh()->currentPropertyAssignment?->update([

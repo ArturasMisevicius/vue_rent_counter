@@ -293,7 +293,7 @@ it('does not send duplicate reading reminders', function (): void {
     notificationInvoice($workspace, [
         'status' => InvoiceStatus::DRAFT,
         'automation_level' => 'reading_request',
-        'approval_status' => 'pending',
+        'approval_status' => 'waiting_for_readings',
         'due_date' => today()->addDays(3)->toDateString(),
     ]);
 

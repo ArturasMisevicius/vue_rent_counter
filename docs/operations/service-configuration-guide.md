@@ -82,6 +82,30 @@
 
 Сейчас `invoice.due_date` у пустого `reading_request` используется как deadline ввода показаний. Отдельный `BillingPeriod.payment_due_date` уже хранится для следующего шага, где финальный счет сможет иметь собственный срок оплаты после проверки показаний.
 
+Пустой счет на этом шаге не является финальным счетом к оплате. Его `status = draft`, `automation_level = reading_request`, `approval_status = waiting_for_readings`. В `approval_metadata` сохраняется request snapshot:
+
+- tenant и property;
+- period и deadline для ввода показаний;
+- linked meters;
+- expected services;
+- required inputs, то есть конкретные счетчики, которые tenant должен заполнить.
+
+Уведомление tenant отправляется сразу после создания draft invoice:
+
+- email notification через `InvoiceReadingRequestNotification`;
+- database notification, которая отображается в tenant portal;
+- ссылка ведет на форму ввода показаний для конкретного счета;
+- текст содержит расчетный период и deadline ввода показаний;
+- reminders отправляются только пока счет остается `waiting_for_readings` или старым совместимым `pending`; после `readings_submitted` reminders больше не уходят.
+
+Tenant вводит показания только внутри конкретного draft invoice:
+
+- tenant home показывает `Current Invoice`, если открыт `reading_request`;
+- кнопка ведет на `Submit Readings` с `invoice=<id>`, а не на свободную форму;
+- форма показывает строки `Meter / Previous reading / Current reading / Consumption`;
+- после отправки invoice получает `approval_status = readings_submitted`, а snapshot input получает `status = submitted`;
+- повторное показание для того же счетчика в рамках этого invoice period блокируется. Исправления после отправки должны идти через admin/manager review, а не через создание еще одного tenant reading.
+
 Важно: для автоматической подготовки нужны два подтверждаемых показания: одно до начала периода и одно внутри периода. Если пары нет, счет можно заполнить вручную.
 
 Tenant не может отправлять показания в свободном режиме без открытого черновика `reading_request`. Если tenant открывает раздел показаний без активного запроса, портал показывает ожидание нового запроса; если ссылка ведет на уже отправленный или закрытый запрос, повторная отправка блокируется.

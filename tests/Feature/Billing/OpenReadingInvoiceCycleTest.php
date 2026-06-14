@@ -1,6 +1,9 @@
 <?php
 
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterType;
+use App\Enums\PricingModel;
+use App\Enums\ServiceType;
 use App\Filament\Actions\Admin\Invoices\OpenReadingInvoiceCycleAction;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
 use App\Models\BillingPeriod;
@@ -10,7 +13,9 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
+use App\Models\ServiceConfiguration;
 use App\Models\User;
+use App\Models\UtilityService;
 use App\Notifications\Billing\InvoiceReadingRequestNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -61,23 +66,40 @@ it('opens empty draft invoices and notifies tenants for active metered assignmen
         ->and($invoice->items)->toBe([])
         ->and($invoice->invoiceItems)->toHaveCount(0)
         ->and($invoice->automation_level)->toBe('reading_request')
+        ->and($invoice->approval_status)->toBe('waiting_for_readings')
         ->and($invoice->generated_by)->toBe("user:{$admin->id}")
         ->and($invoice->approval_metadata['workflow'] ?? null)->toBe('meter_reading_request')
+        ->and($invoice->approval_metadata['request_status'] ?? null)->toBe('waiting_for_readings')
         ->and($invoice->approval_metadata['billing_period_id'] ?? null)->toBe($billingPeriod->id)
         ->and($invoice->approval_metadata['reading_submission_deadline'] ?? null)->toBe('2026-06-14')
         ->and($invoice->approval_metadata['invoice_generation_date'] ?? null)->toBe('2026-06-14')
-        ->and($invoice->approval_metadata['payment_due_date'] ?? null)->toBe('2026-06-28');
+        ->and($invoice->approval_metadata['payment_due_date'] ?? null)->toBe('2026-06-28')
+        ->and($invoice->approval_metadata['tenant']['id'] ?? null)->toBe($tenant->id)
+        ->and($invoice->approval_metadata['linked_meters'])->toHaveCount(1)
+        ->and($invoice->approval_metadata['linked_meters'][0]['identifier'] ?? null)->toBe('EL-APT-12')
+        ->and($invoice->approval_metadata['linked_meters'][0]['status'] ?? null)->toBe('pending')
+        ->and($invoice->approval_metadata['expected_services'])->toHaveCount(1)
+        ->and($invoice->approval_metadata['expected_services'][0]['name'] ?? null)->toBe('Electricity')
+        ->and($invoice->approval_metadata['expected_services'][0]['requires_reading'] ?? null)->toBeTrue()
+        ->and($invoice->approval_metadata['required_inputs'])->toHaveCount(1)
+        ->and($invoice->approval_metadata['required_inputs'][0]['meter_identifier'] ?? null)->toBe('EL-APT-12')
+        ->and($invoice->approval_metadata['required_inputs'][0]['status'] ?? null)->toBe('pending');
 
     Notification::assertSentTo(
         $tenant,
         InvoiceReadingRequestNotification::class,
         function (InvoiceReadingRequestNotification $notification, array $channels) use ($invoice, $tenant): bool {
             $payload = $notification->toArray($tenant);
+            $mail = $notification->toMail($tenant);
 
             return in_array('mail', $channels, true)
                 && in_array('database', $channels, true)
                 && $payload['invoice_id'] === $invoice->id
-                && $payload['url'] === route('tenant.readings.create', ['invoice' => $invoice->id], false);
+                && $payload['url'] === route('tenant.readings.create', ['invoice' => $invoice->id], false)
+                && $payload['billing_period_name'] === 'May 2026'
+                && $payload['reading_submission_deadline'] === '2026-06-14'
+                && str_contains((string) $payload['body'], 'May 2026')
+                && str_contains((string) $mail->subject, 'May 2026');
         },
     );
 });
@@ -210,7 +232,35 @@ function buildOpenReadingInvoiceCycleScenario(): array
     Meter::factory()
         ->for($organization)
         ->for($property)
-        ->create();
+        ->create([
+            'name' => 'Apartment 12 Electricity',
+            'identifier' => 'EL-APT-12',
+            'type' => MeterType::ELECTRICITY,
+            'unit' => 'kWh',
+        ]);
+
+    $utilityService = UtilityService::factory()
+        ->for($organization)
+        ->create([
+            'name' => 'Electricity',
+            'unit_of_measurement' => 'kWh',
+            'service_type_bridge' => ServiceType::ELECTRICITY,
+            'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        ]);
+
+    ServiceConfiguration::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($utilityService, 'utilityService')
+        ->create([
+            'service_name' => 'Electricity',
+            'tenant_visible_name' => 'Electricity',
+            'service_type' => ServiceType::ELECTRICITY,
+            'pricing_model' => PricingModel::CONSUMPTION_BASED,
+            'effective_from' => '2026-01-01 00:00:00',
+            'effective_until' => null,
+            'is_active' => true,
+        ]);
 
     return [
         'organization' => $organization,

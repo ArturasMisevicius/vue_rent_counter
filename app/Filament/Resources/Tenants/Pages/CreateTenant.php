@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
-use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
+use App\Filament\Actions\Admin\Tenants\CreateTenantWithAssignment;
 use App\Filament\Resources\Tenants\Pages\Concerns\InteractsWithTenantLeaseAgreementFormData;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
+use App\Filament\Support\Tenants\TenantCreationResult;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\SubscriptionChecker;
@@ -24,7 +25,9 @@ class CreateTenant extends CreateRecord
 
     protected static string|array $routeMiddleware = 'manager.permission:tenants,create';
 
-    protected static bool $canCreateAnother = false;
+    protected static bool $canCreateAnother = true;
+
+    private ?TenantCreationResult $creationResult = null;
 
     public function getTitle(): string
     {
@@ -99,7 +102,9 @@ class CreateTenant extends CreateRecord
 
         unset($data['organization_id']);
 
-        return app(CreateTenantAction::class)->handle($actor, $data, $organization);
+        $this->creationResult = app(CreateTenantWithAssignment::class)->handle($actor, $data, $organization);
+
+        return $this->creationResult->tenant;
     }
 
     protected function afterCreate(): void
@@ -119,22 +124,47 @@ class CreateTenant extends CreateRecord
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
-            ->label(__('admin.tenants.actions.save_tenant'));
+            ->label(__('admin.tenants.actions.create_tenant'));
     }
 
     protected function getCreatedNotification(): ?Notification
     {
-        $invitation = $this->record instanceof User
-            ? $this->record->latestTenantInvitationRecord()
-            : null;
+        $result = $this->creationResult;
+        $invitation = $result?->invitation ?? (
+            $this->record instanceof User
+                ? $this->record->latestTenantInvitationRecord()
+                : null
+        );
+
+        $readiness = $result?->billingReadiness;
+        $nextSteps = collect($result?->nextSteps ?? [])
+            ->map(fn (string $step): string => __("admin.tenants.next_steps.{$step}"))
+            ->implode("\n");
+        $body = collect([
+            $invitation === null
+                ? __('admin.tenants.messages.invitation_not_sent')
+                : __('admin.tenants.messages.invitation_sent', [
+                    'email' => (string) $this->record?->email,
+                ]),
+            $readiness === null
+                ? null
+                : __('admin.tenants.billing_readiness.status_label', [
+                    'status' => $readiness->status->getLabel(),
+                ]),
+            $nextSteps !== '' ? __('admin.tenants.messages.next_steps_summary', ['steps' => $nextSteps]) : null,
+        ])
+            ->filter()
+            ->implode("\n\n");
 
         return Notification::make()
             ->success()
             ->title(__('admin.tenants.messages.tenant_created'))
-            ->body($invitation === null
-                ? __('admin.tenants.messages.invitation_not_sent')
-                : __('admin.tenants.messages.invitation_sent', [
-                    'email' => (string) $this->record?->email,
-                ]));
+            ->body($body)
+            ->actions([
+                Action::make('openTenantProfile')
+                    ->label(__('admin.tenants.actions.view_profile'))
+                    ->button()
+                    ->url($this->getRedirectUrl()),
+            ]);
     }
 }

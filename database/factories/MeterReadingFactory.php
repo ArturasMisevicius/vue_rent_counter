@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingType;
 use App\Enums\MeterReadingValidationStatus;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -30,6 +31,10 @@ class MeterReadingFactory extends Factory
             'reading_date' => now()->subDay()->toDateString(),
             'validation_status' => MeterReadingValidationStatus::VALID,
             'submission_method' => MeterReadingSubmissionMethod::ADMIN_MANUAL,
+            'reading_type' => MeterReadingType::REGULAR,
+            'property_assignment_id' => null,
+            'move_out_process_id' => null,
+            'invoice_id' => null,
             'notes' => null,
         ];
     }

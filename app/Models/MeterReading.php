@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingType;
 use App\Enums\MeterReadingValidationStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\MeterReadingFactory;
@@ -27,6 +28,10 @@ class MeterReading extends Model
         'reading_date',
         'validation_status',
         'submission_method',
+        'reading_type',
+        'property_assignment_id',
+        'move_out_process_id',
+        'invoice_id',
         'notes',
         'created_at',
         'updated_at',
@@ -41,6 +46,10 @@ class MeterReading extends Model
         'reading_date',
         'validation_status',
         'submission_method',
+        'reading_type',
+        'property_assignment_id',
+        'move_out_process_id',
+        'invoice_id',
         'notes',
     ];
 
@@ -51,6 +60,7 @@ class MeterReading extends Model
             'reading_date' => 'date',
             'validation_status' => MeterReadingValidationStatus::class,
             'submission_method' => MeterReadingSubmissionMethod::class,
+            'reading_type' => MeterReadingType::class,
         ];
     }
 
@@ -77,7 +87,9 @@ class MeterReading extends Model
         $resolvedStart = $startDate instanceof CarbonInterface ? $startDate->toDateString() : $startDate;
         $resolvedEnd = $endDate instanceof CarbonInterface ? $endDate->toDateString() : $endDate;
 
-        return $query->whereBetween('meter_readings.reading_date', [$resolvedStart, $resolvedEnd]);
+        return $query
+            ->whereDate('meter_readings.reading_date', '>=', $resolvedStart)
+            ->whereDate('meter_readings.reading_date', '<=', $resolvedEnd);
     }
 
     public function scopeLatestFirst(Builder $query): Builder
@@ -214,6 +226,21 @@ class MeterReading extends Model
     public function submittedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by_user_id');
+    }
+
+    public function propertyAssignment(): BelongsTo
+    {
+        return $this->belongsTo(PropertyAssignment::class);
+    }
+
+    public function moveOutProcess(): BelongsTo
+    {
+        return $this->belongsTo(MoveOutProcess::class);
+    }
+
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
     }
 
     public function audits(): HasMany

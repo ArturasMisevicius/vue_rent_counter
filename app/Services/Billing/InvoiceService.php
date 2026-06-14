@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
+use App\Actions\Billing\CreateManualPayment;
 use App\Enums\AuditLogAction;
 use App\Enums\InvoiceItemSourceType;
+use App\Enums\InvoicePaymentStatus;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Events\InvoiceFinalized;
@@ -16,7 +18,6 @@ use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\InvoiceGenerationAudit;
-use App\Models\InvoicePayment;
 use App\Models\Organization;
 use App\Models\PropertyAssignment;
 use App\Models\User;
@@ -34,6 +35,7 @@ final class InvoiceService
         private readonly AuditLogger $auditLogger,
         private readonly InvoiceApprovalValidator $invoiceApprovalValidator,
         private readonly ExtraChargeInvoiceIntegrator $extraChargeInvoiceIntegrator,
+        private readonly CreateManualPayment $createManualPayment,
     ) {}
 
     /**
@@ -96,10 +98,12 @@ final class InvoiceService
                 'billing_period_start' => $billingPeriodStart,
                 'billing_period_end' => $billingPeriodEnd,
                 'status' => InvoiceStatus::DRAFT,
+                'payment_status' => InvoicePaymentStatus::UNPAID,
                 'currency' => 'EUR',
                 'total_amount' => $totalAmount,
                 'amount_paid' => $this->calculator->money('0'),
                 'paid_amount' => $this->calculator->money('0'),
+                'balance_amount' => $totalAmount,
                 'due_date' => $dueDate,
                 'items' => $items,
                 'snapshot_data' => $items,
@@ -145,6 +149,7 @@ final class InvoiceService
         string $dueDate,
         ?User $actor = null,
         ?BillingPeriod $billingPeriod = null,
+        array $readingRequestSnapshot = [],
     ): Invoice {
         return DB::transaction(function () use (
             $organization,
@@ -154,6 +159,7 @@ final class InvoiceService
             $dueDate,
             $actor,
             $billingPeriod,
+            $readingRequestSnapshot,
         ): Invoice {
             $invoice = Invoice::query()->create([
                 'organization_id' => $organization->id,
@@ -164,25 +170,45 @@ final class InvoiceService
                 'billing_period_start' => $billingPeriodStart->toDateString(),
                 'billing_period_end' => $billingPeriodEnd->toDateString(),
                 'status' => InvoiceStatus::DRAFT,
+                'payment_status' => InvoicePaymentStatus::UNPAID,
                 'currency' => 'EUR',
                 'total_amount' => $this->calculator->money('0'),
                 'amount_paid' => $this->calculator->money('0'),
                 'paid_amount' => $this->calculator->money('0'),
+                'balance_amount' => $this->calculator->money('0'),
                 'due_date' => $dueDate,
                 'items' => [],
                 'snapshot_data' => [],
                 'snapshot_created_at' => now(),
                 'generated_at' => now(),
                 'generated_by' => $actor !== null ? "user:{$actor->id}" : 'billing:reading-invoice-cycle',
-                'approval_status' => 'pending',
+                'approval_status' => 'waiting_for_readings',
                 'automation_level' => 'reading_request',
                 'approval_metadata' => [
                     'workflow' => 'meter_reading_request',
                     'source' => 'billing:open-reading-invoice-cycle',
+                    'request_status' => 'waiting_for_readings',
                     'billing_period_id' => $billingPeriod?->id,
                     'reading_submission_deadline' => $billingPeriod?->reading_submission_deadline?->toDateString() ?? $dueDate,
                     'invoice_generation_date' => $billingPeriod?->invoice_generation_date?->toDateString(),
                     'payment_due_date' => $billingPeriod?->payment_due_date?->toDateString(),
+                    'tenant' => $readingRequestSnapshot['tenant'] ?? [
+                        'id' => $assignment->tenant_user_id,
+                        'name' => (string) ($assignment->tenant?->name ?? ''),
+                    ],
+                    'property' => $readingRequestSnapshot['property'] ?? [
+                        'id' => $assignment->property_id,
+                        'name' => (string) ($assignment->property?->displayName() ?? ''),
+                    ],
+                    'period' => $readingRequestSnapshot['period'] ?? [
+                        'id' => $billingPeriod?->id,
+                        'name' => (string) ($billingPeriod?->name ?? ''),
+                        'starts_at' => $billingPeriodStart->toDateString(),
+                        'ends_at' => $billingPeriodEnd->toDateString(),
+                    ],
+                    'linked_meters' => $readingRequestSnapshot['linked_meters'] ?? [],
+                    'expected_services' => $readingRequestSnapshot['expected_services'] ?? [],
+                    'required_inputs' => $readingRequestSnapshot['required_inputs'] ?? [],
                 ],
                 'notes' => __('admin.invoices.reading_request.invoice_note'),
             ]);
@@ -254,10 +280,12 @@ final class InvoiceService
                 'billing_period_start' => $billingPeriodStart->toDateString(),
                 'billing_period_end' => $billingPeriodEnd->toDateString(),
                 'status' => InvoiceStatus::FINALIZED,
+                'payment_status' => InvoicePaymentStatus::UNPAID,
                 'currency' => 'EUR',
                 'total_amount' => $totalAmount,
                 'amount_paid' => $this->calculator->money('0'),
                 'paid_amount' => $this->calculator->money('0'),
+                'balance_amount' => $totalAmount,
                 'due_date' => $dueDate,
                 'finalized_at' => now(),
                 'items' => $items,
@@ -339,6 +367,8 @@ final class InvoiceService
 
             $invoice->forceFill([
                 'total_amount' => $totalAmount,
+                'balance_amount' => $totalAmount,
+                'payment_status' => InvoicePaymentStatus::UNPAID,
                 'items' => $items,
                 'snapshot_data' => $items,
                 'snapshot_created_at' => now(),
@@ -439,61 +469,30 @@ final class InvoiceService
      */
     public function recordPayment(Invoice $invoice, array $validated, ?User $actor = null): Invoice
     {
-        return DB::transaction(function () use ($invoice, $validated, $actor): Invoice {
-            $before = $this->invoiceAuditSnapshot($invoice);
-            $paymentAmount = $this->calculator->money(
-                $validated['amount_paid'] ?? $validated['paid_amount'] ?? $invoice->amount_paid,
-            );
-            $newPaidAmount = $this->calculator->sumMoney(
-                [$invoice->normalized_paid_amount, $paymentAmount],
-            );
-            $status = $this->calculator->compare($newPaidAmount, $invoice->total_amount, 2) >= 0
-                ? InvoiceStatus::PAID
-                : InvoiceStatus::PARTIALLY_PAID;
-            $paidAt = $validated['paid_at'] ?? now();
+        $paymentAmount = $this->calculator->money(
+            $validated['amount_paid'] ?? $validated['paid_amount'] ?? $invoice->amount_paid,
+        );
+        $paidAt = $validated['paid_at'] ?? now();
+        $method = $validated['payment_method'] ?? $validated['method'] ?? PaymentMethod::OTHER;
 
-            $invoice->update([
-                'amount_paid' => $newPaidAmount,
-                'paid_amount' => $newPaidAmount,
-                'payment_reference' => $validated['payment_reference'] ?? $invoice->payment_reference,
-                'paid_at' => $paidAt,
-                'status' => $status,
-            ]);
+        $payment = $this->createManualPayment->handle($invoice, $actor, [
+            'amount' => $paymentAmount,
+            'payment_method' => $method,
+            'payment_date' => is_object($paidAt) && method_exists($paidAt, 'toDateString')
+                ? $paidAt->toDateString()
+                : (string) $paidAt,
+            'reference' => $validated['payment_reference'] ?? null,
+            'internal_note' => $validated['notes'] ?? null,
+            'confirm_immediately' => true,
+        ]);
 
-            InvoicePayment::query()->create([
-                'invoice_id' => $invoice->id,
-                'organization_id' => $invoice->organization_id,
-                'recorded_by_user_id' => $actor?->id,
-                'amount' => $paymentAmount,
-                'method' => $validated['method'] ?? PaymentMethod::OTHER,
-                'reference' => $validated['payment_reference'] ?? null,
-                'paid_at' => $paidAt,
-                'notes' => $validated['notes'] ?? null,
-            ]);
+        $freshInvoice = $payment->invoice?->fresh(['payments']) ?? $invoice->fresh(['payments']);
 
-            $freshInvoice = $invoice->fresh(['payments']);
-
-            $this->auditLogger->record(
-                AuditLogAction::UPDATED,
-                $freshInvoice,
-                [
-                    'workspace' => $this->workspaceContext($freshInvoice),
-                    'context' => [
-                        'mutation' => 'invoice.payment_recorded',
-                    ],
-                    'before' => $before,
-                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
-                ],
-                $actor?->id,
-                'Invoice payment recorded',
-            );
-
-            DB::afterCommit(function () use ($freshInvoice): void {
-                $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
-            });
-
-            return $freshInvoice;
+        DB::afterCommit(function () use ($freshInvoice): void {
+            $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
         });
+
+        return $freshInvoice;
     }
 
     /**

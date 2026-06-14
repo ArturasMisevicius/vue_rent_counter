@@ -6,12 +6,14 @@ namespace App\Filament\Resources\ExtraCharges\Tables;
 
 use App\Enums\ExtraChargeStatus;
 use App\Enums\ExtraChargeTypeCode;
+use App\Enums\InvoiceItemSourceType;
 use App\Filament\Actions\Admin\ExtraCharges\ApproveExtraChargeAction;
 use App\Filament\Actions\Admin\ExtraCharges\RejectExtraChargeAction;
 use App\Filament\Resources\ExtraCharges\ExtraChargeResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Models\ExtraCharge;
+use App\Models\InvoiceItem;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -32,6 +34,7 @@ class ExtraChargesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -159,5 +162,45 @@ class ExtraChargesTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'included_twice' => $query->whereIn('id', self::includedTwiceChargeIdsForCurrentWorkspace()),
+            default => $query,
+        };
+    }
+
+    /**
+     * @return list<int>
+     */
+    private static function includedTwiceChargeIdsForCurrentWorkspace(): array
+    {
+        $user = self::currentUser();
+
+        return InvoiceItem::query()
+            ->select(['id', 'invoice_id', 'source_type', 'source_id'])
+            ->where('source_type', InvoiceItemSourceType::EXTRA_CHARGE)
+            ->whereNotNull('source_id')
+            ->when(
+                ! ($user?->isSuperadmin() ?? false),
+                fn (Builder $query): Builder => $user?->organization_id === null
+                    ? $query->whereKey(-1)
+                    : $query->whereHas('invoice', fn (Builder $invoiceQuery): Builder => $invoiceQuery->forOrganization((int) $user->organization_id)),
+            )
+            ->get()
+            ->groupBy('source_id')
+            ->filter(fn ($group): bool => $group->count() > 1)
+            ->keys()
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
     }
 }

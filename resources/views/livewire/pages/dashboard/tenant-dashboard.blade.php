@@ -15,10 +15,18 @@
                         :href="$summary['submit_reading_url']"
                         tone="muted"
                         class="group flex min-h-28 flex-1 items-start justify-between gap-4 border-brand-mint/40 bg-brand-mint/10 px-4 py-4 hover:border-brand-mint hover:bg-brand-mint/15"
+                        data-tenant-current-invoice="{{ ($summary['current_invoice'] ?? null) ? 'true' : 'false' }}"
                     >
                         <span class="space-y-2">
-                            <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('tenant.navigation.readings') }}</span>
-                            <span class="block text-sm font-semibold leading-5 text-slate-950">{{ __('tenant.actions.submit_new_reading') }}</span>
+                            <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                {{ ($summary['current_invoice'] ?? null) ? __('tenant.pages.home.current_invoice') : __('tenant.navigation.readings') }}
+                            </span>
+                            <span class="block text-sm font-semibold leading-5 text-slate-950">
+                                {{ ($summary['current_invoice'] ?? null) ? __('tenant.actions.submit_readings') : __('tenant.actions.submit_new_reading') }}
+                            </span>
+                            @if ($summary['current_invoice'] ?? null)
+                                <span class="block text-xs leading-5 text-slate-600">{{ $summary['current_invoice']['number'] }}</span>
+                            @endif
                         </span>
                         <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-ink text-white transition group-hover:bg-slate-900">
                             <x-heroicon-m-clipboard-document-list class="size-5" />

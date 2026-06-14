@@ -199,7 +199,7 @@ class User extends Authenticatable implements FilamentUser
     public function scopeWithCurrentPropertySummary(Builder $query): Builder
     {
         return $query->with([
-            'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
+            'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,status,is_primary,occupants_count,assigned_at,unassigned_at,move_out_date,billing_start_date,billing_end_date',
             'currentPropertyAssignment.property:id,organization_id,building_id,name,floor,unit_number,type,floor_area_sqm',
             'currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
         ]);
@@ -355,6 +355,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PropertyAssignment::class, 'tenant_user_id');
     }
 
+    public function moveOutProcesses(): HasMany
+    {
+        return $this->hasMany(MoveOutProcess::class, 'tenant_id');
+    }
+
     public function currentPropertyAssignment(): HasOne
     {
         return $this->hasOne(PropertyAssignment::class, 'tenant_user_id')
@@ -392,6 +397,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->attachments()
             ->forDocumentType(TenantLeaseAgreement::DOCUMENT_TYPE)
             ->latestFirst();
+    }
+
+    public function tenantDocuments(): HasMany
+    {
+        return $this->hasMany(TenantDocument::class, 'tenant_id');
     }
 
     public function submittedMeterReadings(): HasMany

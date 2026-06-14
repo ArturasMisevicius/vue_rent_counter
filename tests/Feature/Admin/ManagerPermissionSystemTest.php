@@ -14,6 +14,7 @@ use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\UtilityServices\UtilityServiceResource;
+use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Models\AuditLog;
@@ -511,27 +512,9 @@ function tenantInvoiceForOrganization(Organization $organization): Invoice
  */
 function fullPermissionMatrix(array $overrides = []): array
 {
-    $resources = [
-        'buildings',
-        'properties',
-        'tenants',
-        'meters',
-        'meter_readings',
-        'billing',
-        'invoices',
-        'tariffs',
-        'providers',
-        'service_configurations',
-        'utility_services',
-    ];
-
-    $matrix = collect($resources)
+    $matrix = collect(ManagerPermissionCatalog::resources())
         ->mapWithKeys(fn (string $resource): array => [
-            $resource => [
-                'can_create' => false,
-                'can_edit' => false,
-                'can_delete' => false,
-            ],
+            $resource => ManagerPermissionCatalog::defaultFlags(),
         ])
         ->all();
 

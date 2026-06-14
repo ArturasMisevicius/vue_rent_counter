@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Tenants\Tables;
 
 use App\Enums\InvitationStatus;
 use App\Enums\PortalAccessStatus;
+use App\Enums\RentalContractStatus;
+use App\Enums\TenantStatus;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\DisableTenantPortalAccess;
@@ -44,6 +46,7 @@ class TenantsTable
         self::overrideFilterResetLabel();
 
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery($query))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -191,14 +194,14 @@ class TenantsTable
                         TenantResource::makeSubscriptionInfoAction(
                             name: 'create',
                             resource: 'tenants',
-                            label: __('admin.tenants.actions.new_tenant'),
+                            label: __('admin.tenants.actions.create_tenant'),
                         ),
                     ]
                     : (
                         TenantResource::canCreate()
                             ? [
                                 Action::make('createTenant')
-                                    ->label(__('admin.tenants.actions.new_tenant'))
+                                    ->label(__('admin.tenants.actions.create_tenant'))
                                     ->url(TenantResource::getUrl('create'))
                                     ->icon('heroicon-m-plus')
                                     ->button(),
@@ -410,6 +413,67 @@ class TenantsTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $portalStatus = request()->query('portal_status');
+
+        if (is_string($portalStatus) && $portalStatus !== '') {
+            $query = match ($portalStatus) {
+                PortalAccessStatus::NOT_INVITED->value => $query
+                    ->where('portal_access_enabled', false)
+                    ->whereDoesntHave('tenantInvitations'),
+                PortalAccessStatus::INVITED->value => $query
+                    ->whereHas('tenantInvitations', fn (Builder $invitationQuery): Builder => $invitationQuery->pending()),
+                PortalAccessStatus::INVITATION_EXPIRED->value => $query
+                    ->whereHas('tenantInvitations', fn (Builder $invitationQuery): Builder => $invitationQuery
+                        ->whereNull('accepted_at')
+                        ->whereNull('revoked_at')
+                        ->where('expires_at', '<', now())),
+                PortalAccessStatus::ACTIVE->value => $query
+                    ->where('status', UserStatus::ACTIVE)
+                    ->where('portal_access_enabled', true),
+                PortalAccessStatus::DISABLED->value => $query
+                    ->where('status', UserStatus::ACTIVE)
+                    ->where('portal_access_enabled', false),
+                default => $query,
+            };
+        }
+
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'no_contract' => $query
+                ->whereDoesntHave('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery->active()),
+            'contracts_expiring', 'contracts_expiring_30' => $query
+                ->whereHas('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery
+                    ->active()
+                    ->whereDate('end_date', '>=', today())
+                    ->whereDate('end_date', '<=', today()->addDays(30))),
+            'contracts_expiring_14' => $query
+                ->whereHas('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery
+                    ->active()
+                    ->whereDate('end_date', '>=', today())
+                    ->whereDate('end_date', '<=', today()->addDays(14))),
+            'contracts_expired' => $query
+                ->whereHas('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery
+                    ->where(function (Builder $expiredQuery): void {
+                        $expiredQuery
+                            ->where('status', RentalContractStatus::EXPIRED)
+                            ->orWhere(fn (Builder $activeQuery): Builder => $activeQuery
+                                ->active()
+                                ->whereDate('end_date', '<', today()));
+                    })),
+            'moved_out_active_contracts' => $query
+                ->where('tenant_status', TenantStatus::MOVED_OUT)
+                ->whereHas('rentalContracts', fn (Builder $contractQuery): Builder => $contractQuery->active()),
+            default => $query,
+        };
     }
 
     private static function canSendInvitation(User $record): bool

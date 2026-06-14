@@ -39,24 +39,27 @@ class ExtraChargeForm
         ?int $tenantId = null,
         ?int $propertyId = null,
         ?bool $recurringDefault = null,
+        ?int $organizationId = null,
     ): array {
         return [
             Section::make(__('admin.extra_charges.sections.assignment'))
                 ->schema([
-                    Select::make('organization_id')
-                        ->label(__('superadmin.organizations.singular'))
-                        ->default(fn (): ?int => app(OrganizationContext::class)->currentOrganizationId())
-                        ->options(fn (): array => Organization::query()
-                            ->select(['id', 'name'])
-                            ->ordered()
-                            ->pluck('name', 'id')
-                            ->all())
-                        ->searchable()
-                        ->preload()
-                        ->required(fn (): bool => self::requiresOrganizationSelection())
-                        ->visible(fn (): bool => self::requiresOrganizationSelection())
-                        ->dehydratedWhenHidden()
-                        ->live(),
+                    $organizationId === null
+                        ? Select::make('organization_id')
+                            ->label(__('superadmin.organizations.singular'))
+                            ->default(fn (): ?int => app(OrganizationContext::class)->currentOrganizationId())
+                            ->options(fn (): array => Organization::query()
+                                ->select(['id', 'name'])
+                                ->ordered()
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->required(fn (): bool => self::requiresOrganizationSelection())
+                            ->visible(fn (): bool => self::requiresOrganizationSelection())
+                            ->dehydratedWhenHidden()
+                            ->live()
+                        : Hidden::make('organization_id')->default($organizationId),
                     $tenantId === null
                         ? Select::make('tenant_id')
                             ->label(__('admin.extra_charges.fields.tenant'))

@@ -7,6 +7,7 @@ use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Filament\Resources\Properties\Pages\ViewProperty;
+use App\Filament\Resources\Properties\RelationManagers\ExtraChargesRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Properties\RelationManagers\ReadingsRelationManager;
@@ -150,6 +151,7 @@ class PropertyResource extends Resource
         return [
             MetersRelationManager::class,
             ReadingsRelationManager::class,
+            ExtraChargesRelationManager::class,
             InvoicesRelationManager::class,
             RentalHistoryRelationManager::class,
         ];

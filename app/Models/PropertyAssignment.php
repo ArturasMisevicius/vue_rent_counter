@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\PropertyAssignmentStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\PropertyAssignmentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,8 +24,20 @@ class PropertyAssignment extends Model
         'property_id',
         'tenant_user_id',
         'unit_area_sqm',
+        'status',
+        'is_primary',
+        'occupants_count',
         'assigned_at',
         'unassigned_at',
+        'move_out_date',
+        'billing_start_date',
+        'billing_end_date',
+        'move_out_reason',
+        'move_out_scheduled_by_user_id',
+        'move_out_completed_by_user_id',
+        'move_out_completed_at',
+        'created_by_user_id',
+        'updated_by_user_id',
     ];
 
     private const SUPERADMIN_INDEX_COLUMNS = [
@@ -31,8 +46,20 @@ class PropertyAssignment extends Model
         'property_id',
         'tenant_user_id',
         'unit_area_sqm',
+        'status',
+        'is_primary',
+        'occupants_count',
         'assigned_at',
         'unassigned_at',
+        'move_out_date',
+        'billing_start_date',
+        'billing_end_date',
+        'move_out_reason',
+        'move_out_scheduled_by_user_id',
+        'move_out_completed_by_user_id',
+        'move_out_completed_at',
+        'created_by_user_id',
+        'updated_by_user_id',
         'created_at',
         'updated_at',
     ];
@@ -42,16 +69,35 @@ class PropertyAssignment extends Model
         'property_id',
         'tenant_user_id',
         'unit_area_sqm',
+        'status',
+        'is_primary',
+        'occupants_count',
         'assigned_at',
         'unassigned_at',
+        'move_out_date',
+        'billing_start_date',
+        'billing_end_date',
+        'move_out_reason',
+        'move_out_scheduled_by_user_id',
+        'move_out_completed_by_user_id',
+        'move_out_completed_at',
+        'created_by_user_id',
+        'updated_by_user_id',
     ];
 
     protected function casts(): array
     {
         return [
             'unit_area_sqm' => 'decimal:2',
+            'status' => PropertyAssignmentStatus::class,
+            'is_primary' => 'boolean',
+            'occupants_count' => 'integer',
             'assigned_at' => 'datetime',
             'unassigned_at' => 'datetime',
+            'move_out_date' => 'date',
+            'billing_start_date' => 'date',
+            'billing_end_date' => 'date',
+            'move_out_completed_at' => 'datetime',
         ];
     }
 
@@ -72,7 +118,9 @@ class PropertyAssignment extends Model
 
     public function scopeCurrent(Builder $query): Builder
     {
-        return $query->whereNull('unassigned_at');
+        return $query
+            ->whereNull('unassigned_at')
+            ->whereIn('status', PropertyAssignmentStatus::openValues());
     }
 
     public function scopeOpenEnded(Builder $query): Builder
@@ -80,9 +128,23 @@ class PropertyAssignment extends Model
         return $query->whereNull('unassigned_at');
     }
 
+    public function scopePrimary(Builder $query): Builder
+    {
+        return $query->where('is_primary', true);
+    }
+
+    public function scopeActivePrimary(Builder $query): Builder
+    {
+        return $query
+            ->current()
+            ->primary()
+            ->where('status', PropertyAssignmentStatus::ACTIVE->value);
+    }
+
     public function scopeActiveDuring(Builder $query, CarbonInterface $periodStart, CarbonInterface $periodEnd): Builder
     {
         return $query
+            ->where('status', PropertyAssignmentStatus::ACTIVE->value)
             ->where('assigned_at', '<=', $periodEnd)
             ->where(function (Builder $query) use ($periodStart): void {
                 $query
@@ -150,8 +212,38 @@ class PropertyAssignment extends Model
         return $this->belongsTo(User::class, 'tenant_user_id');
     }
 
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by_user_id');
+    }
+
     public function rentalContracts(): HasMany
     {
         return $this->hasMany(RentalContract::class);
+    }
+
+    public function moveOutProcesses(): HasMany
+    {
+        return $this->hasMany(MoveOutProcess::class);
+    }
+
+    public function activeMoveOutProcess(): HasMany
+    {
+        return $this->moveOutProcesses()->open();
+    }
+
+    public function moveOutScheduledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'move_out_scheduled_by_user_id');
+    }
+
+    public function moveOutCompletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'move_out_completed_by_user_id');
     }
 }

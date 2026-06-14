@@ -19,6 +19,7 @@ class ManagerPermissionCatalog
             'buildings',
             'properties',
             'tenants',
+            'tenant_documents',
             'rental_contracts',
             'meters',
             'meter_readings',
@@ -29,6 +30,7 @@ class ManagerPermissionCatalog
             'providers',
             'service_configurations',
             'utility_services',
+            'leads',
         ];
     }
 
@@ -116,6 +118,7 @@ class ManagerPermissionCatalog
             'buildings' => __('admin.buildings.plural'),
             'properties' => __('admin.properties.plural'),
             'tenants' => __('admin.tenants.plural'),
+            'tenant_documents' => __('admin.tenant_documents.plural'),
             'rental_contracts' => __('admin.rental_contracts.plural'),
             'meters' => __('admin.meters.plural'),
             'meter_readings' => __('admin.meter_readings.plural'),
@@ -126,6 +129,7 @@ class ManagerPermissionCatalog
             'providers' => __('admin.providers.plural'),
             'service_configurations' => __('admin.service_configurations.plural'),
             'utility_services' => __('admin.utility_services.plural'),
+            'leads' => __('admin.leads.plural'),
         ];
     }
 
@@ -204,6 +208,7 @@ class ManagerPermissionCatalog
             'buildings',
             'properties',
             'tenants',
+            'tenant_documents',
             'rental_contracts',
             'meters',
             'meter_readings',

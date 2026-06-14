@@ -13,6 +13,7 @@ enum TenantStatus: string implements HasLabel
 
     case DRAFT = 'draft';
     case ACTIVE = 'active';
+    case MOVE_OUT_SCHEDULED = 'move_out_scheduled';
     case INACTIVE = 'inactive';
     case MOVED_OUT = 'moved_out';
     case ARCHIVED = 'archived';

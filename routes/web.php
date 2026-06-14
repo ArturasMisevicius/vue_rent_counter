@@ -20,6 +20,7 @@ use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
 use App\Livewire\Tenant\DownloadInvoiceEndpoint;
 use App\Livewire\Tenant\DownloadRentalContractEndpoint;
+use App\Livewire\Tenant\DownloadTenantDocumentEndpoint;
 use App\Livewire\Tenant\ShowTenantAttachmentEndpoint;
 use App\Livewire\Tenant\TenantPortalRouteEndpoint;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -103,6 +104,9 @@ Route::middleware('auth')
 
         Route::get('/rental-contracts/{rentalContract}/attachments/{attachment}/download', [DownloadRentalContractEndpoint::class, 'download'])
             ->name('rental-contracts.download');
+
+        Route::get('/documents/{tenantDocument}/download', [DownloadTenantDocumentEndpoint::class, 'download'])
+            ->name('documents.download');
 
         Route::middleware('tenant.only')->group(function (): void {
             Route::get('/', [TenantPortalRouteEndpoint::class, 'show'])

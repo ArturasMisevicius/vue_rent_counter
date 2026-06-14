@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Admin\BillingReview;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceItemSourceType;
+use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterStatus;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Filament\Support\Admin\BillingIntegrity\BillingIntegrityIssue;
+use App\Filament\Support\Admin\BillingIntegrity\DetectBillingDuplicates;
 use App\Models\AuditLog;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -29,6 +31,7 @@ final readonly class BuildBillingReviewForPeriod
     public function __construct(
         private TariffResolver $tariffResolver,
         private UniversalBillingCalculator $calculator,
+        private DetectBillingDuplicates $duplicateDetector,
     ) {}
 
     /**
@@ -190,6 +193,10 @@ final readonly class BuildBillingReviewForPeriod
                 ->map(fn (mixed $total): string => (string) $total)
                 ->all(),
         );
+        $blockingErrors = [
+            ...$blockingErrors,
+            ...$this->duplicateBlockingErrors($invoice),
+        ];
 
         return new BillingInvoiceReviewData(
             invoiceId: (int) $invoice->id,
@@ -266,6 +273,22 @@ final readonly class BuildBillingReviewForPeriod
             'emailLogs:id,invoice_id,organization_id,status,sent_at,created_at',
             'approvedBy:id,name',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function duplicateBlockingErrors(Invoice $invoice): array
+    {
+        return $this->duplicateDetector
+            ->forInvoice($invoice)
+            ->filter(fn (BillingIntegrityIssue $issue): bool => $issue->severity === 'blocking')
+            ->map(fn (BillingIntegrityIssue $issue): string => __('admin.billing_review.errors.duplicate_integrity_problem', [
+                'problem' => $issue->label(),
+            ]))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
@@ -616,6 +639,7 @@ final readonly class BuildBillingReviewForPeriod
         $providerSnapshot = $this->providerSnapshot($configuration);
         $formulaLabel = __('admin.invoices.formulas.quantity_times_unit_price_with_values', [
             'quantity' => $this->calculator->quantity($quantity),
+            'unit' => (string) ($configuration->unit ?: $configuration->utilityService?->unit_of_measurement ?? ''),
             'unit_price' => $this->calculator->rate($rate),
         ]);
 

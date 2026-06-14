@@ -52,7 +52,7 @@ final class SendReadingReminders
                 ])
                 ->where('status', InvoiceStatus::DRAFT->value)
                 ->where('automation_level', 'reading_request')
-                ->where('approval_status', 'pending')
+                ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
                 ->whereDate('due_date', today()->addDays($days))
                 ->when(
                     $organization instanceof Organization,

@@ -42,7 +42,9 @@ class InvoicesTable
         self::overrideFilterResetLabel();
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->forIdValues(request()->query('created_invoice_ids')))
+            ->modifyQueryUsing(fn (Builder $query): Builder => self::applyAttentionQuery(
+                $query->forIdValues(request()->query('created_invoice_ids')),
+            ))
             ->columns([
                 TextColumn::make('organization.name')
                     ->label(__('superadmin.organizations.singular'))
@@ -289,6 +291,57 @@ class InvoicesTable
         $user = Auth::user();
 
         return $user instanceof User ? $user : null;
+    }
+
+    private static function applyAttentionQuery(Builder $query): Builder
+    {
+        $status = request()->query('status');
+
+        if (is_string($status) && $status !== '') {
+            $query->forEffectiveStatusValues($status);
+        }
+
+        $attention = request()->query('attention');
+
+        if (! is_string($attention) || $attention === '') {
+            return $query;
+        }
+
+        return match ($attention) {
+            'sent' => $query->whereHas('emailLogs'),
+            'duplicate_invoices' => $query->whereIn('id', self::duplicateInvoiceIdsForCurrentWorkspace()),
+            default => $query,
+        };
+    }
+
+    /**
+     * @return list<int>
+     */
+    private static function duplicateInvoiceIdsForCurrentWorkspace(): array
+    {
+        $user = self::currentUser();
+
+        return Invoice::query()
+            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'billing_period_start', 'billing_period_end', 'status'])
+            ->when(
+                ! ($user?->isSuperadmin() ?? false),
+                fn (Builder $query): Builder => $user?->organization_id === null
+                    ? $query->whereKey(-1)
+                    : $query->forOrganization((int) $user->organization_id),
+            )
+            ->where('status', '!=', InvoiceStatus::VOID)
+            ->get()
+            ->groupBy(fn (Invoice $invoice): string => implode(':', [
+                $invoice->property_id,
+                $invoice->tenant_user_id,
+                $invoice->billing_period_start?->toDateString(),
+                $invoice->billing_period_end?->toDateString(),
+            ]))
+            ->filter(fn ($group): bool => $group->count() > 1)
+            ->flatMap(fn ($group) => $group->pluck('id'))
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
     }
 
     private static function overrideFilterResetLabel(): void

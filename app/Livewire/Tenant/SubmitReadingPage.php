@@ -210,6 +210,7 @@ class SubmitReadingPage extends Component
                 readingValue: $this->readingValue,
                 readingDate: $this->readingDate,
                 notes: $this->notes,
+                invoiceId: $this->normalizedInvoiceId(),
             );
         } catch (AuthorizationException) {
             $this->addError('meterId', __('tenant.pages.readings.unauthorized_meter'));
@@ -250,6 +251,7 @@ class SubmitReadingPage extends Component
                         readingValue: $payload['readingValue'],
                         readingDate: $payload['readingDate'],
                         notes: $payload['notes'],
+                        invoiceId: $this->normalizedInvoiceId(),
                     );
                 }
 
@@ -469,6 +471,7 @@ class SubmitReadingPage extends Component
     {
         $workspace = $this->tenantWorkspace();
         $propertyId = $workspace->propertyId;
+        $requiredMeterIds = $this->requiredMeterIdsForReadingRequest();
 
         if ($propertyId === null) {
             return collect();
@@ -478,13 +481,17 @@ class SubmitReadingPage extends Component
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
             ->forOrganization($workspace->organizationId)
             ->forProperty($propertyId)
+            ->when(
+                $requiredMeterIds !== [],
+                fn ($query) => $query->whereIn('id', $requiredMeterIds),
+            )
             ->withLatestReadingSummary()
             ->ordered()
             ->get();
     }
 
     /**
-     * @return array{number: string, period: string, due: string}|null
+     * @return array{number: string, period: string, due: string, required_inputs: list<array{meter_id: int, meter_name: string, meter_identifier: string, unit: string}>}|null
      */
     #[Computed]
     public function readingRequestInvoiceSummary(): ?array
@@ -514,6 +521,7 @@ class SubmitReadingPage extends Component
                 'status',
                 'automation_level',
                 'approval_status',
+                'approval_metadata',
             ])
             ->forOrganization($workspace->organizationId)
             ->whereKey($invoiceId)
@@ -521,12 +529,14 @@ class SubmitReadingPage extends Component
             ->where('tenant_user_id', $workspace->userId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->where('approval_status', 'pending')
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
             ->first();
 
         if (! $invoice instanceof Invoice) {
             return null;
         }
+
+        $metadata = is_array($invoice->approval_metadata) ? $invoice->approval_metadata : [];
 
         return [
             'number' => (string) $invoice->invoice_number,
@@ -537,7 +547,47 @@ class SubmitReadingPage extends Component
             'due' => __('tenant.pages.readings.invoice_request_due', [
                 'date' => LocalizedDateFormatter::date($invoice->due_date),
             ]),
+            'required_inputs' => $this->requiredInputsFromMetadata($metadata),
         ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function requiredMeterIdsForReadingRequest(): array
+    {
+        $summary = $this->readingRequestInvoiceSummary;
+
+        if ($summary === null) {
+            return [];
+        }
+
+        return collect($summary['required_inputs'])
+            ->pluck('meter_id')
+            ->filter(fn (mixed $value): bool => is_numeric($value))
+            ->map(fn (mixed $value): int => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     * @return list<array{meter_id: int, meter_name: string, meter_identifier: string, unit: string}>
+     */
+    private function requiredInputsFromMetadata(array $metadata): array
+    {
+        return collect($metadata['required_inputs'] ?? [])
+            ->filter(fn (mixed $input): bool => is_array($input) && ($input['type'] ?? null) === 'meter_reading')
+            ->map(fn (array $input): array => [
+                'meter_id' => (int) ($input['meter_id'] ?? 0),
+                'meter_name' => (string) ($input['meter_name'] ?? ''),
+                'meter_identifier' => (string) ($input['meter_identifier'] ?? ''),
+                'unit' => (string) ($input['unit'] ?? ''),
+            ])
+            ->filter(fn (array $input): bool => $input['meter_id'] > 0)
+            ->values()
+            ->all();
     }
 
     private function readingRequestUnavailableTitle(): string

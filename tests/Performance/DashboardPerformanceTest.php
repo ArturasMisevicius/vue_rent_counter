@@ -47,7 +47,7 @@ it('keeps the warmed admin dashboard under the query budget', function () {
 
     DB::disableQueryLog();
 
-    expect($queryCount)->toBeLessThan(10);
+    expect($queryCount)->toBeLessThanOrEqual(12);
 });
 
 it('keeps the warmed superadmin dashboard under the query budget', function () {

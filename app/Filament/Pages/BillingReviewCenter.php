@@ -10,6 +10,7 @@ use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\BillingReview\SendReadingReminder;
 use App\Filament\Support\Admin\BillingReview\BillingReviewAccess;
 use App\Filament\Support\Admin\BillingReview\BuildBillingReviewForPeriod;
+use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\User;
@@ -17,6 +18,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 
 class BillingReviewCenter extends Page
 {
@@ -31,13 +33,26 @@ class BillingReviewCenter extends Page
      */
     public array $period = [];
 
+    #[Url]
+    public ?string $attention = null;
+
+    #[Url(as: 'billing_period_id')]
+    public ?int $billingPeriodId = null;
+
     public function mount(): void
     {
         abort_unless(static::canAccess(), 403);
 
+        $billingPeriod = $this->billingPeriodId === null
+            ? null
+            : BillingPeriod::query()
+                ->select(['id', 'organization_id', 'starts_at', 'ends_at'])
+                ->forOrganization($this->organization()->id)
+                ->find($this->billingPeriodId);
+
         $this->period = [
-            'billing_period_start' => now()->startOfMonth()->toDateString(),
-            'billing_period_end' => now()->endOfMonth()->toDateString(),
+            'billing_period_start' => $billingPeriod?->starts_at?->toDateString() ?? now()->startOfMonth()->toDateString(),
+            'billing_period_end' => $billingPeriod?->ends_at?->toDateString() ?? now()->endOfMonth()->toDateString(),
         ];
     }
 
@@ -79,9 +94,23 @@ class BillingReviewCenter extends Page
         return [
             'summary' => $review['summary']->toArray(),
             'invoices' => collect($review['invoices'])
+                ->filter(fn ($invoice): bool => $this->matchesAttentionFilter($invoice))
                 ->map(fn ($invoice): array => $invoice->toArray())
                 ->all(),
         ];
+    }
+
+    private function matchesAttentionFilter(object $invoice): bool
+    {
+        return match ($this->attention) {
+            'waiting_readings', 'waiting_for_readings' => $invoice->missingReadings !== [],
+            'submitted_readings' => $invoice->submittedReadingsCount > 0,
+            'ready_for_review' => $invoice->canApprove,
+            'configuration_errors' => $invoice->blockingErrors !== [],
+            'overdue' => $invoice->isOverdue,
+            null, '' => true,
+            default => true,
+        };
     }
 
     public function recalculateInvoice(int $invoiceId, RecalculateInvoice $recalculateInvoice): void
