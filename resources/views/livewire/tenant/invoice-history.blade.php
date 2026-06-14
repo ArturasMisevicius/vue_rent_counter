@@ -62,7 +62,7 @@
 
             <div class="space-y-5">
                 @forelse ($invoices as $invoice)
-                    <div wire:key="tenant-invoice-{{ $invoice->id }}">
+                    <div id="tenant-invoice-{{ $invoice->id }}" wire:key="tenant-invoice-{{ $invoice->id }}" class="scroll-mt-28">
                         <x-tenant.invoice-card
                             :invoice="$invoice"
                             :presentation="$invoicePresentations[$invoice->id] ?? null"

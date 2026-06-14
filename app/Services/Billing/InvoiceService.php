@@ -290,16 +290,94 @@ final class InvoiceService
     }
 
     /**
+     * @param  array{items: array<int, array<string, mixed>>, total_amount: string|int|float}  $lineItemPayload
+     */
+    public function prepareReadingRequestDraft(
+        Invoice $invoice,
+        PropertyAssignment $assignment,
+        array $lineItemPayload,
+        CarbonInterface $billingPeriodStart,
+        CarbonInterface $billingPeriodEnd,
+        ?User $actor = null,
+    ): Invoice {
+        return DB::transaction(function () use (
+            $invoice,
+            $assignment,
+            $lineItemPayload,
+            $billingPeriodStart,
+            $billingPeriodEnd,
+            $actor,
+        ): Invoice {
+            $before = $this->invoiceAuditSnapshot($invoice);
+            $items = $this->normalizeLineItems($lineItemPayload['items']);
+            $totalAmount = $this->calculator->money(
+                $lineItemPayload['total_amount'] ?? $this->sumLineItems($items),
+            );
+            $metadata = is_array($invoice->approval_metadata) ? $invoice->approval_metadata : [];
+
+            $invoice->forceFill([
+                'total_amount' => $totalAmount,
+                'items' => $items,
+                'snapshot_data' => $items,
+                'snapshot_created_at' => now(),
+                'approval_status' => 'ready_for_review',
+                'approval_metadata' => [
+                    ...$metadata,
+                    'workflow' => $metadata['workflow'] ?? 'meter_reading_request',
+                    'prepared_from_readings_at' => now()->toISOString(),
+                    'prepared_by_user_id' => $actor?->id,
+                    'prepared_invoice_item_count' => count($items),
+                ],
+            ])->save();
+
+            $this->syncInvoiceItems($invoice, $items);
+            $this->syncBillingRecords($invoice, $assignment, $items, $billingPeriodStart, $billingPeriodEnd);
+
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments', 'billingRecords']);
+
+            $this->auditLogger->record(
+                AuditLogAction::UPDATED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.reading_request_prepared',
+                    ],
+                    'before' => $before,
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Invoice prepared from submitted meter readings',
+            );
+
+            DB::afterCommit(function () use ($freshInvoice): void {
+                $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
+            });
+
+            return $freshInvoice;
+        });
+    }
+
+    /**
      * @param  array<string, mixed>|null  $beforeSnapshot
      */
     public function markAsFinalized(Invoice $invoice, ?User $actor = null, ?array $beforeSnapshot = null): Invoice
     {
         return DB::transaction(function () use ($invoice, $actor, $beforeSnapshot): Invoice {
             $before = $beforeSnapshot ?? $this->invoiceAuditSnapshot($invoice);
+            $metadata = is_array($invoice->approval_metadata) ? $invoice->approval_metadata : [];
 
             $invoice->update([
                 'status' => InvoiceStatus::FINALIZED,
                 'finalized_at' => $invoice->finalized_at ?? now(),
+                'approval_status' => 'approved',
+                'approval_metadata' => [
+                    ...$metadata,
+                    'approved_from_status' => $invoice->approval_status,
+                    'approved_at' => now()->toISOString(),
+                ],
+                'approved_by' => $actor?->id ?? $invoice->approved_by,
+                'approved_at' => $invoice->approved_at ?? now(),
             ]);
 
             $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);

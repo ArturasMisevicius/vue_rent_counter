@@ -2,6 +2,27 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614144323 -->
+### Commit updates
+
+- updated `app/Contracts/BillingServiceInterface.php`
+- added `app/Filament/Actions/Admin/Invoices/PrepareReadingRequestInvoiceAction.php`
+- updated `app/Filament/Resources/Invoices/Pages/EditInvoice.php`
+- added `app/Listeners/NotifyTenantInvoiceReady.php`
+- updated `app/Models/Invoice.php`
+- added `app/Notifications/Billing/InvoiceReadyForTenantNotification.php`
+- updated `app/Services/Billing/BillingService.php`
+- updated `app/Services/Billing/InvoiceService.php`
+- updated `docs/operations/service-configuration-guide.md`
+- updated `lang/en/admin.php`
+- updated `lang/es/admin.php`
+- updated `lang/lt/admin.php`
+- updated `lang/ru/admin.php`
+- updated `resources/views/livewire/tenant/invoice-history.blade.php`
+- updated `tests/Browser/TenantReadingRequestNotificationBrowserTest.php`
+- added `tests/Feature/Billing/ReadingRequestInvoiceReviewTest.php`
+<!-- changelog:auto:end:staged-20260614144323 -->
+
 <!-- changelog:auto:start:staged-20260614140916 -->
 ### Commit updates
 

@@ -1,7 +1,9 @@
 <?php
 
 use App\Filament\Actions\Admin\Invoices\OpenReadingInvoiceCycleAction;
+use App\Models\Invoice;
 use App\Models\Meter;
+use App\Notifications\Billing\InvoiceReadyForTenantNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Pest\Browser\Configuration;
 
@@ -57,5 +59,46 @@ it('lets tenants open reading request notifications from the browser', function 
             'number' => 'INV-',
         ]))
         ->assertSee('MTR-BROWSER-READING')
+        ->assertNoJavaScriptErrors();
+});
+
+it('lets tenants open finalized invoice notifications from the browser', function (): void {
+    $workspace = createOrgWithAdmin();
+    $workspace['admin']->forceFill([
+        'onboarding_tour_completed_at' => now(),
+    ])->save();
+
+    $tenantWorkspace = createTenantInOrg($workspace['admin']);
+    $tenantWorkspace['tenant']->forceFill([
+        'onboarding_tour_completed_at' => now(),
+    ])->save();
+
+    $invoice = Invoice::factory()
+        ->for($workspace['organization'])
+        ->for($tenantWorkspace['property'])
+        ->for($tenantWorkspace['tenant'], 'tenant')
+        ->create([
+            'invoice_number' => 'INV-BROWSER-READY',
+            'total_amount' => 125.50,
+        ]);
+
+    $tenantWorkspace['tenant']->notify(new InvoiceReadyForTenantNotification($invoice));
+
+    $invoiceHistoryPath = route('filament.admin.pages.tenant-invoice-history', [], false);
+
+    visit(route('tenant.home', [], false))
+        ->assertPathIs('/login')
+        ->type('#email', $tenantWorkspace['tenant']->email)
+        ->type('#password', 'password')
+        ->press(__('auth.login_button'))
+        ->wait()
+        ->assertSee($tenantWorkspace['tenant']->name)
+        ->click('[data-shell-notifications-slot="desktop"] [data-shell-notifications="center"] > button')
+        ->assertSee(__('admin.invoices.invoice_ready.database_title'))
+        ->press(__('admin.invoices.invoice_ready.database_title'))
+        ->wait()
+        ->assertPathIs($invoiceHistoryPath)
+        ->assertSee(__('tenant.pages.invoices.page_heading'))
+        ->assertSee('INV-BROWSER-READY')
         ->assertNoJavaScriptErrors();
 });

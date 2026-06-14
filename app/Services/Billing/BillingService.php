@@ -168,6 +168,51 @@ final class BillingService implements BillingServiceInterface
         return $this->invoiceService->markAsFinalized($invoice, auth()->user(), $beforeSnapshot);
     }
 
+    public function prepareReadingRequestInvoice(Invoice $invoice, ?User $actor = null): Invoice
+    {
+        $invoice = $invoice->fresh(['organization:id']) ?? $invoice;
+
+        if (! $this->canPrepareReadingRequestInvoice($invoice)) {
+            throw ValidationException::withMessages([
+                'invoice' => __('admin.invoices.messages.reading_request_not_ready'),
+            ]);
+        }
+
+        $organization = $invoice->organization;
+
+        if (! $organization instanceof Organization) {
+            throw ValidationException::withMessages([
+                'invoice' => __('admin.invoices.messages.organization_required'),
+            ]);
+        }
+
+        $periodStart = $this->normalizeDate($invoice->billing_period_start)->startOfDay();
+        $periodEnd = $this->normalizeDate($invoice->billing_period_end)->endOfDay();
+        $assignment = $this->invoiceAssignment(
+            $organization,
+            (int) $invoice->tenant_user_id,
+            $periodStart,
+            $periodEnd,
+            (int) $invoice->property_id,
+        );
+        $lineItems = $this->buildLineItemPayload($assignment, $periodStart, $periodEnd);
+
+        if (! $lineItems['billable']) {
+            throw ValidationException::withMessages([
+                'invoice' => __('admin.invoices.messages.reading_request_needs_billable_readings'),
+            ]);
+        }
+
+        return $this->invoiceService->prepareReadingRequestDraft(
+            invoice: $invoice,
+            assignment: $assignment,
+            lineItemPayload: $lineItems,
+            billingPeriodStart: $periodStart,
+            billingPeriodEnd: $periodEnd,
+            actor: $actor,
+        );
+    }
+
     public function applyPayment(Invoice $invoice, array $attributes, ?User $actor = null): Invoice
     {
         $validated = (new ProcessPaymentRequest)->validatePayload($attributes, $actor ?? auth()->user());
@@ -181,6 +226,21 @@ final class BillingService implements BillingServiceInterface
         }
 
         return $this->invoiceService->recordPayment($invoice, $validated, $actor);
+    }
+
+    private function canPrepareReadingRequestInvoice(Invoice $invoice): bool
+    {
+        $status = $invoice->status instanceof InvoiceStatus
+            ? $invoice->status
+            : InvoiceStatus::tryFrom((string) $invoice->status);
+
+        return $status === InvoiceStatus::DRAFT
+            && $invoice->automation_level === 'reading_request'
+            && $invoice->approval_status === 'readings_submitted'
+            && $invoice->billing_period_start !== null
+            && $invoice->billing_period_end !== null
+            && $invoice->property_id !== null
+            && $invoice->tenant_user_id !== null;
     }
 
     public function calculateFlatRateCharge(string|int|float $quantity, string|int|float $unitRate, string|int|float $baseFee = '0'): string
@@ -417,6 +477,7 @@ final class BillingService implements BillingServiceInterface
         int $tenantUserId,
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
+        ?int $propertyId = null,
     ): PropertyAssignment {
         $assignment = PropertyAssignment::query()
             ->select([
@@ -430,6 +491,10 @@ final class BillingService implements BillingServiceInterface
             ])
             ->forOrganization($organization->id)
             ->forTenant($tenantUserId)
+            ->when(
+                $propertyId !== null,
+                fn ($query) => $query->forProperty($propertyId),
+            )
             ->activeDuring($periodStart, $periodEnd)
             ->with([
                 'tenant:id,organization_id,name,email',

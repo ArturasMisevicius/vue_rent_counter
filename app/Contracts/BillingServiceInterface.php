@@ -51,6 +51,8 @@ interface BillingServiceInterface
      */
     public function finalize(Invoice $invoice, array $attributes = []): Invoice;
 
+    public function prepareReadingRequestInvoice(Invoice $invoice, ?User $actor = null): Invoice;
+
     /**
      * @param  array<string, mixed>  $attributes
      */

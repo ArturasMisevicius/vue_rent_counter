@@ -38,7 +38,16 @@ class Invoice extends Model
         'payment_reference',
         'items',
         'snapshot_data',
+        'snapshot_created_at',
         'notes',
+        'generated_at',
+        'generated_by',
+        'approval_status',
+        'automation_level',
+        'approval_deadline',
+        'approval_metadata',
+        'approved_by',
+        'approved_at',
         'document_path',
         'created_at',
         'updated_at',
@@ -627,6 +636,13 @@ class Invoice extends Model
     public function canFinalizeFromAdminWorkspace(): bool
     {
         return $this->effectiveStatus() === InvoiceStatus::DRAFT;
+    }
+
+    public function canPrepareReadingRequestFromAdminWorkspace(): bool
+    {
+        return $this->effectiveStatus() === InvoiceStatus::DRAFT
+            && $this->automation_level === 'reading_request'
+            && $this->approval_status === 'readings_submitted';
     }
 
     public function canBeDeletedFromAdminWorkspace(): bool
