@@ -360,6 +360,7 @@ final class BillingService implements BillingServiceInterface
                         'provider_id',
                         'is_shared_service',
                         'custom_formula',
+                        'invoice_description',
                         'is_active',
                     ])
                     ->activeOn($periodEnd)
@@ -449,6 +450,7 @@ final class BillingService implements BillingServiceInterface
                         'provider_id',
                         'is_shared_service',
                         'custom_formula',
+                        'invoice_description',
                         'is_active',
                     ])
                     ->activeOn($periodEnd)
@@ -675,7 +677,7 @@ final class BillingService implements BillingServiceInterface
 
         return [
             'utility_service_id' => $configuration->utility_service_id,
-            'description' => (string) ($configuration->utilityService?->name ?? ''),
+            'description' => $this->lineItemDescription($configuration),
             'period' => $this->billingPeriodLabel($periodStart, $periodEnd),
             'quantity' => $this->calculator->quantity($quantity),
             'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
@@ -690,6 +692,15 @@ final class BillingService implements BillingServiceInterface
             'rate' => $this->calculator->rate($pricing['unit_rate']),
             'meter_reading_snapshot' => $measurement['snapshot'],
         ];
+    }
+
+    private function lineItemDescription(ServiceConfiguration $configuration): string
+    {
+        if (filled($configuration->invoice_description)) {
+            return (string) $configuration->invoice_description;
+        }
+
+        return (string) ($configuration->utilityService?->name ?? '');
     }
 
     /**

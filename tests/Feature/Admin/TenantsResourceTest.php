@@ -8,6 +8,7 @@ use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
 use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
 use App\Filament\Resources\Tenants\Pages\CreateTenant;
+use App\Filament\Resources\Tenants\Pages\EditTenant;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Filament\Resources\Tenants\Pages\ViewTenant;
 use App\Filament\Resources\Tenants\RelationManagers\AuditTrailRelationManager;
@@ -18,6 +19,8 @@ use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionCatalog;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Tenants\TenantLeaseAgreement;
+use App\Models\Attachment;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -31,15 +34,19 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
 use App\Services\SubscriptionChecker;
+use Filament\Forms\Components\FileUpload as FormFileUpload;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 uses(RefreshDatabase::class);
 
@@ -131,6 +138,7 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->assertSuccessful()
         ->assertSeeText('New Tenant')
         ->assertSeeText('Personal Information')
+        ->assertSeeText('Do not set a tenant password here.')
         ->assertSeeText('Property Assignment')
         ->assertSeeText('Phone Number')
         ->assertDontSeeText('Initial Status');
@@ -152,6 +160,7 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
         ->assertSeeText('Account Activity')
         ->assertSeeText('Email Verified')
         ->assertSeeText('Updated At')
+        ->assertSeeText('Edit Tenant')
         ->assertSeeText('Reassign Property')
         ->assertSeeText('Deactivate')
         ->assertSeeText('Delete')
@@ -489,6 +498,125 @@ it('creates invited tenants with phone and assignment data, updates them, and to
 
     expect($activated->status)->toBe(UserStatus::ACTIVE)
         ->and($deactivated->status)->toBe(UserStatus::INACTIVE);
+});
+
+it('lets admins attach and replace a lease agreement for a tenant', function () {
+    Storage::fake(TenantLeaseAgreement::DISK);
+    Notification::fake();
+
+    $workspace = createOrgWithAdmin();
+    $tenant = createTenantInOrg($workspace['admin'])['tenant'];
+
+    Subscription::factory()->for($workspace['organization'])->active()->create([
+        'tenant_limit_snapshot' => 5,
+    ]);
+
+    actingAs($workspace['admin']);
+
+    Livewire::test(EditTenant::class, ['record' => $tenant->getRouteKey()])
+        ->assertFormFieldExists(TenantLeaseAgreement::FIELD, fn (FormFileUpload $field): bool => $field->getLabel() === 'Lease Agreement'
+            && $field->getAcceptedFileTypes() === TenantLeaseAgreement::acceptedFileTypes()
+            && $field->getMaxSize() === TenantLeaseAgreement::MAX_SIZE_KB
+            && $field->isOpenable()
+            && $field->isDownloadable())
+        ->fillForm([
+            'name' => $tenant->name,
+            'email' => $tenant->email,
+            'phone' => $tenant->phone,
+            'locale' => $tenant->locale,
+            'property_id' => null,
+            'unit_area_sqm' => null,
+            TenantLeaseAgreement::FIELD => UploadedFile::fake()->create('lease.pdf', 64, 'application/pdf'),
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $firstAttachment = $tenant->fresh()->leaseAgreement;
+
+    expect($firstAttachment)->not->toBeNull()
+        ->and($firstAttachment?->document_type)->toBe(TenantLeaseAgreement::DOCUMENT_TYPE)
+        ->and($firstAttachment?->original_filename)->toBe('lease.pdf')
+        ->and($firstAttachment?->organization_id)->toBe($workspace['organization']->id)
+        ->and($firstAttachment?->uploaded_by_user_id)->toBe($workspace['admin']->id);
+
+    Storage::disk(TenantLeaseAgreement::DISK)->assertExists((string) $firstAttachment?->path);
+
+    $firstPath = (string) $firstAttachment?->path;
+
+    Livewire::test(EditTenant::class, ['record' => $tenant->getRouteKey()])
+        ->fillForm([
+            'name' => $tenant->name,
+            'email' => $tenant->email,
+            'phone' => $tenant->phone,
+            'locale' => $tenant->locale,
+            'property_id' => null,
+            'unit_area_sqm' => null,
+            TenantLeaseAgreement::FIELD => UploadedFile::fake()->create('lease-updated.docx', 48, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $replacement = $tenant->fresh()->leaseAgreement;
+
+    expect($replacement)->not->toBeNull()
+        ->and($replacement?->original_filename)->toBe('lease-updated.docx')
+        ->and($tenant->fresh()->leaseAgreements()->count())->toBe(1);
+
+    if ($replacement?->path !== $firstPath) {
+        Storage::disk(TenantLeaseAgreement::DISK)->assertMissing($firstPath);
+    }
+
+    Storage::disk(TenantLeaseAgreement::DISK)->assertExists((string) $replacement?->path);
+
+    Livewire::test(ListTenants::class)
+        ->assertTableColumnExists('leaseAgreement.original_filename', fn (TextColumn $column): bool => $column->getLabel() === 'Lease Agreement');
+});
+
+it('serves tenant lease agreements only inside the tenant access boundary', function () {
+    Storage::fake(TenantLeaseAgreement::DISK);
+
+    $workspace = createOrgWithAdmin();
+    $otherWorkspace = createOrgWithAdmin();
+    $tenant = createTenantInOrg($workspace['admin'])['tenant'];
+    $otherTenant = createTenantInOrg($otherWorkspace['admin'])['tenant'];
+
+    $path = TenantLeaseAgreement::DIRECTORY.'/lease.pdf';
+
+    Storage::disk(TenantLeaseAgreement::DISK)->put($path, 'lease-pdf');
+
+    $attachment = Attachment::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['admin'], 'uploader')
+        ->for($tenant, 'attachable')
+        ->create([
+            'document_type' => TenantLeaseAgreement::DOCUMENT_TYPE,
+            'filename' => 'lease.pdf',
+            'original_filename' => 'lease.pdf',
+            'mime_type' => 'application/pdf',
+            'disk' => TenantLeaseAgreement::DISK,
+            'path' => $path,
+        ]);
+
+    actingAs($workspace['admin']);
+
+    get(route('tenant.attachments.show', $attachment))
+        ->assertSuccessful()
+        ->assertHeader('content-type', 'application/pdf');
+
+    actingAs($tenant);
+
+    get(route('tenant.attachments.show', $attachment))
+        ->assertSuccessful();
+
+    actingAs($otherWorkspace['admin']);
+
+    get(route('tenant.attachments.show', $attachment))
+        ->assertForbidden();
+
+    actingAs($otherTenant);
+
+    get(route('tenant.attachments.show', $attachment))
+        ->assertForbidden();
 });
 
 it('allows superadmins to create tenants by selecting an organization', function () {

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tenants\Pages;
 
 use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
+use App\Filament\Resources\Tenants\Pages\Concerns\InteractsWithTenantLeaseAgreementFormData;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 
 class CreateTenant extends CreateRecord
 {
+    use InteractsWithTenantLeaseAgreementFormData;
+
     protected static string $resource = TenantResource::class;
 
     protected static string|array $routeMiddleware = 'manager.permission:tenants,create';
@@ -44,6 +47,8 @@ class CreateTenant extends CreateRecord
         if (! $user instanceof User) {
             abort(403);
         }
+
+        [$data, $this->leaseAgreementFormData] = $this->extractLeaseAgreementFormData($data);
 
         if ($user->isSuperadmin() && app(OrganizationContext::class)->currentOrganizationId() === null) {
             return $data;
@@ -95,6 +100,13 @@ class CreateTenant extends CreateRecord
         unset($data['organization_id']);
 
         return app(CreateTenantAction::class)->handle($actor, $data, $organization);
+    }
+
+    protected function afterCreate(): void
+    {
+        if ($this->record instanceof User) {
+            $this->syncTenantLeaseAgreement($this->record);
+        }
     }
 
     protected function getRedirectUrl(): string

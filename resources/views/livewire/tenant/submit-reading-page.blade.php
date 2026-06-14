@@ -34,6 +34,21 @@
                 </x-tenant.card>
             @endif
 
+            @if ($readingRequestInvoiceSummary)
+                <x-tenant.card tone="warning" class="flex items-start gap-3" data-tenant-reading-request-invoice>
+                    <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
+                        <x-heroicon-m-document-text class="size-5" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-amber-950">
+                            {{ __('tenant.pages.readings.invoice_request_heading', ['number' => $readingRequestInvoiceSummary['number']]) }}
+                        </p>
+                        <p class="mt-1 text-sm leading-6 text-amber-900">{{ $readingRequestInvoiceSummary['period'] }}</p>
+                        <p class="text-sm leading-6 text-amber-900">{{ $readingRequestInvoiceSummary['due'] }}</p>
+                    </div>
+                </x-tenant.card>
+            @endif
+
             @if ($meters->isEmpty())
                 <x-shared.empty-state
                     icon="heroicon-m-beaker"

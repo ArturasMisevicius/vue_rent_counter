@@ -124,6 +124,77 @@ final class InvoiceService
         });
     }
 
+    public function createReadingRequestDraft(
+        Organization $organization,
+        PropertyAssignment $assignment,
+        CarbonInterface $billingPeriodStart,
+        CarbonInterface $billingPeriodEnd,
+        string $dueDate,
+        ?User $actor = null,
+    ): Invoice {
+        return DB::transaction(function () use (
+            $organization,
+            $assignment,
+            $billingPeriodStart,
+            $billingPeriodEnd,
+            $dueDate,
+            $actor,
+        ): Invoice {
+            $invoice = Invoice::query()->create([
+                'organization_id' => $organization->id,
+                'property_id' => $assignment->property_id,
+                'tenant_user_id' => $assignment->tenant_user_id,
+                'invoice_number' => 'INV-TEMP-'.Str::uuid(),
+                'billing_period_start' => $billingPeriodStart->toDateString(),
+                'billing_period_end' => $billingPeriodEnd->toDateString(),
+                'status' => InvoiceStatus::DRAFT,
+                'currency' => 'EUR',
+                'total_amount' => $this->calculator->money('0'),
+                'amount_paid' => $this->calculator->money('0'),
+                'paid_amount' => $this->calculator->money('0'),
+                'due_date' => $dueDate,
+                'items' => [],
+                'snapshot_data' => [],
+                'snapshot_created_at' => now(),
+                'generated_at' => now(),
+                'generated_by' => $actor !== null ? "user:{$actor->id}" : 'billing:reading-invoice-cycle',
+                'approval_status' => 'pending',
+                'automation_level' => 'reading_request',
+                'approval_metadata' => [
+                    'workflow' => 'meter_reading_request',
+                    'source' => 'billing:open-reading-invoice-cycle',
+                ],
+                'notes' => __('admin.invoices.reading_request.invoice_note'),
+            ]);
+
+            $invoice->update([
+                'invoice_number' => $this->formattedInvoiceNumber($invoice),
+            ]);
+
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
+
+            $this->auditLogger->record(
+                AuditLogAction::CREATED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.reading_request_opened',
+                    ],
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Invoice opened for meter reading request',
+            );
+
+            DB::afterCommit(function () use ($organization): void {
+                $this->dashboardCacheService->touchOrganization($organization->id);
+            });
+
+            return $freshInvoice;
+        });
+    }
+
     /**
      * @param  array{items: array<int, array<string, mixed>>, total_amount: string|int|float}  $lineItemPayload
      */

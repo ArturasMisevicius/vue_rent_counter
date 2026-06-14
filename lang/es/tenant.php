@@ -77,6 +77,9 @@ return [
             'eyebrow' => 'Lectura de contador del inquilino',
             'description' => 'Introduce lecturas para tus contadores asignados, revisa el cambio esperado de consumo y envíalas por la validación compartida.',
             'batch_description' => 'Usa una fecha, rellena solo los contadores que necesitan un valor nuevo y envía todas las lecturas juntas.',
+            'invoice_request_heading' => 'Solicitud de lectura para la factura :number',
+            'invoice_request_period' => 'Periodo de facturación: de :from a :to',
+            'invoice_request_due' => 'Envía las lecturas antes del :date',
             'meter' => 'Contador',
             'meter_select' => 'Selecciona un contador',
             'meter_locked' => 'Tu cuenta tiene un contador asignado, por eso ya está seleccionado para este envío.',
@@ -117,6 +120,7 @@ return [
                 'reading_date_invalid' => 'Elige una fecha válida del calendario para la lectura.',
                 'reading_date_not_future' => 'La fecha de lectura no puede estar en el futuro. Elige :date o una fecha anterior.',
                 'notes_too_long' => 'Mantén las notas por debajo de :max caracteres para que el administrador pueda revisarlas fácilmente.',
+                'duplicate_reading_for_date' => 'Ya se envió una lectura para este contador y esta fecha. Pide al administrador que edite o elimine la lectura existente antes de enviar otro valor.',
             ],
         ],
         'invoices' => [

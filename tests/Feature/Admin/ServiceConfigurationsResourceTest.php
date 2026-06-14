@@ -2,6 +2,7 @@
 
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
+use App\Filament\Resources\ServiceConfigurations\Pages\CreateServiceConfiguration;
 use App\Filament\Resources\ServiceConfigurations\Pages\ListServiceConfigurations;
 use App\Models\Building;
 use App\Models\Organization;
@@ -18,6 +19,21 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+it('shows service configuration guidance on the create form', function () {
+    ['admin' => $admin] = createOrgWithAdmin();
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateServiceConfiguration::class)
+        ->assertSee(__('admin.service_configurations.guidance.title'))
+        ->assertSee(__('admin.service_configurations.guidance.items.1'))
+        ->assertSee(__('admin.service_configurations.fields.invoice_description'))
+        ->assertSee(__('admin.service_configurations.helpers.invoice_description'))
+        ->assertSee(__('admin.service_configurations.helpers.tariff'))
+        ->assertSee(__('admin.service_configurations.helpers.effective_from'))
+        ->assertSee(__('admin.service_configurations.helpers.custom_formula'));
+});
 
 it('shows organization context on the service configurations list for superadmins while keeping admins scoped', function () {
     $organizationA = Organization::factory()->create([

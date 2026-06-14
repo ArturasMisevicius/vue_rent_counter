@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MeterReadings\Tables;
 
 use App\Enums\MeterReadingValidationStatus;
+use App\Filament\Actions\Admin\MeterReadings\DeleteMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\RejectMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ValidateMeterReadingAction;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
@@ -73,6 +74,22 @@ class MeterReadingsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('delete')
+                    ->label(__('admin.meter_readings.actions.delete'))
+                    ->icon('heroicon-m-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (MeterReading $record): bool => MeterReadingResource::canDelete($record))
+                    ->authorize(fn (MeterReading $record): bool => MeterReadingResource::canDelete($record))
+                    ->disabled(fn (MeterReading $record): bool => ! app(DeleteMeterReadingAction::class)->canDelete($record))
+                    ->action(function (MeterReading $record, DeleteMeterReadingAction $deleteMeterReadingAction): void {
+                        $deleteMeterReadingAction->handle($record);
+
+                        Notification::make()
+                            ->title(__('admin.meter_readings.messages.deleted'))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('validate')
                     ->label(__('admin.meter_readings.actions.validate'))
                     ->icon('heroicon-m-check-circle')

@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\Invoices\Pages;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Actions\Admin\Invoices\OpenReadingInvoiceCycleAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Invoice;
+use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,6 +45,10 @@ class ListInvoices extends ListRecords
                 ->url(route('filament.admin.pages.generate-bulk-invoices'))
                 ->icon('heroicon-m-document-duplicate')
                 ->button();
+
+            if (InvoiceResource::canCreate()) {
+                $actions[] = $this->openReadingCycleAction($user);
+            }
         }
 
         return $actions;
@@ -74,5 +82,48 @@ class ListInvoices extends ListRecords
             $user?->isSuperadmin() ?? false,
             app(OrganizationContext::class)->currentOrganizationId(),
         );
+    }
+
+    private function openReadingCycleAction(User $user): Action
+    {
+        return Action::make('openReadingCycle')
+            ->label(__('admin.invoices.actions.open_reading_cycle'))
+            ->icon('heroicon-m-bell-alert')
+            ->color('gray')
+            ->button()
+            ->slideOver()
+            ->authorize(fn (): bool => InvoiceResource::canCreate())
+            ->modalHeading(__('admin.invoices.actions.open_reading_cycle_heading'))
+            ->modalSubmitActionLabel(__('admin.invoices.actions.open_reading_cycle_submit'))
+            ->schema([
+                DatePicker::make('billing_period_start')
+                    ->label(__('admin.invoices.fields.billing_period_start'))
+                    ->required()
+                    ->default(now()->subMonthNoOverflow()->startOfMonth()->toDateString()),
+                DatePicker::make('billing_period_end')
+                    ->label(__('admin.invoices.fields.billing_period_end'))
+                    ->required()
+                    ->default(now()->subMonthNoOverflow()->endOfMonth()->toDateString()),
+                DatePicker::make('due_date')
+                    ->label(__('admin.invoices.fields.due_date'))
+                    ->required()
+                    ->default(now()->subMonthNoOverflow()->endOfMonth()->addDays(14)->toDateString()),
+            ])
+            ->action(function (array $data, OpenReadingInvoiceCycleAction $openReadingInvoiceCycleAction) use ($user): void {
+                $organization = $user->currentOrganization();
+
+                abort_unless($organization instanceof Organization, 403);
+
+                $result = $openReadingInvoiceCycleAction->handle($organization, $data, $user);
+
+                Notification::make()
+                    ->title(__('admin.invoices.messages.reading_cycle_opened', [
+                        'created' => $result['created']->count(),
+                        'skipped' => count($result['skipped']),
+                        'notified' => $result['notified'],
+                    ]))
+                    ->success()
+                    ->send();
+            });
     }
 }

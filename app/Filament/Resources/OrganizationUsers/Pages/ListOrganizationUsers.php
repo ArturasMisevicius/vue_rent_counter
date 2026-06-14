@@ -13,12 +13,18 @@ class ListOrganizationUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        if (! $this->currentUser()?->isSuperadmin()) {
+        if (! OrganizationUserResource::canCreate()) {
             return [];
         }
 
+        $createAction = CreateAction::make();
+
+        if (! $this->currentUser()?->isSuperadmin()) {
+            $createAction->label(__('superadmin.organizations.relations.managers.actions.create'));
+        }
+
         return [
-            CreateAction::make(),
+            $createAction,
         ];
     }
 

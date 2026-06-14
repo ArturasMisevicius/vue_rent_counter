@@ -12,8 +12,6 @@ final class ViteCspIntegration
     {
         Vite::useCspNonce($nonce);
 
-        config()->set('livewire.csp_safe', true);
-
         return Vite::cspNonce() ?? $nonce;
     }
 }

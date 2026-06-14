@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tenants\Pages;
 
 use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
+use App\Filament\Resources\Tenants\Pages\Concerns\InteractsWithTenantLeaseAgreementFormData;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EditTenant extends EditRecord
 {
+    use InteractsWithTenantLeaseAgreementFormData;
+
     protected static string $resource = TenantResource::class;
 
     protected static string|array $routeMiddleware = 'manager.permission:tenants,edit';
@@ -31,12 +34,27 @@ class EditTenant extends EditRecord
             ...$data,
             'property_id' => $record->currentPropertyAssignment?->property_id,
             'unit_area_sqm' => $record->currentPropertyAssignment?->unit_area_sqm,
+            ...$this->leaseAgreementFormDataForRecord($record),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        [$data, $this->leaseAgreementFormData] = $this->extractLeaseAgreementFormData($data);
+
+        return $data;
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return app(UpdateTenantAction::class)->handle($record, $data);
+    }
+
+    protected function afterSave(): void
+    {
+        if ($this->record instanceof User) {
+            $this->syncTenantLeaseAgreement($this->record);
+        }
     }
 
     protected function getRedirectUrl(): string

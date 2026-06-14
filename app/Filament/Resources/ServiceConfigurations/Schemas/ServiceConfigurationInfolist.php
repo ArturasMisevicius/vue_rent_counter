@@ -20,6 +20,10 @@ class ServiceConfigurationInfolist
                             ->state(fn (ServiceConfiguration $record): string => $record->property?->displayName() ?? '—'),
                         TextEntry::make('utilityService.name')
                             ->label(__('admin.service_configurations.fields.utility_service')),
+                        TextEntry::make('invoice_description')
+                            ->label(__('admin.service_configurations.fields.invoice_description'))
+                            ->placeholder('—')
+                            ->columnSpanFull(),
                         TextEntry::make('provider.name')
                             ->label(__('admin.service_configurations.fields.provider')),
                         TextEntry::make('tariff.name')

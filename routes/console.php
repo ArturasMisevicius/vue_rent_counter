@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\OpenReadingInvoiceCycleCommand;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\SecurityViolation;
@@ -241,4 +242,8 @@ Schedule::command('projects:alert-overdue')
 
 Schedule::command('projects:alert-unapproved')
     ->daily()
+    ->withoutOverlapping();
+
+Schedule::command(OpenReadingInvoiceCycleCommand::class)
+    ->monthlyOn(1, '08:00')
     ->withoutOverlapping();

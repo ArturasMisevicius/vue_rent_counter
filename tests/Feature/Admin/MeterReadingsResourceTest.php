@@ -9,12 +9,15 @@ use App\Filament\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ValidateMeterReadingAction;
 use App\Filament\Resources\MeterReadings\Pages\ListMeterReadings;
 use App\Models\AuditLog;
+use App\Models\BillingRecord;
 use App\Models\Building;
+use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
+use App\Models\UtilityService;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -198,6 +201,50 @@ it('revalidates pending rows and returns an import preview with invalid rows', f
         ->and($preview['invalid'])->toHaveCount(1)
         ->and($preview['valid'][0]['status'])->toBe(MeterReadingValidationStatus::VALID->value)
         ->and($preview['invalid'][0]['errors'])->toHaveKey('reading_value');
+});
+
+it('lets admins delete unbilled readings while protecting billed readings', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+    $unbilledReading = MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
+        'reading_value' => 125.500,
+    ]);
+    $billedReading = MeterReading::factory()->for($organization)->for($property)->for($meter)->create([
+        'reading_value' => 135.500,
+    ]);
+    $invoice = Invoice::factory()->for($organization)->for($property)->create([
+        'tenant_user_id' => $tenant->id,
+    ]);
+    $utilityService = UtilityService::factory()->for($organization)->create();
+
+    BillingRecord::factory()->create([
+        'organization_id' => $organization->id,
+        'property_id' => $property->id,
+        'utility_service_id' => $utilityService->id,
+        'invoice_id' => $invoice->id,
+        'tenant_user_id' => $tenant->id,
+        'meter_reading_end' => $billedReading->id,
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListMeterReadings::class)
+        ->assertTableActionExists('delete', record: $unbilledReading)
+        ->assertTableActionEnabled('delete', record: $unbilledReading)
+        ->assertTableActionDisabled('delete', record: $billedReading)
+        ->callTableAction('delete', $unbilledReading);
+
+    expect(MeterReading::query()->whereKey($unbilledReading->id)->exists())->toBeFalse()
+        ->and(MeterReading::query()->whereKey($billedReading->id)->exists())->toBeTrue();
 });
 
 it('shows organization context on the meter readings list for superadmins while keeping admins scoped', function () {

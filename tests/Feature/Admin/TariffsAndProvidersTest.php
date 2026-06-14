@@ -170,13 +170,15 @@ it('creates and updates utility services and service configurations while blocki
         'provider_id' => $provider->id,
         'area_type' => null,
         'custom_formula' => null,
+        'invoice_description' => 'Cold water service with meter-based billing details.',
         'is_active' => true,
     ]);
 
     expect($serviceConfiguration)
         ->organization_id->toBe($organization->id)
         ->provider_id->toBe($provider->id)
-        ->tariff_id->toBe($tariff->id);
+        ->tariff_id->toBe($tariff->id)
+        ->invoice_description->toBe('Cold water service with meter-based billing details.');
 
     $updatedConfiguration = app(UpdateServiceConfigurationAction::class)->handle($serviceConfiguration, [
         'property_id' => $property->id,
@@ -192,13 +194,15 @@ it('creates and updates utility services and service configurations while blocki
         'provider_id' => $provider->id,
         'area_type' => 'heated',
         'custom_formula' => null,
+        'invoice_description' => 'Updated shared water service description for invoices.',
         'is_active' => true,
     ]);
 
     expect($updatedConfiguration)
         ->pricing_model->toBe(PricingModel::HYBRID)
         ->distribution_method->toBe(DistributionMethod::AREA)
-        ->is_shared_service->toBeTrue();
+        ->is_shared_service->toBeTrue()
+        ->invoice_description->toBe('Updated shared water service description for invoices.');
 
     expect(fn () => app(DeleteProviderAction::class)->handle($provider))
         ->toThrow(ValidationException::class);

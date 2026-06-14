@@ -3,10 +3,12 @@
 namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
+use App\Filament\Actions\Tenant\Readings\CompleteReadingRequestInvoiceAction;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Tenant\Portal\TenantMeterNameLocalizer;
 use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
+use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class SubmitReadingPage extends Component
@@ -29,6 +32,9 @@ class SubmitReadingPage extends Component
     public string $readingValue = '';
 
     public string $readingDate = '';
+
+    #[Url(as: 'invoice', except: '')]
+    public string $invoiceId = '';
 
     public string $notes = '';
 
@@ -54,6 +60,8 @@ class SubmitReadingPage extends Component
     public function mount(): void
     {
         $this->tenantWorkspace();
+        $invoiceId = $this->normalizedInvoiceId();
+        $this->invoiceId = $invoiceId !== null ? (string) $invoiceId : '';
         $this->readingDate = now()->toDateString();
         $this->syncReadingRowsWithAvailableMeters();
 
@@ -62,7 +70,10 @@ class SubmitReadingPage extends Component
         }
     }
 
-    public function submit(SubmitTenantReadingAction $submitTenantReadingAction): void
+    public function submit(
+        SubmitTenantReadingAction $submitTenantReadingAction,
+        CompleteReadingRequestInvoiceAction $completeReadingRequestInvoiceAction,
+    ): void {
     {
         $this->resetErrorBag();
         $this->successMessage = null;
@@ -70,12 +81,12 @@ class SubmitReadingPage extends Component
         $this->submittedReadings = [];
 
         if (filled($this->readingValue)) {
-            $this->submitLegacyReading($submitTenantReadingAction);
+            $this->submitLegacyReading($submitTenantReadingAction, $completeReadingRequestInvoiceAction);
 
             return;
         }
 
-        $this->submitBatchReadings($submitTenantReadingAction);
+        $this->submitBatchReadings($submitTenantReadingAction, $completeReadingRequestInvoiceAction);
     }
 
     #[On('shell-locale-updated')]
@@ -89,6 +100,7 @@ class SubmitReadingPage extends Component
             $this->consumption,
             $this->readingRows,
             $this->meterSelectionLocked,
+            $this->readingRequestInvoiceSummary,
             $this->tenant,
         );
 
@@ -112,6 +124,7 @@ class SubmitReadingPage extends Component
             'readingDateDisplay' => $this->readingDateDisplay(),
             'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
+            'readingRequestInvoiceSummary' => $this->readingRequestInvoiceSummary,
             'tenant' => $tenant,
         ]);
     }
@@ -174,8 +187,10 @@ class SubmitReadingPage extends Component
             ->all();
     }
 
-    private function submitLegacyReading(SubmitTenantReadingAction $submitTenantReadingAction): void
-    {
+    private function submitLegacyReading(
+        SubmitTenantReadingAction $submitTenantReadingAction,
+        CompleteReadingRequestInvoiceAction $completeReadingRequestInvoiceAction,
+    ): void {
         try {
             $reading = $submitTenantReadingAction->handle(
                 tenant: $this->tenant,
@@ -195,11 +210,14 @@ class SubmitReadingPage extends Component
         }
 
         $this->reset('readingValue', 'notes');
+        $this->completeReadingRequestInvoice([$reading], $completeReadingRequestInvoiceAction);
         $this->completeSubmission([$reading]);
     }
 
-    private function submitBatchReadings(SubmitTenantReadingAction $submitTenantReadingAction): void
-    {
+    private function submitBatchReadings(
+        SubmitTenantReadingAction $submitTenantReadingAction,
+        CompleteReadingRequestInvoiceAction $completeReadingRequestInvoiceAction,
+    ): void {
         $payloads = $this->batchPayloads();
 
         if ($payloads === []) {
@@ -240,6 +258,7 @@ class SubmitReadingPage extends Component
         }
 
         $this->domainErrorMeterId = null;
+        $this->completeReadingRequestInvoice($readings, $completeReadingRequestInvoiceAction);
         $this->completeSubmission($readings);
     }
 
@@ -359,6 +378,24 @@ class SubmitReadingPage extends Component
     }
 
     /**
+     * @param  list<MeterReading>  $readings
+     */
+    private function completeReadingRequestInvoice(
+        array $readings,
+        CompleteReadingRequestInvoiceAction $completeReadingRequestInvoiceAction,
+    ): void {
+        $invoiceId = $this->normalizedInvoiceId();
+
+        if ($invoiceId === null) {
+            return;
+        }
+
+        $completeReadingRequestInvoiceAction->handle($this->tenant, $invoiceId, $readings);
+
+        unset($this->readingRequestInvoiceSummary);
+    }
+
+    /**
      * @return array{meter_identifier: string, meter_name: string, unit: string, value: string, date: string}
      */
     private function submittedReadingPayload(MeterReading $reading): array
@@ -434,6 +471,59 @@ class SubmitReadingPage extends Component
             ->get();
     }
 
+    /**
+     * @return array{number: string, period: string, due: string}|null
+     */
+    #[Computed]
+    public function readingRequestInvoiceSummary(): ?array
+    {
+        $invoiceId = $this->normalizedInvoiceId();
+
+        if ($invoiceId === null) {
+            return null;
+        }
+
+        $workspace = $this->tenantWorkspace();
+
+        if ($workspace->propertyId === null) {
+            return null;
+        }
+
+        $invoice = Invoice::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'invoice_number',
+                'billing_period_start',
+                'billing_period_end',
+                'due_date',
+                'automation_level',
+            ])
+            ->forOrganization($workspace->organizationId)
+            ->whereKey($invoiceId)
+            ->where('property_id', $workspace->propertyId)
+            ->where('tenant_user_id', $workspace->userId)
+            ->where('automation_level', 'reading_request')
+            ->first();
+
+        if (! $invoice instanceof Invoice) {
+            return null;
+        }
+
+        return [
+            'number' => (string) $invoice->invoice_number,
+            'period' => __('tenant.pages.readings.invoice_request_period', [
+                'from' => LocalizedDateFormatter::date($invoice->billing_period_start),
+                'to' => LocalizedDateFormatter::date($invoice->billing_period_end),
+            ]),
+            'due' => __('tenant.pages.readings.invoice_request_due', [
+                'date' => LocalizedDateFormatter::date($invoice->due_date),
+            ]),
+        ];
+    }
+
     #[Computed]
     public function selectedMeter(): ?Meter
     {
@@ -489,5 +579,18 @@ class SubmitReadingPage extends Component
                 $this->addError($fieldMap[$field] ?? $field, $message);
             }
         }
+    }
+
+    private function normalizedInvoiceId(): ?int
+    {
+        $invoiceId = trim($this->invoiceId);
+
+        if ($invoiceId === '' || ! ctype_digit($invoiceId)) {
+            return null;
+        }
+
+        $resolvedInvoiceId = (int) $invoiceId;
+
+        return $resolvedInvoiceId > 0 ? $resolvedInvoiceId : null;
     }
 }

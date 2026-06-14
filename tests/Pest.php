@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
-    ->in('Feature');
+    ->in('Feature', 'Browser');
 
 beforeEach(function (): void {
     auth()->logout();

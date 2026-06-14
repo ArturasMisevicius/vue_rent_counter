@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Invoices;
 
 use App\Enums\InvoiceStatus;
-use App\Filament\Support\Billing\InvoiceLineItemDescription;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -38,7 +37,6 @@ class SaveInvoiceDraftRequest extends FormRequest
             'paid_at' => ['sometimes', 'nullable', 'date'],
             'payment_reference' => ['sometimes', 'nullable', 'string', 'max:255'],
             'items' => ['sometimes', 'nullable', 'array'],
-            'items.*.description' => ['sometimes', 'nullable', 'string', 'max:'.InvoiceLineItemDescription::MAX_LENGTH],
             'notes' => ['sometimes', 'nullable', 'string'],
         ];
     }
@@ -63,9 +61,6 @@ class SaveInvoiceDraftRequest extends FormRequest
             'paid_at.date' => ['date', 'paid_at'],
             'payment_reference.max' => ['max.string', 'payment_reference', ['max' => 255]],
             'items.array' => ['array', 'items'],
-            'items.*.description.max' => ['max.string', 'items', [
-                'max' => InvoiceLineItemDescription::MAX_LENGTH,
-            ]],
         ]);
     }
 

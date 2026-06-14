@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
+use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use Closure;
 use Database\Factories\UserFactory;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -236,6 +239,24 @@ class User extends Authenticatable implements FilamentUser
         return $query
             ->select(self::TENANT_WORKSPACE_COLUMNS)
             ->tenants()
+            ->with([
+                'leaseAgreement' => fn ($attachmentQuery) => $attachmentQuery->select([
+                    'attachments.id',
+                    'attachments.organization_id',
+                    'attachments.attachable_type',
+                    'attachments.attachable_id',
+                    'attachments.uploaded_by_user_id',
+                    'attachments.filename',
+                    'attachments.original_filename',
+                    'attachments.mime_type',
+                    'attachments.size',
+                    'attachments.disk',
+                    'attachments.path',
+                    'attachments.document_type',
+                    'attachments.created_at',
+                    'attachments.updated_at',
+                ]),
+            ])
             ->withCurrentPropertySummary()
             ->withPaidInvoiceSummary()
             ->withTenantDeletionSummary();
@@ -301,6 +322,28 @@ class User extends Authenticatable implements FilamentUser
     public function kycProfile(): HasOne
     {
         return $this->hasOne(UserKycProfile::class);
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function leaseAgreement(): MorphOne
+    {
+        return $this->morphOne(Attachment::class, 'attachable')
+            ->where('attachments.document_type', TenantLeaseAgreement::DOCUMENT_TYPE)
+            ->ofMany(['id' => 'max'], fn (Builder $query): Builder => $query->where(
+                'attachments.document_type',
+                TenantLeaseAgreement::DOCUMENT_TYPE,
+            ));
+    }
+
+    public function leaseAgreements(): MorphMany
+    {
+        return $this->attachments()
+            ->forDocumentType(TenantLeaseAgreement::DOCUMENT_TYPE)
+            ->latestFirst();
     }
 
     public function submittedMeterReadings(): HasMany

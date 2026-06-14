@@ -31,6 +31,7 @@ class ServiceConfiguration extends Model
         'provider_id',
         'area_type',
         'custom_formula',
+        'invoice_description',
         'is_active',
         'created_at',
         'updated_at',
@@ -51,6 +52,7 @@ class ServiceConfiguration extends Model
         'provider_id',
         'area_type',
         'custom_formula',
+        'invoice_description',
         'is_active',
     ];
 

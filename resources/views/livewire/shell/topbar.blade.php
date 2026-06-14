@@ -27,6 +27,12 @@
                         @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
                     @endif
 
+                    @if ($user)
+                        <div data-shell-notifications-slot="page">
+                            @livewire(\App\Livewire\Shell\NotificationCenter::class, [], key('shell-notifications-page'))
+                        </div>
+                    @endif
+
                     @if ($showOnboardingTourButton)
                         <button
                             type="button"
@@ -122,6 +128,12 @@
 
                     @if ($showLanguageSwitcher)
                         @livewire(\App\Livewire\Shell\LanguageSwitcher::class, [], key('shell-language-desktop'))
+                    @endif
+
+                    @if ($user)
+                        <div data-shell-notifications-slot="desktop">
+                            @livewire(\App\Livewire\Shell\NotificationCenter::class, [], key('shell-notifications-desktop'))
+                        </div>
                     @endif
 
                     @if ($showOnboardingTourButton)
@@ -288,6 +300,12 @@
 
                             @if ($showLanguageSwitcher)
                                 @livewire(\App\Livewire\Shell\LanguageSwitcher::class, [], key('shell-language-mobile'))
+                            @endif
+
+                            @if ($user)
+                                <div data-shell-notifications-slot="mobile">
+                                    @livewire(\App\Livewire\Shell\NotificationCenter::class, [], key('shell-notifications-mobile'))
+                                </div>
                             @endif
 
                             <form method="POST" action="{{ route('logout') }}" @class(['flex-1' => ! ($user && $profileUrl)])>

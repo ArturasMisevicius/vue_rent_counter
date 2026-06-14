@@ -9,6 +9,7 @@ use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
@@ -60,6 +61,16 @@ class TenantsTable
                         ? PropertyResource::getUrl('view', ['record' => $record->currentProperty])
                         : null)
                     ->sortable(),
+                TextColumn::make('leaseAgreement.original_filename')
+                    ->label(__('admin.tenants.columns.lease_agreement'))
+                    ->state(fn (User $record): string => $record->leaseAgreement?->original_filename ?? __('admin.tenants.empty.no_lease_agreement'))
+                    ->icon(fn (User $record) => TenantLeaseAgreement::iconForAttachment($record->leaseAgreement))
+                    ->color(fn (User $record): string => $record->leaseAgreement === null ? 'gray' : 'success')
+                    ->url(fn (User $record): ?string => $record->leaseAgreement !== null
+                        ? route('tenant.attachments.show', ['attachment' => $record->leaseAgreement])
+                        : null)
+                    ->openUrlInNewTab()
+                    ->toggleable(),
                 TextColumn::make('unit_area')
                     ->label(__('admin.tenants.columns.unit_area'))
                     ->state(fn (User $record): string => $record->currentUnitAreaDisplay()),
@@ -172,7 +183,7 @@ class TenantsTable
                             TenantResource::makeSubscriptionInfoAction(
                                 name: 'edit',
                                 resource: 'tenants',
-                                label: __('admin.actions.edit'),
+                                label: __('admin.tenants.actions.edit_tenant'),
                             ),
                         ]
                         : (
@@ -180,7 +191,7 @@ class TenantsTable
                                 ? []
                                 : [
                                     EditAction::make()
-                                        ->label(__('admin.actions.edit')),
+                                        ->label(__('admin.tenants.actions.edit_tenant')),
                                 ]
                         )
                 ),

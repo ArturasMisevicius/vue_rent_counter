@@ -93,6 +93,9 @@ return [
             'eyebrow' => 'Nuomininko skaitiklio rodmuo',
             'description' => 'Įveskite priskirtų skaitiklių rodmenis, peržiūrėkite numatomą sunaudojimo pokytį ir pateikite juos per bendrą validavimo eigą.',
             'batch_description' => 'Naudokite vieną datą, užpildykite tik tuos skaitiklius, kuriems reikia naujo rodmens, ir pateikite viską kartu.',
+            'invoice_request_heading' => 'Rodmenų užklausa sąskaitai :number',
+            'invoice_request_period' => 'Atsiskaitymo laikotarpis: nuo :from iki :to',
+            'invoice_request_due' => 'Pateikite rodmenis iki :date',
             'meter' => 'Skaitiklis',
             'meter_select' => 'Pasirinkite skaitiklį',
             'meter_locked' => 'Jūsų paskyrai priskirtas vienas skaitiklis, todėl jis parinktas automatiškai.',
@@ -133,6 +136,7 @@ return [
                 'reading_date_invalid' => 'Pasirinkite galiojančią kalendoriaus datą.',
                 'reading_date_not_future' => 'Rodmens data negali būti ateityje. Pasirinkite :date arba ankstesnę datą.',
                 'notes_too_long' => 'Pastabos turi būti trumpesnės nei :max simbolių, kad administratorius galėtų jas lengvai peržiūrėti.',
+                'duplicate_reading_for_date' => 'Šio skaitiklio rodmuo pasirinktai datai jau pateiktas. Prieš pateikdami kitą reikšmę paprašykite administratoriaus pakeisti arba ištrinti esamą rodmenį.',
             ],
         ],
         'invoices' => [

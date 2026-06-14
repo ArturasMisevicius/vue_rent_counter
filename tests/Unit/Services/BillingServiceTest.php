@@ -88,6 +88,7 @@ it('calculates fixed-daily charges across the full billing period', function () 
         ],
         'is_shared_service' => false,
         'effective_from' => '2025-12-01 00:00:00',
+        'invoice_description' => 'Repair work for stairwell lighting and shared hallway fixtures.',
     ]);
 
     $result = app(BillingServiceInterface::class)->generateBulkInvoices($organization, [
@@ -101,6 +102,7 @@ it('calculates fixed-daily charges across the full billing period', function () 
 
     expect($invoice)->not->toBeNull()
         ->and($invoice->total_amount)->toBe('30.00')
+        ->and($invoice->items[0]['description'])->toBe('Repair work for stairwell lighting and shared hallway fixtures.')
         ->and((string) $invoice->items[0]['quantity'])->toBe('10.000')
         ->and((string) $invoice->items[0]['unit_price'])->toBe('2.5000');
 });

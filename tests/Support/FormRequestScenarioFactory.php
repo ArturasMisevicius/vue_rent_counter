@@ -19,6 +19,7 @@ use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
 use App\Http\Requests\Admin\Invoices\CreateInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
+use App\Http\Requests\Admin\Invoices\OpenReadingInvoiceCycleRequest;
 use App\Http\Requests\Admin\Invoices\PreviewInvoiceDraftRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
@@ -528,6 +529,16 @@ final class FormRequestScenarioFactory
                     'billing_period_end' => now()->endOfMonth()->toDateString(),
                     'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
                     'selected_assignments' => ['assignment-1'],
+                ],
+                'required' => ['billing_period_start', 'billing_period_end', 'due_date'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'OpenReadingInvoiceCycleRequest' => [
+                'request' => static fn (array $context): FormRequest => new OpenReadingInvoiceCycleRequest,
+                'valid' => static fn (array $context): array => [
+                    'billing_period_start' => now()->subMonthNoOverflow()->startOfMonth()->toDateString(),
+                    'billing_period_end' => now()->subMonthNoOverflow()->endOfMonth()->toDateString(),
+                    'due_date' => now()->subMonthNoOverflow()->endOfMonth()->addDays(14)->toDateString(),
                 ],
                 'required' => ['billing_period_start', 'billing_period_end', 'due_date'],
                 'authorize' => self::adminLikeOnly(),

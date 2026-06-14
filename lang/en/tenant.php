@@ -93,6 +93,9 @@ return [
             'eyebrow' => 'Tenant Meter Reading',
             'description' => 'Enter readings for your assigned meters, preview the expected consumption delta, and send them through the shared validation pipeline.',
             'batch_description' => 'Use one date, fill only the meters that need a new value, and submit every entered reading together.',
+            'invoice_request_heading' => 'Reading request for invoice :number',
+            'invoice_request_period' => 'Billing period: :from to :to',
+            'invoice_request_due' => 'Submit readings by :date',
             'meter' => 'Meter',
             'meter_select' => 'Select a meter',
             'meter_locked' => 'Your account has one assigned meter, so it is preselected for this submission.',
@@ -133,6 +136,7 @@ return [
                 'reading_date_invalid' => 'Choose a valid calendar date for the reading.',
                 'reading_date_not_future' => 'The reading date cannot be in the future. Choose :date or an earlier date.',
                 'notes_too_long' => 'Keep notes under :max characters so the property manager can review them easily.',
+                'duplicate_reading_for_date' => 'A reading for this meter and date has already been submitted. Ask your property manager to edit or delete the existing reading before submitting another value.',
             ],
         ],
         'invoices' => [

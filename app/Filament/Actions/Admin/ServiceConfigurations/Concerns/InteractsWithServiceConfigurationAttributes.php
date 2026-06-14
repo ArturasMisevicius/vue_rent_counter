@@ -33,6 +33,7 @@ trait InteractsWithServiceConfigurationAttributes
             'provider_id' => Arr::get($attributes, 'provider_id'),
             'area_type' => Arr::get($attributes, 'area_type'),
             'custom_formula' => Arr::get($attributes, 'custom_formula'),
+            'invoice_description' => Arr::get($attributes, 'invoice_description'),
             'is_active' => (bool) ($attributes['is_active'] ?? true),
         ];
     }

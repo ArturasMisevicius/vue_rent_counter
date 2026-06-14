@@ -15,7 +15,6 @@ use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -65,14 +64,18 @@ class ViewTenant extends ViewRecord
                         TenantResource::makeSubscriptionInfoAction(
                             name: 'edit',
                             resource: 'tenants',
-                            label: __('admin.actions.edit'),
+                            label: __('admin.tenants.actions.edit_tenant'),
                         ),
                     ]
                     : (
                         TenantResource::canEdit($this->record)
                             ? [
-                                EditAction::make()
-                                    ->label(__('admin.actions.edit')),
+                                Action::make('edit')
+                                    ->label(__('admin.tenants.actions.edit_tenant'))
+                                    ->url(fn (): string => TenantResource::getUrl('edit', [
+                                        'record' => $this->record,
+                                    ]))
+                                    ->button(),
                             ]
                             : []
                     )

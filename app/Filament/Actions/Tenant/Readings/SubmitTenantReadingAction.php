@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Tenant\Readings;
 
 use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest;
@@ -13,6 +14,7 @@ use App\Models\MeterReading;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class SubmitTenantReadingAction
 {
@@ -65,6 +67,11 @@ class SubmitTenantReadingAction
 
         Gate::forUser($tenant)->authorize('view', $meter);
 
+        $this->ensureTenantHasNotSubmittedReadingForDate(
+            meter: $meter,
+            readingDate: $validated['readingDate'],
+        );
+
         return $this->createMeterReadingAction->handle(
             meter: $meter,
             readingValue: $validated['readingValue'],
@@ -99,5 +106,27 @@ class SubmitTenantReadingAction
             'readingDate' => $readingDate,
             'notes' => $notes,
         ], $tenant);
+    }
+
+    private function ensureTenantHasNotSubmittedReadingForDate(Meter $meter, string $readingDate): void
+    {
+        $hasReadingForDate = MeterReading::query()
+            ->forMeter($meter->id)
+            ->whereDate('reading_date', $readingDate)
+            ->where('submission_method', MeterReadingSubmissionMethod::TENANT_PORTAL)
+            ->whereIn('validation_status', [
+                MeterReadingValidationStatus::PENDING,
+                MeterReadingValidationStatus::VALID,
+                MeterReadingValidationStatus::FLAGGED,
+            ])
+            ->exists();
+
+        if (! $hasReadingForDate) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'readingValue' => __('tenant.pages.readings.validation.duplicate_reading_for_date'),
+        ]);
     }
 }

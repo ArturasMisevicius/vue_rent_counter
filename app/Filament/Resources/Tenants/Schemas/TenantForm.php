@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -21,6 +23,7 @@ class TenantForm
         return $schema
             ->components([
                 Section::make(__('admin.tenants.sections.personal_information'))
+                    ->description(__('admin.tenants.messages.invitation_onboarding_hint'))
                     ->schema([
                         Select::make('organization_id')
                             ->label(__('superadmin.organizations.singular'))
@@ -90,6 +93,20 @@ class TenantForm
                             ->default(fn (?User $record): mixed => $record?->currentPropertyAssignment?->unit_area_sqm),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.lease_agreement'))
+                    ->description(__('admin.tenants.messages.lease_agreement_hint'))
+                    ->schema([
+                        FileUpload::make(TenantLeaseAgreement::FIELD)
+                            ->label(__('admin.tenants.fields.lease_agreement'))
+                            ->disk(TenantLeaseAgreement::DISK)
+                            ->directory(TenantLeaseAgreement::DIRECTORY)
+                            ->visibility('private')
+                            ->acceptedFileTypes(TenantLeaseAgreement::acceptedFileTypes())
+                            ->maxSize(TenantLeaseAgreement::MAX_SIZE_KB)
+                            ->openable()
+                            ->downloadable()
+                            ->storeFileNamesIn(TenantLeaseAgreement::fileNamesStatePath()),
+                    ]),
             ]);
     }
 

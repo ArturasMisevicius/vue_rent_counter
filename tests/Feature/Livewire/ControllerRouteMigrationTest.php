@@ -18,6 +18,7 @@ use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
 use App\Livewire\Tenant\DownloadInvoiceEndpoint;
 use App\Livewire\Tenant\InvoiceHistory;
+use App\Livewire\Tenant\ShowTenantAttachmentEndpoint;
 use App\Livewire\Tenant\SubmitMeterReading;
 use App\Livewire\Tenant\TenantDashboard;
 use App\Livewire\Tenant\TenantPortalRouteEndpoint;
@@ -149,6 +150,18 @@ it('keeps shared profile routing as a redirect into the appropriate destination'
         ->assertRedirect(route('filament.admin.pages.profile'));
 });
 
+it('preserves tenant portal alias query strings when redirecting to filament pages', function (): void {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    actingAs($tenant->user);
+
+    get(route('tenant.readings.create', ['invoice' => 123]))
+        ->assertRedirect(route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => 123]));
+});
+
 it('maps non-livewire web routes to Livewire-backed actions', function (string $routeName, string $action): void {
     $route = app('router')->getRoutes()->getByName($routeName);
 
@@ -173,6 +186,7 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     'guest locale switch' => ['language.switch', SwitchGuestLocaleEndpoint::class.'@change'],
     'tenant invoice download' => ['tenant.invoices.download', DownloadInvoiceEndpoint::class.'@download'],
     'kyc attachment' => ['kyc.attachments.show', ShowKycAttachmentEndpoint::class.'@show'],
+    'tenant attachment' => ['tenant.attachments.show', ShowTenantAttachmentEndpoint::class.'@show'],
     'tenant home alias' => ['tenant.home', TenantPortalRouteEndpoint::class.'@show'],
     'tenant reading alias' => ['tenant.readings.create', TenantPortalRouteEndpoint::class.'@show'],
     'tenant invoices alias' => ['tenant.invoices.index', TenantPortalRouteEndpoint::class.'@show'],

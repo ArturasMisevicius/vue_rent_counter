@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
+use App\Filament\Resources\OrganizationUsers\Pages\CreateOrganizationUser;
 use App\Filament\Resources\OrganizationUsers\Pages\ListOrganizationUsers;
 use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Models\Organization;
@@ -10,6 +12,7 @@ use App\Models\OrganizationUser;
 use App\Models\User;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -99,12 +102,12 @@ it('scopes organization user list affordances by actor context', function (): vo
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.organization-users.index'))
         ->assertSuccessful()
-        ->assertDontSee(route('filament.admin.resources.organization-users.create'), false);
+        ->assertSee(route('filament.admin.resources.organization-users.create'), false);
 
     $this->actingAs($admin);
 
     Livewire::test(ListOrganizationUsers::class)
-        ->assertActionDoesNotExist('create')
+        ->assertActionExists('create')
         ->assertTableColumnExists('organization.name', fn (TextColumn $column): bool => $column->getLabel() === __('superadmin.organizations.singular'))
         ->assertTableColumnHidden('organization.name')
         ->assertTableBulkActionDoesNotExist('deleteSelected')
@@ -157,6 +160,49 @@ it('lets admins view and edit manager memberships in their current organization'
         ->assertSuccessful()
         ->assertSeeText(__('admin.manager_permissions.section'))
         ->assertDontSee('data-superadmin-surface="true"', false);
+});
+
+it('lets admins create manager accounts for their current organization', function (): void {
+    ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.organization-users.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('superadmin.organizations.relations.managers.actions.create'))
+        ->assertSeeText(__('superadmin.users.fields.name'))
+        ->assertDontSee('data-superadmin-surface="true"', false);
+
+    $this->actingAs($admin);
+
+    Livewire::test(CreateOrganizationUser::class)
+        ->fillForm([
+            'name' => 'Operations Manager',
+            'email' => 'operations.manager@example.com',
+            'status' => UserStatus::ACTIVE->value,
+            'locale' => 'ru',
+            'password' => 'manager-password',
+            'password_confirmation' => 'manager-password',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $manager = User::query()
+        ->where('email', 'operations.manager@example.com')
+        ->firstOrFail();
+
+    $membership = OrganizationUser::query()
+        ->where('organization_id', $organization->id)
+        ->where('user_id', $manager->id)
+        ->firstOrFail();
+
+    expect($manager->organization_id)->toBe($organization->id)
+        ->and($manager->role)->toBe(UserRole::MANAGER)
+        ->and($manager->status)->toBe(UserStatus::ACTIVE)
+        ->and($manager->locale)->toBe('ru')
+        ->and(Hash::check('manager-password', $manager->password))->toBeTrue()
+        ->and($membership->role)->toBe(UserRole::MANAGER->value)
+        ->and($membership->is_active)->toBeTrue()
+        ->and($membership->invited_by)->toBe($admin->id);
 });
 
 it('shows a read-only manager permission summary on the organization user view page', function (): void {
@@ -214,7 +260,7 @@ it('shows a read-only fallback when a manager has no granted write permissions o
         ->assertSeeText(__('admin.manager_permissions.summary.read_only'));
 });
 
-it('forbids admins from creating or opening organization users outside the scoped manager surface', function (): void {
+it('forbids non-admins from creating and admins from opening organization users outside the scoped manager surface', function (): void {
     ['organization' => $organization, 'admin' => $admin] = createOrgWithAdmin();
 
     $manager = User::factory()->manager()->create([
@@ -252,7 +298,11 @@ it('forbids admins from creating or opening organization users outside the scope
         'permissions' => null,
     ]);
 
-    $this->actingAs($admin)
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($tenant)
         ->get(route('filament.admin.resources.organization-users.create'))
         ->assertForbidden();
 

@@ -25,7 +25,7 @@ class OrganizationUserPolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperadmin();
+        return $user->isSuperadmin() || $this->canManageManagerMemberships($user);
     }
 
     public function update(User $user, OrganizationUser $organizationUser): bool

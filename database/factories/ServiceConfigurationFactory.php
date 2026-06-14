@@ -73,6 +73,7 @@ class ServiceConfigurationFactory extends Factory
             'custom_formula' => $serviceType === ServiceType::HEATING
                 ? '({consumption} * {unit_rate}) + ({area_sqm} * 0.35) + {base_fee}'
                 : '({quantity} * {unit_rate}) + {base_fee}',
+            'invoice_description' => null,
             'is_active' => true,
         ];
     }

@@ -100,9 +100,12 @@ class ServiceConfigurationsTable
                     ),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->label(__('admin.actions.view')),
+                EditAction::make()
+                    ->label(__('admin.actions.edit')),
+                DeleteAction::make()
+                    ->label(__('admin.actions.delete')),
             ]);
     }
 

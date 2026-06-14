@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ServiceConfigurations\Pages;
 
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 
 class ViewServiceConfiguration extends ViewRecord
 {
@@ -13,7 +13,12 @@ class ViewServiceConfiguration extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            Action::make('editServiceConfiguration')
+                ->label(__('admin.actions.edit'))
+                ->url(fn (): string => ServiceConfigurationResource::getUrl('edit', [
+                    'record' => $this->record,
+                ]))
+                ->button(),
         ];
     }
 }

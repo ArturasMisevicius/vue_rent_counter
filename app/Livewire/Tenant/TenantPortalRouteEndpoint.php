@@ -31,6 +31,6 @@ final class TenantPortalRouteEndpoint extends Component
 
         abort_if($routeName === null, 404);
 
-        return to_route($routeName);
+        return to_route($routeName, request()->query());
     }
 }

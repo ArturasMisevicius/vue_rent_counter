@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
+use App\Filament\Support\Tenants\TenantLeaseAgreement;
 use App\Models\User;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -95,6 +96,18 @@ class TenantInfolist
                             ->state(fn (User $record): string => $record->currentPropertyAssignment?->assigned_at?->locale(app()->getLocale())->translatedFormat(LocalizedDateFormatter::dateFormat()) ?? '—'),
                     ])
                     ->columns(2),
+                Section::make(__('admin.tenants.sections.lease_agreement'))
+                    ->schema([
+                        TextEntry::make('leaseAgreement.original_filename')
+                            ->label(__('admin.tenants.fields.lease_agreement'))
+                            ->state(fn (User $record): string => $record->leaseAgreement?->original_filename ?? __('admin.tenants.empty.no_lease_agreement'))
+                            ->icon(fn (User $record) => TenantLeaseAgreement::iconForAttachment($record->leaseAgreement))
+                            ->color(fn (User $record): string => $record->leaseAgreement === null ? 'gray' : 'success')
+                            ->url(fn (User $record): ?string => $record->leaseAgreement !== null
+                                ? route('tenant.attachments.show', ['attachment' => $record->leaseAgreement])
+                                : null)
+                            ->openUrlInNewTab(),
+                    ]),
             ]);
     }
 }
