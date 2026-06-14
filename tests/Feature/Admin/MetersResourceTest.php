@@ -84,7 +84,8 @@ it('shows organization-scoped meter resource pages with history details', functi
         ->get(route('filament.admin.resources.meters.view', $meter))
         ->assertSuccessful()
         ->assertSeeText('Meter Details')
-        ->assertSeeText('Reading History');
+        ->assertSeeText('Reading History')
+        ->assertSeeText(__('admin.actions.edit'));
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meters.index'))

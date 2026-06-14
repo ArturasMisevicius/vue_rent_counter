@@ -80,7 +80,8 @@ it('shows organization-scoped meter reading resource pages with validation badge
         ->assertSuccessful()
         ->assertSeeText('Reading Details')
         ->assertSeeText($meter->name)
-        ->assertSeeText('125.5');
+        ->assertSeeText('125.5')
+        ->assertSeeText(__('admin.actions.edit'));
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.meter-readings.index'))

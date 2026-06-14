@@ -79,7 +79,8 @@ it('shows organization-scoped provider resource pages to admin and manager users
         ->assertSuccessful()
         ->assertSeeText('Provider Details')
         ->assertSeeText($provider->name)
-        ->assertSeeText('billing@ignitis.example');
+        ->assertSeeText('billing@ignitis.example')
+        ->assertSeeText(__('admin.actions.edit'));
 
     actingAs($admin);
 

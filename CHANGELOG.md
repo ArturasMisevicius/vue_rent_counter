@@ -2,6 +2,21 @@
 
 ## 2026-06-14
 
+<!-- changelog:auto:start:staged-20260614145344 -->
+### Commit updates
+
+- updated `app/Filament/Resources/MeterReadings/Pages/ViewMeterReading.php`
+- updated `app/Filament/Resources/Meters/Pages/ViewMeter.php`
+- updated `app/Filament/Resources/Providers/Pages/ViewProvider.php`
+- updated `app/Filament/Resources/Tariffs/Pages/ViewTariff.php`
+- updated `app/Filament/Resources/Users/Pages/ViewUser.php`
+- updated `tests/Feature/Admin/MeterReadingsResourceTest.php`
+- updated `tests/Feature/Admin/MetersResourceTest.php`
+- updated `tests/Feature/Admin/ProvidersResourceTest.php`
+- updated `tests/Feature/Admin/TariffsResourceTest.php`
+- updated `tests/Feature/Superadmin/UsersResourceTest.php`
+<!-- changelog:auto:end:staged-20260614145344 -->
+
 <!-- changelog:auto:start:staged-20260614144649 -->
 ### Commit updates
 

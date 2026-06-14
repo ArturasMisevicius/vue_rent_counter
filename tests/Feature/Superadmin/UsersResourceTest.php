@@ -144,7 +144,8 @@ it('renders the superadmin users list page contract', function () {
         ->get(route('filament.admin.resources.users.view', $managedUser))
         ->assertSuccessful()
         ->assertSeeText($managedUser->name)
-        ->assertSeeText($managedUser->email);
+        ->assertSeeText($managedUser->email)
+        ->assertSeeText(__('superadmin.users.actions.edit'));
 
     $this->actingAs($superadmin);
 

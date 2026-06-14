@@ -97,7 +97,8 @@ it('shows organization-scoped tariff resource pages to admin and manager users',
         ->assertSeeText('Tariff Details')
         ->assertSeeText($tariff->name)
         ->assertSeeText($provider->name)
-        ->assertSeeText('Flat');
+        ->assertSeeText('Flat')
+        ->assertSeeText(__('admin.actions.edit'));
 
     actingAs($admin);
 

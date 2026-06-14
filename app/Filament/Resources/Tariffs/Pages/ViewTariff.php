@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tariffs\Pages;
 
 use App\Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\Tariffs\TariffResource;
+use Filament\Actions\EditAction;
 
 class ViewTariff extends ViewRecord
 {
@@ -12,5 +13,13 @@ class ViewTariff extends ViewRecord
     public function getTitle(): string
     {
         return __('admin.tariffs.view_title');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            EditAction::make()
+                ->label(__('admin.actions.edit')),
+        ];
     }
 }

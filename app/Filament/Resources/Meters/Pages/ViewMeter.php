@@ -6,6 +6,7 @@ use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Meters\Widgets\MeterConsumptionChart;
 use App\Filament\Resources\Pages\Concerns\HasDeferredRelationManagerTabBadges;
 use App\Filament\Resources\Pages\ViewRecord;
+use Filament\Actions\EditAction;
 
 class ViewMeter extends ViewRecord
 {
@@ -34,6 +35,14 @@ class ViewMeter extends ViewRecord
     public function getContentTabLabel(): ?string
     {
         return __('admin.meters.sections.details');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            EditAction::make()
+                ->label(__('admin.actions.edit')),
+        ];
     }
 
     protected function getHeaderWidgets(): array
