@@ -189,6 +189,12 @@ it('opens a reading invoice cycle from the invoices list action', function (): v
     Livewire::actingAs($admin)
         ->test(ListInvoices::class)
         ->assertActionVisible('openReadingCycle')
+        ->mountAction('openReadingCycle')
+        ->assertActionMounted('openReadingCycle')
+        ->assertMountedActionModalSee(__('admin.invoices.messages.open_reading_cycle_description'));
+
+    Livewire::actingAs($admin)
+        ->test(ListInvoices::class)
         ->callAction('openReadingCycle', data: [
             'billing_period_start' => '2026-05-01',
             'billing_period_end' => '2026-05-31',
@@ -206,6 +212,16 @@ it('opens a reading invoice cycle from the invoices list action', function (): v
         ->and((float) $invoice->total_amount)->toBe(0.0);
 
     Notification::assertSentTo($tenant, InvoiceReadingRequestNotification::class);
+});
+
+it('provides localized reading cycle modal guidance', function (): void {
+    foreach (['en', 'lt', 'es', 'ru'] as $locale) {
+        $message = __('admin.invoices.messages.open_reading_cycle_description', [], $locale);
+
+        expect($message)
+            ->not->toBe('admin.invoices.messages.open_reading_cycle_description')
+            ->not->toBe('');
+    }
 });
 
 function buildOpenReadingInvoiceCycleScenario(): array

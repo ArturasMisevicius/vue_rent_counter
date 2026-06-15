@@ -2,6 +2,36 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615060215 -->
+### Изменения Codex
+
+- обновлен `README.md`
+- обновлен `app/Filament/Resources/Invoices/Pages/ListInvoices.php`
+- обновлен `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`
+- обновлен `app/Livewire/Pages/Dashboard/TenantDashboard.php`
+- обновлен `docs/AI-AGENT-DOCS.md`
+- добавлен `docs/FEATURES.md`
+- обновлен `docs/PROJECT-CONTEXT.md`
+- обновлен `docs/SESSION-BOOTSTRAP.md`
+- обновлен `docs/SKILLS-MCP-INVENTORY.md`
+- обновлен `docs/operations/backup-restore.md`
+- обновлен `docs/operations/phase-1-guardrails-branch-protection.md`
+- обновлен `docs/operations/release-readiness.md`
+- обновлен `lang/en/admin.php`
+- обновлен `lang/en/tenant.php`
+- обновлен `lang/es/admin.php`
+- обновлен `lang/es/tenant.php`
+- обновлен `lang/lt/admin.php`
+- обновлен `lang/lt/tenant.php`
+- обновлен `lang/ru/admin.php`
+- обновлен `lang/ru/tenant.php`
+- обновлен `resources/views/livewire/pages/dashboard/tenant-dashboard.blade.php`
+- обновлен `resources/views/livewire/tenant/home-summary.blade.php`
+- обновлен `tests/Feature/Billing/OpenReadingInvoiceCycleTest.php`
+- обновлен `tests/Feature/Tenant/TenantHomePageTest.php`
+- обновлен `tests/Feature/Tenant/TenantSubmitReadingTest.php`
+<!-- changelog:auto:end:staged-20260615060215 -->
+
 <!-- changelog:auto:start:staged-20260615054630 -->
 ### Изменения Codex
 
@@ -5229,16 +5259,33 @@
 <!-- changelog:auto:end:staged-20260331200925 -->
 
 <!-- changelog:auto:start:pending -->
-### Pending staged changes
+### Ожидающие staged-изменения
 
-- updated `.codex/config.toml`
-- updated `.planning/codebase/ARCHITECTURE.md`
-- updated `.planning/codebase/CONCERNS.md`
-- updated `.planning/codebase/CONVENTIONS.md`
-- updated `.planning/codebase/INTEGRATIONS.md`
-- updated `.planning/codebase/STACK.md`
-- updated `.planning/codebase/STRUCTURE.md`
-- updated `.planning/codebase/TESTING.md`
+- обновлен `README.md`
+- обновлен `app/Filament/Resources/Invoices/Pages/ListInvoices.php`
+- обновлен `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`
+- обновлен `app/Livewire/Pages/Dashboard/TenantDashboard.php`
+- обновлен `docs/AI-AGENT-DOCS.md`
+- добавлен `docs/FEATURES.md`
+- обновлен `docs/PROJECT-CONTEXT.md`
+- обновлен `docs/SESSION-BOOTSTRAP.md`
+- обновлен `docs/SKILLS-MCP-INVENTORY.md`
+- обновлен `docs/operations/backup-restore.md`
+- обновлен `docs/operations/phase-1-guardrails-branch-protection.md`
+- обновлен `docs/operations/release-readiness.md`
+- обновлен `lang/en/admin.php`
+- обновлен `lang/en/tenant.php`
+- обновлен `lang/es/admin.php`
+- обновлен `lang/es/tenant.php`
+- обновлен `lang/lt/admin.php`
+- обновлен `lang/lt/tenant.php`
+- обновлен `lang/ru/admin.php`
+- обновлен `lang/ru/tenant.php`
+- обновлен `resources/views/livewire/pages/dashboard/tenant-dashboard.blade.php`
+- обновлен `resources/views/livewire/tenant/home-summary.blade.php`
+- обновлен `tests/Feature/Billing/OpenReadingInvoiceCycleTest.php`
+- обновлен `tests/Feature/Tenant/TenantHomePageTest.php`
+- обновлен `tests/Feature/Tenant/TenantSubmitReadingTest.php`
 <!-- changelog:auto:end:pending -->
 
 <!-- changelog:auto:start:staged-20260331194242 -->

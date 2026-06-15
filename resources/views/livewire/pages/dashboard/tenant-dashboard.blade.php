@@ -11,27 +11,50 @@
         <x-tenant.split>
             <x-tenant.main-panel>
                 <div class="flex flex-col gap-3 md:flex-row">
-                    <x-tenant.card
-                        :href="$summary['submit_reading_url']"
-                        tone="muted"
-                        class="group flex min-h-28 flex-1 items-start justify-between gap-4 border-brand-mint/40 bg-brand-mint/10 px-4 py-4 hover:border-brand-mint hover:bg-brand-mint/15"
-                        data-tenant-current-invoice="{{ ($summary['current_invoice'] ?? null) ? 'true' : 'false' }}"
-                    >
-                        <span class="space-y-2">
-                            <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">
-                                {{ ($summary['current_invoice'] ?? null) ? __('tenant.pages.home.current_invoice') : __('tenant.navigation.readings') }}
-                            </span>
-                            <span class="block text-sm font-semibold leading-5 text-slate-950">
-                                {{ ($summary['current_invoice'] ?? null) ? __('tenant.actions.submit_readings') : __('tenant.actions.submit_new_reading') }}
-                            </span>
-                            @if ($summary['current_invoice'] ?? null)
+                    @if ($summary['current_invoice'] ?? null)
+                        <x-tenant.card
+                            :href="$summary['submit_reading_url']"
+                            tone="muted"
+                            class="group flex min-h-28 flex-1 items-start justify-between gap-4 border-brand-mint/40 bg-brand-mint/10 px-4 py-4 hover:border-brand-mint hover:bg-brand-mint/15"
+                            data-tenant-current-invoice="true"
+                            data-tenant-home-submit-readings="true"
+                        >
+                            <span class="space-y-2">
+                                <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                    {{ __('tenant.pages.home.current_invoice') }}
+                                </span>
+                                <span class="block text-sm font-semibold leading-5 text-slate-950">
+                                    {{ __('tenant.actions.submit_readings') }}
+                                </span>
                                 <span class="block text-xs leading-5 text-slate-600">{{ $summary['current_invoice']['number'] }}</span>
-                            @endif
-                        </span>
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-ink text-white transition group-hover:bg-slate-900">
-                            <x-heroicon-m-clipboard-document-list class="size-5" />
-                        </span>
-                    </x-tenant.card>
+                            </span>
+                            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-ink text-white transition group-hover:bg-slate-900">
+                                <x-heroicon-m-clipboard-document-list class="size-5" />
+                            </span>
+                        </x-tenant.card>
+                    @else
+                        <x-tenant.card
+                            tone="white"
+                            class="flex min-h-28 flex-1 items-start justify-between gap-4 px-4 py-4"
+                            data-tenant-current-invoice="false"
+                            data-tenant-reading-request-waiting="true"
+                        >
+                            <span class="space-y-2">
+                                <span class="block text-xs font-semibold uppercase tracking-normal text-slate-500">
+                                    {{ __('tenant.pages.home.month_heading') }}
+                                </span>
+                                <span class="block text-sm font-semibold leading-5 text-slate-950">
+                                    {{ __('tenant.pages.home.waiting_for_reading_request_metric') }}
+                                </span>
+                                <span class="block text-xs leading-5 text-slate-600">
+                                    {{ __('tenant.pages.home.waiting_for_reading_request_message') }}
+                                </span>
+                            </span>
+                            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                                <x-heroicon-m-clock class="size-5" />
+                            </span>
+                        </x-tenant.card>
+                    @endif
 
                     <x-tenant.card
                         :href="route('filament.admin.pages.tenant-invoice-history')"

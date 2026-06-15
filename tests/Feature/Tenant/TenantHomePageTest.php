@@ -30,9 +30,10 @@ it('shows the tenant greeting, outstanding balance, and recent readings', functi
         ->assertSeeText('Taylor')
         ->assertSeeText('Outstanding Balance')
         ->assertSeeText('This Month')
-        ->assertSeeText('All current')
+        ->assertSeeText('Waiting for request')
         ->assertSeeText('Recent Readings')
-        ->assertSeeText('Submit New Reading');
+        ->assertDontSee('data-tenant-home-submit-readings', false)
+        ->assertSee('data-tenant-reading-request-waiting', false);
 });
 
 it('shows all paid up copy when no unpaid invoices exist', function () {
@@ -90,8 +91,8 @@ it('shows no reading this month when a meter is missing a current-month reading'
     $this->actingAs($tenant->user)
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
-        ->assertSeeText('1 pending')
-        ->assertSeeText('No reading this month');
+        ->assertSeeText('Waiting for request')
+        ->assertSeeText('Your property manager will open a draft invoice request when readings are needed');
 });
 
 it('shows the my property link on the tenant home screen', function () {
@@ -134,6 +135,8 @@ it('links the tenant home reading action to the current invoice request', functi
         ->assertSeeText('Current Invoice')
         ->assertSeeText('Submit Readings')
         ->assertSeeText('REQ-HOME-001')
+        ->assertSee('data-tenant-current-invoice="true"', false)
+        ->assertSee('data-tenant-home-submit-readings', false)
         ->assertSee(route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => $invoice->id]), false);
 });
 
@@ -265,7 +268,8 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertDontSeeText('Nuomininko suvestinė')
-        ->assertSeeText('Pateikti naują rodmenį')
+        ->assertSeeText('Laukiama užklausos')
+        ->assertDontSee('data-tenant-home-submit-readings', false)
         ->assertSeeText('Naujausi rodmenys');
 });
 
@@ -289,7 +293,7 @@ it('groups recent readings by property without repeating the full address in the
 
     expect($sectionText)
         ->toContain('Naujausi rodmenys')
-        ->toContain($tenant->property->name)
+        ->toContain($tenant->property->displayName())
         ->toContain($tenant->building->name)
         ->toContain('Rodmenų: 2')
         ->not->toContain($tenant->property->address);
@@ -398,7 +402,8 @@ it('falls back to english when a tenant has an unsupported locale', function () 
         ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertDontSeeText('Tenant Summary')
-        ->assertSeeText('Submit New Reading')
+        ->assertSeeText('Waiting for request')
+        ->assertDontSee('data-tenant-home-submit-readings', false)
         ->assertSeeText('Recent Readings');
 });
 

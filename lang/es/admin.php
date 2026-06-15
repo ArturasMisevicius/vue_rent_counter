@@ -503,6 +503,7 @@ return [
             'overdue_notice_with_reminder' => 'Último recordatorio enviado el :date.',
             'overdue_notice_without_reminder' => 'Aún no se ha enviado ningún recordatorio.',
             'send_reminder_confirmation' => '¿Enviar recordatorio de vencimiento para la factura :number?',
+            'open_reading_cycle_description' => 'Crea borradores vacíos de factura-solicitud para inquilinos activos con contadores, notifica a los inquilinos para que envíen lecturas y envía los borradores al Billing Review Center antes de finalizarlos.',
             'reading_cycle_opened' => 'Periodo de lecturas abierto: :created borradores de factura, :notified notificaciones, :skipped omitidos.',
             'prepared_from_readings' => 'La factura :number se ha preparado desde las lecturas enviadas.',
             'prepare_from_readings_confirmation' => 'Esto reemplazará las líneas del borrador con cargos calculados desde lecturas aprobadas o marcadas para el periodo de facturación. Aún puedes revisar y editar el borrador antes de finalizarlo.',

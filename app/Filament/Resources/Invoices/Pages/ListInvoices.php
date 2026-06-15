@@ -94,6 +94,7 @@ class ListInvoices extends ListRecords
             ->slideOver()
             ->authorize(fn (): bool => InvoiceResource::canCreate())
             ->modalHeading(__('admin.invoices.actions.open_reading_cycle_heading'))
+            ->modalDescription(__('admin.invoices.messages.open_reading_cycle_description'))
             ->modalSubmitActionLabel(__('admin.invoices.actions.open_reading_cycle_submit'))
             ->schema([
                 DatePicker::make('billing_period_start')

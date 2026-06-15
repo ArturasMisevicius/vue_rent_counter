@@ -112,6 +112,7 @@ class TenantHomePresenter
         $currentReadingRequestInvoice = $property instanceof Property
             ? $this->currentReadingRequestInvoice($organizationId, $tenantId, $property->id)
             : null;
+        $hasOpenReadingRequest = $currentReadingRequestInvoice instanceof Invoice;
         $outstandingInvoices = $property
             ? Invoice::query()
                 ->forTenantWorkspace($organizationId, $tenantId)
@@ -159,10 +160,11 @@ class TenantHomePresenter
                 'address' => $property?->address,
             ],
             'property_url' => route('filament.admin.pages.tenant-property-details'),
-            'submit_reading_url' => $currentReadingRequestInvoice instanceof Invoice
+            'submit_reading_url' => $hasOpenReadingRequest
                 ? route('filament.admin.pages.tenant-submit-meter-reading', ['invoice' => $currentReadingRequestInvoice->id])
-                : route('filament.admin.pages.tenant-submit-meter-reading'),
+                : null,
             'current_invoice' => $this->currentInvoiceSummary($currentReadingRequestInvoice),
+            'has_open_reading_request' => $hasOpenReadingRequest,
             'has_outstanding_balance' => $outstandingInvoices->isNotEmpty(),
             'outstanding_label' => $outstandingInvoices->isNotEmpty()
                 ? __('tenant.status.outstanding_balance')
@@ -173,12 +175,12 @@ class TenantHomePresenter
             'payment_guidance' => $this->paymentInstructionsResolver->resolve($tenant->organization?->settings),
             'month_heading' => __('tenant.pages.home.month_heading'),
             'meters_missing_current_month' => $metersMissingCurrentMonth,
-            'current_month_metric' => trans_choice('tenant.pages.home.current_month_metric', $metersMissingCurrentMonth, [
-                'count' => $metersMissingCurrentMonth,
-            ]),
-            'current_month_message' => $metersMissingCurrentMonth > 0
-                ? __('tenant.pages.home.no_reading_this_month')
-                : __('tenant.messages.all_current_month'),
+            'current_month_metric' => $hasOpenReadingRequest
+                ? __('tenant.pages.home.reading_request_open_metric')
+                : __('tenant.pages.home.waiting_for_reading_request_metric'),
+            'current_month_message' => $hasOpenReadingRequest
+                ? __('tenant.pages.home.reading_request_open_message')
+                : __('tenant.pages.home.waiting_for_reading_request_message'),
             'consumption_by_type' => $consumptionByType,
             'empty_state_title' => __('tenant.pages.home.unassigned_title'),
             'empty_state_description' => __('tenant.pages.home.unassigned_description'),

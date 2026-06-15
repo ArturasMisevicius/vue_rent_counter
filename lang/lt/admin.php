@@ -503,6 +503,7 @@ return [
             'overdue_notice_prefix' => 'Ši sąskaita yra pradelsta.',
             'overdue_notice_with_reminder' => 'Paskutinis priminimas išsiųstas :date.',
             'overdue_notice_without_reminder' => 'Priminimas dar nebuvo išsiųstas.',
+            'open_reading_cycle_description' => 'Sukuria tuščius sąskaitų juodraščius-rodmenų užklausas aktyviems nuomininkams su skaitikliais, praneša nuomininkams pateikti rodmenis ir perduoda juodraščius į Billing Review Center prieš galutinį patvirtinimą.',
             'reading_cycle_opened' => 'Rodmenų laikotarpis atidarytas: juodraščių sąskaitų - :created, pranešimų - :notified, praleista - :skipped.',
             'prepared_from_readings' => 'Sąskaita :number paruošta pagal pateiktus rodmenis.',
             'prepare_from_readings_confirmation' => 'Juodraščio eilutės bus pakeistos mokesčiais, apskaičiuotais iš patvirtintų arba pažymėtų rodmenų už atsiskaitymo laikotarpį. Prieš patvirtindami sąskaitą ją vis dar galėsite peržiūrėti ir redaguoti.',

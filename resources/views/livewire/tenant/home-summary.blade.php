@@ -10,15 +10,55 @@
                 />
 
                 <div class="flex flex-wrap gap-3">
-                    <x-tenant.action :href="$summary['submit_reading_url']" variant="primary">
-                        {{ ($summary['current_invoice'] ?? null) ? __('tenant.actions.submit_readings') : __('tenant.actions.submit_new_reading') }}
-                    </x-tenant.action>
+                    @if ($summary['current_invoice'] ?? null)
+                        <x-tenant.action :href="$summary['submit_reading_url']" variant="primary" data-tenant-home-submit-readings="true">
+                            {{ __('tenant.actions.submit_readings') }}
+                        </x-tenant.action>
+                    @else
+                        <span data-tenant-reading-request-status="true" class="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600">
+                            <x-heroicon-m-clock class="size-4 shrink-0" />
+                            {{ __('tenant.pages.home.waiting_for_reading_request_metric') }}
+                        </span>
+                    @endif
 
                     <x-tenant.action :href="$summary['property_url']">
                         {{ __('tenant.pages.property.title') }}
                     </x-tenant.action>
                 </div>
             </div>
+
+            @if ($summary['current_invoice'] ?? null)
+                <x-tenant.card :href="$summary['submit_reading_url']" tone="warning" data-tenant-current-invoice="true" class="block">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-document-text"
+                        icon-tone="warning"
+                        :eyebrow="__('tenant.pages.home.current_invoice')"
+                        :title="$summary['current_invoice']['number']"
+                        :description="__('tenant.pages.home.current_invoice_description')"
+                    />
+
+                    <div class="mt-4 flex flex-col gap-3 text-sm leading-6 text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="space-y-1">
+                            <p>{{ $summary['current_invoice']['period'] }}</p>
+                            <p>{{ $summary['current_invoice']['due'] }}</p>
+                        </div>
+
+                        <span class="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2 font-semibold text-amber-800 shadow-sm">
+                            {{ __('tenant.actions.submit_readings') }}
+                        </span>
+                    </div>
+                </x-tenant.card>
+            @elseif ($summary['has_assignment'] ?? false)
+                <x-tenant.card tone="white" data-tenant-reading-request-waiting="true">
+                    <x-tenant.section-heading
+                        icon="heroicon-m-clock"
+                        icon-tone="soft"
+                        :eyebrow="__('tenant.pages.home.month_heading')"
+                        :title="__('tenant.pages.home.waiting_for_reading_request_metric')"
+                        :description="__('tenant.pages.home.waiting_for_reading_request_message')"
+                    />
+                </x-tenant.card>
+            @endif
 
             <div class="flex flex-col gap-4 md:flex-row">
                 <div class="min-w-0 flex-1">

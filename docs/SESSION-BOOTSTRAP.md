@@ -1,115 +1,154 @@
 # Tenanto Session Bootstrap
 
-> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/PROJECT-CONTEXT.md`, and `docs/FEATURES.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
 
-Run this at the start of every work session when you need the current MCP status, project skills, and application baseline.
+Run this at the start of any non-trivial Tenanto session.
 
-## 1. MCP Connection Check
+## 1. Confirm The Checkout
 
-Verify the available Laravel-side MCP commands before trying to start them:
+```bash
+pwd
+git status --short --branch
+```
+
+Expected working directory for this project:
+
+```text
+/Users/andrejprus/Herd/tenanto
+```
+
+Do not revert unrelated user changes. If the tree is dirty, keep work scoped to the requested files and inspect touched files before editing them.
+
+## 2. Current Application Baseline
+
+Verified on 2026-06-15:
+
+- `php artisan about` succeeds.
+- Laravel `13.15.0`
+- Filament `5.6.7`
+- Livewire `4.3.1`
+- PHP CLI `8.5.7`
+- SQLite database driver.
+- Database-backed cache, queue, and session drivers.
+- Installed locales: `en`, `es`, `lt`, `ru`.
+- `php artisan route:list` succeeds and reports 230 routes.
+- `php artisan filament:cache-components` succeeds.
+- `php artisan migrate:status` reports one local pending migration: `2026_06_15_000000_create_tenant_kyc_verification_tables.php`.
+
+Baseline commands:
+
+```bash
+php artisan about
+php artisan route:list
+php artisan migrate:status
+php artisan filament:cache-components
+```
+
+Run `php artisan migrate` only when the task requires the local database to include pending migrations.
+
+## 3. MCP Connection Check
+
+Verify available Laravel-side MCP commands before trying to start them:
 
 ```bash
 php artisan list --raw | rg '^(boost:mcp|mcp:start)$'
 ```
 
-Verified on 2026-05-04 in this repository:
+Verified on 2026-06-15:
 
-- `php artisan boost:mcp` may not be registered in this workspace
-- `php artisan mcp:start tenanto` may not be registered in this workspace
-- repository-local `.mcp.json` defines `herd`, `21st-dev-magic`, `context7`, and `playwright`
-- `21st-dev-magic` requires `TWENTY_FIRST_DEV_API_KEY` in the host agent/editor process
-- the current skill and MCP inventory lives in `docs/SKILLS-MCP-INVENTORY.md`
+- `php artisan boost:mcp` is not registered in this checkout.
+- `php artisan mcp:start tenanto` is not registered in this checkout.
+- repository-local `.mcp.json` defines `herd`, `21st-dev-magic`, `context7`, and `playwright`.
+- `21st-dev-magic` requires `TWENTY_FIRST_DEV_API_KEY` in the host agent/editor process.
+- the current skill and MCP inventory lives in `docs/SKILLS-MCP-INVENTORY.md`.
 
-If both commands become available in a future environment, use this startup order:
+If either command becomes available in a future environment, verify it before documenting it as project-local behavior.
+
+## 4. Skill Activation Defaults
+
+Use installed skill names rather than older aliases:
+
+- `laravel-11-12-app-guidelines` for Laravel repository work, even though this checkout currently runs Laravel 13.
+- `pest-testing` when writing or debugging tests.
+- `tailwindcss-development` for Tailwind styling changes.
+- `21st-dev-design` for UI redesign work that should use 21st.dev Magic MCP.
+- `filament` for Filament resources, pages, actions, widgets, schemas, and tables.
+- `livewire-development` for Livewire component work.
+- `laravel-security-audit` for auth, authorization, impersonation, tenant isolation, sensitive document/KYC/download, or policy changes.
+- `mcp-development` only for Laravel MCP tools/resources/prompts/server work.
+- `documentation-and-adrs` for docs, public API docs, architecture records, and current-state documentation.
+- `update-changelog-before-commit` when preparing a normal commit that should refresh `CHANGELOG.md` from the staged diff.
+
+## 5. Application Checks By Task Type
+
+Docs-only:
 
 ```bash
-php artisan boost:mcp
-php artisan mcp:start tenanto
+git diff --check -- $(rg --files -g '*.md' -g '!vendor/**' -g '!node_modules/**' -g '!storage/**' -g '!public/build/**')
 ```
 
-Then verify the Boost MCP connection by using the Boost `search-docs` tool with:
-
-- `livewire component lifecycle`
-
-If either command is missing or fails, run these fallback health checks instead:
-
-```bash
-php artisan about
-php artisan migrate:status
-```
-
-Verified fallback state on 2026-03-19:
-
-- `php artisan about` succeeds
-- the app boots cleanly on Laravel `12.54.1`, Filament `5.3.5`, Livewire `4.2.1`, PHP `8.5.4`
-- `php artisan migrate:status` reports all checked-in migrations as `Ran`
-
-## 2. Skill Activation Defaults
-
-Use the installed skill names below rather than the older shorthand aliases:
-
-- `using-superpowers` first when a task should follow the Superpowers brainstorming, planning, TDD, debugging, review, or branch-finishing workflow
-- `using-agent-skills` when a task spans spec, plan, build, test, review, simplify, performance, security, or ship phases from Addy Osmani's engineering lifecycle pack
-- `laravel-11-12-app-guidelines` instead of `tenanto-laravel-stack`
-- `pest-testing` whenever writing or debugging tests
-- `tailwindcss-development` instead of `tailwind-patterns`
-- `21st-dev-design` for tenant/admin UI redesign tasks that should use 21st.dev Magic MCP design guardrails
-- `filament` for Filament resources, pages, actions, and widgets
-- `architecture` for service boundaries, class responsibilities, and data flow
-- `laravel-security-audit` instead of `vulnerability-scanner` when work touches auth, authorization, impersonation, or tenant-scoped data
-- `mcp-development` or `mcp-builder` when adding or changing MCP servers, tools, resources, prompts, or startup instructions
-
-## 3. Application Baseline Checks
-
-Run these before making behavioral changes:
+Routes/navigation:
 
 ```bash
 php artisan route:list
-php artisan filament:cache-components
-php artisan test --stop-on-failure
+php artisan test tests/Feature/Shell/NavigationSourceOfTruthTest.php --compact
 ```
 
-Notes:
-
-- `php artisan route:list --compact` is not supported in this app
-- `php artisan filament:cache` does not exist; use `php artisan filament:cache-components`
-
-Verified baseline on 2026-03-19:
-
-- `php artisan route:list` succeeds
-- `php artisan filament:cache-components` succeeds
-- `php artisan test --stop-on-failure` reaches:
-  - `316 passed, 2 failed, 405 pending (1852 assertions)`
-  - first failures: `Tests\\Feature\\Admin\\MeterReadingsResourceTest` (parse error in `RejectMeterReadingAction`) and `Tests\\Feature\\Admin\\MetersResourceTest` (missing `Usage Chart` text)
-- `phpunit.xml` expects `DB_DATABASE=:memory:`, but with cached config direct `php artisan test` runs still bound to `database/database.sqlite`
-- do not run multiple `php artisan test` processes concurrently until test database isolation is fixed; use a single serial run, preferably after `php artisan config:clear` or via `composer test`
-
-## 4. Tool Preferences
-
-When Boost MCP is actually connected, prefer:
-
-- Boost `database-query` for data inspection
-- Boost `database-schema` before writing migrations or changing model persistence assumptions
-- Boost `browser-logs` when a Livewire component does not render as expected
-- Boost `search-docs` before relying on framework or package behavior you have not verified
-- `context7` MCP for package documentation when Boost docs are unavailable
-- `playwright` MCP for browser-level tenant/admin UI checks when the host agent exposes it
-
-In the current verified repository state, do not assume those Boost MCP tools are available until the `boost:mcp` command exists and a working MCP connection has been confirmed.
-
-For Addy Osmani's `browser-testing-with-devtools` skill, verify the user-global Chrome DevTools MCP server before browser-debugging work:
+Filament resources/actions:
 
 ```bash
-codex mcp list | rg '^chrome-devtools\\b'
+php artisan filament:cache-components
+php artisan test tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php --compact
 ```
 
-## 5. Tenant UX Baseline
+Tenant portal:
+
+```bash
+php artisan test tests/Feature/Tenant --compact
+php artisan test tests/Feature/Security/TenantPortalIsolationTest.php --compact
+```
+
+Billing/readings/invoices:
+
+```bash
+php artisan test tests/Feature/Billing --compact
+php artisan test tests/Feature/Tenant/TenantReadingWorkflowConsistencyTest.php --compact
+```
+
+Security/isolation:
+
+```bash
+php artisan test tests/Feature/Security --compact
+composer guard:phase1
+```
+
+Formatting after PHP edits:
+
+```bash
+vendor/bin/pint --dirty
+```
+
+## 6. Tenant UX Baseline
 
 Before changing tenant screens, verify:
 
 - Tenant navigation source: `config/tenanto.php` under `tenanto.shell.navigation.roles.tenant`
 - Tenant topbar/sidebar shell: `app/Livewire/Shell/Topbar.php`, `app/Livewire/Shell/Sidebar.php`, `resources/views/livewire/shell/*.blade.php`
-- Tenant pages: `app/Filament/Pages/Tenant*.php` and `resources/views/livewire/tenant`
-- Tenant read models/actions: `app/Filament/Support/Tenant/Portal` and `app/Filament/Actions/Tenant`
+- Tenant Filament aliases: `app/Filament/Pages/Tenant*.php`
+- Tenant Livewire portal components: `app/Livewire/Tenant`
+- Tenant read models/actions: `app/Filament/Support/Tenant/Portal`, `app/Filament/Actions/Tenant`, `app/Filament/Actions/TenantDocuments`, and `app/Filament/Actions/TenantKyc`
 
-Tenant UI should not become an admin-style left-menu workspace. Keep tenant navigation in the topbar and keep Blade templates free of queries.
+Tenant UI should not become an admin-style workspace. Keep tenant navigation direct and self-service oriented.
+
+## 7. High-Risk Domains
+
+Re-check live code, policies, tests, and docs before touching:
+
+- billing/readings/invoice approval/finalization/payment actions;
+- manager permission matrix and `EffectivePermissionsResolver`;
+- tenant document, KYC, attachment, invoice, and rental-contract downloads;
+- impersonation;
+- tenant move-out/occupancy/portal access;
+- organization suspension, plan changes, feature flags, and limit overrides;
+- localization and translation sync;
+- public security routes and CSP/reporting behavior.

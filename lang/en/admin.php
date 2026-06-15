@@ -567,6 +567,7 @@ return [
             'overdue_notice_without_reminder' => 'No reminder has been sent.',
             'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
             'send_reminder_confirmation' => 'Send an overdue reminder for invoice :number?',
+            'open_reading_cycle_description' => 'Creates empty draft reading-request invoices for active metered tenants, notifies tenants to submit readings, and sends the drafts to Billing Review Center before finalization.',
             'reading_cycle_opened' => 'Reading cycle opened: :created draft invoices, :notified notifications, :skipped skipped.',
             'prepared_from_readings' => 'Invoice :number has been prepared from submitted readings.',
             'prepare_from_readings_confirmation' => 'This will replace the draft line items with charges calculated from approved or flagged readings for the billing period. You can still review and edit the draft before finalizing.',

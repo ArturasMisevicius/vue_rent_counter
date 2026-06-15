@@ -711,6 +711,11 @@ it('provides tenant reading validation messages for every supported locale', fun
         'tenant.pages.readings.preview_empty_short',
         'tenant.actions.submit_readings',
         'tenant.pages.home.current_invoice',
+        'tenant.pages.home.current_invoice_description',
+        'tenant.pages.home.reading_request_open_metric',
+        'tenant.pages.home.reading_request_open_message',
+        'tenant.pages.home.waiting_for_reading_request_metric',
+        'tenant.pages.home.waiting_for_reading_request_message',
     ];
 
     foreach (['en', 'lt', 'es', 'ru'] as $locale) {
