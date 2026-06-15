@@ -79,7 +79,7 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSeeText(__('shell.navigation.groups.account'))
         ->assertSeeText(__('shell.navigation.items.profile'))
         ->assertSeeText(__('shell.navigation.items.settings'))
-        ->assertSeeText(__('shell.navigation.items.organization_users'))
+        ->assertSeeText(__('shell.navigation.items.team_managers'))
         ->assertSee(route('profile.edit'), false)
         ->assertSee(route('filament.admin.resources.organization-users.index'), false)
         ->assertSeeText(__('dashboard.logout_button'))
@@ -162,11 +162,19 @@ it('renders platform navigation for superadmins without organization navigation'
     ]);
 
     assertSidebarGroupLabels($content, 'billing', [
-        'Invoices',
-        'Tariffs',
-        'Providers',
-        'Service Configurations',
-        'Utility Services',
+        __('admin.billing_review.title'),
+        __('admin.billing_cleanup.navigation'),
+        __('admin.invoices.plural'),
+        __('admin.billing_periods.plural'),
+        __('admin.billing_generation.plural'),
+        __('admin.payments.plural'),
+        __('admin.extra_charges.plural'),
+        __('admin.extra_charge_types.plural'),
+        __('admin.tariffs.plural'),
+        __('admin.providers.plural'),
+        __('admin.service_configurations.plural'),
+        __('admin.service_configurations.guide.navigation'),
+        __('admin.utility_services.plural'),
     ]);
 
     assertSidebarGroupLabels($content, 'reports', [
@@ -237,10 +245,18 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     ]);
 
     assertSidebarGroupLabels($content, 'billing', [
+        __('admin.billing_review.title', [], 'lt'),
+        __('admin.billing_cleanup.navigation', [], 'lt'),
         __('admin.invoices.plural', [], 'lt'),
+        __('admin.billing_periods.plural', [], 'lt'),
+        __('admin.billing_generation.plural', [], 'lt'),
+        __('admin.payments.plural', [], 'lt'),
+        __('admin.extra_charges.plural', [], 'lt'),
+        __('admin.extra_charge_types.plural', [], 'lt'),
         __('admin.tariffs.plural', [], 'lt'),
         __('admin.providers.plural', [], 'lt'),
         __('admin.service_configurations.plural', [], 'lt'),
+        __('admin.service_configurations.guide.navigation', [], 'lt'),
         __('admin.utility_services.plural', [], 'lt'),
     ]);
 
@@ -251,7 +267,8 @@ it('renders localized admin sidebar labels from the authenticated user locale', 
     assertSidebarGroupLabels($content, 'account', [
         __('shell.navigation.items.profile', [], 'lt'),
         __('shell.navigation.items.settings', [], 'lt'),
-        __('shell.navigation.items.organization_users', [], 'lt'),
+        __('shell.navigation.items.billing_settings', [], 'lt'),
+        __('shell.navigation.items.team_managers', [], 'lt'),
     ]);
 });
 
@@ -273,6 +290,9 @@ it('renders localized tenant topbar labels from the authenticated user locale', 
         __('tenant.pages.property.title', [], 'lt'),
         __('tenant.navigation.readings', [], 'lt'),
         __('tenant.navigation.invoices', [], 'lt'),
+        __('tenant.navigation.documents', [], 'lt'),
+        __('tenant.navigation.verification', [], 'lt'),
+        __('help.navigation.tenant', [], 'lt'),
     ]);
 
     assertShellGroupLabels($content, 'tenant-mobile-menu', 'my_home', [
@@ -280,6 +300,9 @@ it('renders localized tenant topbar labels from the authenticated user locale', 
         __('tenant.pages.property.title', [], 'lt'),
         __('tenant.navigation.readings', [], 'lt'),
         __('tenant.navigation.invoices', [], 'lt'),
+        __('tenant.navigation.documents', [], 'lt'),
+        __('tenant.navigation.verification', [], 'lt'),
+        __('help.navigation.tenant', [], 'lt'),
     ]);
 
     expect($content)->not->toContain('data-shell-group="account"');

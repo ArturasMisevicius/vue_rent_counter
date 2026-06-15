@@ -208,21 +208,12 @@ class ManagerPermissionService
             return false;
         }
 
-        $membership = OrganizationUser::query()
+        return OrganizationUser::query()
             ->where('organization_id', $organization->id)
             ->where('user_id', $user->id)
             ->where('role', UserRole::MANAGER->value)
-            ->first();
-
-        if ($membership instanceof OrganizationUser) {
-            return $membership->isActiveMembership();
-        }
-
-        if ($user->organization_id === $organization->id && $user->role === UserRole::MANAGER) {
-            return true;
-        }
-
-        return false;
+            ->active()
+            ->exists();
     }
 
     /**
@@ -246,10 +237,6 @@ class ManagerPermissionService
 
     private function belongsToOrganizationAsManager(User $user, Organization $organization): bool
     {
-        if ($user->organization_id === $organization->id && $user->role === UserRole::MANAGER) {
-            return true;
-        }
-
         return OrganizationUser::query()
             ->where('organization_id', $organization->id)
             ->where('user_id', $user->id)

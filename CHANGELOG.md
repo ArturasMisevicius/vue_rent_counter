@@ -2,6 +2,12 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615111915 -->
+### Commit updates
+
+- Updated: Filament admin workflow, authorization behavior, documentation, and project automation.
+<!-- changelog:auto:end:staged-20260615111915 -->
+
 <!-- changelog:auto:start:staged-20260615110523 -->
 ### Commit updates
 

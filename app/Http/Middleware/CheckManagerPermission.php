@@ -40,7 +40,9 @@ class CheckManagerPermission
         }
 
         if (! $this->managerPermissionService->isManagerForOrganization($user, $organization)) {
-            return $next($request);
+            return $user->isManager()
+                ? $this->forbidden($request, $user, $organization, $resource, $action)
+                : $next($request);
         }
 
         if ($this->managerPermissionService->can($user, $organization, $resource, $action)) {

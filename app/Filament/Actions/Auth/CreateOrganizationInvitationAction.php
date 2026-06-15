@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions\Auth;
 
+use App\Enums\AuditLogAction;
 use App\Enums\UserRole;
+use App\Filament\Support\Audit\AuditLogger;
+use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
@@ -15,6 +18,10 @@ use Illuminate\Validation\ValidationException;
 
 class CreateOrganizationInvitationAction
 {
+    public function __construct(
+        private readonly AuditLogger $auditLogger,
+    ) {}
+
     /**
      * @param  array{
      *     email: string,
@@ -27,12 +34,27 @@ class CreateOrganizationInvitationAction
     public function handle(User $inviter, array $attributes): OrganizationInvitation
     {
         if ((! $inviter->isAdmin() && ! $inviter->isManager()) || blank($inviter->organization_id)) {
+            $this->recordForbiddenInvitationAttempt(
+                $inviter,
+                'organization_invitation_not_allowed',
+                [
+                    'requested_role' => $this->roleValue($attributes['role'] ?? null),
+                    'target_email' => $attributes['email'] ?? null,
+                ],
+            );
+
             throw ValidationException::withMessages([
                 'email' => __('auth.invitation_not_allowed'),
             ]);
         }
 
         if (! in_array($attributes['role'], [UserRole::MANAGER, UserRole::TENANT], true)) {
+            $this->recordForbiddenInvitationAttempt(
+                $inviter,
+                'privileged_role_invitation_attempt',
+                ['requested_role' => $this->roleValue($attributes['role'])],
+            );
+
             throw ValidationException::withMessages([
                 'role' => __('validation.in', ['attribute' => 'role']),
             ]);
@@ -45,6 +67,12 @@ class CreateOrganizationInvitationAction
         }
 
         if ($attributes['role'] === UserRole::MANAGER && ! $inviter->isAdmin()) {
+            $this->recordForbiddenInvitationAttempt(
+                $inviter,
+                'non_admin_manager_invitation_attempt',
+                ['requested_role' => UserRole::MANAGER->value],
+            );
+
             throw ValidationException::withMessages([
                 'role' => __('validation.in', ['attribute' => 'role']),
             ]);
@@ -113,5 +141,41 @@ class CreateOrganizationInvitationAction
         }
 
         return $invitation;
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    private function recordForbiddenInvitationAttempt(User $inviter, string $reason, array $metadata = []): void
+    {
+        $organization = $inviter->relationLoaded('organization')
+            ? $inviter->organization
+            : $inviter->organization()
+                ->select(['id', 'name', 'slug', 'status', 'owner_user_id'])
+                ->first();
+
+        if (! $organization instanceof Organization) {
+            return;
+        }
+
+        $this->auditLogger->record(
+            AuditLogAction::REJECTED,
+            $organization,
+            [
+                'context' => [
+                    'mutation' => 'manager.forbidden_access_attempt',
+                    'reason' => $reason,
+                    'actor_type' => $inviter->isAdmin() ? 'organization_admin' : 'organization_user',
+                ],
+                ...$metadata,
+            ],
+            actorUserId: $inviter->id,
+            description: "Forbidden organization invitation attempt: {$inviter->email}",
+        );
+    }
+
+    private function roleValue(mixed $role): string
+    {
+        return $role instanceof UserRole ? $role->value : (string) $role;
     }
 }

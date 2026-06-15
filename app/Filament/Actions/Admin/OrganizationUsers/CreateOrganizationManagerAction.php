@@ -39,16 +39,31 @@ class CreateOrganizationManagerAction
      */
     public function handle(Organization $organization, User $actor, array $data): OrganizationUser
     {
-        abort_unless(
-            $actor->isSuperadmin() || $actor->currentOrganization()?->is($organization),
-            403,
-        );
+        $currentOrganization = $actor->currentOrganization();
+
+        if (! $actor->isSuperadmin() && ! $currentOrganization?->is($organization)) {
+            $this->recordForbiddenInviteAttempt(
+                $currentOrganization ?? $organization,
+                $actor,
+                'cross_organization_manager_invite',
+                ['target_organization_id' => $organization->id],
+            );
+
+            abort(403);
+        }
 
         Gate::forUser($actor)->authorize('createManager', [OrganizationUser::class, $organization]);
 
         $email = Str::lower(trim((string) $data['email']));
 
         if ($email === Str::lower((string) $actor->email)) {
+            $this->recordForbiddenInviteAttempt(
+                $organization,
+                $actor,
+                'self_manager_invite',
+                ['target_email' => $email],
+            );
+
             throw ValidationException::withMessages([
                 'email' => __('admin.organization_users.messages.cannot_invite_self'),
             ]);
@@ -230,5 +245,30 @@ class CreateOrganizationManagerAction
         }
 
         return $presetKey;
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    private function recordForbiddenInviteAttempt(
+        Organization $organization,
+        User $actor,
+        string $reason,
+        array $metadata = [],
+    ): void {
+        $this->auditLogger->record(
+            AuditLogAction::REJECTED,
+            $organization,
+            [
+                'context' => [
+                    'mutation' => 'manager.forbidden_access_attempt',
+                    'reason' => $reason,
+                    'actor_type' => $actor->isSuperadmin() ? 'superadmin' : 'organization_user',
+                ],
+                ...$metadata,
+            ],
+            actorUserId: $actor->id,
+            description: "Forbidden manager invite attempt: {$actor->email}",
+        );
     }
 }

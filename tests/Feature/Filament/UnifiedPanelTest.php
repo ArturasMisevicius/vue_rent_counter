@@ -42,7 +42,7 @@ it('allows an admin to access the unified app panel without platform navigation 
         ->assertSeeText('Reports')
         ->assertSeeText('Profile')
         ->assertSeeText('Settings')
-        ->assertSeeText(__('shell.navigation.items.organization_users'))
+        ->assertSeeText(__('shell.navigation.items.team_managers'))
         ->assertSee(route('filament.admin.resources.organization-users.index'), false)
         ->assertSeeText('Logout')
         ->assertDontSeeText('Organizations')

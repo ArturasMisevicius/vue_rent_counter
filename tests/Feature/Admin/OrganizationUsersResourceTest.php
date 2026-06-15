@@ -64,6 +64,7 @@ it('lets admins browse manager memberships in their current organization only', 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.organization-users.index'))
         ->assertSuccessful()
+        ->assertSeeText(__('admin.organization_users.plural'))
         ->assertSeeText('Current Organization Manager')
         ->assertDontSeeText('Current Organization Viewer')
         ->assertDontSeeText('Other Organization Manager');

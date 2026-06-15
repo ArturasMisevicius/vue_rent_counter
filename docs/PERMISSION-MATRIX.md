@@ -117,7 +117,7 @@ record.organization_id == current organization id
 
 This applies to tenants, buildings, properties, meters, readings, invoices, payments, documents, contracts, services, tariffs, reports, notifications, and audit logs.
 
-Managers must have an active `organization_user` membership or active direct organization manager role. Disabled manager memberships block workspace permissions even if the user account still exists.
+Managers must have an active `organization_user` membership for the current organization. A `users.role = manager` row without an active membership is not enough to grant workspace permissions, and disabled, invited, or expired memberships block manager authorization even if the user account still exists.
 
 Admins can manage only their own organization. Admins cannot create superadmins, platform admins, users without organization scope, or users in another organization.
 

@@ -223,6 +223,20 @@ it('copies the full permission matrix from one manager to another', function ():
         'organization_id' => $organization->id,
     ]);
 
+    OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $sourceManager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
+    OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $targetManager->id,
+        'role' => UserRole::MANAGER->value,
+        'permissions' => null,
+    ]);
+
     Notification::fake();
 
     $service = app(ManagerPermissionService::class);

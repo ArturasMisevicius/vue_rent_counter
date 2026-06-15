@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Notifications\Admin\ManagerInvitationAcceptedNotification;
 use App\Notifications\Auth\OrganizationInvitationNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
@@ -83,6 +84,9 @@ it('blocks cross-organization manager invites and privileged role creation', fun
         'role' => UserRole::ADMIN,
         'full_name' => 'Bad Invite',
     ]))->toThrow(ValidationException::class);
+
+    expect(adminManagerAuditLogs($organization, 'manager.forbidden_access_attempt')->count())
+        ->toBeGreaterThanOrEqual(4);
 });
 
 it('accepts a manager invitation once and activates the organization membership', function (): void {
@@ -189,6 +193,39 @@ it('keeps managers isolated to their own organization and blocks disabled manage
     expect($service->isManagerForOrganization($manager->fresh(), $organization))->toBeFalse()
         ->and($membership->fresh()->status)->toBe(ManagerMembershipStatus::DISABLED)
         ->and($manager->fresh()->status)->toBe(UserStatus::SUSPENDED);
+});
+
+it('requires an active organization membership before a manager is authorized', function (): void {
+    ['organization' => $organization] = createOrgWithAdmin();
+    $manager = User::factory()->manager()->create([
+        'organization_id' => $organization->id,
+        'status' => UserStatus::ACTIVE,
+    ]);
+
+    $service = app(ManagerPermissionService::class);
+
+    expect($service->isManagerForOrganization($manager->fresh(), $organization))->toBeFalse();
+
+    $membership = OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::DISABLED,
+        'is_active' => false,
+        'disabled_at' => now(),
+    ]);
+
+    expect($service->isManagerForOrganization($manager->fresh(), $organization))->toBeFalse();
+
+    $membership->forceFill([
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'left_at' => null,
+        'accepted_at' => now(),
+        'disabled_at' => null,
+    ])->save();
+
+    expect($service->isManagerForOrganization($manager->fresh(), $organization))->toBeTrue();
 });
 
 it('blocks tenants from team management and managers from editing admins', function (): void {
@@ -319,11 +356,17 @@ function adminManagerLatestInvitation(OrganizationUser $membership): Organizatio
 
 function adminManagerAssertAudit(Organization $organization, string $mutation): void
 {
-    $auditLog = AuditLog::query()
+    $auditLog = adminManagerAuditLogs($organization, $mutation)->first();
+
+    expect($auditLog)->not->toBeNull();
+}
+
+function adminManagerAuditLogs(Organization $organization, string $mutation): Collection
+{
+    return AuditLog::query()
         ->where('organization_id', $organization->id)
         ->latest('id')
         ->get()
-        ->first(fn (AuditLog $log): bool => data_get($log->metadata, 'context.mutation') === $mutation);
-
-    expect($auditLog)->not->toBeNull();
+        ->filter(fn (AuditLog $log): bool => data_get($log->metadata, 'context.mutation') === $mutation)
+        ->values();
 }
