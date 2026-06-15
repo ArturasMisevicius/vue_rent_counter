@@ -62,6 +62,19 @@ vendor/bin/pint --dirty
 
 Then run a nearby feature folder or filter when risk warrants it.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto testing constraints:
+
+- Use Pest and existing factories/helpers.
+- High-value test families are Auth, Tenant, Admin, Billing, Superadmin, Security, Architecture, Console/Operations, Localization, Projects, and Browser smoke coverage.
+- Test role boundaries with actual actors: `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT`.
+- For sensitive tenant workflows, include URL-bypass and Livewire-action-bypass tests.
+- For billing workflows, include lifecycle and amount assertions, not just page visibility.
+- For translations, include parity or focused language checks when keys change.
+- For operations commands, assert output and side effects.
+- If broad tests are blocked by known unrelated issues, preserve focused evidence and report caveats clearly.
+
 ## Output Format
 
 ```markdown

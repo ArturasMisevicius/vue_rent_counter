@@ -10,6 +10,23 @@ Tenant не вводит показания "в свободном режиме"
 
 Главный пользовательский принцип: tenant видит запрос как задачу "ввести показания для текущего счета", а админ/менеджер видит это как очередь проверки перед финализацией счета.
 
+## Шаг 1 — BillingPeriod
+
+Billing flow начинается не со свободного invoice и не со свободного tenant reading, а с `BillingPeriod`, например `January 2026`, `February 2026` или `March 2026`.
+
+`BillingPeriod` хранит:
+
+- organization;
+- period name;
+- `starts_at` и `ends_at`;
+- `reading_submission_deadline`;
+- `invoice_generation_date`;
+- `payment_due_date`.
+
+Tenant, property, meters, tariffs и services не дублируются в самом периоде. Система определяет их на момент открытия цикла через активные property assignments, активные meters и активные service configurations/tariffs на даты периода. Для проверки перед запуском используется snapshot периода: он показывает, какие tenants/properties/meters/services/tariffs попадут в reading request invoices.
+
+Админ или менеджер может создать период заранее в Billing Periods, а затем открыть для него `Open Reading Cycle`. Команда/действие автоматического открытия также создает или обновляет `BillingPeriod` для выбранных дат, чтобы все reading request invoices ссылались на один контролируемый период.
+
 ## Главный поток
 
 1. Админ или менеджер с правами billing/invoices открывает цикл через `Open Reading Cycle` в списке счетов или команду `billing:open-reading-invoice-cycle`.
@@ -75,6 +92,7 @@ Tenant не вводит показания "в свободном режиме"
 ## Тесты, которые фиксируют поток
 
 - `tests/Feature/Billing/OpenReadingInvoiceCycleTest.php`
+- `tests/Feature/Billing/BillingPeriodWorkflowTest.php`
 - `tests/Feature/Tenant/TenantSubmitReadingTest.php`
 - `tests/Feature/Tenant/TenantReadingWorkflowConsistencyTest.php`
 - `tests/Feature/Billing/ReadingRequestInvoiceReviewTest.php`

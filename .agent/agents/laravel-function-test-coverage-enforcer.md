@@ -65,6 +65,19 @@ vendor/bin/pint --dirty
 
 Prefer file-level or filter-level runs first; broaden after the focused coverage is green.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, coverage must match the product risk:
+
+- Tenant portal changes need tenant-owned success tests and cross-tenant/cross-org denial tests.
+- Permission changes need role matrix tests for `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT` where relevant.
+- Billing changes need totals, lifecycle, billing-period edge dates, finalization, and duplicate/idempotency tests.
+- Document/KYC/contract download changes need hidden/archived/rejected/other-tenant denial tests.
+- Translation changes need key parity or focused localization assertions.
+- Operations/command changes need command output and side-effect tests.
+- Filament changes should prefer Livewire/Filament testing helpers already used in the repo.
+- If the full suite is noisy, report focused passing tests separately and name any unrelated blocker precisely.
+
 ## Output Format
 
 ```markdown

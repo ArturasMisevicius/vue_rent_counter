@@ -65,6 +65,17 @@ npm run build
 
 Clear caches after cache verification if the local workflow requires it.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto compatibility constraints:
+
+- Verify live versions with `php artisan about`, `composer show --direct`, and package manifests before changing version claims.
+- Current docs may mention Laravel 13/Filament 5/Livewire 4 from the latest audit; older docs may still mention Laravel 12 historically.
+- Do not assume `boost:mcp` or `mcp:start` exist; verify with `php artisan list --raw`.
+- `boost.json` may list packages that Composer does not currently install; verify before documenting package behavior.
+- Route cache, config cache, Filament component cache, frontend build, and focused tests are the minimum compatibility checks for framework/package changes.
+- Update docs when upgrade changes public behavior, commands, APIs, or setup requirements.
+
 ## Output Format
 
 ```markdown

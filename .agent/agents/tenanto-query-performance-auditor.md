@@ -62,6 +62,19 @@ php artisan route:list
 
 When DB MCP or Laravel query tools are available, compare query counts before and after for changed pages.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto performance constraints:
+
+- Never trade away tenant or organization isolation for fewer queries.
+- Tenant portal, admin dashboard, Billing Review Center, reports, global search, relation badges, lead reports, and exports are high-risk query surfaces.
+- Prefer presenters/query classes under `app/Filament/Support` for prepared view data.
+- Filament table/infolist closures must not lazy-load relations per row.
+- Use `withCount`, `withExists`, and aggregate eager loading for counts and booleans.
+- Use chunking/lazy iteration for commands and imports that can touch large datasets.
+- For dashboard/report changes, provide query-count or estimated query delta.
+- Audit Blade views for pagination method assumptions after pagination changes.
+
 ## Output Format
 
 ```markdown

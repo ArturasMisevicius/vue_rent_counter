@@ -61,6 +61,19 @@ vendor/bin/pint --dirty
 
 Use browser or Playwright verification for complex interactive flows when available.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, enforce Tenanto's server-rendered UI contract:
+
+- Tenant pages must feel self-service, not like a reduced admin panel.
+- Tenant navigation source of truth is `config/tenanto.php` under `tenanto.shell.navigation.roles.tenant`.
+- Tenant portal data should flow through presenters, query classes, actions, policies, and locked/recomputed Livewire state.
+- Filament resources/pages should stay thin; heavy workflows belong in actions/support classes.
+- Every Filament action that mutates state needs backend authorization, not just visibility.
+- Relation manager badges should use preloaded counts where available.
+- User-facing strings must be translated in all active locales.
+- UI checks should include empty, forbidden, validation, loading, and success states when the workflow exposes them.
+
 ## Output Format
 
 ```markdown

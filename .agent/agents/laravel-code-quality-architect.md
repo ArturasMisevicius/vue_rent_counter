@@ -61,6 +61,19 @@ vendor/bin/pint --dirty
 
 Use the narrowest reliable test slice first, then broaden if the risk warrants it.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, apply the Tenanto project contract in addition to generic Laravel quality rules:
+
+- Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/PROJECT-CONTEXT.md`, and `docs/FEATURES.md` before making behavior claims.
+- Treat live code, routes, migrations, policies, tests, language files, and checked-in config as stronger evidence than older docs.
+- Use the verified stack baseline unless live commands prove it changed: Laravel 13, Filament 5, Livewire 4, Pest 4, Tailwind 4, SQLite local DB, locales `en`, `es`, `lt`, `ru`.
+- Keep new request classes in `app/Http/Requests`; new Filament-oriented actions/support normally belong under `app/Filament/Actions` and `app/Filament/Support`.
+- Do not use `app/Actions` or `app/Support` as generic dumping grounds; only respect existing current namespaces such as billing-specific `app/Actions/Billing`.
+- High-risk domains require extra review: billing/readings/invoices, permissions, tenant document/KYC/contract downloads, move-out, impersonation, organization suspension, localization, public security routes, and CSP reporting.
+- In a dirty tree, inspect touched files and preserve unrelated user changes.
+- Every changed behavior needs focused Pest coverage and exact verification commands in the final report.
+
 ## Output Format
 
 ```markdown

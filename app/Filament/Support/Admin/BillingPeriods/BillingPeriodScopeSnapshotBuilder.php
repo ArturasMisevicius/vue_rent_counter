@@ -58,11 +58,11 @@ final class BillingPeriodScopeSnapshotBuilder
                 'tenant:id,organization_id,name,email,role,status,locale',
                 'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
                 'property.building:id,organization_id,name',
-                'property.meters' => fn (Builder $meterQuery): Builder => $meterQuery
+                'property.meters' => fn ($meterQuery) => $meterQuery
                     ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
                     ->active()
                     ->ordered(),
-                'property.serviceConfigurations' => fn (Builder $configurationQuery): Builder => $configurationQuery
+                'property.serviceConfigurations' => fn ($configurationQuery) => $configurationQuery
                     ->activeOn($periodEnd)
                     ->with([
                         'utilityService:id,organization_id,name,unit_of_measurement,service_type_bridge,description',

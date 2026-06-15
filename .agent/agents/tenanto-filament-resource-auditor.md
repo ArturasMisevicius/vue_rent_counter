@@ -62,6 +62,19 @@ vendor/bin/pint --dirty
 
 Run focused tests for the changed resource if a full Filament slice is noisy.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto Filament constraints:
+
+- Filament app panel lives under `/app/**`; tenants use portal aliases and tenant pages, not admin resources.
+- Resources/pages/actions must align with role access from `docs/PERMISSION-MATRIX.md`.
+- Admin and manager organization scope must be enforced in queries and actions.
+- Manager permissions come from active membership and `EffectivePermissionsResolver`.
+- Filament actions that mutate billing, documents, KYC, contracts, move-out, settings, team, tariffs, payments, or audit records are sensitive.
+- Table queries should eager load every relation used by columns, filters, infolists, and actions.
+- Labels, headings, notifications, modal copy, and empty states must use translations.
+- `php artisan filament:cache-components` is a required smoke check after Filament structure changes.
+
 ## Output Format
 
 ```markdown

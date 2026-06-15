@@ -1,5 +1,59 @@
 # Changelog
 
+## 2026-06-15
+
+<!-- changelog:auto:start:staged-20260615062849 -->
+### Изменения Codex
+
+- обновлен `.agent/ARCHITECTURE.md`
+- обновлен `.agent/agents/laravel-code-quality-architect.md`
+- обновлен `.agent/agents/laravel-database-optimizer.md`
+- обновлен `.agent/agents/laravel-function-test-coverage-enforcer.md`
+- обновлен `.agent/agents/laravel-livewire-filament-quality-auditor.md`
+- обновлен `.agent/agents/laravel-privacy-compliance-auditor.md`
+- обновлен `.agent/agents/laravel-translation-corrector.md`
+- обновлен `.agent/agents/laravel-validation-policy-auditor.md`
+- обновлен `.agent/agents/orchestrator.md`
+- обновлен `.agent/agents/tenanto-architecture-simplifier.md`
+- добавлен `.agent/agents/tenanto-audit-security-observability-auditor.md`
+- обновлен `.agent/agents/tenanto-billing-money-auditor.md`
+- обновлен `.agent/agents/tenanto-docs-release-auditor.md`
+- добавлен `.agent/agents/tenanto-documents-kyc-contracts-auditor.md`
+- обновлен `.agent/agents/tenanto-filament-resource-auditor.md`
+- обновлен `.agent/agents/tenanto-i18n-ui-auditor.md`
+- добавлен `.agent/agents/tenanto-leads-imports-auditor.md`
+- обновлен `.agent/agents/tenanto-migration-schema-auditor.md`
+- добавлен `.agent/agents/tenanto-move-out-occupancy-auditor.md`
+- добавлен `.agent/agents/tenanto-notifications-mail-auditor.md`
+- добавлен `.agent/agents/tenanto-operations-release-auditor.md`
+- добавлен `.agent/agents/tenanto-permission-matrix-auditor.md`
+- обновлен `.agent/agents/tenanto-pest-coverage-engineer.md`
+- добавлен `.agent/agents/tenanto-projects-collaboration-auditor.md`
+- обновлен `.agent/agents/tenanto-query-performance-auditor.md`
+- добавлен `.agent/agents/tenanto-reading-invoice-cycle-auditor.md`
+- добавлен `.agent/agents/tenanto-shell-navigation-auditor.md`
+- обновлен `.agent/agents/tenanto-tenant-isolation-auditor.md`
+- обновлен `.agent/agents/tenanto-upgrade-compatibility-auditor.md`
+- добавлен `.agent/agents/tenanto-utility-services-auditor.md`
+- обновлен `app/Filament/Resources/BillingPeriods/Pages/CreateBillingPeriod.php`
+- обновлен `app/Filament/Support/Admin/BillingPeriods/BillingPeriodScopeSnapshotBuilder.php`
+- обновлен `app/Filament/Support/Changelog/GitChangelogUpdater.php`
+- обновлен `docs/operations/billing-reading-invoice-workflow.md`
+- обновлен `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`
+- обновлен `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
+<!-- changelog:auto:end:staged-20260615062849 -->
+
+<!-- changelog:auto:start:pending -->
+### Ожидающие staged-изменения
+
+- обновлен `app/Filament/Resources/BillingPeriods/Pages/CreateBillingPeriod.php`
+- обновлен `app/Filament/Support/Admin/BillingPeriods/BillingPeriodScopeSnapshotBuilder.php`
+- обновлен `app/Filament/Support/Changelog/GitChangelogUpdater.php`
+- обновлен `docs/operations/billing-reading-invoice-workflow.md`
+- обновлен `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`
+- обновлен `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
+<!-- changelog:auto:end:pending -->
+
 > **AI agent usage:** This changelog was reconstructed on 2026-06-15 from the full git history in this checkout. For exact file-level diffs, use `git show <hash>` or `git log --stat`. Normal future commits can continue using `scripts/update_changelog.php` and the git hooks for staged-diff entries.
 
 ## 2026-06-15 Documentation Reconstruction

@@ -66,6 +66,18 @@ php artisan test tests/Feature/Auth/AccessIsolationTest.php
 
 Add affected module tests when reviewing documents, KYC, move-out, billing, or global search.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto isolation constraints:
+
+- `SUPERADMIN` cross-organization access must be intentional and auditable when sensitive.
+- `ADMIN` and `MANAGER` are organization-scoped; managers additionally require active membership and effective permissions.
+- `TENANT` is scoped to active portal access, own profile, own active assignment, own visible property data, own invoices/readings/documents/KYC/contracts, and authorized downloads.
+- Tenant file, invoice, KYC, rental contract, and attachment routes must never return data by raw ID alone.
+- Tenant portal components must derive organization/property/tenant context from authenticated server-side state.
+- Forbidden access attempts for sensitive flows should be logged according to the permission matrix.
+- Tests should include cross-org, cross-tenant, direct URL, and Livewire action bypass cases.
+
 ## Output Format
 
 Start with findings, ordered by severity:

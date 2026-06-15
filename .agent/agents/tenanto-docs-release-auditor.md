@@ -63,6 +63,18 @@ git diff --check -- $(rg --files -g '*.md')
 
 Add `php artisan migrate:status` when schema/docs interactions matter.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto documentation constraints:
+
+- Current docs of record are `README.md`, `CHANGELOG.md`, `docs/FEATURES.md`, `docs/PROJECT-CONTEXT.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/SKILLS-MCP-INVENTORY.md`, `docs/PERMISSION-MATRIX.md`, and `docs/operations/**`.
+- `docs/superpowers/**`, `docs/performance/**`, and `docs/security/**` are historical or dated evidence unless rerun.
+- Do not document unavailable MCP/Artisan commands as current behavior.
+- If behavior changes in billing, tenant portal, KYC, documents, contracts, move-out, permissions, or operations, update the closest current doc in the same turn.
+- Keep docs factual, dated when describing verified state, and explicit about caveats.
+- Never add secrets, tokens, customer data, or private credentials.
+- Use markdown diff checks for docs-only work and focused application tests for behavior-linked docs changes.
+
 ## Output Format
 
 ```markdown

@@ -59,6 +59,19 @@ vendor/bin/pint --dirty
 
 For broad refactors, add a second pass from `tenanto-pest-coverage-engineer` and the relevant domain auditor.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto-specific architecture constraints:
+
+- Keep controllers thin; the live web surface is deliberately Livewire/Filament-backed.
+- Prefer Eloquent scopes, presenters, query classes, actions, policies, and support classes over page-local logic.
+- Use `app/Http/Requests` for validation and `app/Filament/Actions` / `app/Filament/Support` for new Filament-oriented seams.
+- Treat `app/Actions/Billing` as current billing-specific code, not a general new-code target.
+- Do not refactor historical docs/plans as proof of live behavior; verify current code first.
+- Avoid broad rewrites in dirty trees; preserve unrelated user changes and keep patches task-scoped.
+- Any simplification touching billing, permissions, tenant files, move-out, or localization needs focused tests before completion.
+- Update closest docs when behavior or public workflow changes.
+
 ## Output Format
 
 ```markdown

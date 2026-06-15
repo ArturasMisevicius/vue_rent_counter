@@ -60,6 +60,19 @@ php artisan test --compact --filter=Access
 
 Add focused tests when filters do not cover the changed workflow.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, validation and policy checks must follow the permission matrix:
+
+- Sensitive actions follow this order: authorize actor, validate scope, validate state transition, mutate, audit, notify.
+- Foreign-key validation must be scoped to the current organization, property, tenant, or visible record set.
+- Tenant portal writes must derive ownership from authenticated server state, not user input.
+- Manager actions must pass through active membership and effective permission resolution.
+- Admins are organization-scoped and cannot create or escalate superadmins.
+- Superadmin cross-organization actions must be intentional and audited when sensitive.
+- Filament and Livewire actions need backend authorization even when the button is hidden.
+- Tests must cover URL bypass, Livewire action bypass, invalid foreign keys, and forbidden role attempts.
+
 ## Output Format
 
 ```markdown

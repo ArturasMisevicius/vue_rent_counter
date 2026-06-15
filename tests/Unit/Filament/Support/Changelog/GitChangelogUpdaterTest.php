@@ -55,6 +55,23 @@ it('creates todays changelog section with a pending entry block', function () {
         ->toContain('## 2026-03-27');
 });
 
+it('does not confuse a titled date heading with the exact daily section', function () {
+    $updater = new GitChangelogUpdater;
+
+    $updated = $updater->sync(
+        "# Changelog\n\n## 2026-06-15 Documentation Reconstruction\n\n### Current Product State\n\n- Existing reconstructed history.\n",
+        '2026-06-15',
+        'pending',
+        'Ожидающие staged-изменения',
+        ['- обновлен `docs/operations/billing-reading-invoice-workflow.md`'],
+    );
+
+    expect($updated)
+        ->toContain("## 2026-06-15\n\n<!-- changelog:auto:start:pending -->")
+        ->toContain('## 2026-06-15 Documentation Reconstruction')
+        ->toContain('- обновлен `docs/operations/billing-reading-invoice-workflow.md`');
+});
+
 it('replaces the existing pending block on repeated pre-commit runs', function () {
     $updater = new GitChangelogUpdater;
 

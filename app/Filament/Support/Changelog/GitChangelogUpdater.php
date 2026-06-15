@@ -120,11 +120,10 @@ final class GitChangelogUpdater
     {
         $markdown = $this->normalizeMarkdown($markdown);
         $dateHeading = '## '.$date;
+        $dateHeadingPattern = '/^'.preg_quote($dateHeading, '/').'$/m';
 
-        if (str_contains($markdown, $dateHeading)) {
-            $pattern = '/^'.preg_quote($dateHeading, '/')."\n/m";
-
-            $updated = preg_replace($pattern, $dateHeading."\n\n".$block, $markdown, 1);
+        if (preg_match($dateHeadingPattern, $markdown) === 1) {
+            $updated = preg_replace($dateHeadingPattern, $dateHeading."\n\n".$block, $markdown, 1);
 
             return $this->normalizeMarkdown($updated ?? $markdown);
         }

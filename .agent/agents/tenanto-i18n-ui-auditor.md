@@ -58,6 +58,18 @@ vendor/bin/pint --dirty
 
 Use the project's existing translation parity tests when available.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto localization constraints:
+
+- Active locales are `en`, `es`, `lt`, and `ru`; each locale must contain text in its own language.
+- Translation Management, PHP file scanning, sync commands, enum labels, invoice formatting, date/number/currency formatting, locale persistence, and notifications are all part of localization.
+- Fix old wrong translations when they are in the touched namespace or directly affect the requested workflow.
+- Do not turn a focused translation task into a repo-wide locale churn unless explicitly requested.
+- Preserve placeholders, pluralization structure, and domain terms across locales.
+- Tenant-facing text should avoid admin jargon; admin-facing text should describe operations precisely.
+- Raw enum values, debug metadata, source filenames, and implementation labels should not leak into default UI.
+
 ## Output Format
 
 ```markdown

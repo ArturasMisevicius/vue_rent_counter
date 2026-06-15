@@ -6,16 +6,23 @@ use App\Filament\Resources\BillingPeriods\BillingPeriodResource;
 use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Resources\CommentReactions\CommentReactionResource;
 use App\Filament\Resources\Comments\CommentResource;
+use App\Filament\Resources\ExtraCharges\ExtraChargeResource;
+use App\Filament\Resources\ExtraChargeTypes\ExtraChargeTypeResource;
 use App\Filament\Resources\InvoiceEmailLogs\InvoiceEmailLogResource;
 use App\Filament\Resources\InvoiceItems\InvoiceItemResource;
 use App\Filament\Resources\InvoicePayments\InvoicePaymentResource;
 use App\Filament\Resources\InvoiceReminderLogs\InvoiceReminderLogResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Languages\LanguageResource;
+use App\Filament\Resources\LeadImportBatches\LeadImportBatchResource;
+use App\Filament\Resources\LeadOutreachTemplates\LeadOutreachTemplateResource;
+use App\Filament\Resources\LeadSources\LeadSourceResource;
+use App\Filament\Resources\ListingLeads\ListingLeadResource;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Filament\Resources\OrganizationUsers\OrganizationUserResource;
+use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\PropertyAssignments\PropertyAssignmentResource;
@@ -64,6 +71,14 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
         ],
+        ExtraChargeResource::class => [
+            'pages' => ['index', 'create', 'pending-approvals', 'view', 'edit'],
+            'test' => 'tests/Feature/ExtraChargesFeatureTest.php',
+        ],
+        ExtraChargeTypeResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/ExtraChargesFeatureTest.php',
+        ],
         InvoiceEmailLogResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/FinanceRelationResourceListContextTest.php',
@@ -88,6 +103,22 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index', 'create', 'edit'],
             'test' => 'tests/Feature/Superadmin/LanguagesResourceTest.php',
         ],
+        LeadImportBatchResource::class => [
+            'pages' => ['index', 'view'],
+            'test' => 'tests/Feature/Leads/LeadManagementFeatureTest.php',
+        ],
+        LeadOutreachTemplateResource::class => [
+            'pages' => ['index', 'create', 'edit'],
+            'test' => 'tests/Feature/Leads/LeadManagementFeatureTest.php',
+        ],
+        LeadSourceResource::class => [
+            'pages' => ['index', 'create', 'edit'],
+            'test' => 'tests/Feature/Leads/LeadManagementFeatureTest.php',
+        ],
+        ListingLeadResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Leads/LeadManagementFeatureTest.php',
+        ],
         MeterReadingResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/MeterReadingsResourceTest.php',
@@ -103,6 +134,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         OrganizationResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/OrganizationsResourceTest.php',
+        ],
+        PaymentResource::class => [
+            'pages' => ['index', 'view'],
+            'test' => 'tests/Feature/Billing/PaymentTrackingAndReconciliationTest.php',
         ],
         ProjectResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

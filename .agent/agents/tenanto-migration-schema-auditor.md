@@ -63,6 +63,18 @@ php artisan migrate
 
 Use a disposable database for rollback verification when local data must be preserved.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto schema constraints:
+
+- Organization-owned data normally needs `organization_id`; tenant-facing data often also needs `property_id`, tenant identity, assignment, or visible-state columns.
+- High-growth tables include invoices, readings, documents, KYC documents, audit logs, security violations, leads, notifications, projects, and activities.
+- Default query patterns usually need organization/status/date/id composite indexes.
+- Migrations must preserve rollback safety and SQLite local compatibility unless the project explicitly chooses otherwise.
+- Pending migrations must be named in reports when they affect local testability.
+- Schema changes touching roles, permissions, billing, tenant files, move-out, or privacy need matching tests and docs.
+- Do not edit historical production migrations; add a new migration.
+
 ## Output Format
 
 ```markdown

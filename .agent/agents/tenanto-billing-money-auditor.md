@@ -67,6 +67,19 @@ php artisan test --filter=Reading
 
 Use narrower filters when the checkout has unrelated failures; report the exact command and result.
 
+## Tenanto Project Specification Overlay
+
+Apply these Tenanto billing-specific constraints:
+
+- The current meter-reading flow is invoice-request-driven; free-form tenant reading submission is not the default product contract.
+- Billing actions must preserve organization, property, tenant, invoice, and billing period scope.
+- Draft invoice structure is editable only before finalization; finalized invoices are structurally immutable except approved lifecycle fields.
+- Tenant-visible invoice routes and downloads must pass through tenant-safe authorization.
+- Billing manager, property manager, full manager, and read-only manager permissions differ; do not assume all managers can approve invoices or payments.
+- Billing docs and tests must be updated together when invoice/readings workflow changes.
+- Money calculations remain decimal-safe and BCMath-backed.
+- Reports, CSV/PDF exports, reminders, overdue marking, and payment proof workflows are part of the billing surface.
+
 ## Output Format
 
 ```markdown

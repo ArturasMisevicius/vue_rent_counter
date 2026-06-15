@@ -8,7 +8,7 @@
 
 Antigravity Kit is a modular system consisting of:
 
-- **37 Specialist Agents** - Role-based AI personas, including Laravel and Tenanto quality gatekeepers
+- **65 Agent Definition Files** - role-based personas, including 48 core/domain agents listed below
 - **90 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
@@ -19,7 +19,7 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 37 Specialist Agents
+├── agents/                  # 65 agent definition files
 ├── skills/                  # 90 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
@@ -28,7 +28,7 @@ Antigravity Kit is a modular system consisting of:
 
 ---
 
-## 🤖 Agents (37)
+## 🤖 Core And Domain Agents (48)
 
 Specialist AI personas for different domains.
 
@@ -85,6 +85,17 @@ Use these project-specific agents before generic agents when the task touches Te
 | `tenanto-i18n-ui-auditor`              | Translation and UI copy       | tenanto-laravel-stack, i18n-localization                   |
 | `tenanto-docs-release-auditor`         | Docs and release truth        | documentation-templates, update-changelog-before-commit    |
 | `tenanto-upgrade-compatibility-auditor` | Framework/package upgrades    | tenanto-laravel-stack, deployment-procedures               |
+| `tenanto-permission-matrix-auditor`    | Role and permission matrix    | tenanto-tenant-security, security-best-practices           |
+| `tenanto-reading-invoice-cycle-auditor`| Reading invoice cycle         | tenanto-billing-reporting, testing-patterns                |
+| `tenanto-documents-kyc-contracts-auditor` | Sensitive tenant files      | tenanto-tenant-security, security-best-practices           |
+| `tenanto-move-out-occupancy-auditor`   | Move-out lifecycle            | tenanto-tenant-security, tenanto-billing-reporting         |
+| `tenanto-utility-services-auditor`      | Services, tariffs, providers  | tenanto-billing-reporting, database-design                 |
+| `tenanto-leads-imports-auditor`         | Leads and imports             | tenanto-laravel-stack, database-design                     |
+| `tenanto-shell-navigation-auditor`      | Shell and navigation          | tenanto-laravel-stack, i18n-localization                   |
+| `tenanto-notifications-mail-auditor`    | Notifications and mail        | tenanto-laravel-stack, i18n-localization                   |
+| `tenanto-operations-release-auditor`    | Operations and releases       | tenanto-laravel-stack, deployment-procedures               |
+| `tenanto-audit-security-observability-auditor` | Audit and security events | tenanto-tenant-security, security-threat-model             |
+| `tenanto-projects-collaboration-auditor` | Projects and collaboration   | tenanto-laravel-stack, testing-patterns                    |
 
 ---
 

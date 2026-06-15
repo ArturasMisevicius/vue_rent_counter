@@ -62,6 +62,19 @@ php artisan test --compact --filter=Performance
 
 When tooling allows, capture before/after query counts or EXPLAIN output for the exact query.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, optimize inside Tenanto's tenant-first constraints:
+
+- Never remove organization, property, tenant, or self-owned predicates for speed.
+- Default local database is SQLite, but code must stay Laravel/Eloquent portable unless the project explicitly chooses database-specific behavior.
+- The highest-risk query surfaces are Filament tables, dashboards, billing reports, tenant portal lists, document/KYC downloads, lead imports/reports, audit logs, and global search.
+- Verify route/page behavior before trusting dated performance docs.
+- Prefer query/support classes and Eloquent scopes over ad hoc query fragments in Blade, Filament closures, or Livewire `render()`.
+- Add composite indexes for repeated organization/status/date/default-sort patterns when migrations are part of the task.
+- After `simplePaginate()`, audit views for `->total()` usage.
+- Use focused tests or query-count evidence when available; otherwise state that the query delta is an estimate.
+
 ## Output Format
 
 ```markdown

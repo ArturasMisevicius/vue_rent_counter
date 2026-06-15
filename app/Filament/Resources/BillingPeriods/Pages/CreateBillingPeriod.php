@@ -14,6 +14,11 @@ class CreateBillingPeriod extends CreateRecord
 
     protected static string|array $routeMiddleware = 'manager.permission:billing,create';
 
+    public function getTitle(): string
+    {
+        return __('admin.billing_periods.actions.new_period');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['organization_id'] ??= app(OrganizationContext::class)->currentOrganizationId();

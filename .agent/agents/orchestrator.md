@@ -164,6 +164,17 @@ When working in `/Users/andrejprus/Herd/tenanto`, prefer these agents over gener
 | `tenanto-i18n-ui-auditor` | Localization | Blade, Livewire, Filament, notifications, validation, locale parity |
 | `tenanto-docs-release-auditor` | Documentation | README, changelog, docs, feature inventory, operations guides, AI agent docs |
 | `tenanto-upgrade-compatibility-auditor` | Compatibility | Laravel, Filament, Livewire, PHP, Composer, Node, Vite, Tailwind upgrades |
+| `tenanto-permission-matrix-auditor` | Permissions | Role matrix, manager presets, permission enum, resolver, policies, forbidden audits |
+| `tenanto-reading-invoice-cycle-auditor` | Reading Cycle | Invoice-driven readings, request invoices, tenant submissions, billing review |
+| `tenanto-documents-kyc-contracts-auditor` | Sensitive Files | Tenant documents, KYC, rental contracts, attachments, private downloads |
+| `tenanto-move-out-occupancy-auditor` | Move-Out | Move-out lifecycle, occupancy, final readings, final invoices, portal access |
+| `tenanto-utility-services-auditor` | Services | Providers, tariffs, service configurations, shared allocations, extra charges |
+| `tenanto-leads-imports-auditor` | Leads | Lead sources, imports, outreach, duplicates, assignments, exports, reports |
+| `tenanto-shell-navigation-auditor` | Shell | Role navigation, tenant aliases, global search, locale switcher, impersonation banner |
+| `tenanto-notifications-mail-auditor` | Notifications | Mail, notifications, reminders, invitation links, locale-aware copy, delivery logs |
+| `tenanto-operations-release-auditor` | Operations | Release readiness, backup readiness, guardrails, console commands, env/config |
+| `tenanto-audit-security-observability-auditor` | Audit/Security | Audit logs, security violations, CSP reports, blocked IPs, impersonation evidence |
+| `tenanto-projects-collaboration-auditor` | Projects | Projects, tasks, assignments, alerts, exports, collaboration lifecycle |
 
 Recommended review chains:
 
@@ -176,6 +187,17 @@ Recommended review chains:
 | UI copy/localization | `tenanto-i18n-ui-auditor`, `tenanto-pest-coverage-engineer` |
 | Docs/release/update notes | `tenanto-docs-release-auditor` |
 | Dependency upgrades | `tenanto-upgrade-compatibility-auditor`, `tenanto-pest-coverage-engineer` |
+| Permission matrix, manager presets, role access | `tenanto-permission-matrix-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
+| Invoice-driven reading cycle | `tenanto-reading-invoice-cycle-auditor`, `tenanto-billing-money-auditor`, `tenanto-pest-coverage-engineer` |
+| Tenant documents, KYC, contracts, attachments | `tenanto-documents-kyc-contracts-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
+| Move-out and occupancy | `tenanto-move-out-occupancy-auditor`, `tenanto-billing-money-auditor`, `tenanto-pest-coverage-engineer` |
+| Services, tariffs, providers, extra charges | `tenanto-utility-services-auditor`, `tenanto-query-performance-auditor`, `tenanto-pest-coverage-engineer` |
+| Leads, imports, outreach, reports | `tenanto-leads-imports-auditor`, `tenanto-query-performance-auditor`, `tenanto-pest-coverage-engineer` |
+| Shell, navigation, aliases, global search | `tenanto-shell-navigation-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-i18n-ui-auditor` |
+| Notifications, mail, reminders | `tenanto-notifications-mail-auditor`, `tenanto-i18n-ui-auditor`, `tenanto-pest-coverage-engineer` |
+| Operations, release, backup, console commands | `tenanto-operations-release-auditor`, `tenanto-docs-release-auditor`, `tenanto-pest-coverage-engineer` |
+| Audit logs and security observability | `tenanto-audit-security-observability-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
+| Projects and collaboration | `tenanto-projects-collaboration-auditor`, `tenanto-query-performance-auditor`, `tenanto-pest-coverage-engineer` |
 
 ---
 
@@ -220,6 +242,17 @@ Recommended review chains:
 | `tenanto-i18n-ui-auditor` | Locale/UI text review | ❌ Business logic changes |
 | `tenanto-docs-release-auditor` | Docs/release notes | ❌ Production code |
 | `tenanto-upgrade-compatibility-auditor` | Upgrade compatibility review | ❌ Feature implementation |
+| `tenanto-permission-matrix-auditor` | Permission contract review | ❌ UI-only permission fixes |
+| `tenanto-reading-invoice-cycle-auditor` | Reading/invoice workflow review | ❌ New billing calculations outside canonical services |
+| `tenanto-documents-kyc-contracts-auditor` | Sensitive file workflow review | ❌ Public file URL shortcuts |
+| `tenanto-move-out-occupancy-auditor` | Move-out lifecycle review | ❌ Parallel lifecycle implementation |
+| `tenanto-utility-services-auditor` | Services/tariffs review | ❌ Alternate tariff calculation paths |
+| `tenanto-leads-imports-auditor` | Leads/imports review | ❌ Cross-organization import shortcuts |
+| `tenanto-shell-navigation-auditor` | Shell/navigation review | ❌ Treat navigation as authorization |
+| `tenanto-notifications-mail-auditor` | Notification/mail review | ❌ Sensitive data in broad notification payloads |
+| `tenanto-operations-release-auditor` | Operations/release review | ❌ Destructive commands without explicit request |
+| `tenanto-audit-security-observability-auditor` | Audit/security evidence review | ❌ Raw secrets or private payload logging |
+| `tenanto-projects-collaboration-auditor` | Projects/collaboration review | ❌ Cross-org assignment shortcuts |
 
 ### File Type Ownership
 
@@ -275,7 +308,7 @@ Finally, use the test-engineer to identify missing test coverage.
 
 ### Agent Chaining with Context
 ```
-Use the frontend-specialist to analyze React components, 
+Use the frontend-specialist to analyze React components,
 then have the test-engineer generate tests for the identified components.
 ```
 

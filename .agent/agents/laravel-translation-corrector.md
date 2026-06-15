@@ -69,6 +69,19 @@ vendor/bin/pint --dirty
 
 Add or update locale parity tests when the project already has them.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, apply the Tenanto localization contract:
+
+- Active locales are `en`, `es`, `lt`, and `ru`.
+- Translation correctness means both key parity and natural-language correctness in each locale.
+- Check active UI code in `app/Filament`, `app/Livewire`, and `resources/views`; do not limit the audit to `lang/**`.
+- Use existing namespaces before inventing new ones: `admin`, `tenant`, `superadmin`, `dashboard`, `shell`, `notifications`, `enums`, `requests`, `validation`, and domain files already present.
+- Preserve placeholders exactly across locales, including `:name`, `:count`, `:date`, `:amount`, and domain-specific placeholders.
+- Billing, invoice, document, KYC, contract, permission, and tenant portal copy must stay role-appropriate and not expose internal implementation terms.
+- If an old translation is semantically stale, correct it in every locale touched by the feature and add/update a focused translation test when available.
+- In a dirty translation tree, isolate the requested namespace first and do not churn unrelated locale debt.
+
 ## Output Format
 
 ```markdown

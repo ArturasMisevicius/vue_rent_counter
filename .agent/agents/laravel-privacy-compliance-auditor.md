@@ -62,6 +62,19 @@ rg -n "personal|privacy|cookie|retention|export|delete|kyc|document|audit" docs 
 
 When editing legal/privacy copy, state that final legal review is still required.
 
+## Tenanto Project Specification Overlay
+
+When this agent is used in `/Users/andrejprus/Herd/tenanto`, privacy review must account for Tenanto's actual data:
+
+- The current checkout may not have a dedicated `privacy/` folder; if absent, report the missing surface instead of pretending it exists.
+- Inspect tenant documents, KYC documents, rental contracts, tenant attachments, invoices, readings, audit logs, security violations, notifications, leads, projects, and profile/avatar data as privacy-relevant.
+- Tenant file access must be described as backend-authorized, scoped, and not public URL based.
+- Retention claims must match commands, scheduled jobs, pruning, or documented manual workflows.
+- Data export/delete/correction claims must match implemented user/admin flows.
+- Third-party processing claims must match installed packages, mail/storage config, and documented operations.
+- Legal text in every locale must preserve meaning; flag uncertain legal wording for human legal review.
+- Do not add secrets, customer data, or unverifiable legal promises to docs.
+
 ## Output Format
 
 ```markdown
