@@ -1,6 +1,8 @@
 # Tenanto Security Threat Model
 
-> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/FEATURES.md`, and `docs/PERMISSION-MATRIX.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
+> Current note, 2026-06-15: the app now includes tenant documents, tenant KYC, rental-contract downloads, move-out portal access rules, billing payment proof, and lead workflows. Include those surfaces in any refreshed threat model.
 
 Date: 2026-03-18  
 Scope: authentication routes, unified `/app` panel, CSP and security headers, browser violation reporting, superadmin security visibility

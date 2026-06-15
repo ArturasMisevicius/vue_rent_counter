@@ -1,6 +1,8 @@
 # Role & Permission Matrix
 
-> AI agent usage: read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, and this document before changing role, policy, Filament navigation, tenant portal, invitation, billing, document, contract, audit, or impersonation behavior.
+> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/FEATURES.md`, and this document before changing role, policy, Filament navigation, tenant portal, invitation, billing, document, KYC, contract, audit, or impersonation behavior.
+
+Updated on 2026-06-15 from the current code inventory and the June billing/document/KYC/move-out commits.
 
 Tenanto uses four product roles:
 
@@ -46,7 +48,13 @@ UI visibility is never the only control. Hidden buttons must be backed by a poli
 | View documents | Support/inspect | Own org | If preset allows | Own tenant-visible only |
 | Upload documents | Support/inspect | Own org | If preset allows | KYC/payment proof only |
 | Delete/archive documents | Support/inspect and audited | Own org, audited | Archive if preset allows | No |
+| Review tenant KYC | Support/inspect | Own org | If preset allows | No |
+| Submit tenant KYC | No | No | No | Own active portal only |
 | Manage contracts | Support/inspect | Yes, own org | If preset allows | Own visible/downloadable only |
+| Manage move-out lifecycle | Support/inspect | Own org | If preset allows | No |
+| View move-out-affected portal data | No | No | No | Only allowed post-move-out data |
+| Manage leads | Support/inspect | Own org | If preset allows | No |
+| Manage projects/tasks | Platform/inspect | Own org if enabled | If preset allows | No |
 | Manage tariffs/providers/services | Support/inspect | Yes, own org | Full manager only unless explicitly granted | No |
 | View reports | Support/inspect | Own org | If preset allows | No |
 | View audit logs | Yes | Own org | No by default | No |
@@ -78,6 +86,8 @@ The canonical permission values live in `App\Enums\Permission` and cover:
 - Organization workspace: dashboard, buildings, properties, tenants, meters, readings, invoices, payments, extra charges, documents, contracts, services, tariffs, providers, reports, notifications, leads, team, audit.
 - Tenant portal: own property, own invoices, own readings, own visible documents, own profile, own KYC, own payment proof.
 
+When adding a new sensitive action, update `App\Enums\Permission`, the manager permission catalog, the relevant policies/actions, tests, and this matrix in the same change.
+
 ## Sensitive Permissions
 
 Sensitive permissions must be audited and require an explicit reason where the action is destructive:
@@ -85,6 +95,11 @@ Sensitive permissions must be audited and require an explicit reason where the a
 - `invoices.void`
 - `payments.void`
 - `documents.delete`
+- `documents.visibility`
+- `kyc.approve`
+- `kyc.reject`
+- `contracts.terminate`
+- `move_out.complete`
 - `audit.export`
 - `settings.billing`
 - `settings.subscription`
@@ -151,7 +166,11 @@ Examples:
 - `InviteTenant`
 - `InviteManager`
 - `UploadDocument`
+- `ApproveKycDocument`
+- `RejectTenantKycProfile`
 - `TerminateContract`
+- `ScheduleTenantMoveOut`
+- `CompleteTenantMoveOut`
 
 ## Required Policy Coverage
 
@@ -166,6 +185,8 @@ Policies must cover:
 - `Invoice`
 - `InvoicePayment`
 - `TenantDocument`
+- `TenantKycProfile`
+- `TenantKycDocument`
 - `RentalContract`
 - `ServiceConfiguration`
 - `Tariff`
@@ -188,6 +209,7 @@ Write audit or security violation entries for:
 - Tenant attempted admin route access.
 - Cross-organization access attempt.
 - Cross-tenant invoice/document access attempt.
+- Cross-tenant KYC/document/contract download attempt.
 - Superadmin impersonation started or stopped.
 - Sensitive permission used.
 
@@ -210,6 +232,9 @@ Role and permission work must include tests for:
 - Tenant can access tenant portal.
 - Tenant cannot access admin panel.
 - Tenant can view/download only own visible data.
+- Tenant KYC upload/download is scoped to the current tenant.
+- Admin/manager KYC review is scoped to own organization and audited.
+- Move-out lifecycle cannot expose another tenant's readings, documents, invoices, contracts, or portal data.
 - Cross-organization and cross-tenant access is blocked.
 - Sensitive actions write audit logs.
 - Forbidden access attempts are logged.

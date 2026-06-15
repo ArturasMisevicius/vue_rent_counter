@@ -1,6 +1,8 @@
 # Performance Audit — 2026-03-18
 
-> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, and `docs/FEATURES.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
+> Current note, 2026-06-15: the application now includes additional billing review, tenant documents, KYC, leads, move-out, extra charges, and project surfaces. Treat the query plans below as historical baselines only.
 
 This audit was prepared from the live repository with a local SQLite fallback because the requested Laravel Boost MCP profiling tools were not available in the session.
 

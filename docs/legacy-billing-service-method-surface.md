@@ -1,6 +1,8 @@
 # BillingService Legacy Merge Surface (Executed on 2026-03-19)
 
-> **AI agent usage:** Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md` before acting on this file. Treat examples as context; verify current code, routes, schema, translations, and tests before changing behavior.
+> **AI agent usage:** This is historical merge evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, and `docs/FEATURES.md` first; verify current `app/Services/Billing`, `app/Filament/Actions/Admin/Invoices`, `app/Filament/Actions/Admin/BillingReview`, and `app/Actions/Billing` code before relying on this file.
+
+> Current note, 2026-06-15: billing has since gained invoice-driven reading requests, billing review, extra charges, manual invoice line items, payment reconciliation, and billing console commands. Use `docs/FEATURES.md` and `docs/operations/billing-reading-invoice-workflow.md` for current usage. Keep this file only as evidence of the 2026-03-19 legacy merge surface.
 
 ## Sources reviewed
 - `_old/app/Services/BillingService.php`

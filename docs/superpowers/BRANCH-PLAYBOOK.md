@@ -1,198 +1,62 @@
-# Tenanto Branch Playbook
+# Tenanto Historical Branch Playbook
 
-> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+> **AI agent usage:** This is historical branch-planning guidance. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/PROJECT-CONTEXT.md`, and `docs/FEATURES.md` first. Verify current code and `git status` before changing behavior.
 
-This playbook translates the rollout guidance into recommended implementation branches and workstreams.
+Updated on 2026-06-15. The original March branch sequence has already been merged and later expanded. This file now documents the historical branch strategy and the current safe workflow for future branches.
 
-Use it when you want to answer:
+## Historical Branch Sequence
 
-- what branch should I open next
-- which slices belong together
-- what is safe to run in parallel
-- what order should branches merge back
+The March rollout was originally organized around:
 
-This document assumes the rollout guidance in:
+1. foundation auth and onboarding;
+2. shared interface elements;
+3. admin organization operations plus manager parity;
+4. tenant self-service portal;
+5. superadmin control plane;
+6. cross-cutting behavioral rules;
+7. missing information closures.
 
-- `README.md`
-- `EXECUTION-ROADMAP.md`
-- `PHASE-GATES.md`
+Those branches should be treated as historical context. Do not create a new branch solely because this old sequence says it comes next.
 
-## Default Branch Sequence
+## Current Branching Defaults
 
-If one engineer or one main execution stream is driving the rollout, use this sequence:
+For new work:
 
-1. `codex/foundation-auth-onboarding`
-2. `codex/shared-interface-elements`
-3. `codex/admin-ops-manager-parity`
-4. `codex/tenant-self-service-portal`
-5. `codex/superadmin-control-plane`
-6. `codex/cross-cutting-behavioral-rules`
-7. `codex/missing-information-closures`
+- Start from a clean `git status --short --branch`.
+- Keep docs-only work separate from behavior changes when practical.
+- Scope feature branches by current product boundary, not old phase names.
+- Update the closest docs and `CHANGELOG.md` in the same branch when behavior changes.
+- Avoid broad hidden-agent metadata edits unless explicitly requested.
+- Preserve unrelated user changes.
 
-This is the simplest recommended path because it minimizes dependency confusion and keeps each branch aligned with a real product boundary.
+Recommended naming examples:
 
-## Recommended Branch Bundles
+| Work type | Example branch |
+| --- | --- |
+| Tenant portal KYC hardening | `codex/tenant-kyc-hardening` |
+| Billing review workflow | `codex/billing-review-reading-cycle` |
+| Manager permission fix | `codex/manager-permission-scope-fix` |
+| Docs refresh | `codex/docs-feature-guide-refresh` |
+| Security guardrail | `codex/public-surface-guardrail` |
 
-### Branch 1: Foundation Auth and Onboarding
+## Current Merge Readiness Checklist
 
-- Recommended name: `codex/foundation-auth-onboarding`
-- Plan: `plans/2026-03-17-foundation-auth-onboarding.md`
-- Spec: `specs/2026-03-17-foundation-auth-onboarding-design.md`
-- Should include:
-  - roles and statuses
-  - organizations and subscriptions
-  - invitations
-  - login, register, onboarding, password reset
-  - redirect and access middleware
-- Should not include:
-  - shared shell chrome
-  - organization CRUD domains
-  - superadmin governance features
+Before merging:
 
-### Branch 2: Shared Interface Elements
+- `git status --short --branch` is understood.
+- Focused tests passed for changed behavior.
+- `vendor/bin/pint --dirty` ran after PHP changes.
+- `npm run build` ran after frontend asset changes.
+- `php artisan route:list` was checked after route/navigation changes.
+- `php artisan migrate:status` was checked after schema work.
+- Current docs were updated.
+- `CHANGELOG.md` was updated either manually for broad history/docs work or by `scripts/update_changelog.php`/hooks for normal staged changes.
 
-- Recommended name: `codex/shared-interface-elements`
-- Plan: `plans/2026-03-17-shared-interface-elements.md`
-- Spec: `specs/2026-03-17-shared-interface-elements-design.md`
-- Should include:
-  - topbar and sidebar shell work
-  - tenant bottom navigation
-  - locale switcher
-  - notifications
-  - global search scaffolding
-  - profile entry point
-  - impersonation banner and stop flow
-- Should not include:
-  - real organization CRUD modules
-  - tenant portal business flows
-  - platform-governance CRUD
+## Historical Docs Safety
 
-### Branch 3: Admin Ops Plus Manager Parity
+If a current task mentions an old plan/spec:
 
-- Recommended name: `codex/admin-ops-manager-parity`
-- Primary plan: `plans/2026-03-17-admin-organization-operations.md`
-- Companion plan: `plans/2026-03-17-manager-role-parity.md`
-- Primary spec: `specs/2026-03-17-admin-organization-operations-design.md`
-- Companion spec: `specs/2026-03-17-manager-role-parity-design.md`
-- Should include:
-  - organization-scoped operational models
-  - admin and manager resources/pages
-  - organization dashboard widgets
-  - settings/profile surfaces
-  - manager visibility differences folded in from the start
-- Why bundle these:
-  - manager parity is intentionally a delta on the same workspace
-  - bundling avoids manager-only duplicates and late cleanup
-
-### Branch 4: Tenant Self-Service Portal
-
-- Recommended name: `codex/tenant-self-service-portal`
-- Plan: `plans/2026-03-17-tenant-self-service-portal.md`
-- Spec: `specs/2026-03-17-tenant-self-service-portal-design.md`
-- Should include:
-  - tenant route layer
-  - portal pages
-  - reading submission
-  - invoice history
-  - property details
-  - tenant profile flows
-- Should assume:
-  - shared shell exists
-  - organization domain exists
-
-### Branch 5: Superadmin Control Plane
-
-- Recommended name: `codex/superadmin-control-plane`
-- Plan: `plans/2026-03-17-superadmin-control-plane.md`
-- Spec: `specs/2026-03-17-superadmin-control-plane-design.md`
-- Should include:
-  - platform dashboard
-  - organization/user/subscription governance
-  - audit, language, settings, security, and integration health surfaces
-  - impersonation start actions
-- Can start:
-  - after foundation and shared shell are stable
-- Easier to finish:
-  - once core auth and shell layers are already real
-
-### Branch 6: Cross-Cutting Behavioral Rules
-
-- Recommended name: `codex/cross-cutting-behavioral-rules`
-- Plan: `plans/2026-03-17-cross-cutting-behavioral-rules.md`
-- Spec: `specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
-- Should include:
-  - shared subscription access behavior
-  - shared reading validation rules
-  - finalized-invoice mutation guards
-  - refresh and loading consistency
-  - filter/sort persistence and locale fallback behavior
-- Should not start early:
-  - unless a specific shared rule is truly blocking an earlier branch
-
-### Branch 7: Missing Information Closures
-
-- Recommended name: `codex/missing-information-closures`
-- Plan: `plans/2026-03-17-missing-information-closures.md`
-- Spec: `specs/2026-03-17-missing-information-closures-design.md`
-- Should include:
-  - session timeout and suspension hardening
-  - invitation resend and password-reset closure
-  - tenant unassignment continuity rules
-  - breadcrumbs and empty-state consistency
-- Best used as:
-  - a final hardening and ambiguity-closure branch after the main surfaces exist
-
-## Safe Parallel Tracks
-
-Once `codex/shared-interface-elements` is stable, the safest parallel split is:
-
-- Track 1:
-  - `codex/admin-ops-manager-parity`
-  - then `codex/tenant-self-service-portal`
-
-- Track 2:
-  - `codex/superadmin-control-plane`
-
-Then merge both tracks back before:
-
-- `codex/cross-cutting-behavioral-rules`
-- `codex/missing-information-closures`
-
-## Merge Order
-
-Recommended merge order:
-
-1. `codex/foundation-auth-onboarding`
-2. `codex/shared-interface-elements`
-3. `codex/admin-ops-manager-parity`
-4. `codex/tenant-self-service-portal`
-5. `codex/superadmin-control-plane`
-6. `codex/cross-cutting-behavioral-rules`
-7. `codex/missing-information-closures`
-
-If `codex/superadmin-control-plane` is developed in parallel, it should still merge before the cross-cutting and closure passes.
-
-## Branch Readiness Checklist
-
-Before opening the next branch:
-
-- confirm the previous branch satisfies its gate in `PHASE-GATES.md`
-- confirm the branch scope matches one of the bundles above
-- avoid pulling a later hardening slice into an earlier feature branch unless it is truly blocking
-- prefer folding a dependent visibility delta into the main feature branch instead of creating a duplicate experience
-
-## Default Recommendation
-
-If nobody knows what branch to open next, open:
-
-- `codex/foundation-auth-onboarding`
-
-If that branch is already complete, open:
-
-- `codex/shared-interface-elements`
-
-If both are complete, open:
-
-- `codex/admin-ops-manager-parity`
-
-That is still the clearest path from docs to a usable product.
+1. Read the historical doc for intent.
+2. Verify the corresponding live files.
+3. Search `CHANGELOG.md` and `git log -- <path>` for later changes.
+4. Update current docs, not only the old planning file, when behavior changes.

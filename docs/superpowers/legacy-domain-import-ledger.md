@@ -1,6 +1,8 @@
 # Legacy Domain Import Ledger
 
-> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+> **AI agent usage:** This superpowers document describes historical import planning and model provenance. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/PROJECT-CONTEXT.md`, and `docs/FEATURES.md`, then verify current code before changing behavior.
+
+> Current note, 2026-06-15: many legacy imports listed here now exist as current models, migrations, resources, actions, and tests. Use this ledger to understand provenance, not to decide current implementation status.
 
 This ledger maps every top-level model from `_old/app/Models` into the current
 Tenanto codebase. It exists to keep the import one-way and additive: we extend

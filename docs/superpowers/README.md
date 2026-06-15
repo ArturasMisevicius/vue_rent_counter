@@ -1,84 +1,65 @@
 # Tenanto Superpowers Docs Map
 
-> **AI agent usage:** This superpowers document may describe planning workflow rather than live implementation. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then verify current code before changing behavior.
+> **AI agent usage:** This folder is historical planning and execution context. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, `docs/PROJECT-CONTEXT.md`, and `docs/FEATURES.md` first. Verify current code before changing behavior.
 
-Before using this folder as current-state guidance, read `../PROJECT-CONTEXT.md` and `../SESSION-BOOTSTRAP.md`. The files here are planning and delivery artifacts; they may describe earlier target shapes, startup assumptions, or counts than the live repository now has.
+Updated on 2026-06-15. The current product docs live outside this folder:
 
-This folder contains the 2026-03-17 Tenanto delivery set in two layers:
+- Current feature guide: `../FEATURES.md`
+- Current project context: `../PROJECT-CONTEXT.md`
+- Current role matrix: `../PERMISSION-MATRIX.md`
+- Current billing workflow: `../operations/billing-reading-invoice-workflow.md`
 
-- `plans/` contains implementation plans with task-level execution detail
-- `specs/` contains design documents that explain intent, scope, architecture, and acceptance behavior
+## What This Folder Is
 
-Every major implementation plan now has a matching design spec. Use the design doc first to understand product intent and boundaries, then use the implementation plan to execute the work.
+`docs/superpowers/**` preserves historical design and implementation artifacts from the March 2026 planning work. These documents are useful when you need product intent, tradeoffs, or rollout history, but they are not proof that the live system is incomplete or still shaped exactly as planned.
 
-For the recommended rollout order and branch strategy, start with `EXECUTION-ROADMAP.md`.
-For phase-by-phase entry and exit criteria, use `PHASE-GATES.md`.
-For recommended branch names, fold-in rules, and merge order, use `BRANCH-PLAYBOOK.md`.
+Use this folder for:
 
-## Recommended Rollout Order
+- understanding why auth, shell, admin, tenant, superadmin, and organization modules were split;
+- comparing implementation against old design intent;
+- preserving plan/spec context when resuming a historical slice;
+- seeing prior risk and verification thinking.
 
-Follow this order unless you have a strong reason to restructure the branch plan:
+Do not use this folder as the first place for current usage instructions. Start with `../FEATURES.md`.
 
-1. Foundation auth and onboarding
-   Plan: `plans/2026-03-17-foundation-auth-onboarding.md`
-   Spec: `specs/2026-03-17-foundation-auth-onboarding-design.md`
+## Current Historical Index
 
-2. Shared interface elements
-   Plan: `plans/2026-03-17-shared-interface-elements.md`
-   Spec: `specs/2026-03-17-shared-interface-elements-design.md`
+### Plans
 
-3. Admin organization operations
-   Plan: `plans/2026-03-17-admin-organization-operations.md`
-   Spec: `specs/2026-03-17-admin-organization-operations-design.md`
-
-4. Manager role parity
-   Plan: `plans/2026-03-17-manager-role-parity.md`
-   Spec: `specs/2026-03-17-manager-role-parity-design.md`
-   Recommendation: if admin organization operations has not started yet, fold manager parity directly into that branch instead of treating it as a separate follow-up.
-
-5. Tenant self-service portal
-   Plan: `plans/2026-03-17-tenant-self-service-portal.md`
-   Spec: `specs/2026-03-17-tenant-self-service-portal-design.md`
-
-6. Superadmin control plane
-   Plan: `plans/2026-03-17-superadmin-control-plane.md`
-   Spec: `specs/2026-03-17-superadmin-control-plane-design.md`
-   Recommendation: this can begin after the shared interface layer is stable, but it is easier to finish once the core auth and shell slices are already in place.
-
-7. Cross-cutting behavioral rules
-   Plan: `plans/2026-03-17-cross-cutting-behavioral-rules.md`
-   Spec: `specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
-   Recommendation: apply this after the major product surfaces exist so the shared rules can be layered over real workflows instead of placeholders.
-
-8. Missing information closures
-   Plan: `plans/2026-03-17-missing-information-closures.md`
-   Spec: `specs/2026-03-17-missing-information-closures-design.md`
-   Recommendation: keep this last because it is a hardening and ambiguity-closure pass across the earlier slices.
-
-## Parallelization Notes
-
-- `foundation-auth-onboarding` must land before any role-aware workspace work.
-- `shared-interface-elements` should land before most shell-dependent slices.
-- `admin-organization-operations` is the main dependency for both `manager-role-parity` and `tenant-self-service-portal`.
-- `superadmin-control-plane` depends mostly on foundation plus shared shell, so it can overlap with later organization work if the team needs parallel streams.
-- `cross-cutting-behavioral-rules` and `missing-information-closures` are best treated as hardening layers after the main experiences exist.
-
-## How To Use This Set
-
-1. Read the relevant spec in `specs/` to understand product intent and boundaries.
-2. Open the matching implementation plan in `plans/`.
-3. Respect the prerequisite notes in the plan before starting implementation.
-4. If a slice references another slice as a dependency, prefer reusing the shared domain or shell behavior instead of duplicating it locally.
-
-## Slice Map
-
-| Slice | Design Doc | Implementation Plan |
+| File | Historical topic | Current status hint |
 | --- | --- | --- |
-| Foundation auth and onboarding | `specs/2026-03-17-foundation-auth-onboarding-design.md` | `plans/2026-03-17-foundation-auth-onboarding.md` |
-| Shared interface elements | `specs/2026-03-17-shared-interface-elements-design.md` | `plans/2026-03-17-shared-interface-elements.md` |
-| Admin organization operations | `specs/2026-03-17-admin-organization-operations-design.md` | `plans/2026-03-17-admin-organization-operations.md` |
-| Manager role parity | `specs/2026-03-17-manager-role-parity-design.md` | `plans/2026-03-17-manager-role-parity.md` |
-| Tenant self-service portal | `specs/2026-03-17-tenant-self-service-portal-design.md` | `plans/2026-03-17-tenant-self-service-portal.md` |
-| Superadmin control plane | `specs/2026-03-17-superadmin-control-plane-design.md` | `plans/2026-03-17-superadmin-control-plane.md` |
-| Cross-cutting behavioral rules | `specs/2026-03-17-cross-cutting-behavioral-rules-design.md` | `plans/2026-03-17-cross-cutting-behavioral-rules.md` |
-| Missing information closures | `specs/2026-03-17-missing-information-closures-design.md` | `plans/2026-03-17-missing-information-closures.md` |
+| `plans/2026-03-28-organization-single-subscription-relation.md` | Organization current subscription relation | Implemented/iterated through March commits; verify current relation/resource behavior before changing. |
+| `plans/2026-03-28-organization-user-admin-access.md` | Admin access to organization users | Implemented/iterated through organization-user resource and manager membership work. |
+| `plans/2026-03-28-organizations-module-implementation.md` | Superadmin organizations module | Broadly implemented through March organization commits; verify current resources/actions. |
+| `plans/2026-03-28-organizations-seeding-implementation.md` | Showcase/demo organization seeding | Implemented through showcase seed commits; verify current seeders. |
+| `plans/2026-03-28-projects-module-implementation.md` | Projects module | Implemented through March/April project commits; verify current project resource/service/tests. |
+| `plans/2026-03-28-tenant-phone-consistency.md` | Tenant phone/profile consistency | Historical hardening plan; verify current profile/KYC/tenant forms. |
+
+### Specs
+
+| File | Historical topic | Current status hint |
+| --- | --- | --- |
+| `specs/2026-03-17-admin-organization-operations-design.md` | Admin organization operations | Much of this became the current admin workspace, then gained June billing/KYC/leads/move-out features. |
+| `specs/2026-03-17-cross-cutting-behavioral-rules-design.md` | Shared access, validation, immutability, UX behavior | Use as design intent; current behavior is in policies/actions/tests. |
+| `specs/2026-03-17-foundation-auth-onboarding-design.md` | Auth, onboarding, invitations | Current auth routes and onboarding exist; verify Livewire/auth requests before changing. |
+| `specs/2026-03-17-legacy-domain-expansion-design.md` | Legacy domain import | Current import status is also summarized in `legacy-domain-import-ledger.md`. |
+| `specs/2026-03-28-organization-single-subscription-relation-design.md` | Current subscription relation design | Verify current `Organization` relation and subscription resource behavior. |
+| `specs/2026-03-28-organizations-module-design.md` | Organizations module design | Current module now includes extra health, feature flags, limits, write-offs, integration snapshots, and manager/team actions. |
+| `specs/2026-03-28-organizations-seeding-design.md` | Showcase organization seeding | Verify current seeders before relying on dataset volumes. |
+| `specs/2026-03-28-projects-module-design.md` | Projects module design | Current project module includes alerts, exports, costs, users, and lifecycle tests. |
+| `specs/2026-03-28-tenant-phone-consistency-design.md` | Tenant phone consistency | Verify current profile and tenant forms, especially KYC/profile interactions. |
+
+## Support Files
+
+- `EXECUTION-ROADMAP.md`: historical rollout interpretation updated with current status.
+- `PHASE-GATES.md`: historical phase gates updated with current status.
+- `BRANCH-PLAYBOOK.md`: historical branch strategy updated with current status.
+- `legacy-domain-import-ledger.md`: historical import ledger, still useful for model provenance.
+
+## How To Use Historical Docs Safely
+
+1. Read the current docs first.
+2. Find the historical plan/spec only when you need intent.
+3. Verify live code, migrations, routes, policies, translations, and tests.
+4. When a historical doc and current code disagree, trust current code and update current docs if behavior changed.
+5. Do not add new implementation instructions to historical files unless the task explicitly resumes that historical planning track.

@@ -2,6 +2,38 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615060332 -->
+### Изменения Codex
+
+- обновлен `docs/PERMISSION-MATRIX.md`
+- обновлен `docs/legacy-billing-service-method-surface.md`
+- обновлен `docs/operations/billing-reading-invoice-workflow.md`
+- обновлен `docs/operations/service-configuration-guide.md`
+- обновлен `docs/performance/2026-03-18-query-audit.md`
+- обновлен `docs/performance/dashboard-query-audit-2026-03-18.md`
+- обновлен `docs/security/2026-03-18-csp-rate-limits-threat-model.md`
+- обновлен `docs/superpowers/BRANCH-PLAYBOOK.md`
+- обновлен `docs/superpowers/EXECUTION-ROADMAP.md`
+- обновлен `docs/superpowers/PHASE-GATES.md`
+- обновлен `docs/superpowers/README.md`
+- обновлен `docs/superpowers/legacy-domain-import-ledger.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organization-single-subscription-relation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organization-user-admin-access.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organizations-module-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organizations-seeding-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-projects-module-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-tenant-phone-consistency.md`
+- обновлен `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-legacy-domain-expansion-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organization-single-subscription-relation-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organizations-module-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organizations-seeding-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-projects-module-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-tenant-phone-consistency-design.md`
+<!-- changelog:auto:end:staged-20260615060332 -->
+
 <!-- changelog:auto:start:staged-20260615060215 -->
 ### Изменения Codex
 
@@ -5261,31 +5293,33 @@
 <!-- changelog:auto:start:pending -->
 ### Ожидающие staged-изменения
 
-- обновлен `README.md`
-- обновлен `app/Filament/Resources/Invoices/Pages/ListInvoices.php`
-- обновлен `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`
-- обновлен `app/Livewire/Pages/Dashboard/TenantDashboard.php`
-- обновлен `docs/AI-AGENT-DOCS.md`
-- добавлен `docs/FEATURES.md`
-- обновлен `docs/PROJECT-CONTEXT.md`
-- обновлен `docs/SESSION-BOOTSTRAP.md`
-- обновлен `docs/SKILLS-MCP-INVENTORY.md`
-- обновлен `docs/operations/backup-restore.md`
-- обновлен `docs/operations/phase-1-guardrails-branch-protection.md`
-- обновлен `docs/operations/release-readiness.md`
-- обновлен `lang/en/admin.php`
-- обновлен `lang/en/tenant.php`
-- обновлен `lang/es/admin.php`
-- обновлен `lang/es/tenant.php`
-- обновлен `lang/lt/admin.php`
-- обновлен `lang/lt/tenant.php`
-- обновлен `lang/ru/admin.php`
-- обновлен `lang/ru/tenant.php`
-- обновлен `resources/views/livewire/pages/dashboard/tenant-dashboard.blade.php`
-- обновлен `resources/views/livewire/tenant/home-summary.blade.php`
-- обновлен `tests/Feature/Billing/OpenReadingInvoiceCycleTest.php`
-- обновлен `tests/Feature/Tenant/TenantHomePageTest.php`
-- обновлен `tests/Feature/Tenant/TenantSubmitReadingTest.php`
+- обновлен `docs/PERMISSION-MATRIX.md`
+- обновлен `docs/legacy-billing-service-method-surface.md`
+- обновлен `docs/operations/billing-reading-invoice-workflow.md`
+- обновлен `docs/operations/service-configuration-guide.md`
+- обновлен `docs/performance/2026-03-18-query-audit.md`
+- обновлен `docs/performance/dashboard-query-audit-2026-03-18.md`
+- обновлен `docs/security/2026-03-18-csp-rate-limits-threat-model.md`
+- обновлен `docs/superpowers/BRANCH-PLAYBOOK.md`
+- обновлен `docs/superpowers/EXECUTION-ROADMAP.md`
+- обновлен `docs/superpowers/PHASE-GATES.md`
+- обновлен `docs/superpowers/README.md`
+- обновлен `docs/superpowers/legacy-domain-import-ledger.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organization-single-subscription-relation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organization-user-admin-access.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organizations-module-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-organizations-seeding-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-projects-module-implementation.md`
+- обновлен `docs/superpowers/plans/2026-03-28-tenant-phone-consistency.md`
+- обновлен `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
+- обновлен `docs/superpowers/specs/2026-03-17-legacy-domain-expansion-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organization-single-subscription-relation-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organizations-module-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-organizations-seeding-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-projects-module-design.md`
+- обновлен `docs/superpowers/specs/2026-03-28-tenant-phone-consistency-design.md`
 <!-- changelog:auto:end:pending -->
 
 <!-- changelog:auto:start:staged-20260331194242 -->

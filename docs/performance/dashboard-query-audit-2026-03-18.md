@@ -1,6 +1,8 @@
 # Dashboard Query Audit — 2026-03-18
 
-> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+> **AI agent usage:** This is dated audit evidence. Read `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, `docs/AI-AGENT-DOCS.md`, and `docs/FEATURES.md`, then re-check the current code, schema, routes, logs, and tests before making claims or changes.
+
+> Current note, 2026-06-15: admin dashboards now include additional billing, document, and move-out attention data. The query plans below are historical baselines.
 
 ## Audit Method
 
