@@ -162,6 +162,7 @@ When working in `/Users/andrejprus/Herd/tenanto`, prefer these agents over gener
 | `tenanto-architecture-simplifier` | Refactoring | Extract actions, support queries, presenters, scopes, requests, shared seams |
 | `tenanto-migration-schema-auditor` | Schema Safety | Migrations, indexes, foreign keys, ownership columns, enum/status schema |
 | `tenanto-i18n-ui-auditor` | Localization | Blade, Livewire, Filament, notifications, validation, locale parity |
+| `tenanto-css-blade-hygiene-auditor` | CSS/Blade Hygiene | CSS-only styling, no SCSS/Sass/Less, no Blade `@php`, no inline styles |
 | `tenanto-docs-release-auditor` | Documentation | README, changelog, docs, feature inventory, operations guides, AI agent docs |
 | `tenanto-upgrade-compatibility-auditor` | Compatibility | Laravel, Filament, Livewire, PHP, Composer, Node, Vite, Tailwind upgrades |
 | `tenanto-permission-matrix-auditor` | Permissions | Role matrix, manager presets, permission enum, resolver, policies, forbidden audits |
@@ -185,6 +186,7 @@ Recommended review chains:
 | Filament resource/page/action | `tenanto-filament-resource-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
 | Migrations/schema | `tenanto-migration-schema-auditor`, `tenanto-query-performance-auditor` |
 | UI copy/localization | `tenanto-i18n-ui-auditor`, `tenanto-pest-coverage-engineer` |
+| CSS, Blade markup, inline style, or `@php` cleanup | `tenanto-css-blade-hygiene-auditor`, `laravel-livewire-filament-quality-auditor`, `tenanto-pest-coverage-engineer` |
 | Docs/release/update notes | `tenanto-docs-release-auditor` |
 | Dependency upgrades | `tenanto-upgrade-compatibility-auditor`, `tenanto-pest-coverage-engineer` |
 | Permission matrix, manager presets, role access | `tenanto-permission-matrix-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
@@ -240,6 +242,7 @@ Recommended review chains:
 | `tenanto-architecture-simplifier` | Focused refactors | ❌ Unrequested rewrites |
 | `tenanto-migration-schema-auditor` | Migration/schema review | ❌ UI or domain workflow code |
 | `tenanto-i18n-ui-auditor` | Locale/UI text review | ❌ Business logic changes |
+| `tenanto-css-blade-hygiene-auditor` | CSS source and Blade hygiene review/refactor | ❌ Business workflows, authorization shortcuts, SCSS/Sass/Less sources |
 | `tenanto-docs-release-auditor` | Docs/release notes | ❌ Production code |
 | `tenanto-upgrade-compatibility-auditor` | Upgrade compatibility review | ❌ Feature implementation |
 | `tenanto-permission-matrix-auditor` | Permission contract review | ❌ UI-only permission fixes |
@@ -261,6 +264,8 @@ Recommended review chains:
 | `**/*.test.{ts,tsx,js}` | `test-engineer` | ❌ All others |
 | `**/__tests__/**` | `test-engineer` | ❌ All others |
 | `**/components/**` | `frontend-specialist` | ❌ backend, test |
+| `resources/views/**/*.blade.php` | `tenanto-css-blade-hygiene-auditor` for CSS/`@php` hygiene; `laravel-livewire-filament-quality-auditor` for UI behavior | ❌ backend-only agents |
+| `resources/css/app.css`, `vite.config.*` | `tenanto-css-blade-hygiene-auditor` | ❌ backend-only agents |
 | `**/api/**`, `**/server/**` | `backend-specialist` | ❌ frontend |
 | `**/prisma/**`, `**/drizzle/**` | `database-architect` | ❌ frontend |
 

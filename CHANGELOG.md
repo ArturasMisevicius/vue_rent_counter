@@ -2,6 +2,14 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615064058 -->
+### Commit updates
+
+- updated `.agent/ARCHITECTURE.md`
+- updated `.agent/agents/orchestrator.md`
+- added `.agent/agents/tenanto-css-blade-hygiene-auditor.md`
+<!-- changelog:auto:end:staged-20260615064058 -->
+
 <!-- changelog:auto:start:staged-20260615063537 -->
 ### Commit updates
 
