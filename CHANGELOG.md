@@ -2,6 +2,12 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615113156 -->
+### Commit updates
+
+- Updated: Filament admin workflow, documentation, project automation, tenant document workflow, and tenant KYC workflow.
+<!-- changelog:auto:end:staged-20260615113156 -->
+
 <!-- changelog:auto:start:staged-20260615111915 -->
 ### Commit updates
 

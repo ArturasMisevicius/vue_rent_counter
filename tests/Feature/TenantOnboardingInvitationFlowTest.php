@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\TenantStatus;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
@@ -17,6 +18,9 @@ use App\Models\AuditLog;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
+use App\Models\OrganizationUser;
+use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
 use App\Notifications\TenantPortalActivatedNotification;
@@ -29,6 +33,7 @@ use Illuminate\Validation\ValidationException;
 use Tests\Support\TenantPortalFactory;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
@@ -62,6 +67,29 @@ it('lets an admin send a tenant invitation while storing only hashed tokens', fu
     expect(auditMutations())->toContain('tenant_invitation.sent');
 });
 
+it('creates a copyable tenant invitation link without emailing and audits the link action', function (): void {
+    Notification::fake();
+
+    $workspace = createOrgWithAdmin();
+    $tenant = onboardingTenant($workspace['organization']);
+
+    $invitation = app(SendTenantInvitation::class)->handle(
+        actor: $workspace['admin'],
+        tenant: $tenant,
+        sendEmail: false,
+    );
+
+    expect($invitation->acceptanceToken)->toBeString()->toHaveLength(64)
+        ->and(route('invitation.show', $invitation->acceptanceToken))->toContain('/invitations/');
+
+    Notification::assertNothingSent();
+
+    $linkAudit = auditLogForMutation('tenant_invitation.link_created');
+
+    expect($linkAudit)->not->toBeNull()
+        ->and(data_get($linkAudit?->metadata, 'context.delivery'))->toBe('manual_link');
+});
+
 it('blocks cross-organization admins and tenants from sending tenant invitations', function (): void {
     Notification::fake();
 
@@ -77,6 +105,9 @@ it('blocks cross-organization admins and tenants from sending tenant invitations
 
     expect(fn () => app(SendTenantInvitation::class)->handle($tenantActor, $tenant))
         ->toThrow(AuthorizationException::class);
+
+    expect(auditMutationCount($workspace['organization'], 'tenant_invitation.forbidden_access_attempt'))
+        ->toBeGreaterThanOrEqual(2);
 });
 
 it('allows managers to invite tenants only when their policy permission allows it', function (): void {
@@ -87,6 +118,16 @@ it('allows managers to invite tenants only when their policy permission allows i
     $admin = $workspace['admin'];
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $admin->id,
+        'accepted_at' => now(),
+        'left_at' => null,
     ]);
     $tenant = onboardingTenant($organization);
 
@@ -111,11 +152,28 @@ it('lets a tenant accept a valid invitation and activates their portal account',
         'name' => 'Pending Resident',
         'email' => 'resident@example.com',
     ]);
+    $property = Property::factory()->for($workspace['organization'])->create([
+        'name' => 'A-101',
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($workspace['organization'])
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create();
 
     $invitation = app(SendTenantInvitation::class)->handle($workspace['admin'], $tenant);
 
     actingAs($workspace['admin']);
     auth()->logout();
+
+    get(route('invitation.show', $invitation->acceptanceToken))
+        ->assertSuccessful()
+        ->assertSeeText($workspace['organization']->name)
+        ->assertSeeText('Pending Resident')
+        ->assertSeeText('A-101')
+        ->assertSeeText('resident@example.com')
+        ->assertSeeText('Accept Invitation and Create Account');
 
     post(route('invitation.store', $invitation->acceptanceToken), [
         'name' => 'Accepted Resident',
@@ -205,6 +263,12 @@ it('invalidates the old single-use token when a tenant invitation is resent', fu
     expect($resentInvitation->acceptanceToken)->not->toBe($oldToken)
         ->and($firstInvitation->fresh()->isRevoked())->toBeTrue()
         ->and(OrganizationInvitation::query()->forToken($oldToken)->first()?->isRevoked())->toBeTrue();
+
+    $resentAudit = auditLogForMutation('tenant_invitation.resent');
+
+    expect($resentAudit)->not->toBeNull()
+        ->and(data_get($resentAudit?->metadata, 'context.delivery'))->toBe('email')
+        ->and(data_get($resentAudit?->metadata, 'revoked_invitation_ids'))->toContain($firstInvitation->id);
 
     app(AcceptTenantInvitation::class)->handle($resentInvitation, [
         'name' => $tenant->name,
@@ -307,4 +371,21 @@ function auditMutations(): array
         ->filter()
         ->values()
         ->all();
+}
+
+function auditMutationCount(Organization $organization, string $mutation): int
+{
+    return AuditLog::query()
+        ->where('organization_id', $organization->id)
+        ->get()
+        ->filter(fn (AuditLog $log): bool => data_get($log->metadata, 'context.mutation') === $mutation)
+        ->count();
+}
+
+function auditLogForMutation(string $mutation): ?AuditLog
+{
+    return AuditLog::query()
+        ->latest('id')
+        ->get()
+        ->first(fn (AuditLog $log): bool => data_get($log->metadata, 'context.mutation') === $mutation);
 }

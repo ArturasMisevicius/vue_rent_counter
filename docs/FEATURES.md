@@ -169,6 +169,7 @@ Main files:
 
 Tenant portal features:
 
+- Invitation acceptance at `/invitations/{token}/accept` where invited tenants confirm their organization, tenant profile, property, email, and password.
 - `/tenant` home summary.
 - `/tenant/readings/create` request-driven reading form.
 - `/tenant/invoices` invoice history.
@@ -191,6 +192,35 @@ Tenant portal data should flow through presenters and actions:
 - `app/Filament/Support/Tenant/Portal/TenantDocumentPresenter.php`
 - `app/Filament/Support/Tenant/Portal/TenantKycPresenter.php`
 - `app/Livewire/Tenant`
+
+## Tenant Onboarding And Invitations
+
+Tenant onboarding is invitation-driven:
+
+1. Admins create a tenant from Tenants -> Create Tenant and can enable portal setup in the Portal Access step.
+2. The create form supports `create_portal_access`, `send_invitation_now`, preferred portal language, and invitation expiration days.
+3. Tenant rows show portal access status, invitation status, sent date, accepted date, and last login.
+4. Tenant profiles include a Portal Access panel with account status, portal status, invitation status, sent/expires/accepted timestamps, and last login.
+5. Admins and permitted managers can send, resend, revoke, copy a fresh invitation link, enable portal access, or disable portal access.
+6. Invitation tokens are generated as raw one-time links, but only SHA-256 hashes are stored in `organization_invitations.token_hash` and the legacy `token` column.
+7. Sending, resending, and copy-link creation revoke older pending tenant invitations for the same tenant/email and create a new single-use token.
+8. Tenants accept from `/invitations/{token}/accept`, create their password, activate the tenant profile, verify email, and enter the tenant portal.
+9. Accepted, expired, revoked, inactive, moved-out, or archived tenant invitations cannot be accepted.
+10. Disabled portal access blocks `/tenant` access without deleting tenant financial or document history.
+11. Invitation send, resend, link creation, revoke, accept, portal enable/disable, activation, and forbidden invite attempts are audited.
+
+Main files:
+
+- `app/Filament/Resources/Tenants`
+- `app/Filament/Actions/Admin/Tenants/SendTenantInvitation.php`
+- `app/Filament/Actions/Admin/Tenants/ResendTenantInvitation.php`
+- `app/Filament/Actions/Admin/Tenants/RevokeTenantInvitation.php`
+- `app/Filament/Actions/Admin/Tenants/EnableTenantPortalAccess.php`
+- `app/Filament/Actions/Admin/Tenants/DisableTenantPortalAccess.php`
+- `app/Filament/Actions/Auth/AcceptTenantInvitation.php`
+- `app/Livewire/Auth/AcceptInvitationPage.php`
+- `app/Models/OrganizationInvitation.php`
+- `tests/Feature/TenantOnboardingInvitationFlowTest.php`
 
 ## Documents, KYC, And Rental Contracts
 

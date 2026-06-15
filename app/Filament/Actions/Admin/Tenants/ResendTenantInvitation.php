@@ -27,7 +27,14 @@ class ResendTenantInvitation
             ? $target
             : $this->tenantForInvitation($target);
 
-        $invitation = $this->sendTenantInvitation->handle($actor, $tenant, $expirationDays, false);
+        $invitation = $this->sendTenantInvitation->handle(
+            $actor,
+            $tenant,
+            $expirationDays,
+            false,
+            'tenant_invitation.resent',
+            $sendEmail ? 'email' : 'manual_link',
+        );
 
         if ($sendEmail) {
             Notification::route('mail', $invitation->email)

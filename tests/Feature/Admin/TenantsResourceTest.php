@@ -2,6 +2,7 @@
 
 use App\Enums\BillingReadinessStatus;
 use App\Enums\InvoiceStatus;
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\PropertyAssignmentStatus;
 use App\Enums\TenantStatus;
 use App\Enums\UserRole;
@@ -34,6 +35,7 @@ use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\OrganizationInvitation;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\ServiceConfiguration;
@@ -115,6 +117,16 @@ it('renders tenant pages with the admin contract and organization-scoped data', 
 
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $organization->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $admin->id,
+        'accepted_at' => now(),
+        'left_at' => null,
     ]);
 
     $superadmin = User::factory()->superadmin()->create();

@@ -140,6 +140,23 @@ record belongs to the current tenant profile or current active assignment
 
 Tenants cannot access admin workspace, internal documents, other tenant invoices, other tenant readings, organization settings, tariffs, billing approval actions, or audit logs.
 
+Tenant invitation access requires:
+
+```text
+target.role == tenant
+target.organization_id == actor.organization_id
+actor.role in [admin, manager with tenants.create]
+invitation.token_hash matches the raw link token hash
+invitation.accepted_at == null
+invitation.revoked_at == null
+invitation.expires_at >= now()
+target.tenant_status in [draft, active]
+```
+
+Admins and permitted managers can send, resend, copy, and revoke tenant invitations only inside their organization. Tenants cannot send invitations. Superadmins may inspect and assist, but tenant portal access remains organization-scoped after acceptance.
+
+Copying a tenant invitation link creates a fresh single-use token and revokes older pending tenant invitations because raw invitation tokens are never stored. Send, resend, copy-link creation, revoke, accept, enable portal access, disable portal access, activation, and forbidden invite attempts must write audit records.
+
 ## Action Authorization Pattern
 
 Sensitive and business-critical actions must follow this sequence:

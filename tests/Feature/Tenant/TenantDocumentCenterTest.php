@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Enums\AuditLogAction;
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\TenantDocumentStatus;
 use App\Enums\TenantDocumentType;
+use App\Enums\UserRole;
 use App\Filament\Actions\Admin\TenantDocuments\ExpireTenantDocuments;
 use App\Filament\Actions\Admin\TenantDocuments\ReplaceTenantDocumentFile;
 use App\Filament\Actions\Admin\TenantDocuments\ToggleTenantDocumentVisibility;
@@ -15,6 +17,7 @@ use App\Livewire\Tenant\Documents;
 use App\Models\AuditLog;
 use App\Models\ManagerPermission;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\TenantDocument;
 use App\Models\User;
@@ -152,6 +155,16 @@ it('makes manager document writes depend on tenant document permission', functio
     $workspace = tenantDocumentWorkspace();
     $manager = User::factory()->manager()->create([
         'organization_id' => $workspace['organization']->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $workspace['organization']->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $workspace['admin']->id,
+        'accepted_at' => now(),
+        'left_at' => null,
     ]);
 
     expect(Gate::forUser($manager)->allows('create', TenantDocument::class))->toBeFalse();

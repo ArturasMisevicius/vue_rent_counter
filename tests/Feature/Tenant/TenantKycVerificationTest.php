@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Enums\AuditLogAction;
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\TenantKycDocumentStatus;
 use App\Enums\TenantKycDocumentType;
 use App\Enums\TenantKycProfileStatus;
+use App\Enums\UserRole;
 use App\Filament\Actions\TenantKyc\ApproveKycDocument;
 use App\Filament\Actions\TenantKyc\ExpireKycDocuments;
 use App\Filament\Actions\TenantKyc\RejectKycDocument;
@@ -17,6 +19,7 @@ use App\Models\AuditLog;
 use App\Models\ManagerPermission;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\TenantKycDocument;
 use App\Models\User;
@@ -55,6 +58,16 @@ it('notifies admin and manager when tenants upload KYC documents', function (): 
     $workspace = tenantKycWorkspace([TenantKycDocumentType::IDENTITY_CARD]);
     $manager = User::factory()->manager()->create([
         'organization_id' => $workspace['organization']->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $workspace['organization']->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $workspace['admin']->id,
+        'accepted_at' => now(),
+        'left_at' => null,
     ]);
 
     submitKycDocument($workspace, $workspace['tenant'], TenantKycDocumentType::IDENTITY_CARD);
@@ -115,6 +128,16 @@ it('makes manager KYC review depend on tenant document permission', function ():
     $document = submitKycDocument($workspace, $workspace['tenant'], TenantKycDocumentType::IDENTITY_CARD);
     $manager = User::factory()->manager()->create([
         'organization_id' => $workspace['organization']->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $workspace['organization']->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $workspace['admin']->id,
+        'accepted_at' => now(),
+        'left_at' => null,
     ]);
 
     expect(Gate::forUser($manager)->allows('approve', $document))->toBeFalse();
