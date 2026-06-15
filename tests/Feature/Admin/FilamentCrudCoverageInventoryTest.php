@@ -28,6 +28,7 @@ use App\Filament\Resources\Tags\TagResource;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\TaskAssignments\TaskAssignmentResource;
 use App\Filament\Resources\Tasks\TaskResource;
+use App\Filament\Resources\TenantKycProfiles\TenantKycProfileResource;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\TimeEntries\TimeEntryResource;
 use App\Filament\Resources\UserKycProfiles\UserKycProfileResource;
@@ -149,6 +150,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         TaskResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/RelationResourceListContextTest.php',
+        ],
+        TenantKycProfileResource::class => [
+            'pages' => ['index', 'view'],
+            'test' => 'tests/Feature/Tenant/TenantKycVerificationTest.php',
         ],
         TenantResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

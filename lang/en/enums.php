@@ -3,6 +3,7 @@
 return [
     'audit_log_action' => [
         'created' => 'Created',
+        'viewed' => 'Viewed',
         'updated' => 'Updated',
         'deleted' => 'Deleted',
         'archived' => 'Archived',
@@ -103,6 +104,34 @@ return [
         'pending' => 'Pending',
         'verified' => 'Verified',
         'rejected' => 'Rejected',
+    ],
+    'tenant_kyc_profile_status' => [
+        'not_started' => 'Not started',
+        'incomplete' => 'Incomplete',
+        'pending_review' => 'Pending review',
+        'verified' => 'Verified',
+        'rejected' => 'Rejected',
+        'expired' => 'Expired',
+        'disabled' => 'Disabled',
+    ],
+    'tenant_kyc_document_status' => [
+        'draft' => 'Draft',
+        'uploaded' => 'Uploaded',
+        'pending_review' => 'Pending review',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        'expired' => 'Expired',
+        'archived' => 'Archived',
+        'replaced' => 'Replaced',
+    ],
+    'tenant_kyc_document_type' => [
+        'identity_card' => 'Identity card',
+        'passport' => 'Passport',
+        'drivers_license' => 'Driver license',
+        'residence_permit' => 'Residence permit',
+        'address_proof' => 'Address proof',
+        'rental_contract' => 'Rental contract',
+        'other' => 'Other',
     ],
     'invoice_status' => [
         'draft' => 'Draft',

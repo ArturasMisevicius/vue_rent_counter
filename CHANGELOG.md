@@ -1,5 +1,91 @@
 # Changelog
 
+## 2026-06-15
+
+<!-- changelog:auto:start:staged-20260615053419 -->
+### Изменения Codex
+
+- добавлен `.agent/agents/changelog-commit-pusher.md`
+- обновлен `.codex/hooks.json`
+- добавлен `.codex/hooks/auto-changelog-commit-push.sh`
+- обновлен `app/Enums/AuditLogAction.php`
+- добавлен `app/Enums/TenantKycDocumentStatus.php`
+- добавлен `app/Enums/TenantKycDocumentType.php`
+- добавлен `app/Enums/TenantKycProfileStatus.php`
+- обновлен `app/Filament/Actions/Admin/Settings/UpdateOrganizationSettingsAction.php`
+- обновлен `app/Filament/Actions/Tenant/Invoices/DownloadInvoiceAction.php`
+- обновлен `app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php`
+- добавлен `app/Filament/Actions/TenantKyc/ApproveKycDocument.php`
+- добавлен `app/Filament/Actions/TenantKyc/ApproveTenantKycProfile.php`
+- добавлен `app/Filament/Actions/TenantKyc/AuditKycView.php`
+- добавлен `app/Filament/Actions/TenantKyc/CheckTenantKycCompleteness.php`
+- добавлен `app/Filament/Actions/TenantKyc/DownloadKycDocument.php`
+- добавлен `app/Filament/Actions/TenantKyc/ExpireKycDocuments.php`
+- добавлен `app/Filament/Actions/TenantKyc/RejectKycDocument.php`
+- добавлен `app/Filament/Actions/TenantKyc/RejectTenantKycProfile.php`
+- добавлен `app/Filament/Actions/TenantKyc/ReplaceTenantKycDocument.php`
+- добавлен `app/Filament/Actions/TenantKyc/SendKycReminder.php`
+- добавлен `app/Filament/Actions/TenantKyc/SubmitTenantKycDocument.php`
+- обновлен `app/Filament/Pages/Settings.php`
+- обновлен `app/Filament/Pages/TenantPortalPage.php`
+- добавлен `app/Filament/Pages/TenantVerification.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/Pages/ListTenantKycProfiles.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/Pages/ViewTenantKycProfile.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/RelationManagers/TenantKycDocumentsRelationManager.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/Schemas/TenantKycProfileInfolist.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/Tables/TenantKycProfilesTable.php`
+- добавлен `app/Filament/Resources/TenantKycProfiles/TenantKycProfileResource.php`
+- добавлен `app/Filament/Resources/Tenants/RelationManagers/TenantKycDocumentsRelationManager.php`
+- обновлен `app/Filament/Resources/Tenants/TenantResource.php`
+- обновлен `app/Filament/Support/Audit/AuditLogger.php`
+- обновлен `app/Filament/Support/Changelog/GitChangelogUpdater.php`
+- обновлен `app/Filament/Support/Tenant/Portal/TenantHomePresenter.php`
+- добавлен `app/Filament/Support/Tenant/Portal/TenantKycPresenter.php`
+- добавлен `app/Filament/Support/TenantKyc/TenantKycGate.php`
+- добавлен `app/Filament/Support/TenantKyc/TenantKycSettings.php`
+- обновлен `app/Http/Requests/Admin/Settings/UpdateOrganizationSettingsRequest.php`
+- добавлен `app/Http/Requests/TenantKyc/RejectKycDocumentRequest.php`
+- добавлен `app/Http/Requests/TenantKyc/RejectTenantKycProfileRequest.php`
+- добавлен `app/Http/Requests/TenantKyc/SubmitTenantKycDocumentRequest.php`
+- обновлен `app/Livewire/Pages/Dashboard/TenantDashboard.php`
+- добавлен `app/Livewire/Tenant/DownloadKycDocumentEndpoint.php`
+- обновлен `app/Livewire/Tenant/TenantPortalRouteEndpoint.php`
+- добавлен `app/Livewire/Tenant/Verification.php`
+- обновлен `app/Models/Organization.php`
+- обновлен `app/Models/OrganizationSetting.php`
+- добавлен `app/Models/TenantKycDocument.php`
+- добавлен `app/Models/TenantKycProfile.php`
+- обновлен `app/Models/User.php`
+- добавлен `app/Notifications/TenantKyc/TenantKycApprovedNotification.php`
+- добавлен `app/Notifications/TenantKyc/TenantKycDocumentExpiresSoonNotification.php`
+- добавлен `app/Notifications/TenantKyc/TenantKycRejectedNotification.php`
+- добавлен `app/Notifications/TenantKyc/TenantKycReplacementRequiredNotification.php`
+- добавлен `app/Policies/TenantKycDocumentPolicy.php`
+- добавлен `app/Policies/TenantKycProfilePolicy.php`
+- обновлен `config/tenanto.php`
+- обновлен `database/factories/OrganizationSettingFactory.php`
+- добавлен `database/factories/TenantKycDocumentFactory.php`
+- добавлен `database/factories/TenantKycProfileFactory.php`
+- добавлен `database/migrations/2026_06_15_000000_create_tenant_kyc_verification_tables.php`
+- обновлен `lang/en/admin.php`
+- обновлен `lang/en/enums.php`
+- обновлен `lang/en/notifications.php`
+- обновлен `lang/en/shell.php`
+- обновлен `lang/en/tenant.php`
+- обновлен `resources/views/filament/pages/settings.blade.php`
+- добавлен `resources/views/filament/pages/tenant-verification.blade.php`
+- обновлен `resources/views/livewire/tenant/home-summary.blade.php`
+- добавлен `resources/views/livewire/tenant/verification.blade.php`
+- обновлен `routes/console.php`
+- обновлен `routes/web.php`
+- обновлен `scripts/update_changelog.php`
+- обновлен `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`
+- обновлен `tests/Feature/Console/UpdateChangelogScriptTest.php`
+- добавлен `tests/Feature/Tenant/TenantKycVerificationTest.php`
+- обновлен `tests/Support/FormRequestScenarioFactory.php`
+- обновлен `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
+<!-- changelog:auto:end:staged-20260615053419 -->
+
 ## 2026-06-14
 
 <!-- changelog:auto:start:staged-20260614174828 -->

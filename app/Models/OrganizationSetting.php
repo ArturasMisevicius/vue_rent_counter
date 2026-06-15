@@ -27,6 +27,12 @@ class OrganizationSetting extends Model
         'project_budget_alert_threshold_percent',
         'project_schedule_alert_threshold_days',
         'notification_preferences',
+        'kyc_required',
+        'required_document_types',
+        'require_expiry_date',
+        'block_portal_until_verified',
+        'block_invoice_download_until_verified',
+        'block_reading_submission_until_verified',
     ];
 
     protected function casts(): array
@@ -36,6 +42,12 @@ class OrganizationSetting extends Model
             'project_budget_alert_threshold_percent' => 'integer',
             'project_schedule_alert_threshold_days' => 'integer',
             'notification_preferences' => 'array',
+            'kyc_required' => 'boolean',
+            'required_document_types' => 'array',
+            'require_expiry_date' => 'boolean',
+            'block_portal_until_verified' => 'boolean',
+            'block_invoice_download_until_verified' => 'boolean',
+            'block_reading_submission_until_verified' => 'boolean',
         ];
     }
 

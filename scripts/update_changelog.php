@@ -17,6 +17,7 @@ $options = getopt('', [
     'entry-id::',
     'timestamp::',
     'title::',
+    'language::',
 ]);
 
 $mode = $options['mode'] ?? 'pending';
@@ -28,8 +29,9 @@ $changelogPath = isset($options['changelog'])
     : $repoRoot.'/CHANGELOG.md';
 $date = $options['date'] ?? date('Y-m-d');
 $timestamp = (string) ($options['timestamp'] ?? date('YmdHis'));
+$language = normalizeLanguage((string) ($options['language'] ?? getenv('CODEX_CHANGELOG_LANGUAGE') ?: 'en'));
 $updater = new GitChangelogUpdater;
-$changes = $updater->formatNameStatusLines(stagedNameStatusLines($repoRoot));
+$changes = $updater->formatNameStatusLines(stagedNameStatusLines($repoRoot), $language);
 
 if ($changes === []) {
     exit(0);
@@ -46,14 +48,14 @@ $updated = match ($mode) {
         resolveStagedEntryId($options, $repoRoot, $timestamp),
         trim((string) ($options['title'] ?? '')) !== ''
             ? trim((string) $options['title'])
-            : 'Commit updates',
+            : defaultTitle($language, 'staged'),
         $changes,
     ),
     'pending' => $updater->sync(
         $markdown,
         $date,
         'pending',
-        'Pending staged changes',
+        defaultTitle($language, 'pending'),
         $changes,
     ),
     'finalize' => $updater->sync(
@@ -72,6 +74,24 @@ if ($updated === $markdown) {
 }
 
 file_put_contents($changelogPath, $updated);
+
+function normalizeLanguage(string $language): string
+{
+    return strtolower($language) === 'ru' ? 'ru' : 'en';
+}
+
+function defaultTitle(string $language, string $mode): string
+{
+    if ($language === 'ru') {
+        return $mode === 'pending'
+            ? 'Ожидающие staged-изменения'
+            : 'Изменения Codex';
+    }
+
+    return $mode === 'pending'
+        ? 'Pending staged changes'
+        : 'Commit updates';
+}
 
 function resolveStagedEntryId(array $options, string $repoRoot, string $timestamp): string
 {

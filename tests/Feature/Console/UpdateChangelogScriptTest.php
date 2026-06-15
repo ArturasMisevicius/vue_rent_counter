@@ -59,6 +59,47 @@ it('appends a new staged entry after the hook state file is cleared', function (
         ->toContain('- added `beta.php`');
 });
 
+it('can write staged changelog entries in Russian', function (): void {
+    $repo = fakeGitRepo();
+
+    file_put_contents($repo['path'].'/agent.php', "<?php\n");
+    runInRepo($repo['path'], ['git', 'add', 'agent.php']);
+
+    runUpdateChangelog($repo['path'], '20260328192000', 'ru');
+
+    $markdown = file_get_contents($repo['path'].'/CHANGELOG.md');
+
+    expect($markdown)
+        ->toContain('### Изменения Codex')
+        ->toContain('- добавлен `agent.php`');
+});
+
+it('can write pending changelog entries in Russian', function (): void {
+    $repo = fakeGitRepo();
+
+    file_put_contents($repo['path'].'/pending.php', "<?php\n");
+    runInRepo($repo['path'], ['git', 'add', 'pending.php']);
+
+    $process = new Process([
+        PHP_BINARY,
+        base_path('scripts/update_changelog.php'),
+        '--mode=pending',
+        '--repo-root='.$repo['path'],
+        '--changelog=CHANGELOG.md',
+        '--date=2026-03-28',
+        '--timestamp=20260328193000',
+        '--language=ru',
+    ], base_path());
+
+    $process->mustRun();
+
+    $markdown = file_get_contents($repo['path'].'/CHANGELOG.md');
+
+    expect($markdown)
+        ->toContain('### Ожидающие staged-изменения')
+        ->toContain('- добавлен `pending.php`');
+});
+
 /**
  * @return array{path: string, state_file: string}
  */
@@ -81,7 +122,7 @@ function fakeGitRepo(): array
     ];
 }
 
-function runUpdateChangelog(string $repoPath, string $timestamp): void
+function runUpdateChangelog(string $repoPath, string $timestamp, string $language = 'en'): void
 {
     $process = new Process([
         PHP_BINARY,
@@ -92,6 +133,7 @@ function runUpdateChangelog(string $repoPath, string $timestamp): void
         '--state-file=.git/tenanto-changelog-entry-id',
         '--date=2026-03-28',
         '--timestamp='.$timestamp,
+        '--language='.$language,
     ], base_path());
 
     $process->mustRun();

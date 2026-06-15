@@ -14,6 +14,7 @@ use App\Filament\Resources\Tenants\RelationManagers\MetersRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\RentalContractsRelationManager;
 use App\Filament\Resources\Tenants\RelationManagers\TenantDocumentsRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\TenantKycDocumentsRelationManager;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
@@ -207,6 +208,7 @@ class TenantResource extends Resource
             ReadingsRelationManager::class,
             ExtraChargesRelationManager::class,
             InvoicesRelationManager::class,
+            TenantKycDocumentsRelationManager::class,
             TenantDocumentsRelationManager::class,
             RentalContractsRelationManager::class,
             AuditTrailRelationManager::class,

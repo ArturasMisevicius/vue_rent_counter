@@ -21,6 +21,7 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\TariffType;
 use App\Enums\TenantDocumentStatus;
 use App\Enums\TenantDocumentType;
+use App\Enums\TenantKycDocumentType;
 use App\Enums\UnitOfMeasurement;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
 use App\Http\Requests\Admin\ExtraCharges\ExtraChargeRequest;
@@ -88,6 +89,9 @@ use App\Http\Requests\Tenant\PropertyHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest as TenantStoreMeterReadingRequest;
 use App\Http\Requests\Tenant\SubmitPaymentProofRequest;
 use App\Http\Requests\Tenant\TenantDocumentFilterRequest;
+use App\Http\Requests\TenantKyc\RejectKycDocumentRequest as TenantKycRejectKycDocumentRequest;
+use App\Http\Requests\TenantKyc\RejectTenantKycProfileRequest;
+use App\Http\Requests\TenantKyc\SubmitTenantKycDocumentRequest;
 use App\Models\Building;
 use App\Models\ExtraChargeType;
 use App\Models\Invoice;
@@ -538,8 +542,24 @@ final class FormRequestScenarioFactory
                     'organization_name' => 'Harbor Heights',
                     'billing_contact_email' => 'billing@example.com',
                     'invoice_footer' => 'Thank you for your business.',
+                    'kyc_required' => true,
+                    'required_document_types' => [
+                        TenantKycDocumentType::IDENTITY_CARD->value,
+                        TenantKycDocumentType::ADDRESS_PROOF->value,
+                    ],
+                    'require_expiry_date' => true,
+                    'block_portal_until_verified' => false,
+                    'block_invoice_download_until_verified' => true,
+                    'block_reading_submission_until_verified' => true,
                 ],
-                'required' => ['organization_name'],
+                'required' => [
+                    'organization_name',
+                    'kyc_required',
+                    'require_expiry_date',
+                    'block_portal_until_verified',
+                    'block_invoice_download_until_verified',
+                    'block_reading_submission_until_verified',
+                ],
                 'authorize' => self::adminOnly(),
             ],
             'BuildingRequest' => [
@@ -733,6 +753,38 @@ final class FormRequestScenarioFactory
                 'request' => static fn (array $context): FormRequest => new RejectTenantDocumentRequest,
                 'valid' => static fn (array $context): array => [
                     'rejection_reason' => 'The uploaded document needs a clearer photo.',
+                ],
+                'required' => ['rejection_reason'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'SubmitTenantKycDocumentRequest' => [
+                'request' => static fn (array $context): FormRequest => (new SubmitTenantKycDocumentRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'organization_id' => $context['organization']->id,
+                    'tenant_id' => $context['tenant']->id,
+                    'document_type' => TenantKycDocumentType::IDENTITY_CARD->value,
+                    'document_number_encrypted' => 'ID-123456',
+                    'issued_country' => 'LT',
+                    'issued_at' => now()->subYear()->toDateString(),
+                    'expires_at' => now()->addYear()->toDateString(),
+                    'internal_note' => 'Reviewed by office.',
+                ],
+                'required' => ['organization_id', 'tenant_id', 'document_type'],
+                'authorize' => self::adminLikeAndTenantOnly(),
+            ],
+            'TenantKycRejectKycDocumentRequest' => [
+                'request' => static fn (array $context): FormRequest => new TenantKycRejectKycDocumentRequest,
+                'valid' => static fn (array $context): array => [
+                    'rejection_reason' => 'The document image is unclear.',
+                    'internal_note' => 'Internal review note.',
+                ],
+                'required' => ['rejection_reason'],
+                'authorize' => self::adminLikeOnly(),
+            ],
+            'RejectTenantKycProfileRequest' => [
+                'request' => static fn (array $context): FormRequest => new RejectTenantKycProfileRequest,
+                'valid' => static fn (array $context): array => [
+                    'rejection_reason' => 'Required verification documents are missing.',
                 ],
                 'required' => ['rejection_reason'],
                 'authorize' => self::adminLikeOnly(),

@@ -6,6 +6,8 @@ use App\Console\Commands\SendPaymentRemindersCommand;
 use App\Enums\ProjectStatus;
 use App\Filament\Actions\Admin\RentalContracts\ExpireRentalContractsAction;
 use App\Filament\Actions\Admin\RentalContracts\SendContractExpiryReminderAction;
+use App\Filament\Actions\TenantKyc\ExpireKycDocuments;
+use App\Filament\Actions\TenantKyc\SendKycReminder;
 use App\Models\Project;
 use App\Models\SecurityViolation;
 use App\Models\User;
@@ -244,6 +246,21 @@ Artisan::command('rental-contracts:maintain', function (
     return self::SUCCESS;
 })->purpose('Expire rental contracts and send rental contract expiry reminders');
 
+Artisan::command('kyc:maintain', function (
+    ExpireKycDocuments $expireKycDocuments,
+    SendKycReminder $sendKycReminder,
+): int {
+    $expired = $expireKycDocuments->handle();
+    $reminders = $sendKycReminder->handle();
+
+    $this->components->info(__('admin.tenant_kyc.commands.maintain_complete', [
+        'expired' => $expired,
+        'reminders' => $reminders,
+    ]));
+
+    return self::SUCCESS;
+})->purpose('Expire KYC documents and send KYC expiry reminders');
+
 Schedule::command('model:prune', ['--model' => [SecurityViolation::class]])
     ->daily();
 
@@ -277,4 +294,8 @@ Schedule::command(SendPaymentRemindersCommand::class)
 
 Schedule::command('rental-contracts:maintain')
     ->dailyAt('07:30')
+    ->withoutOverlapping();
+
+Schedule::command('kyc:maintain')
+    ->dailyAt('07:45')
     ->withoutOverlapping();

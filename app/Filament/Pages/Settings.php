@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Enums\TenantKycDocumentType;
 use App\Enums\UserRole;
 use App\Filament\Actions\Admin\Settings\RenewOrganizationSubscriptionAction;
 use App\Filament\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
@@ -33,7 +34,13 @@ class Settings extends Page
      * @var array{
      *     organization_name: string,
      *     billing_contact_email: string,
-     *     invoice_footer: string
+     *     invoice_footer: string,
+     *     kyc_required: bool,
+     *     required_document_types: list<string>,
+     *     require_expiry_date: bool,
+     *     block_portal_until_verified: bool,
+     *     block_invoice_download_until_verified: bool,
+     *     block_reading_submission_until_verified: bool
      * }
      */
     public array $organizationForm = [];
@@ -191,6 +198,15 @@ class Settings extends Page
             'organization_name' => (string) $organization->name,
             'billing_contact_email' => (string) ($settings?->billing_contact_email ?? ''),
             'invoice_footer' => (string) ($settings?->invoice_footer ?? ''),
+            'kyc_required' => (bool) ($settings?->kyc_required ?? false),
+            'required_document_types' => $settings?->required_document_types ?? [
+                TenantKycDocumentType::IDENTITY_CARD->value,
+                TenantKycDocumentType::ADDRESS_PROOF->value,
+            ],
+            'require_expiry_date' => (bool) ($settings?->require_expiry_date ?? false),
+            'block_portal_until_verified' => (bool) ($settings?->block_portal_until_verified ?? false),
+            'block_invoice_download_until_verified' => (bool) ($settings?->block_invoice_download_until_verified ?? false),
+            'block_reading_submission_until_verified' => (bool) ($settings?->block_reading_submission_until_verified ?? false),
         ];
 
         $this->notificationForm = [
@@ -230,6 +246,14 @@ class Settings extends Page
     public function getDurationOptions(): array
     {
         return SubscriptionDuration::options();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getKycDocumentTypeOptions(): array
+    {
+        return TenantKycDocumentType::options();
     }
 
     protected function currentSubscription(Organization $organization): ?Subscription

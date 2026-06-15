@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Settings;
 
+use App\Enums\TenantKycDocumentType;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrganizationSettingsRequest extends FormRequest
 {
@@ -25,6 +27,13 @@ class UpdateOrganizationSettingsRequest extends FormRequest
             'organization_name' => ['required', 'string', 'max:255'],
             'billing_contact_email' => ['nullable', 'email', 'max:255'],
             'invoice_footer' => ['nullable', 'string'],
+            'kyc_required' => ['required', 'boolean'],
+            'required_document_types' => ['nullable', 'array'],
+            'required_document_types.*' => [Rule::enum(TenantKycDocumentType::class)],
+            'require_expiry_date' => ['required', 'boolean'],
+            'block_portal_until_verified' => ['required', 'boolean'],
+            'block_invoice_download_until_verified' => ['required', 'boolean'],
+            'block_reading_submission_until_verified' => ['required', 'boolean'],
         ];
     }
 
@@ -50,6 +59,12 @@ class UpdateOrganizationSettingsRequest extends FormRequest
             'organization_name',
             'billing_contact_email',
             'invoice_footer',
+            'kyc_required',
+            'required_document_types',
+            'require_expiry_date',
+            'block_portal_until_verified',
+            'block_invoice_download_until_verified',
+            'block_reading_submission_until_verified',
         ]);
     }
 
@@ -59,11 +74,20 @@ class UpdateOrganizationSettingsRequest extends FormRequest
             'organization_name',
             'billing_contact_email',
             'invoice_footer',
+            'required_document_types',
         ]);
 
         $this->emptyStringsToNull([
             'billing_contact_email',
             'invoice_footer',
+        ]);
+
+        $this->castBooleans([
+            'kyc_required',
+            'require_expiry_date',
+            'block_portal_until_verified',
+            'block_invoice_download_until_verified',
+            'block_reading_submission_until_verified',
         ]);
     }
 }

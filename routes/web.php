@@ -19,6 +19,7 @@ use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Superadmin\ExportRecentOrganizationsCsvEndpoint;
 use App\Livewire\Tenant\DownloadInvoiceEndpoint;
+use App\Livewire\Tenant\DownloadKycDocumentEndpoint;
 use App\Livewire\Tenant\DownloadRentalContractEndpoint;
 use App\Livewire\Tenant\DownloadTenantDocumentEndpoint;
 use App\Livewire\Tenant\ShowTenantAttachmentEndpoint;
@@ -108,6 +109,9 @@ Route::middleware('auth')
         Route::get('/documents/{tenantDocument}/download', [DownloadTenantDocumentEndpoint::class, 'download'])
             ->name('documents.download');
 
+        Route::get('/kyc-documents/{tenantKycDocument}/download', [DownloadKycDocumentEndpoint::class, 'download'])
+            ->name('kyc-documents.download');
+
         Route::middleware('tenant.only')->group(function (): void {
             Route::get('/', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'home')
@@ -121,6 +125,9 @@ Route::middleware('auth')
             Route::get('/documents', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'documents.index')
                 ->name('documents.index');
+            Route::get('/verification', [TenantPortalRouteEndpoint::class, 'show'])
+                ->defaults('destination', 'verification.show')
+                ->name('verification.show');
             Route::get('/property', [TenantPortalRouteEndpoint::class, 'show'])
                 ->defaults('destination', 'property.show')
                 ->name('property.show');

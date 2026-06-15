@@ -31,6 +31,12 @@ class OrganizationSettingFactory extends Factory
                 'tenant_submits_reading' => true,
                 'subscription_expiring' => true,
             ],
+            'kyc_required' => false,
+            'required_document_types' => null,
+            'require_expiry_date' => false,
+            'block_portal_until_verified' => false,
+            'block_invoice_download_until_verified' => false,
+            'block_reading_submission_until_verified' => false,
         ];
     }
 

@@ -10,6 +10,7 @@ enum AuditLogAction: string implements HasLabel
     use HasTranslatedLabel;
 
     case CREATED = 'created';
+    case VIEWED = 'viewed';
     case UPDATED = 'updated';
     case DELETED = 'deleted';
     case ARCHIVED = 'archived';

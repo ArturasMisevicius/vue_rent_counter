@@ -123,7 +123,7 @@ class AuditLogger
         $sanitized = [];
 
         foreach ($values as $key => $value) {
-            if (in_array($key, ['password', 'remember_token'], true)) {
+            if (in_array($key, ['password', 'remember_token', 'document_number_encrypted'], true)) {
                 continue;
             }
 

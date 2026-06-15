@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
+use App\Filament\Support\TenantKyc\TenantKycGate;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\User;
 use Filament\Pages\Page;
@@ -38,9 +39,19 @@ abstract class TenantPortalPage extends Page
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        $canAccessPortal = $user instanceof User
             && (app(WorkspaceResolver::class)->current()?->isTenant() ?? false)
             && Gate::forUser($user)->allows('accessTenantPortal', $user);
+
+        if (! $canAccessPortal) {
+            return false;
+        }
+
+        if (static::class === TenantVerification::class || static::class === Profile::class || static::class === TenantHelp::class) {
+            return true;
+        }
+
+        return ! app(TenantKycGate::class)->blocksPortal($user);
     }
 
     public static function getNavigationGroup(): ?string

@@ -20,6 +20,24 @@ it('formats staged name-status lines into readable changelog bullets', function 
     ]);
 });
 
+it('formats staged name-status lines into Russian changelog bullets', function () {
+    $updater = new GitChangelogUpdater;
+
+    expect($updater->formatNameStatusLines([
+        "M\tapp/Filament/Resources/Organizations/RelationManagers/UsersRelationManager.php",
+        "A\t.codex/hooks/auto-changelog-commit-push.sh",
+        "D\told/file.php",
+        "R100\told/path.php\tnew/path.php",
+        "M\tCHANGELOG.md",
+        '',
+    ], 'ru'))->toBe([
+        '- обновлен `app/Filament/Resources/Organizations/RelationManagers/UsersRelationManager.php`',
+        '- добавлен `.codex/hooks/auto-changelog-commit-push.sh`',
+        '- удален `old/file.php`',
+        '- переименован `old/path.php` в `new/path.php`',
+    ]);
+});
+
 it('creates todays changelog section with a pending entry block', function () {
     $updater = new GitChangelogUpdater;
 

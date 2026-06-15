@@ -125,6 +125,13 @@ class TenantDashboard extends Component
             'empty_state_description' => __('tenant.pages.home.unassigned_description'),
             'recent_readings' => [],
             'recent_reading_groups' => [],
+            'kyc_verification' => [
+                'required' => false,
+                'status' => null,
+                'status_label' => __('dashboard.not_available'),
+                'message' => __('tenant.pages.home.kyc_not_required'),
+                'url' => route('filament.admin.pages.tenant-verification'),
+            ],
         ];
     }
 

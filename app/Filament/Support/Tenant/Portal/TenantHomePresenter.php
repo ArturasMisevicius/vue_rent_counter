@@ -3,16 +3,19 @@
 namespace App\Filament\Support\Tenant\Portal;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\TenantKycProfileStatus;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Formatting\EuMoneyFormatter;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Formatting\LocalizedNumberFormatter;
 use App\Filament\Support\Formatting\MeasurementFormatter;
+use App\Filament\Support\TenantKyc\TenantKycSettings;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
+use App\Models\TenantKycProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -23,6 +26,7 @@ class TenantHomePresenter
         protected DashboardCacheService $dashboardCacheService,
         protected WorkspaceResolver $workspaceResolver,
         protected TenantMeterNameLocalizer $meterNameLocalizer,
+        protected TenantKycSettings $tenantKycSettings,
     ) {}
 
     /**
@@ -180,6 +184,47 @@ class TenantHomePresenter
             'empty_state_description' => __('tenant.pages.home.unassigned_description'),
             'recent_readings' => $formattedRecentReadings,
             'recent_reading_groups' => $recentReadingGroups,
+            'kyc_verification' => $this->kycVerificationSummary($tenant, $organizationId),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function kycVerificationSummary(User $tenant, int $organizationId): array
+    {
+        $requiredTypes = $this->tenantKycSettings->requiredDocumentTypes($organizationId);
+
+        if ($requiredTypes === []) {
+            return [
+                'required' => false,
+                'status' => TenantKycProfileStatus::DISABLED,
+                'status_label' => TenantKycProfileStatus::DISABLED->label(),
+                'message' => __('tenant.pages.home.kyc_not_required'),
+                'url' => route('filament.admin.pages.tenant-verification'),
+            ];
+        }
+
+        $profile = TenantKycProfile::query()
+            ->select(['id', 'organization_id', 'tenant_id', 'status', 'rejection_reason', 'expires_at'])
+            ->forOrganization($organizationId)
+            ->forTenant((int) $tenant->id)
+            ->first();
+
+        $status = $profile?->status ?? TenantKycProfileStatus::NOT_STARTED;
+
+        return [
+            'required' => true,
+            'status' => $status,
+            'status_label' => $status->label(),
+            'message' => match ($status) {
+                TenantKycProfileStatus::VERIFIED => __('tenant.pages.home.kyc_verified'),
+                TenantKycProfileStatus::REJECTED => __('tenant.pages.home.kyc_rejected'),
+                TenantKycProfileStatus::EXPIRED => __('tenant.pages.home.kyc_expired'),
+                TenantKycProfileStatus::PENDING_REVIEW => __('tenant.pages.home.kyc_pending'),
+                default => trans_choice('tenant.pages.home.kyc_required', count($requiredTypes), ['count' => count($requiredTypes)]),
+            },
+            'url' => route('filament.admin.pages.tenant-verification'),
         ];
     }
 

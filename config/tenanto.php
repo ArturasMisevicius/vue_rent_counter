@@ -517,6 +517,11 @@ return [
                             'icon' => 'heroicon-m-document-duplicate',
                         ],
                         [
+                            'route' => 'filament.admin.pages.tenant-verification',
+                            'label' => 'tenant.navigation.verification',
+                            'icon' => 'heroicon-m-identification',
+                        ],
+                        [
                             'route' => 'filament.admin.pages.tenant-help',
                             'label' => 'help.navigation.tenant',
                             'icon' => 'heroicon-m-question-mark-circle',

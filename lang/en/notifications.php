@@ -65,6 +65,16 @@ return [
         'expires_soon_title' => 'Document expires soon',
         'expires_soon_body' => ':title expires in :days days.',
     ],
+    'tenant_kyc' => [
+        'approved_title' => 'Verification approved',
+        'approved_body' => 'Your profile verification has been approved.',
+        'rejected_title' => 'Verification rejected',
+        'rejected_body' => 'Your profile verification needs changes before it can be approved.',
+        'expires_soon_title' => 'Verification document expires soon',
+        'expires_soon_body' => ':type expires in :days days.',
+        'replacement_required_title' => 'Replacement required',
+        'replacement_required_body' => ':type needs to be replaced before verification can continue.',
+    ],
     'domain' => [
         'invoice_created' => [
             'title' => 'Draft invoice :number created',

@@ -40,7 +40,7 @@ final class GitChangelogUpdater
      * @param  array<int, string>  $lines
      * @return array<int, string>
      */
-    public function formatNameStatusLines(array $lines): array
+    public function formatNameStatusLines(array $lines, string $language = 'en'): array
     {
         $changes = [];
 
@@ -62,7 +62,9 @@ final class GitChangelogUpdater
                     continue;
                 }
 
-                $changes[] = sprintf('- renamed `%s` to `%s`', $from, $to);
+                $changes[] = $language === 'ru'
+                    ? sprintf('- переименован `%s` в `%s`', $from, $to)
+                    : sprintf('- renamed `%s` to `%s`', $from, $to);
 
                 continue;
             }
@@ -73,11 +75,7 @@ final class GitChangelogUpdater
                 continue;
             }
 
-            $verb = match ($kind) {
-                'A' => 'added',
-                'D' => 'removed',
-                default => 'updated',
-            };
+            $verb = $this->verbFor($kind, $language);
 
             $changes[] = sprintf('- %s `%s`', $verb, $path);
         }
@@ -99,6 +97,23 @@ final class GitChangelogUpdater
             implode("\n", $changes),
             $entryId,
         );
+    }
+
+    private function verbFor(string $kind, string $language): string
+    {
+        if ($language === 'ru') {
+            return match ($kind) {
+                'A' => 'добавлен',
+                'D' => 'удален',
+                default => 'обновлен',
+            };
+        }
+
+        return match ($kind) {
+            'A' => 'added',
+            'D' => 'removed',
+            default => 'updated',
+        };
     }
 
     private function insertEntry(string $markdown, string $date, string $block): string

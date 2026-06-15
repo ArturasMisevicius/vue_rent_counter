@@ -199,6 +199,16 @@ class Organization extends Model
         return $this->hasOne(OrganizationSetting::class);
     }
 
+    public function tenantKycProfiles(): HasMany
+    {
+        return $this->hasMany(TenantKycProfile::class);
+    }
+
+    public function tenantKycDocuments(): HasMany
+    {
+        return $this->hasMany(TenantKycDocument::class);
+    }
+
     public function buildings(): HasMany
     {
         return $this->hasMany(Building::class);

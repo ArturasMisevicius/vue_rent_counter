@@ -75,6 +75,22 @@
                 </p>
             </x-tenant.card>
 
+            <x-tenant.card>
+                <x-tenant.section-heading
+                    icon="heroicon-m-identification"
+                    icon-tone="white"
+                    :eyebrow="__('tenant.navigation.verification')"
+                    :title="$summary['kyc_verification']['status_label']"
+                    :description="$summary['kyc_verification']['message']"
+                />
+
+                <div class="mt-4">
+                    <x-tenant.action :href="$summary['kyc_verification']['url']" icon="heroicon-m-identification">
+                        {{ __('tenant.pages.verification.title') }}
+                    </x-tenant.action>
+                </div>
+            </x-tenant.card>
+
             @if ($summary['payment_guidance']['has_contact_details'])
                 <x-tenant.card>
                     <x-tenant.section-heading

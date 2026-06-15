@@ -292,7 +292,8 @@ class User extends Authenticatable implements FilamentUser
             ->withCurrentPropertySummary()
             ->withPaidInvoiceSummary()
             ->withTenantDeletionSummary()
-            ->withCount('tenantDocuments');
+            ->withCount('tenantDocuments')
+            ->withCount('tenantKycDocuments');
     }
 
     public function organization(): BelongsTo
@@ -404,6 +405,16 @@ class User extends Authenticatable implements FilamentUser
     public function tenantDocuments(): HasMany
     {
         return $this->hasMany(TenantDocument::class, 'tenant_id');
+    }
+
+    public function tenantKycProfile(): HasOne
+    {
+        return $this->hasOne(TenantKycProfile::class, 'tenant_id');
+    }
+
+    public function tenantKycDocuments(): HasMany
+    {
+        return $this->hasMany(TenantKycDocument::class, 'tenant_id');
     }
 
     public function submittedMeterReadings(): HasMany

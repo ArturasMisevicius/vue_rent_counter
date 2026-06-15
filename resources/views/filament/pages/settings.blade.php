@@ -40,6 +40,44 @@
             </section>
 
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-slate-950">{{ __('shell.settings.kyc.heading') }}</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.settings.kyc.description') }}</p>
+
+                <div class="mt-5 grid gap-4 md:grid-cols-2">
+                    @foreach ([
+                        'kyc_required',
+                        'require_expiry_date',
+                        'block_portal_until_verified',
+                        'block_invoice_download_until_verified',
+                        'block_reading_submission_until_verified',
+                    ] as $field)
+                        <label class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+                            <span>{{ __('shell.settings.kyc.fields.'.$field) }}</span>
+                            <input
+                                type="checkbox"
+                                wire:model="organizationForm.{{ $field }}"
+                                class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950"
+                            >
+                        </label>
+                    @endforeach
+
+                    <label class="space-y-2 text-sm font-medium text-slate-700 md:col-span-2">
+                        <span>{{ __('shell.settings.kyc.fields.required_document_types') }}</span>
+                        <select
+                            multiple
+                            wire:model="organizationForm.required_document_types"
+                            class="min-h-40 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
+                        >
+                            @foreach ($this->getKycDocumentTypeOptions() as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('organizationForm.required_document_types') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
+                    </label>
+                </div>
+            </section>
+
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 class="text-lg font-semibold text-slate-950">{{ __('shell.settings.notifications.heading') }}</h3>
                 <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.settings.notifications.description') }}</p>
 

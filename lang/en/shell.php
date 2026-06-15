@@ -206,6 +206,18 @@ return [
                 'billing_contact_email' => 'This email receives billing-related notifications.',
             ],
         ],
+        'kyc' => [
+            'heading' => 'KYC Verification',
+            'description' => 'Configure tenant verification requirements and the portal areas that should wait for verification.',
+            'fields' => [
+                'kyc_required' => 'Require KYC verification',
+                'required_document_types' => 'Required document types',
+                'require_expiry_date' => 'Require an expiry date on uploaded documents',
+                'block_portal_until_verified' => 'Block tenant portal until verified',
+                'block_invoice_download_until_verified' => 'Block invoice downloads until verified',
+                'block_reading_submission_until_verified' => 'Block reading submission until verified',
+            ],
+        ],
         'notifications' => [
             'heading' => 'Notification Preferences',
             'description' => 'Choose which operational emails admins should receive for this organization.',

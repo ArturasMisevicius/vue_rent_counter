@@ -10,6 +10,7 @@ use App\Enums\MeterReadingValidationStatus;
 use App\Enums\TenantStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
+use App\Filament\Support\TenantKyc\TenantKycGate;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest;
 use App\Models\Invoice;
@@ -28,6 +29,7 @@ class SubmitTenantReadingAction
         protected CreateMeterReadingAction $createMeterReadingAction,
         protected ValidateReadingValue $validateReadingValue,
         protected WorkspaceResolver $workspaceResolver,
+        protected TenantKycGate $tenantKycGate,
     ) {}
 
     /**
@@ -43,6 +45,10 @@ class SubmitTenantReadingAction
     ): MeterReading {
         if ($tenant->tenant_status === TenantStatus::MOVED_OUT) {
             throw new AuthorizationException(__('tenant.pages.readings.move_out_submissions_disabled'));
+        }
+
+        if ($this->tenantKycGate->blocksReadingSubmission($tenant)) {
+            throw new AuthorizationException(__('tenant.pages.verification.reading_submission_blocked'));
         }
 
         $workspace = $this->workspaceResolver->resolveFor($tenant);
