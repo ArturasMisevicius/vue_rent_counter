@@ -191,6 +191,14 @@ return [
         'rejected' => 'Rechazado',
         'void' => 'Anulado',
     ],
+    'meter_reading_status' => [
+        'draft' => 'Borrador',
+        'submitted' => 'Enviado',
+        'approved' => 'Aprobado',
+        'rejected' => 'Rechazado',
+        'corrected' => 'Corregido',
+        'voided' => 'Anulado',
+    ],
     'meter_status' => [
         'active' => 'Activo',
         'inactive' => 'Inactivo',

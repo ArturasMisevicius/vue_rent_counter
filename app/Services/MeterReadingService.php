@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Events\MeterReadingSubmitted;
@@ -44,7 +45,12 @@ final class MeterReadingService
                 'submitted_by_user_id' => $submittedBy?->id,
                 'reading_value' => $readingValue,
                 'reading_date' => $readingDate,
+                'current_value' => $readingValue,
                 'validation_status' => $validationStatus,
+                'status' => MeterReadingStatus::fromValidationStatus($validationStatus),
+                'submitted_at' => now(),
+                'approved_by_user_id' => $validationStatus === MeterReadingValidationStatus::VALID ? $submittedBy?->id : null,
+                'approved_at' => $validationStatus === MeterReadingValidationStatus::VALID ? now() : null,
                 'submission_method' => $submissionMethod,
                 'notes' => $notes,
             ]);

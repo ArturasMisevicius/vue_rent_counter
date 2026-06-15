@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\TenantMoveOut;
 
 use App\Enums\AuditLogAction;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingType;
 use App\Enums\MoveOutProcessStatus;
@@ -81,7 +82,12 @@ final class RecordFinalMoveOutReadings
                     'submitted_by_user_id' => $actor->id,
                     'reading_value' => $readingInput['reading_value'],
                     'reading_date' => $readingDate,
+                    'current_value' => $readingInput['reading_value'],
                     'validation_status' => $validation->status,
+                    'status' => MeterReadingStatus::fromValidationStatus($validation->status),
+                    'submitted_at' => now(),
+                    'approved_by_user_id' => $validation->status->value === 'valid' ? $actor->id : null,
+                    'approved_at' => $validation->status->value === 'valid' ? now() : null,
                     'submission_method' => MeterReadingSubmissionMethod::ADMIN_MANUAL,
                     'reading_type' => MeterReadingType::MOVE_OUT_FINAL,
                     'property_assignment_id' => $process->property_assignment_id,

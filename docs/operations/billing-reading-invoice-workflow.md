@@ -67,12 +67,14 @@ Manual run находится в Billing -> Periods: `Preview Draft Invoices` д
    - `total_amount = 0`;
    - `approval_metadata` хранит period, deadline, linked meters, expected services и required inputs.
 4. Tenant получает `InvoiceReadingRequestNotification` со ссылкой на форму показаний с `invoice=<id>`.
-5. Tenant открывает `Readings` только в контексте этого invoice request. `SubmitTenantReadingAction` дополнительно проверяет backend-уровнем, что invoice request открыт и принадлежит этому tenant/property/organization.
-6. После отправки `CompleteReadingRequestInvoiceAction` переводит invoice в `approval_status = readings_submitted`, сохраняет submitted reading ids и уведомляет billing reviewers.
-7. Админ или менеджер открывает `Billing Review Center`.
-8. Reviewer подтверждает, отклоняет, исправляет показания или запрашивает повторную отправку. `RequestReadingResubmission` возвращает invoice в `waiting_for_readings` и сохраняет tenant-visible comment.
-9. Когда blocking errors устранены, reviewer пересчитывает invoice из подтвержденных readings. Invoice остается `draft`, но получает `approval_status = ready_for_review`.
-10. Reviewer финализирует invoice. После финализации счет становится обычным tenant-visible invoice для просмотра, PDF/download и дальнейшей оплаты/отправки.
+5. Tenant открывает `Readings` только в контексте этого invoice request. `SubmitTenantReadingAction` дополнительно проверяет backend-уровнем, что invoice request открыт, связан с `billing_period_id`, не вышел за `reading_submission_deadline`, принадлежит этому tenant/property/organization и запрашивает именно этот meter.
+6. Каждое tenant-показание сохраняется как scoped inbox record: `organization_id`, `tenant_id`, `property_id`, `meter_id`, `billing_period_id`, `invoice_id`, `previous_value`, `current_value`, `consumption`, lifecycle `status`, submitter/reviewer timestamps and comments.
+7. После отправки `CompleteReadingRequestInvoiceAction` переводит invoice в `approval_status = readings_submitted`, сохраняет submitted reading ids и уведомляет billing reviewers.
+8. Админ или менеджер открывает `Billing Review Center`.
+9. Reviewer подтверждает, отклоняет, исправляет показания или запрашивает повторную отправку. Rejection требует tenant-visible comment; correction/void требуют reason. Каждое изменение пишет `meter_reading_versions` и audit/activity log.
+10. Approval/correction делает reading billable и запускает пересчет invoice lines. Submitted/rejected/voided readings не используются для invoice total.
+11. Когда blocking errors устранены, invoice остается `draft`, но получает `approval_status = ready_for_review`.
+12. Reviewer финализирует invoice. После финализации счет становится обычным tenant-visible invoice для просмотра, PDF/download и дальнейшей оплаты/отправки.
 
 ## Кто что делает
 
@@ -89,6 +91,7 @@ Manual run находится в Billing -> Periods: `Preview Draft Invoices` д
 | --- | --- | --- | --- |
 | Открыт запрос показаний | `draft` | `waiting_for_readings` | Tenant должен ввести показания по ссылке из уведомления. |
 | Tenant отправил показания | `draft` | `readings_submitted` | Показания ждут проверки billing reviewer. |
+| Reviewer отклонил показания | `draft` | `readings_rejected` | Tenant видит rejection comment и может заменить значение до deadline, пока reading не approved. |
 | Запрошена повторная отправка | `draft` | `waiting_for_readings` | Tenant должен заменить ошибочное показание. |
 | Расчет подготовлен | `draft` | `ready_for_review` | Строки счета посчитаны, reviewer может финализировать. |
 | Нет blocking errors и только fixed services | `draft` | `ready_for_review` | Tenant notification не нужна; reviewer может проверить fixed draft. |
@@ -98,14 +101,29 @@ Manual run находится в Billing -> Periods: `Preview Draft Invoices` д
 ## Запреты и гарантии
 
 - Tenant может отправить показания только для своего organization/property/tenant workspace.
-- Tenant action требует открытый `reading_request` invoice; прямой вызов без invoice rejected.
-- Повторное tenant-показание для того же счетчика в рамках invoice period блокируется.
-- Закрытый, чужой или уже обработанный invoice request не принимает новые показания.
+- Tenant action требует открытый `reading_request` invoice с `billing_period_id`; прямой вызов без invoice или без billing period rejected.
+- Для одного meter + tenant + property + billing period допускается только один active reading. До approval и до deadline tenant редактирует существующее submitted/rejected reading, а не создает вторую финансовую запись.
+- Закрытый, чужой, voided/corrected/approved или уже обработанный invoice request не принимает tenant edits.
+- `current_value` tenant-а не может быть ниже `previous_value`; admin/manager exception идет через correction с mandatory reason.
+- Tenant не может удалить financial reading record; admin/manager может void/correct только с reason.
 - Admin/manager review scoped to current organization.
 - Manager access depends on billing, invoices or meter readings edit permission.
 - Invoice нельзя финализировать с blocking errors: нет показания, нет предыдущего подтвержденного показания, показание rejected/pending, нет тарифа или совместимого счетчика.
-- Повторная отправка после `readings_submitted` должна проходить через `RequestReadingResubmission`, а не через создание нового свободного показания tenant-ом.
+- Повторная отправка после `readings_submitted` обновляет scoped inbox reading только если deadline не прошел и reading еще не approved.
 - Finalized invoice остается защищенным от произвольной правки; изменения должны идти через явные billing actions и audit trail.
+
+## MeterReading lifecycle
+
+| Status | Meaning | Invoice calculation |
+| --- | --- | --- |
+| `draft` | Internal draft, not ready for review. | Not used. |
+| `submitted` | Tenant submitted or edited value; reviewer must approve/reject/correct/void. | Not used. |
+| `approved` | Reviewer approved submitted value. | Used for invoice item calculation. |
+| `rejected` | Reviewer rejected value and left tenant-visible reason. | Not used. |
+| `corrected` | Reviewer changed value with mandatory correction reason. | Used for invoice item calculation. |
+| `voided` | Reviewer voided record with mandatory reason. | Not used. |
+
+`validation_status` remains as the numeric/anomaly validation signal (`valid`, `flagged`, `pending`, `rejected`, `void`) for compatibility, but invoice totals are built only from lifecycle `approved` or `corrected` readings.
 
 ## Где смотреть код
 
@@ -117,9 +135,11 @@ Manual run находится в Billing -> Periods: `Preview Draft Invoices` д
 - Console command: `app/Console/Commands/OpenReadingInvoiceCycleCommand.php`
 - Empty request invoice: `app/Services/Billing/InvoiceService.php`
 - Tenant submission: `app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php`
+- Batch tenant submission wrapper: `app/Filament/Actions/Tenant/Readings/SubmitTenantMeterReadings.php`
 - Request completion: `app/Filament/Actions/Tenant/Readings/CompleteReadingRequestInvoiceAction.php`
 - Review center: `app/Filament/Pages/BillingReviewCenter.php`
 - Review calculations: `app/Filament/Support/Admin/BillingReview/BuildBillingReviewForPeriod.php`
+- Reading review actions: `ApproveMeterReading`, `RejectMeterReading`, `CorrectMeterReading`, `VoidMeterReading`, `RecalculateInvoiceFromReadings`
 - Finalization: `app/Filament/Actions/Admin/BillingReview/ApproveInvoice.php`
 - Payment follow-up: `app/Actions/Billing`
 - Tenant portal read models: `app/Filament/Support/Tenant/Portal`

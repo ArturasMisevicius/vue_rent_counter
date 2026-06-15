@@ -52,7 +52,7 @@ final readonly class RecalculateInvoice
             $metadata = is_array($updatedInvoice->approval_metadata) ? $updatedInvoice->approval_metadata : [];
 
             $updatedInvoice->forceFill([
-                'approval_status' => $review->blockingErrors === [] ? 'ready_for_review' : 'needs_attention',
+                'approval_status' => $review->blockingErrors === [] ? 'ready_for_review' : 'configuration_error',
                 'approval_metadata' => [
                     ...$metadata,
                     'billing_review_recalculated_at' => now()->toISOString(),

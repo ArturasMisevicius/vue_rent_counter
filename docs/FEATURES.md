@@ -127,10 +127,13 @@ Tenanto now uses an invoice-driven meter-reading cycle:
 4. Metered drafts receive `automation_level = reading_request` and `approval_status = waiting_for_readings`; fixed-only drafts receive `approval_status = ready_for_review`; configuration errors receive `approval_status = configuration_error`.
 5. Tenants receive `InvoiceReadingRequestNotification` only when the invoice is ready for readings. Missing tariffs or other blocking configuration errors prevent tenant notification.
 6. Admins and managers can preview or manually generate from Billing Periods; both manual and scheduled runs use the same action and write Billing Generation Logs.
-7. `CompleteReadingRequestInvoiceAction` marks submitted reading requests as `readings_submitted`.
-8. Billing reviewers use Billing Review Center to approve, reject, correct, request resubmission, prepare invoice lines, and finalize invoices.
-9. Finalized invoices become tenant-visible and can be downloaded or emailed.
-10. Payment proof, confirmation, rejection, voiding, overdue marking, and reminders are handled through billing actions and notifications.
+7. Tenant readings are scoped to tenant, property, meter, billing period, and invoice; duplicate active readings for the same tenant/property/meter/period are prevented.
+8. Tenants can edit a submitted/rejected reading before the deadline and before approval; approved/corrected/voided readings are locked from tenant edits.
+9. `CompleteReadingRequestInvoiceAction` marks submitted reading requests as `readings_submitted`.
+10. Billing reviewers use Billing Review Center to approve, reject, correct, void, request resubmission, prepare invoice lines, and finalize invoices. Rejections and corrections require reasons and create version history.
+11. Only approved or corrected readings update invoice line calculation; submitted, rejected, and voided readings do not affect invoice totals.
+12. Finalized invoices become tenant-visible and can be downloaded or emailed.
+13. Payment proof, confirmation, rejection, voiding, overdue marking, and reminders are handled through billing actions and notifications.
 
 Additional billing features:
 

@@ -14,6 +14,7 @@ use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
 use App\Filament\Actions\Admin\Invoices\SaveInvoiceDraftAction;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Livewire\Tenant\SubmitReadingPage;
+use App\Models\BillingPeriod;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -33,6 +34,34 @@ use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
 
+function createBillingModuleReadingRequestInvoice(object $tenant): Invoice
+{
+    $billingPeriod = BillingPeriod::factory()
+        ->for($tenant->organization)
+        ->create([
+            'starts_at' => now()->startOfMonth()->toDateString(),
+            'ends_at' => now()->endOfMonth()->toDateString(),
+            'reading_submission_deadline' => now()->addDays(14)->toDateString(),
+            'payment_due_date' => now()->addDays(14)->toDateString(),
+        ]);
+
+    return Invoice::factory()
+        ->for($tenant->organization)
+        ->for($tenant->property)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_id' => $billingPeriod->id,
+            'billing_period_start' => $billingPeriod->starts_at?->toDateString(),
+            'billing_period_end' => $billingPeriod->ends_at?->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'finalized_at' => null,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'pending',
+            'approval_metadata' => ['workflow' => 'meter_reading_request'],
+        ]);
+}
+
 it('creates a meter reading record from the tenant submission flow with valid data', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
@@ -41,17 +70,7 @@ it('creates a meter reading record from the tenant submission flow with valid da
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = Invoice::factory()
-        ->for($tenant->organization)
-        ->for($tenant->property)
-        ->for($tenant->user, 'tenant')
-        ->create([
-            'status' => InvoiceStatus::DRAFT,
-            'finalized_at' => null,
-            'automation_level' => 'reading_request',
-            'approval_status' => 'pending',
-            'approval_metadata' => ['workflow' => 'meter_reading_request'],
-        ]);
+    $invoice = createBillingModuleReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
@@ -78,17 +97,7 @@ it('fails tenant submission validation when the reading value is lower than the 
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = Invoice::factory()
-        ->for($tenant->organization)
-        ->for($tenant->property)
-        ->for($tenant->user, 'tenant')
-        ->create([
-            'status' => InvoiceStatus::DRAFT,
-            'finalized_at' => null,
-            'automation_level' => 'reading_request',
-            'approval_status' => 'pending',
-            'approval_metadata' => ['workflow' => 'meter_reading_request'],
-        ]);
+    $invoice = createBillingModuleReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
@@ -108,17 +117,7 @@ it('fails tenant submission validation when the reading date is in the future', 
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = Invoice::factory()
-        ->for($tenant->organization)
-        ->for($tenant->property)
-        ->for($tenant->user, 'tenant')
-        ->create([
-            'status' => InvoiceStatus::DRAFT,
-            'finalized_at' => null,
-            'automation_level' => 'reading_request',
-            'approval_status' => 'pending',
-            'approval_metadata' => ['workflow' => 'meter_reading_request'],
-        ]);
+    $invoice = createBillingModuleReadingRequestInvoice($tenant);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])

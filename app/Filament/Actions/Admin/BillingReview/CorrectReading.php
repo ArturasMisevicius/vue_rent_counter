@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\BillingReview;
 
 use App\Enums\AuditLogAction;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Support\Audit\AuditLogger;
+use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\MeterReadingAudit;
 use App\Models\User;
@@ -21,6 +23,7 @@ final readonly class CorrectReading
     public function __construct(
         private UniversalBillingCalculator $calculator,
         private AuditLogger $auditLogger,
+        private RecalculateInvoice $recalculateInvoice,
     ) {}
 
     /**
@@ -51,17 +54,33 @@ final readonly class CorrectReading
 
         $this->guardNegativeConsumption($reading, $value, $date, (bool) ($data['confirm_negative_consumption'] ?? false));
 
-        return DB::transaction(function () use ($reading, $actor, $reason, $value, $date): MeterReading {
+        $correctedReading = DB::transaction(function () use ($reading, $actor, $reason, $value, $date): MeterReading {
+            $previousReading = $this->previousReading($reading, $date);
             $before = [
                 'reading_value' => $reading->reading_value,
                 'reading_date' => $reading->reading_date?->toDateString(),
                 'validation_status' => $reading->validation_status?->value,
+                'status' => $reading->status?->value,
             ];
 
             $reading->update([
                 'reading_value' => $value,
                 'reading_date' => $date,
+                'previous_value' => $previousReading?->current_value ?? $previousReading?->reading_value,
+                'current_value' => $value,
+                'consumption' => $previousReading instanceof MeterReading
+                    ? $this->calculator->quantity($this->calculator->subtract($value, $previousReading->current_value ?? $previousReading->reading_value, 3))
+                    : null,
                 'validation_status' => MeterReadingValidationStatus::VALID,
+                'status' => MeterReadingStatus::CORRECTED,
+                'corrected_by_user_id' => $actor?->id,
+                'correction_reason' => $reason,
+                'approved_by_user_id' => $actor?->id,
+                'approved_at' => now(),
+                'rejected_by_user_id' => null,
+                'rejected_at' => null,
+                'rejection_reason' => null,
+                'voided_at' => null,
                 'notes' => $this->mergeNotes($reading->notes, $reason),
             ]);
 
@@ -73,7 +92,8 @@ final readonly class CorrectReading
                 'change_reason' => $reason,
             ]);
 
-            $freshReading = $reading->fresh(['submittedBy:id,name,email,role']);
+            $freshReading = $reading->fresh(['invoice', 'submittedBy:id,name,email,role']);
+            $freshReading->recordVersion('corrected', $actor, $reason);
 
             $this->auditLogger->record(
                 AuditLogAction::UPDATED,
@@ -86,6 +106,7 @@ final readonly class CorrectReading
                         'reading_value' => $freshReading->reading_value,
                         'reading_date' => $freshReading->reading_date?->toDateString(),
                         'validation_status' => $freshReading->validation_status?->value,
+                        'status' => $freshReading->status?->value,
                     ],
                 ],
                 $actor?->id,
@@ -98,19 +119,17 @@ final readonly class CorrectReading
 
             return $freshReading;
         });
+
+        if ($correctedReading->invoice instanceof Invoice) {
+            $this->recalculateInvoice->handle($correctedReading->invoice, $actor);
+        }
+
+        return $correctedReading->fresh(['invoice', 'submittedBy:id,name,email,role']);
     }
 
     private function guardNegativeConsumption(MeterReading $reading, string|int|float $value, string $date, bool $confirmed): void
     {
-        $previous = MeterReading::query()
-            ->select(['id', 'organization_id', 'property_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
-            ->forOrganization($reading->organization_id)
-            ->forMeter($reading->meter_id)
-            ->where('id', '!=', $reading->id)
-            ->where('validation_status', MeterReadingValidationStatus::VALID)
-            ->beforeDate($date)
-            ->latestFirst()
-            ->first();
+        $previous = $this->previousReading($reading, $date);
 
         if (! $previous instanceof MeterReading) {
             return;
@@ -125,6 +144,19 @@ final readonly class CorrectReading
         throw ValidationException::withMessages([
             'reading_value' => __('admin.billing_review.errors.negative_consumption_confirmation_required'),
         ]);
+    }
+
+    private function previousReading(MeterReading $reading, string $date): ?MeterReading
+    {
+        return MeterReading::query()
+            ->select(['id', 'organization_id', 'property_id', 'meter_id', 'reading_value', 'current_value', 'reading_date', 'validation_status', 'status'])
+            ->forOrganization($reading->organization_id)
+            ->forMeter($reading->meter_id)
+            ->where('id', '!=', $reading->id)
+            ->where('validation_status', MeterReadingValidationStatus::VALID)
+            ->beforeDate($date)
+            ->latestFirst()
+            ->first();
     }
 
     private function mergeNotes(?string ...$notes): string

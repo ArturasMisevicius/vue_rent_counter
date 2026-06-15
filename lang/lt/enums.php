@@ -191,6 +191,14 @@ return [
         'rejected' => 'Atmesta',
         'void' => 'Anuliuota',
     ],
+    'meter_reading_status' => [
+        'draft' => 'Juodraštis',
+        'submitted' => 'Pateikta',
+        'approved' => 'Patvirtinta',
+        'rejected' => 'Atmesta',
+        'corrected' => 'Pakoreguota',
+        'voided' => 'Anuliuota',
+    ],
     'meter_status' => [
         'active' => 'Aktyvus',
         'inactive' => 'Neaktyvus',

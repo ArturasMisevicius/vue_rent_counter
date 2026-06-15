@@ -234,6 +234,14 @@ return [
         'rejected' => 'Rejected',
         'void' => 'Void',
     ],
+    'meter_reading_status' => [
+        'draft' => 'Draft',
+        'submitted' => 'Submitted',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        'corrected' => 'Corrected',
+        'voided' => 'Voided',
+    ],
     'meter_status' => [
         'active' => 'Active',
         'inactive' => 'Inactive',

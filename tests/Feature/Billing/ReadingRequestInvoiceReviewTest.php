@@ -6,9 +6,9 @@ use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Filament\Actions\Admin\BillingReview\ApproveReading;
 use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
 use App\Filament\Actions\Admin\Invoices\OpenReadingInvoiceCycleAction;
-use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -34,7 +34,7 @@ afterEach(function (): void {
     Carbon::setTestNow();
 });
 
-it('prepares a submitted reading request draft from tenant readings for admin review', function (): void {
+it('prepares an approved reading request draft from tenant readings for admin review', function (): void {
     Carbon::setTestNow('2026-05-31 12:00:00');
     Notification::fake();
 
@@ -128,11 +128,14 @@ it('prepares a submitted reading request draft from tenant readings for admin re
 
     expect($invoice->fresh()->approval_status)->toBe('readings_submitted');
 
-    Livewire::actingAs($admin)
-        ->test(EditInvoice::class, ['record' => $invoice->id])
-        ->assertActionVisible('prepareFromReadings')
-        ->callAction('prepareFromReadings')
-        ->assertHasNoActionErrors();
+    $this->actingAs($admin);
+
+    $reading = MeterReading::query()
+        ->where('invoice_id', $invoice->id)
+        ->where('meter_id', $meter->id)
+        ->firstOrFail();
+
+    app(ApproveReading::class)->handle($reading, $admin);
 
     $preparedInvoice = $invoice->fresh(['invoiceItems', 'billingRecords']);
 
@@ -140,9 +143,8 @@ it('prepares a submitted reading request draft from tenant readings for admin re
         ->and($preparedInvoice->approval_status)->toBe('ready_for_review')
         ->and((float) $preparedInvoice->total_amount)->toBe(50.0)
         ->and($preparedInvoice->invoiceItems)->toHaveCount(1)
-        ->and($preparedInvoice->billingRecords)->toHaveCount(1)
-        ->and($preparedInvoice->approval_metadata['prepared_by_user_id'] ?? null)->toBe($admin->id)
-        ->and($preparedInvoice->approval_metadata['prepared_invoice_item_count'] ?? null)->toBe(1);
+        ->and($preparedInvoice->approval_metadata['billing_review_recalculated_by_user_id'] ?? null)->toBe($admin->id)
+        ->and($preparedInvoice->approval_metadata['billing_review_blocking_errors'] ?? null)->toBe([]);
 
     $this->actingAs($admin);
 

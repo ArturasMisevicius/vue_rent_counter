@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\Invoices;
 
 use App\Enums\InvoiceItemSourceType;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Support\Admin\BillingIntegrity\BillingIntegrityIssue;
 use App\Filament\Support\Admin\BillingIntegrity\DetectBillingDuplicates;
@@ -143,12 +144,13 @@ final class InvoiceApprovalValidator
     ): void {
         foreach (['start', 'end'] as $side) {
             $status = (string) data_get($meterSnapshot, "{$side}.validation_status", '');
+            $lifecycleStatus = (string) data_get($meterSnapshot, "{$side}.status", '');
 
-            if ($status === MeterReadingValidationStatus::PENDING->value) {
+            if ($status === MeterReadingValidationStatus::PENDING->value || $lifecycleStatus === MeterReadingStatus::SUBMITTED->value) {
                 $blockingErrors[] = $this->issue(__('admin.invoices.validation.unapproved_readings'), $index);
             }
 
-            if ($status === MeterReadingValidationStatus::REJECTED->value) {
+            if ($status === MeterReadingValidationStatus::REJECTED->value || $lifecycleStatus === MeterReadingStatus::REJECTED->value) {
                 $blockingErrors[] = $this->issue(__('admin.invoices.validation.rejected_readings'), $index);
             }
 
@@ -188,25 +190,40 @@ final class InvoiceApprovalValidator
             return;
         }
 
-        $statuses = MeterReading::query()
-            ->select(['id', 'validation_status'])
+        $readings = MeterReading::query()
+            ->select(['id', 'validation_status', 'status'])
             ->where('organization_id', $invoice->organization_id)
             ->where('property_id', $invoice->property_id)
-            ->betweenDates($invoice->billing_period_start, $invoice->billing_period_end)
-            ->whereIn('validation_status', [
-                MeterReadingValidationStatus::PENDING->value,
-                MeterReadingValidationStatus::REJECTED->value,
-            ])
-            ->get()
+            ->where(function ($query) use ($invoice): void {
+                $query
+                    ->where('invoice_id', $invoice->id)
+                    ->when(
+                        $invoice->billing_period_id !== null,
+                        fn ($periodQuery) => $periodQuery->orWhere('billing_period_id', $invoice->billing_period_id),
+                    )
+                    ->orWhere(function ($dateQuery) use ($invoice): void {
+                        $dateQuery
+                            ->whereNull('invoice_id')
+                            ->whereNull('billing_period_id')
+                            ->betweenDates($invoice->billing_period_start, $invoice->billing_period_end);
+                    });
+            })
+            ->get();
+
+        $statuses = $readings
             ->pluck('validation_status')
             ->map(fn (MeterReadingValidationStatus|string $status): string => $status instanceof MeterReadingValidationStatus ? $status->value : (string) $status)
             ->all();
+        $lifecycleStatuses = $readings
+            ->pluck('status')
+            ->map(fn (MeterReadingStatus|string $status): string => $status instanceof MeterReadingStatus ? $status->value : (string) $status)
+            ->all();
 
-        if (in_array(MeterReadingValidationStatus::PENDING->value, $statuses, true)) {
+        if (in_array(MeterReadingValidationStatus::PENDING->value, $statuses, true) || in_array(MeterReadingStatus::SUBMITTED->value, $lifecycleStatuses, true)) {
             $blockingErrors[] = $this->issue(__('admin.invoices.validation.unapproved_readings'));
         }
 
-        if (in_array(MeterReadingValidationStatus::REJECTED->value, $statuses, true)) {
+        if (in_array(MeterReadingValidationStatus::REJECTED->value, $statuses, true) || in_array(MeterReadingStatus::REJECTED->value, $lifecycleStatuses, true)) {
             $blockingErrors[] = $this->issue(__('admin.invoices.validation.rejected_readings'));
         }
     }

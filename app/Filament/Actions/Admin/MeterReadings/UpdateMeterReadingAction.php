@@ -2,6 +2,7 @@
 
 namespace App\Filament\Actions\Admin\MeterReadings;
 
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
 use App\Http\Requests\Admin\MeterReadings\UpdateMeterReadingRequest;
@@ -34,7 +35,9 @@ class UpdateMeterReadingAction
         $meterReading->update([
             'reading_value' => $validated['reading_value'],
             'reading_date' => $validated['reading_date'],
+            'current_value' => $validated['reading_value'],
             'validation_status' => $validation->status,
+            'status' => MeterReadingStatus::fromValidationStatus($validation->status),
             'submission_method' => $validated['submission_method'],
             'notes' => $this->mergeNotes($validated['notes'], $validation->notesAsText()),
         ]);

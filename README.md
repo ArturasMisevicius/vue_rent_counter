@@ -125,11 +125,13 @@ The current billing workflow is invoice-driven:
 
 1. Admin or authorized manager opens a reading cycle.
 2. Tenanto creates `reading_request` draft invoices for eligible tenant/property assignments.
-3. Tenants submit readings only in the context of an open request invoice.
-4. Billing reviewers approve, reject, correct, or request resubmission.
-5. Approved readings prepare invoice line items.
-6. A reviewer finalizes and sends the invoice.
-7. Payment proof, payment confirmation/rejection, reminders, and overdue handling run through action classes and notifications.
+3. Tenants submit readings only in the context of an open request invoice and billing period.
+4. Each reading is scoped to tenant, property, meter, billing period, and invoice, with previous/current value, consumption, lifecycle status, and version history.
+5. Tenants may edit submitted or rejected readings before the deadline and before approval; approved, corrected, and voided readings are locked.
+6. Billing reviewers approve, reject, correct, void, or request resubmission with audit/version history.
+7. Only approved or corrected readings prepare invoice line items.
+8. A reviewer finalizes and sends the invoice.
+9. Payment proof, payment confirmation/rejection, reminders, and overdue handling run through action classes and notifications.
 
 See [docs/operations/billing-reading-invoice-workflow.md](docs/operations/billing-reading-invoice-workflow.md).
 

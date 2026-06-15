@@ -258,7 +258,7 @@ class BillingReviewCenter extends Page
     private function invoice(int $invoiceId): Invoice
     {
         return Invoice::query()
-            ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'automation_level', 'approval_metadata', 'updated_at'])
+            ->select(['id', 'organization_id', 'billing_period_id', 'property_id', 'tenant_user_id', 'invoice_number', 'billing_period_start', 'billing_period_end', 'status', 'currency', 'total_amount', 'due_date', 'items', 'approval_status', 'automation_level', 'approval_metadata', 'updated_at'])
             ->forOrganization($this->organization()->id)
             ->whereKey($invoiceId)
             ->firstOrFail();
@@ -267,7 +267,7 @@ class BillingReviewCenter extends Page
     private function reading(int $readingId): MeterReading
     {
         return MeterReading::query()
-            ->select(['id', 'organization_id', 'property_id', 'meter_id', 'submitted_by_user_id', 'reading_value', 'reading_date', 'validation_status', 'submission_method', 'notes', 'created_at', 'updated_at'])
+            ->select(['id', 'organization_id', 'billing_period_id', 'property_id', 'tenant_id', 'meter_id', 'submitted_by_user_id', 'reading_value', 'reading_date', 'previous_value', 'current_value', 'consumption', 'validation_status', 'status', 'submitted_at', 'approved_by_user_id', 'approved_at', 'rejected_by_user_id', 'rejected_at', 'rejection_reason', 'corrected_by_user_id', 'correction_reason', 'tenant_comment', 'voided_at', 'submission_method', 'invoice_id', 'notes', 'created_at', 'updated_at'])
             ->forOrganization($this->organization()->id)
             ->whereKey($readingId)
             ->firstOrFail();

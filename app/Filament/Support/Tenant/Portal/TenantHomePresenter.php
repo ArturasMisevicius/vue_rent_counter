@@ -310,6 +310,7 @@ class TenantHomePresenter
                 'property_id',
                 'tenant_user_id',
                 'invoice_number',
+                'billing_period_id',
                 'billing_period_start',
                 'billing_period_end',
                 'due_date',
@@ -324,7 +325,7 @@ class TenantHomePresenter
             ->forProperty($propertyId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending', 'readings_submitted', 'readings_rejected'])
             ->latest('created_at')
             ->first();
     }

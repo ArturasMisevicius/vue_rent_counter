@@ -6,6 +6,7 @@ namespace App\Filament\Support\Admin\BillingReview;
 
 use App\Enums\InvoiceItemSourceType;
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterStatus;
 use App\Enums\PricingModel;
@@ -45,6 +46,7 @@ final readonly class BuildBillingReviewForPeriod
             ->select([
                 'id',
                 'organization_id',
+                'billing_period_id',
                 'property_id',
                 'tenant_user_id',
                 'invoice_number',
@@ -95,7 +97,7 @@ final readonly class BuildBillingReviewForPeriod
         $organizationId = (int) $invoice->organization_id;
         $configurations = $this->serviceConfigurations($organizationId, $propertyId, $periodEnd);
         $meters = $this->meters($organizationId, $propertyId);
-        $readings = $this->periodReadings($organizationId, $propertyId, $periodStart, $periodEnd);
+        $readings = $this->periodReadings($organizationId, $propertyId, $periodStart, $periodEnd, $invoice);
         $previousReadings = $this->previousReadings($organizationId, $meters->pluck('id')->all(), $periodStart);
         $requiredMeterIds = [];
         $readingData = [];
@@ -359,26 +361,57 @@ final readonly class BuildBillingReviewForPeriod
         int $propertyId,
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
+        Invoice $invoice,
     ): Collection {
         return MeterReading::query()
             ->select([
                 'id',
                 'organization_id',
+                'billing_period_id',
                 'property_id',
+                'tenant_id',
                 'meter_id',
                 'submitted_by_user_id',
                 'reading_value',
                 'reading_date',
+                'previous_value',
+                'current_value',
+                'consumption',
                 'validation_status',
+                'status',
+                'submitted_at',
+                'approved_by_user_id',
+                'approved_at',
+                'rejected_by_user_id',
+                'rejected_at',
+                'rejection_reason',
+                'corrected_by_user_id',
+                'correction_reason',
+                'tenant_comment',
+                'voided_at',
                 'submission_method',
+                'invoice_id',
                 'notes',
                 'created_at',
                 'updated_at',
             ])
             ->forOrganization($organizationId)
             ->forProperty($propertyId)
-            ->whereDate('reading_date', '>=', $periodStart->toDateString())
-            ->whereDate('reading_date', '<=', $periodEnd->toDateString())
+            ->where(function (Builder $query) use ($invoice, $periodStart, $periodEnd): void {
+                $query
+                    ->where('invoice_id', $invoice->id)
+                    ->when(
+                        $invoice->billing_period_id !== null,
+                        fn (Builder $periodQuery): Builder => $periodQuery->orWhere('billing_period_id', $invoice->billing_period_id),
+                    )
+                    ->orWhere(function (Builder $dateQuery) use ($periodStart, $periodEnd): void {
+                        $dateQuery
+                            ->whereNull('invoice_id')
+                            ->whereNull('billing_period_id')
+                            ->whereDate('reading_date', '>=', $periodStart->toDateString())
+                            ->whereDate('reading_date', '<=', $periodEnd->toDateString());
+                    });
+            })
             ->with([
                 'meter:id,organization_id,property_id,name,identifier,type,unit',
                 'submittedBy:id,name,email',
@@ -406,15 +439,17 @@ final readonly class BuildBillingReviewForPeriod
                 'meter_id',
                 'submitted_by_user_id',
                 'reading_value',
+                'current_value',
                 'reading_date',
                 'validation_status',
+                'status',
                 'created_at',
                 'updated_at',
             ])
             ->forOrganization($organizationId)
             ->whereIn('meter_id', $meterIds)
             ->beforeDate($periodStart)
-            ->where('validation_status', MeterReadingValidationStatus::VALID)
+            ->approvedForInvoiceCalculation()
             ->latestFirst()
             ->get()
             ->unique('meter_id')
@@ -435,7 +470,13 @@ final readonly class BuildBillingReviewForPeriod
     private function latestApprovedReading(Collection $readings): ?MeterReading
     {
         return $readings
-            ->first(fn (MeterReading $reading): bool => $reading->validation_status === MeterReadingValidationStatus::VALID);
+            ->first(fn (MeterReading $reading): bool => $this->readingIsApprovedForInvoice($reading));
+    }
+
+    private function readingIsApprovedForInvoice(MeterReading $reading): bool
+    {
+        return $reading->validation_status === MeterReadingValidationStatus::VALID
+            && in_array($reading->status?->value, MeterReadingStatus::invoiceCalculationValues(), true);
     }
 
     /**
@@ -492,13 +533,13 @@ final readonly class BuildBillingReviewForPeriod
             return ['blocking' => $blocking, 'warnings' => $warnings];
         }
 
-        if ($currentReading->validation_status === MeterReadingValidationStatus::REJECTED) {
+        if ($currentReading->status === MeterReadingStatus::REJECTED || $currentReading->validation_status === MeterReadingValidationStatus::REJECTED) {
             $blocking[] = __('admin.billing_review.errors.rejected_reading', [
                 'meter' => $meter->displayName(),
             ]);
         }
 
-        if ($currentReading->validation_status !== MeterReadingValidationStatus::VALID) {
+        if (! $this->readingIsApprovedForInvoice($currentReading)) {
             $blocking[] = __('admin.billing_review.errors.unapproved_reading', [
                 'meter' => $meter->displayName(),
             ]);
@@ -512,7 +553,11 @@ final readonly class BuildBillingReviewForPeriod
             return ['blocking' => $blocking, 'warnings' => $warnings];
         }
 
-        $consumption = $this->calculator->subtract($currentReading->reading_value, $previousReading->reading_value, 3);
+        $consumption = $this->calculator->subtract(
+            $currentReading->current_value ?? $currentReading->reading_value,
+            $previousReading->current_value ?? $previousReading->reading_value,
+            3,
+        );
 
         if ($this->calculator->compare($consumption, '0', 3) < 0) {
             $warnings[] = __('admin.billing_review.warnings.negative_consumption', [
@@ -539,15 +584,20 @@ final readonly class BuildBillingReviewForPeriod
 
         if ($currentReading instanceof MeterReading && $previousReading instanceof MeterReading) {
             $consumption = $this->calculator->quantity(
-                $this->calculator->subtract($currentReading->reading_value, $previousReading->reading_value, 3),
+                $this->calculator->subtract(
+                    $currentReading->current_value ?? $currentReading->reading_value,
+                    $previousReading->current_value ?? $previousReading->reading_value,
+                    3,
+                ),
             );
             $negativeConsumption = $this->calculator->compare($consumption, '0', 3) < 0;
         }
 
-        $status = $currentReading?->validation_status instanceof MeterReadingValidationStatus
-            ? $currentReading->validation_status->value
-            : 'missing';
+        $status = $this->readingDisplayStatus($currentReading);
+        $statusLabel = $this->readingDisplayStatusLabel($currentReading);
         $pendingReview = in_array($status, [
+            MeterReadingStatus::DRAFT->value,
+            MeterReadingStatus::SUBMITTED->value,
             MeterReadingValidationStatus::PENDING->value,
             MeterReadingValidationStatus::FLAGGED->value,
         ], true);
@@ -561,13 +611,13 @@ final readonly class BuildBillingReviewForPeriod
             meterIdentifier: $meter->identifier,
             meterUnit: $meter->unit,
             readingId: $currentReading?->id,
-            readingValue: $currentReading?->reading_value,
+            readingValue: $currentReading?->current_value ?? $currentReading?->reading_value,
             readingDate: $currentReading?->reading_date?->toDateString(),
-            previousReadingValue: $previousReading?->reading_value,
+            previousReadingValue: $previousReading?->current_value ?? $previousReading?->reading_value,
             previousReadingDate: $previousReading?->reading_date?->toDateString(),
             consumption: $consumption,
             status: $status,
-            statusLabel: $currentReading?->validation_status?->getLabel() ?? __('admin.billing_review.statuses.missing'),
+            statusLabel: $statusLabel,
             submittedBy: $currentReading?->submittedBy?->name,
             submittedAt: $currentReading?->created_at?->diffForHumans(),
             missing: $missing,
@@ -579,6 +629,40 @@ final readonly class BuildBillingReviewForPeriod
             warnings: $issues['warnings'],
             issueLabels: $this->readingIssueLabels($missing, $pendingReview, $negativeConsumption, $highConsumption, $strangeReading),
         );
+    }
+
+    private function readingDisplayStatus(?MeterReading $reading): string
+    {
+        if (! $reading instanceof MeterReading) {
+            return 'missing';
+        }
+
+        if (
+            $reading->status instanceof MeterReadingStatus
+            && in_array($reading->status, [MeterReadingStatus::APPROVED, MeterReadingStatus::CORRECTED], true)
+            && $reading->validation_status !== MeterReadingValidationStatus::VALID
+        ) {
+            return $reading->validation_status?->value ?? $reading->status->value;
+        }
+
+        return $reading->status?->value ?? $reading->validation_status?->value ?? 'missing';
+    }
+
+    private function readingDisplayStatusLabel(?MeterReading $reading): string
+    {
+        if (! $reading instanceof MeterReading) {
+            return __('admin.billing_review.statuses.missing');
+        }
+
+        if (
+            $reading->status instanceof MeterReadingStatus
+            && in_array($reading->status, [MeterReadingStatus::APPROVED, MeterReadingStatus::CORRECTED], true)
+            && $reading->validation_status !== MeterReadingValidationStatus::VALID
+        ) {
+            return (string) ($reading->validation_status?->getLabel() ?? $reading->status->getLabel());
+        }
+
+        return (string) ($reading->status?->getLabel() ?? $reading->validation_status?->getLabel() ?? __('admin.billing_review.statuses.missing'));
     }
 
     /**
@@ -630,8 +714,10 @@ final readonly class BuildBillingReviewForPeriod
         CarbonImmutable $periodStart,
         CarbonImmutable $periodEnd,
     ): array {
+        $currentValue = $currentReading->current_value ?? $currentReading->reading_value;
+        $previousValue = $previousReading->current_value ?? $previousReading->reading_value;
         $quantity = $this->calculator->quantity(
-            $this->calculator->subtract($currentReading->reading_value, $previousReading->reading_value, 3),
+            $this->calculator->subtract($currentValue, $previousValue, 3),
         );
         $total = $this->calculator->calculateFlatRateCharge($quantity, $pricing['unit_rate'], $pricing['base_fee']);
 
@@ -642,21 +728,23 @@ final readonly class BuildBillingReviewForPeriod
             'meter_name' => $meter->displayName(),
             'start' => [
                 'id' => $previousReading->id,
-                'reading_value' => $previousReading->reading_value,
+                'reading_value' => $previousValue,
                 'reading_date' => $previousReading->reading_date?->toDateString(),
                 'validation_status' => $previousReading->validation_status?->value,
+                'status' => $previousReading->status?->value,
             ],
             'end' => [
                 'id' => $currentReading->id,
-                'reading_value' => $currentReading->reading_value,
+                'reading_value' => $currentValue,
                 'reading_date' => $currentReading->reading_date?->toDateString(),
                 'validation_status' => $currentReading->validation_status?->value,
+                'status' => $currentReading->status?->value,
             ],
             'previous_reading_id' => $previousReading->id,
-            'previous_reading_value' => $previousReading->reading_value,
+            'previous_reading_value' => $previousValue,
             'previous_reading_date' => $previousReading->reading_date?->toDateString(),
             'current_reading_id' => $currentReading->id,
-            'current_reading_value' => $currentReading->reading_value,
+            'current_reading_value' => $currentValue,
             'current_reading_date' => $currentReading->reading_date?->toDateString(),
             'negative_consumption' => $negativeConsumption,
             'negative_consumption_confirmed' => $negativeConsumption,

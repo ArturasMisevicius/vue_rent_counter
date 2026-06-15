@@ -2,6 +2,20 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615105650 -->
+### Commit updates
+
+- Added: billing workflow and database schema or seed data.
+- Updated: documentation, billing workflow, move-out workflow, Filament admin workflow, Livewire UI workflow, localization behavior, and project automation.
+<!-- changelog:auto:end:staged-20260615105650 -->
+
+### Tenant Readings Inbox
+
+- Added a scoped tenant readings inbox tied to invoice billing periods, with tenant/property/meter/period/invoice linkage, previous/current values, consumption, lifecycle status, reviewer timestamps, tenant comments, and version history.
+- Allowed tenants to edit submitted or rejected readings before the deadline and before approval, while preventing duplicate active readings and locking approved, corrected, or voided records.
+- Updated admin review so approvals, rejections, corrections, and voids write lifecycle status, mandatory reasons where required, audit/version records, and invoice recalculation from approved/corrected readings only.
+- Documented the invoice-driven readings workflow, lifecycle statuses, and approval-only invoice calculation rules.
+
 <!-- changelog:auto:start:staged-20260615092151 -->
 ### Commit updates
 

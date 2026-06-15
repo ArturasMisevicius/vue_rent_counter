@@ -138,6 +138,7 @@ final class CompleteReadingRequestInvoiceAction
                 'property_id',
                 'tenant_user_id',
                 'invoice_number',
+                'billing_period_id',
                 'billing_period_start',
                 'billing_period_end',
                 'status',
@@ -151,7 +152,7 @@ final class CompleteReadingRequestInvoiceAction
             ->forTenant($tenantId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->whereIn('approval_status', ['waiting_for_readings', 'pending']);
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending', 'readings_submitted', 'readings_rejected']);
     }
 
     /**
@@ -165,7 +166,8 @@ final class CompleteReadingRequestInvoiceAction
                 && $reading->id !== null
                 && (int) $reading->organization_id === (int) $invoice->organization_id
                 && (int) $reading->property_id === (int) $invoice->property_id
-                && (int) $reading->submitted_by_user_id === (int) $tenant->id)
+                && ((int) $reading->tenant_id === (int) $tenant->id
+                    || (int) $reading->submitted_by_user_id === (int) $tenant->id))
             ->map(fn (MeterReading $reading): int => (int) $reading->id)
             ->unique()
             ->values()

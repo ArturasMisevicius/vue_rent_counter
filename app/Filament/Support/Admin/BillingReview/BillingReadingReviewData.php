@@ -38,7 +38,7 @@ final readonly class BillingReadingReviewData
 
     public function isApproved(): bool
     {
-        return $this->status === 'valid';
+        return in_array($this->status, ['approved', 'corrected'], true);
     }
 
     /**

@@ -1,10 +1,13 @@
 <?php
 
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterType;
+use App\Filament\Actions\Admin\BillingReview\ApproveReading;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\SubmitReadingPage;
+use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\ManagerPermission;
 use App\Models\Meter;
@@ -24,15 +27,29 @@ uses(RefreshDatabase::class);
 
 function createTenantReadingRequestInvoice(TenantPortalFixture $tenant, array $attributes = []): Invoice
 {
+    $periodStart = (string) ($attributes['billing_period_start'] ?? now()->startOfMonth()->toDateString());
+    $periodEnd = (string) ($attributes['billing_period_end'] ?? now()->endOfMonth()->toDateString());
+    $dueDate = (string) ($attributes['due_date'] ?? now()->addDays(14)->toDateString());
+    $billingPeriodId = $attributes['billing_period_id'] ?? BillingPeriod::factory()
+        ->for($tenant->organization)
+        ->create([
+            'starts_at' => $periodStart,
+            'ends_at' => $periodEnd,
+            'reading_submission_deadline' => $dueDate,
+            'payment_due_date' => $dueDate,
+        ])
+        ->id;
+
     return Invoice::factory()
         ->for($tenant->organization)
         ->for($tenant->property)
         ->for($tenant->user, 'tenant')
         ->create([
             'status' => InvoiceStatus::DRAFT,
-            'billing_period_start' => now()->startOfMonth()->toDateString(),
-            'billing_period_end' => now()->endOfMonth()->toDateString(),
-            'due_date' => now()->addDays(14)->toDateString(),
+            'billing_period_id' => $billingPeriodId,
+            'billing_period_start' => $periodStart,
+            'billing_period_end' => $periodEnd,
+            'due_date' => $dueDate,
             'finalized_at' => null,
             'total_amount' => 0,
             'automation_level' => 'reading_request',
@@ -182,33 +199,26 @@ it('marks the linked reading request invoice and notifies billing reviewers afte
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = Invoice::factory()
-        ->for($tenant->organization)
-        ->for($tenant->property)
-        ->for($tenant->user, 'tenant')
-        ->create([
-            'invoice_number' => 'REQ-READY-001',
-            'status' => InvoiceStatus::DRAFT,
-            'automation_level' => 'reading_request',
-            'approval_status' => 'pending',
-            'approval_metadata' => [
-                'workflow' => 'meter_reading_request',
-                'request_status' => 'waiting_for_readings',
-                'linked_meters' => [[
-                    'id' => $meter->id,
-                    'identifier' => $meter->identifier,
-                    'status' => 'pending',
-                ]],
-                'required_inputs' => [[
-                    'type' => 'meter_reading',
-                    'meter_id' => $meter->id,
-                    'meter_name' => $meter->name,
-                    'meter_identifier' => $meter->identifier,
-                    'unit' => $meter->unit,
-                    'status' => 'pending',
-                ]],
-            ],
-        ]);
+    $invoice = createTenantReadingRequestInvoice($tenant, [
+        'invoice_number' => 'REQ-READY-001',
+        'approval_metadata' => [
+            'workflow' => 'meter_reading_request',
+            'request_status' => 'waiting_for_readings',
+            'linked_meters' => [[
+                'id' => $meter->id,
+                'identifier' => $meter->identifier,
+                'status' => 'pending',
+            ]],
+            'required_inputs' => [[
+                'type' => 'meter_reading',
+                'meter_id' => $meter->id,
+                'meter_name' => $meter->name,
+                'meter_identifier' => $meter->identifier,
+                'unit' => $meter->unit,
+                'status' => 'pending',
+            ]],
+        ],
+    ]);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
@@ -222,6 +232,7 @@ it('marks the linked reading request invoice and notifies billing reviewers afte
     $submittedReadingId = MeterReading::query()
         ->where('meter_id', $meter->id)
         ->value('id');
+    $submittedReading = MeterReading::query()->findOrFail($submittedReadingId);
 
     expect($invoice->approval_status)->toBe('readings_submitted')
         ->and($invoice->approval_metadata['submitted_by_tenant_user_id'] ?? null)->toBe($tenant->user->id)
@@ -230,7 +241,17 @@ it('marks the linked reading request invoice and notifies billing reviewers afte
         ->and($invoice->approval_metadata['request_status'] ?? null)->toBe('readings_submitted')
         ->and($invoice->approval_metadata['linked_meters'][0]['status'] ?? null)->toBe('submitted')
         ->and($invoice->approval_metadata['required_inputs'][0]['status'] ?? null)->toBe('submitted')
-        ->and($invoice->approval_metadata['required_inputs'][0]['submitted_meter_reading_id'] ?? null)->toBe((int) $submittedReadingId);
+        ->and($invoice->approval_metadata['required_inputs'][0]['submitted_meter_reading_id'] ?? null)->toBe((int) $submittedReadingId)
+        ->and($submittedReading->organization_id)->toBe($tenant->organization->id)
+        ->and($submittedReading->tenant_id)->toBe($tenant->user->id)
+        ->and($submittedReading->property_id)->toBe($tenant->property->id)
+        ->and($submittedReading->meter_id)->toBe($meter->id)
+        ->and($submittedReading->billing_period_id)->toBe($invoice->billing_period_id)
+        ->and($submittedReading->invoice_id)->toBe($invoice->id)
+        ->and($submittedReading->status)->toBe(MeterReadingStatus::SUBMITTED)
+        ->and((string) $submittedReading->current_value)->toBe('245.125')
+        ->and($submittedReading->submitted_at)->not->toBeNull()
+        ->and($submittedReading->versions()->count())->toBe(1);
 
     Notification::assertSentTo(
         $admin,
@@ -248,7 +269,55 @@ it('marks the linked reading request invoice and notifies billing reviewers afte
     Notification::assertNotSentTo($restrictedManager, TenantReadingsSubmittedForInvoiceNotification::class);
 });
 
-it('prevents tenant resubmission after a reading request invoice has been submitted', function () {
+it('allows a tenant to edit submitted readings before approval and deadline', function () {
+    Notification::fake();
+
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+    $invoice = createTenantReadingRequestInvoice($tenant, [
+        'billing_period_start' => now()->startOfMonth()->addDays(3)->toDateString(),
+        'billing_period_end' => now()->endOfMonth()->toDateString(),
+        'due_date' => now()->addDays(14)->toDateString(),
+    ]);
+
+    Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '245.125')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    expect($invoice->fresh()->approval_status)->toBe('readings_submitted');
+
+    Livewire::actingAs($tenant->user)
+        ->withQueryParams(['invoice' => (string) $invoice->id])
+        ->test(SubmitReadingPage::class)
+        ->set("readings.{$meter->id}.value", '246.000')
+        ->set('readingDate', now()->toDateString())
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    $reading = MeterReading::query()
+        ->where('meter_id', $meter->id)
+        ->where('submitted_by_user_id', $tenant->user->id)
+        ->firstOrFail();
+
+    expect(MeterReading::query()
+        ->where('meter_id', $meter->id)
+        ->where('submitted_by_user_id', $tenant->user->id)
+        ->count())->toBe(1)
+        ->and((string) $reading->fresh()->current_value)->toBe('246.000')
+        ->and($reading->fresh()->status)->toBe(MeterReadingStatus::SUBMITTED)
+        ->and($reading->fresh()->versions()->count())->toBe(2);
+});
+
+it('does not allow a tenant to edit a reading after admin approval', function () {
     Notification::fake();
 
     $tenant = TenantPortalFactory::new()
@@ -268,21 +337,27 @@ it('prevents tenant resubmission after a reading request invoice has been submit
         ->call('submit')
         ->assertHasNoErrors();
 
-    expect($invoice->fresh()->approval_status)->toBe('readings_submitted');
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $tenant->organization->id,
+    ]);
+    $reading = MeterReading::query()
+        ->where('meter_id', $meter->id)
+        ->where('submitted_by_user_id', $tenant->user->id)
+        ->firstOrFail();
+
+    $this->actingAs($admin);
+    app(ApproveReading::class)->handle($reading, $admin);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
         ->test(SubmitReadingPage::class)
         ->set("readings.{$meter->id}.value", '246.000')
-        ->set('readingDate', now()->addDay()->toDateString())
+        ->set('readingDate', now()->toDateString())
         ->call('submit')
-        ->assertHasErrors(['readings'])
-        ->assertSeeText('Reading request already handled');
+        ->assertHasErrors(['readings']);
 
-    expect(MeterReading::query()
-        ->where('meter_id', $meter->id)
-        ->where('submitted_by_user_id', $tenant->user->id)
-        ->count())->toBe(1);
+    expect($reading->fresh()->status)->toBe(MeterReadingStatus::APPROVED)
+        ->and((string) $reading->fresh()->current_value)->toBe('245.125');
 });
 
 it('updates linked reading request invoice metadata without notifying when reviewer notifications are disabled', function () {
@@ -309,15 +384,11 @@ it('updates linked reading request invoice metadata without notifying when revie
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = Invoice::factory()
-        ->for($tenant->organization)
-        ->for($tenant->property)
-        ->for($tenant->user, 'tenant')
-        ->create([
-            'status' => InvoiceStatus::DRAFT,
-            'automation_level' => 'reading_request',
-            'approval_status' => 'pending',
-        ]);
+    $invoice = createTenantReadingRequestInvoice($tenant, [
+        'status' => InvoiceStatus::DRAFT,
+        'automation_level' => 'reading_request',
+        'approval_status' => 'pending',
+    ]);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
@@ -379,10 +450,10 @@ it('prevents duplicate tenant readings for the same meter and invoice period', f
     $invoice = createTenantReadingRequestInvoice($tenant, [
         'billing_period_start' => '2026-05-01',
         'billing_period_end' => '2026-05-31',
-        'due_date' => '2026-06-14',
+        'due_date' => '2026-06-30',
         'approval_metadata' => [
             'workflow' => 'meter_reading_request',
-            'reading_submission_deadline' => '2026-06-14',
+            'reading_submission_deadline' => '2026-06-30',
             'required_inputs' => [[
                 'type' => 'meter_reading',
                 'meter_id' => $meter->id,
@@ -470,7 +541,11 @@ it('shows a live consumption preview for the selected meter', function () {
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = createTenantReadingRequestInvoice($tenant);
+    $invoice = createTenantReadingRequestInvoice($tenant, [
+        'billing_period_start' => now()->startOfMonth()->addDays(3)->toDateString(),
+        'billing_period_end' => now()->endOfMonth()->toDateString(),
+        'due_date' => now()->addDays(14)->toDateString(),
+    ]);
 
     Livewire::actingAs($tenant->user)
         ->withQueryParams(['invoice' => (string) $invoice->id])
@@ -655,7 +730,11 @@ it('explains why a tenant reading below the previous value is rejected', functio
 
     /** @var Meter $meter */
     $meter = $tenant->meters->firstOrFail();
-    $invoice = createTenantReadingRequestInvoice($tenant);
+    $invoice = createTenantReadingRequestInvoice($tenant, [
+        'billing_period_start' => now()->startOfMonth()->addDays(3)->toDateString(),
+        'billing_period_end' => now()->endOfMonth()->toDateString(),
+        'due_date' => now()->addDays(14)->toDateString(),
+    ]);
 
     Livewire::actingAs($tenant->user->fresh())
         ->withQueryParams(['invoice' => (string) $invoice->id])

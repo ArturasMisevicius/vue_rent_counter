@@ -9,6 +9,7 @@ use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ImportMeterReadingsAction;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\SubmitReadingPage;
+use App\Models\BillingPeriod;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -55,6 +56,13 @@ it('applies the same anomaly outcome to tenant submissions as the shared admin c
     }
 
     $readingDate = $baseDate->addDays(120)->toDateString();
+    $billingPeriod = BillingPeriod::factory()
+        ->for($fixture->organization)
+        ->create([
+            'starts_at' => $baseDate->addDays(61)->toDateString(),
+            'ends_at' => $readingDate,
+            'reading_submission_deadline' => now()->addDays(14)->toDateString(),
+        ]);
 
     $adminReading = app(CreateMeterReadingAction::class)->handle(
         meter: $adminMeter,
@@ -70,9 +78,10 @@ it('applies the same anomaly outcome to tenant submissions as the shared admin c
         ->for($fixture->user, 'tenant')
         ->create([
             'status' => InvoiceStatus::DRAFT,
+            'billing_period_id' => $billingPeriod->id,
             'billing_period_start' => $baseDate->addDays(61)->toDateString(),
             'billing_period_end' => $readingDate,
-            'due_date' => $baseDate->addDays(130)->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
             'automation_level' => 'reading_request',
             'approval_status' => 'waiting_for_readings',
         ]);
@@ -115,12 +124,20 @@ it('applies the same blocking validation to zero-value readings across tenant an
     /** @var Meter $meter */
     $meter = $fixture->meters->firstOrFail();
     $readingDate = now()->toDateString();
+    $billingPeriod = BillingPeriod::factory()
+        ->for($fixture->organization)
+        ->create([
+            'starts_at' => now()->startOfMonth()->toDateString(),
+            'ends_at' => now()->endOfMonth()->toDateString(),
+            'reading_submission_deadline' => now()->addDays(14)->toDateString(),
+        ]);
     $readingRequestInvoice = Invoice::factory()
         ->for($fixture->organization)
         ->for($fixture->property)
         ->for($fixture->user, 'tenant')
         ->create([
             'status' => InvoiceStatus::DRAFT,
+            'billing_period_id' => $billingPeriod->id,
             'billing_period_start' => now()->startOfMonth()->toDateString(),
             'billing_period_end' => now()->endOfMonth()->toDateString(),
             'due_date' => now()->addDays(14)->toDateString(),

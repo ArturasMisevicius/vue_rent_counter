@@ -515,6 +515,7 @@ class SubmitReadingPage extends Component
                 'property_id',
                 'tenant_user_id',
                 'invoice_number',
+                'billing_period_id',
                 'billing_period_start',
                 'billing_period_end',
                 'due_date',
@@ -529,7 +530,7 @@ class SubmitReadingPage extends Component
             ->where('tenant_user_id', $workspace->userId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending', 'readings_submitted', 'readings_rejected'])
             ->first();
 
         if (! $invoice instanceof Invoice) {

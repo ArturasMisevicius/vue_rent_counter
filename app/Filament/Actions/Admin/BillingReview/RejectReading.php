@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\BillingReview;
 
 use App\Enums\AuditLogAction;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Models\MeterReading;
@@ -32,14 +33,25 @@ final readonly class RejectReading
         }
 
         return DB::transaction(function () use ($reading, $tenantVisibleComment, $actor): MeterReading {
-            $before = $reading->validation_status?->value;
+            $before = [
+                'validation_status' => $reading->validation_status?->value,
+                'status' => $reading->status?->value,
+            ];
 
             $reading->update([
                 'validation_status' => MeterReadingValidationStatus::REJECTED,
+                'status' => MeterReadingStatus::REJECTED,
+                'rejected_by_user_id' => $actor?->id,
+                'rejected_at' => now(),
+                'rejection_reason' => $tenantVisibleComment,
+                'approved_by_user_id' => null,
+                'approved_at' => null,
                 'notes' => $this->mergeNotes($reading->notes, $tenantVisibleComment),
             ]);
 
-            $freshReading = $reading->fresh(['submittedBy:id,name,email,role']);
+            $freshReading = $reading->fresh(['invoice', 'submittedBy:id,name,email,role']);
+            $freshReading->recordVersion('rejected', $actor, $tenantVisibleComment);
+            $this->markInvoiceRejected($freshReading, $tenantVisibleComment, $actor);
 
             $this->auditLogger->record(
                 AuditLogAction::REJECTED,
@@ -47,8 +59,11 @@ final readonly class RejectReading
                 [
                     'context' => ['mutation' => 'billing_review.reading.rejected'],
                     'tenant_visible_comment' => $tenantVisibleComment,
-                    'before' => ['validation_status' => $before],
-                    'after' => ['validation_status' => MeterReadingValidationStatus::REJECTED->value],
+                    'before' => $before,
+                    'after' => [
+                        'validation_status' => MeterReadingValidationStatus::REJECTED->value,
+                        'status' => MeterReadingStatus::REJECTED->value,
+                    ],
                 ],
                 $actor?->id,
                 'Meter reading rejected from billing review',
@@ -60,6 +75,30 @@ final readonly class RejectReading
 
             return $freshReading;
         });
+    }
+
+    private function markInvoiceRejected(MeterReading $reading, string $comment, ?User $actor): void
+    {
+        $invoice = $reading->invoice;
+
+        if ($invoice === null || $invoice->automation_level !== 'reading_request') {
+            return;
+        }
+
+        $metadata = is_array($invoice->approval_metadata) ? $invoice->approval_metadata : [];
+
+        $invoice->forceFill([
+            'approval_status' => 'readings_rejected',
+            'approval_metadata' => [
+                ...$metadata,
+                'workflow' => $metadata['workflow'] ?? 'meter_reading_request',
+                'request_status' => 'readings_rejected',
+                'last_rejected_meter_reading_id' => (int) $reading->id,
+                'last_rejection_comment' => $comment,
+                'last_rejected_by_user_id' => $actor?->id,
+                'last_rejected_at' => now()->toISOString(),
+            ],
+        ])->save();
     }
 
     private function mergeNotes(?string ...$notes): string

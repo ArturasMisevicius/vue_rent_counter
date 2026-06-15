@@ -191,6 +191,14 @@ return [
         'rejected' => 'Отклонено',
         'void' => 'Аннулировано',
     ],
+    'meter_reading_status' => [
+        'draft' => 'Черновик',
+        'submitted' => 'Отправлено',
+        'approved' => 'Одобрено',
+        'rejected' => 'Отклонено',
+        'corrected' => 'Исправлено',
+        'voided' => 'Аннулировано',
+    ],
     'meter_status' => [
         'active' => 'Активный',
         'inactive' => 'Неактивный',

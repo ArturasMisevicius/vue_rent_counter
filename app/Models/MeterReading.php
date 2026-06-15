@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingType;
 use App\Enums\MeterReadingValidationStatus;
@@ -21,12 +22,28 @@ class MeterReading extends Model
     private const WORKSPACE_COLUMNS = [
         'id',
         'organization_id',
+        'billing_period_id',
         'property_id',
+        'tenant_id',
         'meter_id',
         'submitted_by_user_id',
         'reading_value',
         'reading_date',
+        'previous_value',
+        'current_value',
+        'consumption',
         'validation_status',
+        'status',
+        'submitted_at',
+        'approved_by_user_id',
+        'approved_at',
+        'rejected_by_user_id',
+        'rejected_at',
+        'rejection_reason',
+        'corrected_by_user_id',
+        'correction_reason',
+        'tenant_comment',
+        'voided_at',
         'submission_method',
         'reading_type',
         'property_assignment_id',
@@ -39,12 +56,28 @@ class MeterReading extends Model
 
     protected $fillable = [
         'organization_id',
+        'billing_period_id',
         'property_id',
+        'tenant_id',
         'meter_id',
         'submitted_by_user_id',
         'reading_value',
         'reading_date',
+        'previous_value',
+        'current_value',
+        'consumption',
         'validation_status',
+        'status',
+        'submitted_at',
+        'approved_by_user_id',
+        'approved_at',
+        'rejected_by_user_id',
+        'rejected_at',
+        'rejection_reason',
+        'corrected_by_user_id',
+        'correction_reason',
+        'tenant_comment',
+        'voided_at',
         'submission_method',
         'reading_type',
         'property_assignment_id',
@@ -57,8 +90,16 @@ class MeterReading extends Model
     {
         return [
             'reading_value' => 'decimal:3',
+            'previous_value' => 'decimal:3',
+            'current_value' => 'decimal:3',
+            'consumption' => 'decimal:3',
             'reading_date' => 'date',
             'validation_status' => MeterReadingValidationStatus::class,
+            'status' => MeterReadingStatus::class,
+            'submitted_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
+            'voided_at' => 'datetime',
             'submission_method' => MeterReadingSubmissionMethod::class,
             'reading_type' => MeterReadingType::class,
         ];
@@ -74,9 +115,24 @@ class MeterReading extends Model
         return $query->where('meter_readings.property_id', $propertyId);
     }
 
+    public function scopeForTenant(Builder $query, int $tenantId): Builder
+    {
+        return $query->where('meter_readings.tenant_id', $tenantId);
+    }
+
     public function scopeForMeter(Builder $query, int $meterId): Builder
     {
         return $query->where('meter_readings.meter_id', $meterId);
+    }
+
+    public function scopeForBillingPeriodId(Builder $query, int $billingPeriodId): Builder
+    {
+        return $query->where('meter_readings.billing_period_id', $billingPeriodId);
+    }
+
+    public function scopeForInvoice(Builder $query, int $invoiceId): Builder
+    {
+        return $query->where('meter_readings.invoice_id', $invoiceId);
     }
 
     public function scopeBetweenDates(
@@ -102,6 +158,18 @@ class MeterReading extends Model
     public function scopeValid(Builder $query): Builder
     {
         return $query->where('meter_readings.validation_status', MeterReadingValidationStatus::VALID);
+    }
+
+    public function scopeActiveInbox(Builder $query): Builder
+    {
+        return $query->whereIn('meter_readings.status', MeterReadingStatus::activeValues());
+    }
+
+    public function scopeApprovedForInvoiceCalculation(Builder $query): Builder
+    {
+        return $query
+            ->where('meter_readings.validation_status', MeterReadingValidationStatus::VALID)
+            ->whereIn('meter_readings.status', MeterReadingStatus::invoiceCalculationValues());
     }
 
     public function scopeComparable(Builder $query): Builder
@@ -228,6 +296,31 @@ class MeterReading extends Model
         return $this->belongsTo(User::class, 'submitted_by_user_id');
     }
 
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tenant_id');
+    }
+
+    public function billingPeriod(): BelongsTo
+    {
+        return $this->belongsTo(BillingPeriod::class);
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_user_id');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by_user_id');
+    }
+
+    public function correctedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'corrected_by_user_id');
+    }
+
     public function propertyAssignment(): BelongsTo
     {
         return $this->belongsTo(PropertyAssignment::class);
@@ -246,5 +339,83 @@ class MeterReading extends Model
     public function audits(): HasMany
     {
         return $this->hasMany(MeterReadingAudit::class);
+    }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(MeterReadingVersion::class);
+    }
+
+    public function isTenantEditable(CarbonInterface|string|null $asOf = null): bool
+    {
+        $status = $this->status instanceof MeterReadingStatus
+            ? $this->status
+            : MeterReadingStatus::tryFrom((string) $this->status);
+
+        if ($this->approved_at !== null || in_array($status, [MeterReadingStatus::APPROVED, MeterReadingStatus::CORRECTED, MeterReadingStatus::VOIDED], true)) {
+            return false;
+        }
+
+        $invoice = $this->invoice;
+
+        if (! $invoice instanceof Invoice) {
+            return true;
+        }
+
+        $deadline = $invoice->approval_metadata['reading_submission_deadline'] ?? null;
+        $deadlineDate = filled($deadline)
+            ? (string) $deadline
+            : ($invoice->due_date?->toDateString() ?? $invoice->billing_period_end?->toDateString());
+
+        if ($deadlineDate === null) {
+            return true;
+        }
+
+        $date = $asOf instanceof CarbonInterface
+            ? $asOf->toDateString()
+            : (string) ($asOf ?: now()->toDateString());
+
+        return $date <= $deadlineDate;
+    }
+
+    public function recordVersion(string $event, ?User $actor = null, ?string $reason = null): MeterReadingVersion
+    {
+        $nextVersion = ((int) $this->versions()->max('version')) + 1;
+
+        return $this->versions()->create([
+            'organization_id' => $this->organization_id,
+            'invoice_id' => $this->invoice_id,
+            'billing_period_id' => $this->billing_period_id,
+            'changed_by_user_id' => $actor?->id,
+            'version' => $nextVersion,
+            'event' => $event,
+            'previous_value' => $this->previous_value,
+            'current_value' => $this->current_value,
+            'consumption' => $this->consumption,
+            'status' => $this->status,
+            'reading_date' => $this->reading_date,
+            'reason' => $reason,
+            'snapshot' => [
+                'tenant_id' => $this->tenant_id,
+                'property_id' => $this->property_id,
+                'meter_id' => $this->meter_id,
+                'invoice_id' => $this->invoice_id,
+                'billing_period_id' => $this->billing_period_id,
+                'reading_value' => $this->reading_value,
+                'validation_status' => $this->validation_status?->value,
+                'status' => $this->status?->value,
+                'submitted_by_user_id' => $this->submitted_by_user_id,
+                'submitted_at' => $this->submitted_at?->toISOString(),
+                'approved_by_user_id' => $this->approved_by_user_id,
+                'approved_at' => $this->approved_at?->toISOString(),
+                'rejected_by_user_id' => $this->rejected_by_user_id,
+                'rejected_at' => $this->rejected_at?->toISOString(),
+                'rejection_reason' => $this->rejection_reason,
+                'corrected_by_user_id' => $this->corrected_by_user_id,
+                'correction_reason' => $this->correction_reason,
+                'tenant_comment' => $this->tenant_comment,
+                'voided_at' => $this->voided_at?->toISOString(),
+            ],
+        ]);
     }
 }

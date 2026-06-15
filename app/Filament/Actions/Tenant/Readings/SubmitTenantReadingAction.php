@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Tenant\Readings;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\TenantStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
+use App\Filament\Support\Admin\ReadingValidation\ReadingValidationResult;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
 use App\Filament\Support\TenantKyc\TenantKycGate;
 use App\Filament\Support\Workspace\WorkspaceResolver;
@@ -17,6 +19,7 @@ use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
+use App\Services\Billing\UniversalBillingCalculator;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +33,7 @@ class SubmitTenantReadingAction
         protected ValidateReadingValue $validateReadingValue,
         protected WorkspaceResolver $workspaceResolver,
         protected TenantKycGate $tenantKycGate,
+        protected UniversalBillingCalculator $calculator,
     ) {}
 
     /**
@@ -114,22 +118,47 @@ class SubmitTenantReadingAction
                 ]);
             }
 
+            $this->ensureInvoiceHasBillingPeriod($lockedInvoice);
+            $this->ensureInvoiceReadingWindowIsOpen($lockedInvoice);
             $this->ensureMeterIsRequestedForInvoice($meter, $lockedInvoice);
-            $this->ensureReadingValuePassesBaseValidation($meter, $validated);
-            $this->ensureTenantHasNotSubmittedReadingForInvoicePeriod(
+
+            $existingReading = $this->existingTenantReadingForInvoicePeriod(
                 tenant: $tenant,
                 meter: $meter,
                 invoice: $lockedInvoice,
                 readingDate: (string) $validated['readingDate'],
             );
+            $this->ensureExistingReadingCanBeEdited($existingReading);
 
-            return $this->createMeterReadingAction->handle(
+            $validation = $this->ensureReadingValuePassesBaseValidation($meter, $validated, $existingReading?->id);
+
+            if ($existingReading instanceof MeterReading) {
+                return $this->updateExistingReading(
+                    reading: $existingReading,
+                    tenant: $tenant,
+                    invoice: $lockedInvoice,
+                    readingValue: $validated['readingValue'],
+                    readingDate: $validated['readingDate'],
+                    notes: filled($validated['notes']) ? $validated['notes'] : null,
+                    validation: $validation,
+                );
+            }
+
+            $reading = $this->createMeterReadingAction->handle(
                 meter: $meter,
                 readingValue: $validated['readingValue'],
                 readingDate: $validated['readingDate'],
                 submittedBy: $tenant,
                 submissionMethod: MeterReadingSubmissionMethod::TENANT_PORTAL,
                 notes: filled($validated['notes']) ? $validated['notes'] : null,
+            );
+
+            return $this->scopeCreatedReadingToInvoice(
+                reading: $reading,
+                tenant: $tenant,
+                invoice: $lockedInvoice,
+                notes: filled($validated['notes']) ? $validated['notes'] : null,
+                validation: $validation,
             );
         });
     }
@@ -163,16 +192,17 @@ class SubmitTenantReadingAction
     /**
      * @param  array{meterId: int, readingValue: string|int|float, readingDate: string, notes: string|null}  $validated
      */
-    private function ensureReadingValuePassesBaseValidation(Meter $meter, array $validated): void
+    private function ensureReadingValuePassesBaseValidation(Meter $meter, array $validated, ?int $ignoreReadingId = null): ReadingValidationResult
     {
         $validation = $this->validateReadingValue->handle(
             meter: $meter,
             readingValue: $validated['readingValue'],
             readingDate: $validated['readingDate'],
+            ignoreReadingId: $ignoreReadingId,
         );
 
         if (! $validation->fails()) {
-            return;
+            return $validation;
         }
 
         throw ValidationException::withMessages($validation->messages);
@@ -234,6 +264,8 @@ class SubmitTenantReadingAction
                 'billing_period_start',
                 'billing_period_end',
                 'due_date',
+                'billing_period_id',
+                'property_assignment_id',
                 'status',
                 'approval_status',
                 'automation_level',
@@ -245,7 +277,7 @@ class SubmitTenantReadingAction
             ->forTenant($tenantId)
             ->where('status', InvoiceStatus::DRAFT->value)
             ->where('automation_level', 'reading_request')
-            ->whereIn('approval_status', ['waiting_for_readings', 'pending']);
+            ->whereIn('approval_status', ['waiting_for_readings', 'pending', 'readings_submitted', 'readings_rejected']);
     }
 
     private function normalizeInvoiceId(string|int|null $invoiceId): ?int
@@ -332,6 +364,206 @@ class SubmitTenantReadingAction
         throw ValidationException::withMessages([
             'readingValue' => __('tenant.pages.readings.validation.duplicate_reading_for_invoice_period'),
         ]);
+    }
+
+    private function ensureInvoiceHasBillingPeriod(Invoice $invoice): void
+    {
+        if ($invoice->billing_period_id !== null) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'readingValue' => __('tenant.pages.readings.invoice_request_unavailable'),
+        ]);
+    }
+
+    private function ensureInvoiceReadingWindowIsOpen(Invoice $invoice): void
+    {
+        $deadline = $this->readingWindowEnd($invoice);
+
+        if ($deadline === null || now()->toDateString() <= $deadline) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'readingValue' => __('tenant.pages.readings.invoice_request_unavailable'),
+        ]);
+    }
+
+    private function existingTenantReadingForInvoicePeriod(User $tenant, Meter $meter, Invoice $invoice, string $readingDate): ?MeterReading
+    {
+        $periodStart = $invoice->billing_period_start?->toDateString();
+        $periodEnd = $this->readingWindowEnd($invoice);
+
+        if ($periodStart === null || $periodEnd === null) {
+            $this->ensureTenantHasNotSubmittedReadingForDate($meter, $readingDate);
+
+            return null;
+        }
+
+        return MeterReading::query()
+            ->select([
+                'id',
+                'organization_id',
+                'billing_period_id',
+                'property_id',
+                'tenant_id',
+                'meter_id',
+                'submitted_by_user_id',
+                'reading_value',
+                'reading_date',
+                'previous_value',
+                'current_value',
+                'consumption',
+                'validation_status',
+                'status',
+                'submitted_at',
+                'approved_by_user_id',
+                'approved_at',
+                'rejected_by_user_id',
+                'rejected_at',
+                'rejection_reason',
+                'corrected_by_user_id',
+                'correction_reason',
+                'tenant_comment',
+                'voided_at',
+                'submission_method',
+                'reading_type',
+                'property_assignment_id',
+                'invoice_id',
+                'notes',
+                'created_at',
+                'updated_at',
+            ])
+            ->with(['invoice:id,due_date,billing_period_end,approval_metadata'])
+            ->forOrganization((int) $invoice->organization_id)
+            ->forProperty((int) $invoice->property_id)
+            ->forMeter((int) $meter->id)
+            ->where(function (Builder $query) use ($tenant): void {
+                $query
+                    ->where('tenant_id', $tenant->id)
+                    ->orWhere('submitted_by_user_id', $tenant->id);
+            })
+            ->where(function (Builder $query) use ($invoice, $periodStart, $periodEnd): void {
+                $query
+                    ->where('billing_period_id', $invoice->billing_period_id)
+                    ->orWhere('invoice_id', $invoice->id)
+                    ->orWhere(function (Builder $dateQuery) use ($periodStart, $periodEnd): void {
+                        $dateQuery
+                            ->whereNull('billing_period_id')
+                            ->whereDate('reading_date', '>=', $periodStart)
+                            ->whereDate('reading_date', '<=', $periodEnd);
+                    });
+            })
+            ->whereIn('status', [
+                ...MeterReadingStatus::activeValues(),
+                MeterReadingStatus::REJECTED->value,
+            ])
+            ->latestFirst()
+            ->lockForUpdate()
+            ->first();
+    }
+
+    private function ensureExistingReadingCanBeEdited(?MeterReading $reading): void
+    {
+        if (! $reading instanceof MeterReading) {
+            return;
+        }
+
+        if ($reading->isTenantEditable()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'readingValue' => __('tenant.pages.readings.validation.duplicate_reading_for_invoice_period'),
+        ]);
+    }
+
+    private function scopeCreatedReadingToInvoice(
+        MeterReading $reading,
+        User $tenant,
+        Invoice $invoice,
+        ?string $notes,
+        ReadingValidationResult $validation,
+    ): MeterReading {
+        $reading->forceFill($this->scopedReadingAttributes(
+            tenant: $tenant,
+            invoice: $invoice,
+            readingValue: $reading->reading_value,
+            notes: $notes,
+            validation: $validation,
+        ))->save();
+
+        $freshReading = $reading->fresh(['meter', 'invoice']);
+        $freshReading->recordVersion('submitted', $tenant);
+
+        return $freshReading;
+    }
+
+    private function updateExistingReading(
+        MeterReading $reading,
+        User $tenant,
+        Invoice $invoice,
+        string|int|float $readingValue,
+        string $readingDate,
+        ?string $notes,
+        ReadingValidationResult $validation,
+    ): MeterReading {
+        $reading->forceFill([
+            'reading_value' => $readingValue,
+            'reading_date' => $readingDate,
+            ...$this->scopedReadingAttributes(
+                tenant: $tenant,
+                invoice: $invoice,
+                readingValue: $readingValue,
+                notes: $notes,
+                validation: $validation,
+            ),
+        ])->save();
+
+        $freshReading = $reading->fresh(['meter', 'invoice']);
+        $freshReading->recordVersion('tenant_updated', $tenant);
+
+        return $freshReading;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function scopedReadingAttributes(
+        User $tenant,
+        Invoice $invoice,
+        string|int|float $readingValue,
+        ?string $notes,
+        ReadingValidationResult $validation,
+    ): array {
+        $previousValue = $validation->previousReading instanceof MeterReading
+            ? (string) ($validation->previousReading->current_value ?? $validation->previousReading->reading_value)
+            : null;
+
+        return [
+            'billing_period_id' => $invoice->billing_period_id,
+            'tenant_id' => $tenant->id,
+            'invoice_id' => $invoice->id,
+            'property_assignment_id' => $invoice->property_assignment_id,
+            'previous_value' => $previousValue,
+            'current_value' => $readingValue,
+            'consumption' => $previousValue === null
+                ? null
+                : $this->calculator->quantity($this->calculator->subtract($readingValue, $previousValue, 3)),
+            'validation_status' => $validation->status,
+            'status' => MeterReadingStatus::SUBMITTED,
+            'submitted_at' => now(),
+            'approved_by_user_id' => null,
+            'approved_at' => null,
+            'rejected_by_user_id' => null,
+            'rejected_at' => null,
+            'rejection_reason' => null,
+            'corrected_by_user_id' => null,
+            'correction_reason' => null,
+            'tenant_comment' => $notes,
+            'voided_at' => null,
+        ];
     }
 
     private function readingWindowEnd(Invoice $invoice): ?string

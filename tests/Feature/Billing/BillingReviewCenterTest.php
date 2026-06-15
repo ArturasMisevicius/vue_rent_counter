@@ -2,6 +2,7 @@
 
 use App\Enums\DistributionMethod;
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
 use App\Enums\PricingModel;
@@ -18,6 +19,7 @@ use App\Filament\Actions\Admin\BillingReview\VoidReading;
 use App\Filament\Pages\BillingReviewCenter;
 use App\Filament\Support\Admin\BillingReview\BuildBillingReviewForPeriod;
 use App\Models\AuditLog;
+use App\Models\BillingPeriod;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceEmailLog;
@@ -303,13 +305,25 @@ it('recalculates invoices using only approved readings', function (): void {
             'reading_value' => '999',
             'reading_date' => '2026-05-31',
             'validation_status' => MeterReadingValidationStatus::PENDING,
+            'status' => MeterReadingStatus::SUBMITTED,
+        ]);
+    MeterReading::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['property'])
+        ->for($workspace['meter'])
+        ->for($workspace['tenant'], 'submittedBy')
+        ->create([
+            'reading_value' => '1200',
+            'reading_date' => '2026-05-30',
+            'validation_status' => MeterReadingValidationStatus::REJECTED,
+            'status' => MeterReadingStatus::REJECTED,
         ]);
     $this->actingAs($workspace['admin']);
 
     $invoice = app(RecalculateInvoice::class)->handle($workspace['invoice'], $workspace['admin']);
 
     expect((string) $invoice->total_amount)->toBe('60.00')
-        ->and($invoice->approval_status)->toBe('needs_attention');
+        ->and($invoice->approval_status)->toBe('configuration_error');
 });
 
 it('creates audit and history records for billing review actions', function (): void {
@@ -318,11 +332,19 @@ it('creates audit and history records for billing review actions', function (): 
     $workspace = billingReviewWorkspace();
     $this->actingAs($workspace['admin']);
 
-    app(ApproveReading::class)->handle($workspace['current_reading'], $workspace['admin']);
-    app(CorrectReading::class)->handle($workspace['current_reading']->fresh(), [
+    $approvedReading = app(ApproveReading::class)->handle($workspace['current_reading'], $workspace['admin']);
+    expect($approvedReading->status)->toBe(MeterReadingStatus::APPROVED)
+        ->and($approvedReading->approved_by_user_id)->toBe($workspace['admin']->id)
+        ->and($approvedReading->approved_at)->not->toBeNull()
+        ->and($approvedReading->versions()->where('event', 'approved')->exists())->toBeTrue();
+
+    $correctedReading = app(CorrectReading::class)->handle($workspace['current_reading']->fresh(), [
         'reading_value' => '126',
         'reason' => 'Photo correction',
     ], $workspace['admin']);
+    expect($correctedReading->status)->toBe(MeterReadingStatus::CORRECTED)
+        ->and($correctedReading->correction_reason)->toBe('Photo correction')
+        ->and($correctedReading->versions()->where('event', 'corrected')->exists())->toBeTrue();
     app(RecalculateInvoice::class)->handle($workspace['invoice'], $workspace['admin']);
     $approvedInvoice = app(ApproveInvoice::class)->handle($workspace['invoice']->fresh(), $workspace['admin']);
     app(SendInvoiceToTenant::class)->handle($approvedInvoice, $workspace['admin']);
@@ -332,14 +354,21 @@ it('creates audit and history records for billing review actions', function (): 
         'admin' => $workspace['admin'],
         'invoice_number' => 'INV-REJECT-AUDIT',
     ]);
-    app(RejectReading::class)->handle($rejected['current_reading'], 'Please resubmit a clear photo.', $workspace['admin']);
+    $rejectedReading = app(RejectReading::class)->handle($rejected['current_reading'], 'Please resubmit a clear photo.', $workspace['admin']);
+    expect($rejectedReading->status)->toBe(MeterReadingStatus::REJECTED)
+        ->and($rejectedReading->rejection_reason)->toBe('Please resubmit a clear photo.')
+        ->and($rejectedReading->invoice->fresh()->approval_status)->toBe('readings_rejected')
+        ->and($rejectedReading->versions()->where('event', 'rejected')->exists())->toBeTrue();
 
     $voided = billingReviewWorkspace([
         'organization' => $workspace['organization'],
         'admin' => $workspace['admin'],
         'invoice_number' => 'INV-VOID-AUDIT',
     ]);
-    app(VoidReading::class)->handle($voided['current_reading'], 'Duplicate submission.', $workspace['admin']);
+    $voidedReading = app(VoidReading::class)->handle($voided['current_reading'], 'Duplicate submission.', $workspace['admin']);
+    expect($voidedReading->status)->toBe(MeterReadingStatus::VOIDED)
+        ->and($voidedReading->voided_at)->not->toBeNull()
+        ->and($voidedReading->versions()->where('event', 'voided')->exists())->toBeTrue();
 
     $missing = billingReviewWorkspace([
         'organization' => $workspace['organization'],
@@ -436,6 +465,23 @@ function billingReviewWorkspace(array $overrides = []): array
             'type' => MeterType::WATER,
             'unit' => 'm3',
         ]);
+    $billingPeriod = BillingPeriod::query()
+        ->forOrganization($organization->id)
+        ->whereDate('starts_at', '2026-05-01')
+        ->whereDate('ends_at', '2026-05-31')
+        ->first();
+
+    if (! $billingPeriod instanceof BillingPeriod) {
+        $billingPeriod = BillingPeriod::factory()
+            ->for($organization)
+            ->create([
+                'starts_at' => '2026-05-01',
+                'ends_at' => '2026-05-31',
+                'reading_submission_deadline' => '2026-06-14',
+                'invoice_generation_date' => '2026-05-31',
+                'payment_due_date' => '2026-06-14',
+            ]);
+    }
 
     $previousReading = MeterReading::factory()
         ->for($organization)
@@ -444,8 +490,12 @@ function billingReviewWorkspace(array $overrides = []): array
         ->for($admin, 'submittedBy')
         ->create([
             'reading_value' => $overrides['previous_value'] ?? '100',
+            'current_value' => $overrides['previous_value'] ?? '100',
             'reading_date' => '2026-04-30',
             'validation_status' => MeterReadingValidationStatus::VALID,
+            'status' => MeterReadingStatus::APPROVED,
+            'approved_by_user_id' => $admin->id,
+            'approved_at' => now(),
         ]);
 
     $currentReading = null;
@@ -460,9 +510,19 @@ function billingReviewWorkspace(array $overrides = []): array
             ->for($meter)
             ->for($tenant, 'submittedBy')
             ->create([
+                'tenant_id' => $tenant->id,
                 'reading_value' => $overrides['current_value'] ?? '125',
+                'current_value' => $overrides['current_value'] ?? '125',
+                'previous_value' => $overrides['previous_value'] ?? '100',
+                'consumption' => (string) ((float) ($overrides['current_value'] ?? '125') - (float) ($overrides['previous_value'] ?? '100')),
                 'reading_date' => '2026-05-31',
                 'validation_status' => $currentStatus,
+                'status' => match ($currentStatus) {
+                    MeterReadingValidationStatus::VALID => MeterReadingStatus::APPROVED,
+                    MeterReadingValidationStatus::REJECTED => MeterReadingStatus::REJECTED,
+                    MeterReadingValidationStatus::VOID => MeterReadingStatus::VOIDED,
+                    default => MeterReadingStatus::SUBMITTED,
+                },
             ]);
     }
 
@@ -472,6 +532,7 @@ function billingReviewWorkspace(array $overrides = []): array
         ->for($tenant, 'tenant')
         ->create([
             'invoice_number' => $overrides['invoice_number'] ?? 'INV-REVIEW-'.str()->ulid(),
+            'billing_period_id' => $billingPeriod->id,
             'billing_period_start' => '2026-05-01',
             'billing_period_end' => '2026-05-31',
             'status' => $overrides['invoice_status'] ?? InvoiceStatus::DRAFT,
@@ -487,6 +548,13 @@ function billingReviewWorkspace(array $overrides = []): array
             'automation_level' => 'reading_request',
             'approval_metadata' => [],
         ]);
+
+    if ($currentReading instanceof MeterReading) {
+        $currentReading->forceFill([
+            'invoice_id' => $invoice->id,
+            'billing_period_id' => $billingPeriod->id,
+        ])->save();
+    }
 
     return [
         'organization' => $organization->fresh(),

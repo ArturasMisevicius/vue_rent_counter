@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Actions\Admin\BillingReview;
 
 use App\Enums\AuditLogAction;
+use App\Enums\MeterReadingStatus;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Support\Audit\AuditLogger;
+use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\User;
 use App\Notifications\Billing\ReadingApprovedNotification;
@@ -20,6 +22,7 @@ final readonly class ApproveReading
     public function __construct(
         private UniversalBillingCalculator $calculator,
         private AuditLogger $auditLogger,
+        private RecalculateInvoice $recalculateInvoice,
     ) {}
 
     public function handle(MeterReading $reading, ?User $actor = null, bool $confirmNegativeConsumption = false): MeterReading
@@ -28,22 +31,42 @@ final readonly class ApproveReading
         $this->authorize($reading, $actor);
         $this->guardNegativeConsumption($reading, $confirmNegativeConsumption);
 
-        return DB::transaction(function () use ($reading, $actor): MeterReading {
-            $before = $reading->validation_status?->value;
+        $approvedReading = DB::transaction(function () use ($reading, $actor): MeterReading {
+            $previousReading = $this->previousReading($reading);
+            $before = [
+                'validation_status' => $reading->validation_status?->value,
+                'status' => $reading->status?->value,
+            ];
 
             $reading->update([
                 'validation_status' => MeterReadingValidationStatus::VALID,
+                'status' => MeterReadingStatus::APPROVED,
+                'previous_value' => $previousReading?->current_value ?? $previousReading?->reading_value,
+                'current_value' => $reading->reading_value,
+                'consumption' => $previousReading instanceof MeterReading
+                    ? $this->calculator->quantity($this->calculator->subtract($reading->reading_value, $previousReading->current_value ?? $previousReading->reading_value, 3))
+                    : null,
+                'approved_by_user_id' => $actor?->id,
+                'approved_at' => now(),
+                'rejected_by_user_id' => null,
+                'rejected_at' => null,
+                'rejection_reason' => null,
+                'voided_at' => null,
             ]);
 
-            $freshReading = $reading->fresh(['submittedBy:id,name,email,role']);
+            $freshReading = $reading->fresh(['invoice', 'submittedBy:id,name,email,role']);
+            $freshReading->recordVersion('approved', $actor);
 
             $this->auditLogger->record(
                 AuditLogAction::APPROVED,
                 $freshReading,
                 [
                     'context' => ['mutation' => 'billing_review.reading.approved'],
-                    'before' => ['validation_status' => $before],
-                    'after' => ['validation_status' => MeterReadingValidationStatus::VALID->value],
+                    'before' => $before,
+                    'after' => [
+                        'validation_status' => MeterReadingValidationStatus::VALID->value,
+                        'status' => MeterReadingStatus::APPROVED->value,
+                    ],
                 ],
                 $actor?->id,
                 'Meter reading approved from billing review',
@@ -55,6 +78,12 @@ final readonly class ApproveReading
 
             return $freshReading;
         });
+
+        if ($approvedReading->invoice instanceof Invoice) {
+            $this->recalculateInvoice->handle($approvedReading->invoice, $actor);
+        }
+
+        return $approvedReading->fresh(['invoice', 'submittedBy:id,name,email,role']);
     }
 
     private function guardNegativeConsumption(MeterReading $reading, bool $confirmed): void
