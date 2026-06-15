@@ -1,6 +1,4 @@
 @section('title', __('auth.login_title'))
-    @php($loginError = $errors->first('email'))
-
     <div class="space-y-8">
         <div class="space-y-3 text-center">
             <h1 class="font-display text-4xl tracking-tight text-slate-950">{{ __('auth.login_title') }}</h1>
@@ -19,9 +17,9 @@
             </div>
         @endif
 
-        @if (filled($loginError))
+        @if (filled($errors->first('email')))
             <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-                {{ $loginError }}
+                {{ $errors->first('email') }}
             </div>
         @endif
 
@@ -39,8 +37,8 @@
                     required
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-warm focus:ring-2 focus:ring-brand-warm/20"
                 />
-                @if ($errors->has('email') && $loginError !== __('auth.invalid_credentials') && $loginError !== __('auth.account_suspended'))
-                    <p class="text-sm text-rose-600">{{ $loginError }}</p>
+                @if ($errors->has('email') && ! in_array($errors->first('email'), [__('auth.invalid_credentials'), __('auth.account_suspended')], true))
+                    <p class="text-sm text-rose-600">{{ $errors->first('email') }}</p>
                 @endif
             </div>
 

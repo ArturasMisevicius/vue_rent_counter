@@ -1,20 +1,3 @@
-@props([
-    'invoice',
-    'presentation' => null,
-    'periodDisplay' => null,
-])
-
-@php
-    /** @var \App\Models\Invoice $invoice */
-    $presentation = is_array($presentation) ? $presentation : [];
-    $lineItems = $presentation['items'] ?? [];
-    $payments = $presentation['payments'] ?? [];
-    $resolvedPeriodDisplay = $periodDisplay ?: __('tenant.pages.invoices.period', [
-        'start' => $presentation['billing_period_start_display'] ?? '—',
-        'end' => $presentation['billing_period_end_display'] ?? '—',
-    ]);
-@endphp
-
 <article class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-6 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur sm:p-8">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div class="space-y-3">

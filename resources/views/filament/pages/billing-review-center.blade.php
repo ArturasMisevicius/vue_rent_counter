@@ -1,6 +1,4 @@
 <x-filament-panels::page>
-    @php($review = $this->review)
-    @php($summary = $review['summary'])
 
     <div class="space-y-6">
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -44,7 +42,7 @@
             ] as $metric)
                 <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                     <p class="text-xs font-semibold uppercase text-slate-500">{{ __("admin.billing_review.summary.{$metric}") }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $summary[$metric] ?? 0 }}</p>
+                    <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $this->review['summary'][$metric] ?? 0 }}</p>
                 </article>
             @endforeach
         </section>
@@ -69,7 +67,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse ($review['pending_readings'] as $reading)
+                        @forelse ($this->review['pending_readings'] as $reading)
                             <tr wire:key="pending-reading-{{ $reading['row_type'] }}-{{ $reading['reading_id'] ?? $reading['invoice_id'].'-'.$reading['meter_id'] }}">
                                 <td class="px-4 py-4 align-top">
                                     <div class="font-medium text-slate-950">{{ $reading['tenant_name'] }}</div>
@@ -205,7 +203,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse ($review['invoices'] as $invoice)
+                        @forelse ($this->review['invoices'] as $invoice)
                             <tr wire:key="billing-review-invoice-{{ $invoice['invoice_id'] }}">
                                 <td class="px-4 py-4">
                                     <div class="font-medium text-slate-950">{{ $invoice['tenant_name'] }}</div>

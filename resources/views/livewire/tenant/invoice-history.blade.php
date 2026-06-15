@@ -1,20 +1,3 @@
-@php
-    $statusFilters = [
-        'all' => [
-            'label' => __('tenant.status.all'),
-            'icon' => 'heroicon-m-rectangle-stack',
-        ],
-        'unpaid' => [
-            'label' => __('tenant.status.unpaid'),
-            'icon' => 'heroicon-m-exclamation-circle',
-        ],
-        'paid' => [
-            'label' => __('tenant.status.paid'),
-            'icon' => 'heroicon-m-check-badge',
-        ],
-    ];
-@endphp
-
 <x-tenant.page>
     <x-shared.page-header icon="heroicon-m-document-text" :title="__('tenant.pages.invoices.page_heading')" :subtitle="__('tenant.pages.invoices.description')">
         <x-slot:actions>

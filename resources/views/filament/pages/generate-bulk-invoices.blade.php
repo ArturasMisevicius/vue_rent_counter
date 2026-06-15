@@ -1,5 +1,4 @@
 <x-filament-panels::page>
-    @php($previewSummary = $this->previewSummary)
 
     <div class="space-y-6">
         <div class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(22rem,1fr)]">
@@ -62,12 +61,12 @@
                 <div class="mt-6 grid gap-3">
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ __('admin.invoices.bulk.preview.invoice_count') }}</p>
-                        <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ $previewSummary['selected_count'] }}</p>
+                        <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ $this->previewSummary['selected_count'] }}</p>
                     </article>
 
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ __('admin.invoices.bulk.preview.estimated_combined_total') }}</p>
-                        <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ $previewSummary['estimated_total'] }}</p>
+                        <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{{ $this->previewSummary['estimated_total'] }}</p>
                     </article>
                 </div>
 
@@ -83,7 +82,7 @@
                     </div>
 
                     <div class="mt-4 space-y-2">
-                        @forelse ($previewSummary['missing_readings'] as $warning)
+                        @forelse ($this->previewSummary['missing_readings'] as $warning)
                             <div class="rounded-2xl bg-white/80 px-3 py-3 text-sm text-amber-950">
                                 <span class="font-semibold">{{ $warning['tenant_name'] }}</span>
                                 <span class="text-amber-800">· {{ $warning['property_name'] }}</span>
@@ -120,7 +119,7 @@
                     <span>{{ __('admin.invoices.bulk.actions.select_all') }}</span>
                 </label>
 
-                <p class="text-sm text-slate-500">{{ __('admin.invoices.bulk.preview.selected_summary', ['count' => $previewSummary['selected_count']]) }}</p>
+                <p class="text-sm text-slate-500">{{ __('admin.invoices.bulk.preview.selected_summary', ['count' => $this->previewSummary['selected_count']]) }}</p>
             </div>
 
             <div class="mt-4 max-h-[32rem] space-y-3 overflow-y-auto pr-1">

@@ -1,6 +1,3 @@
-@php($sessionLifetimeMs = max((int) config('session.lifetime', 120), 1) * 60 * 1000)
-@php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
-
 <div
     data-session-expiry-monitor
     data-session-expiry-timeout="{{ $sessionLifetimeMs }}"

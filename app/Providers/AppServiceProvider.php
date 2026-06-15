@@ -8,8 +8,10 @@ use App\Filament\Support\Admin\ManagerPermissions\ManagerPermissionService;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\FaviconUrlResolver;
 use App\Filament\Support\Formatting\LocalizedDateFormatter;
 use App\Filament\Support\Localization\DatabaseContentLocalizer;
+use App\Filament\Support\Shell\DashboardUrlResolver;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
 use App\Filament\Support\Shell\Search\Providers\BuildingSearchProvider;
 use App\Filament\Support\Shell\Search\Providers\InvoiceSearchProvider;
@@ -55,6 +57,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -138,6 +142,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureFilamentLocalizedLabels();
         $this->configureCalendarFields();
         $this->configureDestructiveActionConfirmations();
+        $this->configureSharedViewData();
 
         Organization::observe(OrganizationObserver::class);
         OrganizationUser::observe(OrganizationUserObserver::class);
@@ -146,6 +151,24 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);
         PropertyAssignment::observe(PropertyAssignmentObserver::class);
+    }
+
+    private function configureSharedViewData(): void
+    {
+        View::composer(['layouts.app', 'layouts.guest', 'layouts.public'], function ($view): void {
+            $view->with('cspNonce', Vite::cspNonce());
+        });
+
+        View::composer(['layouts.guest', 'layouts.public'], function ($view): void {
+            $view->with('faviconUrl', app(FaviconUrlResolver::class)->resolve());
+        });
+
+        View::composer('errors.layout', function ($view): void {
+            $view->with('dashboardUrl', app(DashboardUrlResolver::class)->for(
+                auth()->user(),
+                preferTenantDashboard: true,
+            ));
+        });
     }
 
     private function warmFilamentTableTranslationGroups(): void

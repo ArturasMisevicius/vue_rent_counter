@@ -76,6 +76,7 @@ class InvoiceHistory extends Component
             'paymentGuidance' => $this->paymentGuidance,
             'paymentForms' => $this->paymentForms,
             'selectedStatus' => $this->selectedStatus,
+            'statusFilters' => $this->statusFilters(),
             'tenant' => $this->tenant,
         ]);
     }
@@ -255,5 +256,26 @@ class InvoiceHistory extends Component
                 'tenant_comment' => '',
             ];
         }
+    }
+
+    /**
+     * @return array<string, array{label: string, icon: string}>
+     */
+    private function statusFilters(): array
+    {
+        return [
+            'all' => [
+                'label' => __('tenant.status.all'),
+                'icon' => 'heroicon-m-rectangle-stack',
+            ],
+            'unpaid' => [
+                'label' => __('tenant.status.unpaid'),
+                'icon' => 'heroicon-m-exclamation-circle',
+            ],
+            'paid' => [
+                'label' => __('tenant.status.paid'),
+                'icon' => 'heroicon-m-check-badge',
+            ],
+        ];
     }
 }

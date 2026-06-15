@@ -1,15 +1,3 @@
-@php
-    $sections = [
-        ['key' => 'billing_cards', 'title' => __('dashboard.attention.sections.billing_progress'), 'icon' => 'heroicon-m-banknotes'],
-        ['key' => 'tenant_onboarding_cards', 'title' => __('dashboard.attention.sections.tenant_onboarding'), 'icon' => 'heroicon-m-user-plus'],
-        ['key' => 'configuration_health_cards', 'title' => __('dashboard.attention.sections.configuration_health'), 'icon' => 'heroicon-m-wrench-screwdriver'],
-        ['key' => 'contract_cards', 'title' => __('dashboard.attention.sections.contracts'), 'icon' => 'heroicon-m-document-text'],
-        ['key' => 'document_cards', 'title' => __('dashboard.attention.sections.documents'), 'icon' => 'heroicon-m-paper-clip'],
-        ['key' => 'move_out_cards', 'title' => __('dashboard.attention.sections.move_outs'), 'icon' => 'heroicon-m-arrow-right-start-on-rectangle'],
-        ['key' => 'data_integrity_cards', 'title' => __('dashboard.attention.sections.data_integrity'), 'icon' => 'heroicon-m-shield-exclamation'],
-    ];
-@endphp
-
 <div wire:poll.visible.30s="refreshDashboardOnInterval" class="space-y-8">
     <section class="border-b border-slate-200 pb-6">
         <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -36,17 +24,13 @@
     </section>
 
     @if ($setupChecklist !== [])
-        @php
-            $completedSetupItems = count(array_filter($setupChecklist, fn ($item) => (bool) ($item['complete'] ?? false)));
-        @endphp
-
         <section class="space-y-4">
             <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-950">{{ __('help.checklist.heading') }}</h3>
                     <p class="mt-1 text-sm text-slate-600">{{ __('help.checklist.description') }}</p>
                 </div>
-                <p class="text-sm font-semibold text-slate-700">{{ $completedSetupItems }} / {{ count($setupChecklist) }}</p>
+                <p class="text-sm font-semibold text-slate-700">{{ $setupChecklistProgress['completed'] }} / {{ $setupChecklistProgress['total'] }}</p>
             </div>
 
             <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -88,18 +72,10 @@
     @if ($dashboard['top_cards'] !== [])
         <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
             @foreach ($dashboard['top_cards'] as $card)
-                @php($toneClass = match ($card['tone'] ?? 'default') {
-                    'danger' => 'border-rose-200 bg-rose-50 text-rose-700',
-                    'warning' => 'border-amber-200 bg-amber-50 text-amber-700',
-                    'success' => 'border-emerald-200 bg-emerald-50 text-emerald-700',
-                    'info' => 'border-sky-200 bg-sky-50 text-sky-700',
-                    default => 'border-slate-200 bg-white text-slate-700',
-                })
-
                 <a
                     href="{{ $card['url'] ?? '#' }}"
                     wire:navigate
-                    class="group rounded-lg border {{ $toneClass }} p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+                    class="group rounded-lg border {{ $card['tone_class'] }} p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
                 >
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
@@ -133,15 +109,9 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @foreach ($dashboard['needs_action_items'] as $item)
-                            @php($priorityClass = match ($item['priority']) {
-                                'high' => 'bg-rose-100 text-rose-700',
-                                'medium' => 'bg-amber-100 text-amber-700',
-                                default => 'bg-slate-100 text-slate-700',
-                            })
-
                             <tr>
                                 <td class="px-4 py-3">
-                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $priorityClass }}">
+                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $item['priority_class'] }}">
                                         {{ $item['priority_label'] }}
                                     </span>
                                 </td>
@@ -179,14 +149,7 @@
 
             <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
                 @foreach ($dashboard['billing_progress']['stages'] as $stage)
-                    @php($stageClass = match ($stage['tone']) {
-                        'warning' => 'border-amber-200 bg-amber-50',
-                        'success' => 'border-emerald-200 bg-emerald-50',
-                        'info' => 'border-sky-200 bg-sky-50',
-                        default => 'border-slate-200 bg-white',
-                    })
-
-                    <div class="rounded-lg border {{ $stageClass }} p-4">
+                    <div class="rounded-lg border {{ $stage['tone_class'] }} p-4">
                         <p class="text-xs font-semibold uppercase text-slate-500">{{ $stage['label'] }}</p>
                         <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $stage['count'] }}</p>
                     </div>
@@ -195,7 +158,7 @@
         </section>
     @endif
 
-    @foreach ($sections as $section)
+    @foreach ($attentionSections as $section)
         @continue(($dashboard[$section['key']] ?? []) === [])
 
         <section class="space-y-4">
@@ -206,18 +169,10 @@
 
             <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 @foreach ($dashboard[$section['key']] as $card)
-                    @php($cardClass = match ($card['tone'] ?? 'default') {
-                        'danger' => 'border-rose-200 hover:border-rose-300',
-                        'warning' => 'border-amber-200 hover:border-amber-300',
-                        'success' => 'border-emerald-200 hover:border-emerald-300',
-                        'info' => 'border-sky-200 hover:border-sky-300',
-                        default => 'border-slate-200 hover:border-slate-300',
-                    })
-
                     <a
                         href="{{ $card['url'] ?? '#' }}"
                         wire:navigate
-                        class="group rounded-lg border {{ $cardClass }} bg-white p-4 transition hover:bg-slate-50"
+                        class="group rounded-lg border {{ $card['card_class'] }} bg-white p-4 transition hover:bg-slate-50"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">

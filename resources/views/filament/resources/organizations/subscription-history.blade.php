@@ -4,19 +4,15 @@
 
         <div class="mt-3 space-y-3">
             @forelse ($subscription->payments as $payment)
-                @php
-                    $durationValue = $payment->duration?->value;
-                    $durationLabel = $durationValue !== null
-                        ? __("enums.subscription_duration.{$durationValue}")
-                        : __('superadmin.organizations.subscription_history.custom_duration');
-                @endphp
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p class="text-sm font-semibold text-slate-900">
                         {{ \App\Filament\Support\Formatting\EuMoneyFormatter::format($payment->amount, $payment->currency) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
                         {{ __('superadmin.organizations.subscription_history.paid_on', [
-                            'duration' => $durationLabel,
+                            'duration' => $payment->duration?->value !== null
+                                ? __("enums.subscription_duration.{$payment->duration->value}")
+                                : __('superadmin.organizations.subscription_history.custom_duration'),
                             'date' => $payment->paid_at?->locale(app()->getLocale())->translatedFormat(\App\Filament\Support\Formatting\LocalizedDateFormatter::dateFormat()) ?? __('superadmin.organizations.subscription_history.unknown_date'),
                         ]) }}
                     </p>
@@ -35,16 +31,13 @@
 
         <div class="mt-3 space-y-3">
             @forelse ($subscription->renewals as $renewal)
-                @php
-                    $methodKey = "superadmin.organizations.subscription_history.methods.{$renewal->method}";
-                    $methodLabel = __($methodKey);
-                    $periodKey = "enums.subscription_duration.{$renewal->period}";
-                    $periodLabel = __($periodKey);
-                @endphp
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p class="text-sm font-semibold text-slate-900">
                         {{ __('superadmin.organizations.subscription_history.renewal_title', [
-                            'method' => $methodLabel === $methodKey ? __('superadmin.organizations.subscription_history.unknown') : $methodLabel,
+                            'method' => \App\Filament\Support\View\BladeViewData::translatedOrFallback(
+                                "superadmin.organizations.subscription_history.methods.{$renewal->method}",
+                                __('superadmin.organizations.subscription_history.unknown'),
+                            ),
                         ]) }}
                     </p>
                     <p class="mt-1 text-sm text-slate-600">
@@ -56,7 +49,10 @@
                     <p class="mt-1 text-sm text-slate-500">
                         {{ $renewal->user?->name ?? __('superadmin.organizations.subscription_history.system') }}
                         ·
-                        {{ $periodLabel === $periodKey ? __('superadmin.organizations.subscription_history.custom_duration') : $periodLabel }}
+                        {{ \App\Filament\Support\View\BladeViewData::translatedOrFallback(
+                            "enums.subscription_duration.{$renewal->period}",
+                            __('superadmin.organizations.subscription_history.custom_duration'),
+                        ) }}
                     </p>
                 </div>
             @empty

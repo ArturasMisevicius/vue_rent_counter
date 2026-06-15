@@ -135,12 +135,6 @@
 
                 <div class="mt-5 grid gap-4 md:grid-cols-2">
                     @foreach ($subscriptionUsage as $usage)
-                        @php($barColor = match ($usage['tone']) {
-                            'danger' => 'bg-rose-500',
-                            'warning' => 'bg-amber-500',
-                            default => 'bg-slate-900',
-                        })
-
                         <div class="rounded-2xl border border-slate-200 px-4 py-4">
                             <div class="flex items-center justify-between gap-4">
                                 <p class="text-sm font-semibold text-slate-950">{{ $usage['label'] }}</p>
@@ -148,7 +142,7 @@
                             </div>
 
                             <div class="mt-3 h-3 rounded-full bg-slate-100">
-                                <div class="{{ $barColor }} h-3 rounded-full transition-all" style="width: {{ $usage['percent'] }}%"></div>
+                                <div class="{{ \App\Filament\Support\View\BladeViewData::settingsUsageBarClass((string) $usage['tone']) }} h-3 rounded-full transition-all" style="width: {{ $usage['percent'] }}%"></div>
                             </div>
 
                             @if ($usage['limit_reached'])

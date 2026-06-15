@@ -35,11 +35,6 @@
 
                         <div class="divide-y divide-slate-100">
                             @foreach ($group['rows'] as $row)
-                                @php
-                                    $isEditing = (bool) ($editing[$row['id']] ?? false);
-                                    $draftValue = (string) ($draftValues[$row['id']] ?? $row['display_value']);
-                                @endphp
-
                                 <div wire:key="system-setting-row-{{ $row['id'] }}" class="grid gap-4 px-6 py-5 lg:grid-cols-12 lg:items-start">
                                     <div class="space-y-1 lg:col-span-4">
                                         <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ $row['label'] }}</p>
@@ -51,13 +46,13 @@
                                     </div>
 
                                     <div class="space-y-3 lg:col-span-3">
-                                        @if ($isEditing)
+                                        @if ((bool) ($editing[$row['id']] ?? false))
                                             @if ($row['editor'] === 'list')
                                                 <textarea
                                                     wire:model.defer="draftValues.{{ $row['id'] }}"
                                                     rows="3"
                                                     class="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
-                                                >{{ $draftValue }}</textarea>
+                                                >{{ (string) ($draftValues[$row['id']] ?? $row['display_value']) }}</textarea>
                                             @elseif ($row['editor'] === 'boolean')
                                                 <select
                                                     wire:model.defer="draftValues.{{ $row['id'] }}"
@@ -85,7 +80,7 @@
                                     </div>
 
                                     <div class="flex items-center justify-start gap-3 lg:col-span-1 lg:justify-end">
-                                        @if ($isEditing)
+                                        @if ((bool) ($editing[$row['id']] ?? false))
                                             <button
                                                 type="button"
                                                 wire:click="saveSetting({{ $row['id'] }})"

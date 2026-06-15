@@ -1,7 +1,3 @@
-@php
-    $isPageContext = $context === 'page';
-@endphp
-
 <div class="fi-topbar-ctn" data-shell-topbar="true">
     @livewire(\App\Livewire\Shell\ImpersonationBanner::class)
 

@@ -1,10 +1,3 @@
-@php($profileNameValue = htmlspecialchars($profileForm['name'], ENT_COMPAT, 'UTF-8', false))
-@php($profileEmailValue = htmlspecialchars($profileForm['email'], ENT_COMPAT, 'UTF-8', false))
-@php($profilePhoneValue = htmlspecialchars((string) ($profileForm['phone'] ?? ''), ENT_COMPAT, 'UTF-8', false))
-@php($kycValue = static fn (string $key): string => htmlspecialchars((string) ($kycForm[$key] ?? ''), ENT_COMPAT, 'UTF-8', false))
-@php($kycChecked = static fn (string $key): bool => (bool) ($kycForm[$key] ?? false))
-@php($canManageRiskFields = auth()->user()?->isAdminLike() ?? false)
-@php($avatarInitials = collect(explode(' ', trim((string) auth()->user()?->name)))->filter()->take(2)->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))->implode(''))
 
 @if ($this->canManageProfileAvatar())
     <form wire:submit="saveProfileAvatar" class="mb-5">
@@ -37,7 +30,7 @@
                             ])
                             data-avatar-preview-image
                         >
-                        <span @class(['hidden' => filled($currentAvatarUrl)]) data-avatar-preview-fallback>{{ $avatarInitials }}</span>
+                        <span @class(['hidden' => filled($currentAvatarUrl)]) data-avatar-preview-fallback>{{ $this->avatarInitials() }}</span>
                     </span>
                     <div class="min-w-0">
                         <p class="text-xs font-semibold uppercase tracking-normal text-slate-500">{{ __('shell.profile.avatar.current_label') }}</p>
@@ -131,7 +124,7 @@
                 <input
                     type="text"
                     wire:model="profileForm.name"
-                    value="{!! $profileNameValue !!}"
+                    value="{{ $this->profileFieldValue('name') }}"
                     autocomplete="name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -143,7 +136,7 @@
                 <input
                     type="email"
                     wire:model="profileForm.email"
-                    value="{!! $profileEmailValue !!}"
+                    value="{{ $this->profileFieldValue('email') }}"
                     autocomplete="email"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -155,7 +148,7 @@
                 <input
                     type="text"
                     wire:model="profileForm.phone"
-                    value="{!! $profilePhoneValue !!}"
+                    value="{{ $this->profileFieldValue('phone') }}"
                     autocomplete="tel"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -188,7 +181,7 @@
         <div class="mt-5 flex flex-col gap-4 md:flex-row md:flex-wrap">
             <input
                 type="email"
-                value="{!! $profileEmailValue !!}"
+                value="{{ $this->profileFieldValue('email') }}"
                 autocomplete="username"
                 tabindex="-1"
                 aria-hidden="true"
@@ -250,7 +243,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.full_legal_name"
-                    value="{!! $kycValue('full_legal_name') !!}"
+                    value="{{ $this->kycFieldValue('full_legal_name') }}"
                     autocomplete="name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -272,7 +265,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.nationality"
-                    value="{!! $kycValue('nationality') !!}"
+                    value="{{ $this->kycFieldValue('nationality') }}"
                     autocomplete="country-name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -284,7 +277,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.gender"
-                    value="{!! $kycValue('gender') !!}"
+                    value="{{ $this->kycFieldValue('gender') }}"
                     autocomplete="sex"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -296,7 +289,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.marital_status"
-                    value="{!! $kycValue('marital_status') !!}"
+                    value="{{ $this->kycFieldValue('marital_status') }}"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
                 @error('kycForm.marital_status') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
@@ -307,7 +300,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.tax_id_number"
-                    value="{!! $kycValue('tax_id_number') !!}"
+                    value="{{ $this->kycFieldValue('tax_id_number') }}"
                     autocomplete="off"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -319,7 +312,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.social_security_number"
-                    value="{!! $kycValue('social_security_number') !!}"
+                    value="{{ $this->kycFieldValue('social_security_number') }}"
                     autocomplete="off"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -345,7 +338,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.secondary_contact_name"
-                    value="{!! $kycValue('secondary_contact_name') !!}"
+                    value="{{ $this->kycFieldValue('secondary_contact_name') }}"
                     autocomplete="name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -357,7 +350,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.secondary_contact_relationship"
-                    value="{!! $kycValue('secondary_contact_relationship') !!}"
+                    value="{{ $this->kycFieldValue('secondary_contact_relationship') }}"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
                 @error('kycForm.secondary_contact_relationship') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
@@ -368,7 +361,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.secondary_contact_phone"
-                    value="{!! $kycValue('secondary_contact_phone') !!}"
+                    value="{{ $this->kycFieldValue('secondary_contact_phone') }}"
                     autocomplete="tel"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -380,7 +373,7 @@
                 <input
                     type="email"
                     wire:model="kycForm.secondary_contact_email"
-                    value="{!! $kycValue('secondary_contact_email') !!}"
+                    value="{{ $this->kycFieldValue('secondary_contact_email') }}"
                     autocomplete="email"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -392,7 +385,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.tertiary_contact_name"
-                    value="{!! $kycValue('tertiary_contact_name') !!}"
+                    value="{{ $this->kycFieldValue('tertiary_contact_name') }}"
                     autocomplete="name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -404,7 +397,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.tertiary_contact_relationship"
-                    value="{!! $kycValue('tertiary_contact_relationship') !!}"
+                    value="{{ $this->kycFieldValue('tertiary_contact_relationship') }}"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
                 @error('kycForm.tertiary_contact_relationship') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
@@ -415,7 +408,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.tertiary_contact_phone"
-                    value="{!! $kycValue('tertiary_contact_phone') !!}"
+                    value="{{ $this->kycFieldValue('tertiary_contact_phone') }}"
                     autocomplete="tel"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -427,7 +420,7 @@
                 <input
                     type="email"
                     wire:model="kycForm.tertiary_contact_email"
-                    value="{!! $kycValue('tertiary_contact_email') !!}"
+                    value="{{ $this->kycFieldValue('tertiary_contact_email') }}"
                     autocomplete="email"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -453,7 +446,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.employer_name"
-                    value="{!! $kycValue('employer_name') !!}"
+                    value="{{ $this->kycFieldValue('employer_name') }}"
                     autocomplete="organization"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -465,7 +458,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.employment_position"
-                    value="{!! $kycValue('employment_position') !!}"
+                    value="{{ $this->kycFieldValue('employment_position') }}"
                     autocomplete="organization-title"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -477,7 +470,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.employment_contract_type"
-                    value="{!! $kycValue('employment_contract_type') !!}"
+                    value="{{ $this->kycFieldValue('employment_contract_type') }}"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
                 @error('kycForm.employment_contract_type') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
@@ -488,7 +481,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.monthly_income_range"
-                    value="{!! $kycValue('monthly_income_range') !!}"
+                    value="{{ $this->kycFieldValue('monthly_income_range') }}"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
                 @error('kycForm.monthly_income_range') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
@@ -513,7 +506,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.iban"
-                    value="{!! $kycValue('iban') !!}"
+                    value="{{ $this->kycFieldValue('iban') }}"
                     autocomplete="off"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -525,7 +518,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.swift_bic"
-                    value="{!! $kycValue('swift_bic') !!}"
+                    value="{{ $this->kycFieldValue('swift_bic') }}"
                     autocomplete="off"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -537,7 +530,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.bank_name"
-                    value="{!! $kycValue('bank_name') !!}"
+                    value="{{ $this->kycFieldValue('bank_name') }}"
                     autocomplete="organization"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -549,7 +542,7 @@
                 <input
                     type="text"
                     wire:model="kycForm.bank_account_holder_name"
-                    value="{!! $kycValue('bank_account_holder_name') !!}"
+                    value="{{ $this->kycFieldValue('bank_account_holder_name') }}"
                     autocomplete="name"
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                 >
@@ -576,7 +569,7 @@
                     <input
                         type="checkbox"
                         wire:model="kycForm.facial_recognition_consent"
-                        @checked($kycChecked('facial_recognition_consent'))
+                        @checked($this->kycChecked('facial_recognition_consent'))
                         class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950"
                     >
                     <span>{{ __('shell.profile.kyc.messages.facial_recognition_consent') }}</span>
@@ -584,13 +577,13 @@
                 @error('kycForm.facial_recognition_consent') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
             </label>
 
-            @if ($canManageRiskFields)
+            @if ($this->canManageRiskFields())
                 <label class="space-y-2 text-sm font-medium text-slate-700 md:min-w-[20rem] md:flex-1">
                     <span>{{ __('shell.profile.kyc.fields.payment_history_score') }}</span>
                     <input
                         type="number"
                         wire:model="kycForm.payment_history_score"
-                        value="{!! $kycValue('payment_history_score') !!}"
+                        value="{{ $this->kycFieldValue('payment_history_score') }}"
                         inputmode="numeric"
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                     >
@@ -602,7 +595,7 @@
                     <input
                         type="text"
                         wire:model="kycForm.external_credit_bureau_reference"
-                        value="{!! $kycValue('external_credit_bureau_reference') !!}"
+                        value="{{ $this->kycFieldValue('external_credit_bureau_reference') }}"
                         autocomplete="off"
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                     >
@@ -614,7 +607,7 @@
                     <input
                         type="number"
                         wire:model="kycForm.internal_credit_score"
-                        value="{!! $kycValue('internal_credit_score') !!}"
+                        value="{{ $this->kycFieldValue('internal_credit_score') }}"
                         inputmode="numeric"
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                     >
@@ -627,7 +620,7 @@
                         <input
                             type="checkbox"
                             wire:model="kycForm.blacklist_status"
-                            @checked($kycChecked('blacklist_status'))
+                            @checked($this->kycChecked('blacklist_status'))
                             class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950"
                         >
                         <span>{{ __('shell.profile.kyc.messages.blacklist_status') }}</span>

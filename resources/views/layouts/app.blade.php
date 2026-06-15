@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
-        @php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
         <meta charset="utf-8" />
 
         <meta name="application-name" content="{{ config('app.name') }}" />

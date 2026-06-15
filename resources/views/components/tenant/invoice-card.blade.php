@@ -1,28 +1,3 @@
-@props([
-    'invoice',
-    'presentation' => null,
-    'periodDisplay' => null,
-    'paymentForm' => [],
-])
-
-@php
-    /** @var \App\Models\Invoice $invoice */
-    $presentation = is_array($presentation) ? $presentation : [];
-    $lineItems = $presentation['items'] ?? [];
-    $payments = $presentation['payments'] ?? [];
-    $paymentMethods = \App\Enums\PaymentMethod::options();
-    $canSubmitPaymentProof = $invoice->outstanding_balance > 0
-        && in_array($invoice->effectiveStatus(), [
-            \App\Enums\InvoiceStatus::FINALIZED,
-            \App\Enums\InvoiceStatus::PARTIALLY_PAID,
-            \App\Enums\InvoiceStatus::OVERDUE,
-        ], true);
-    $resolvedPeriodDisplay = $periodDisplay ?: __('tenant.pages.invoices.period', [
-        'start' => $presentation['billing_period_start_display'] ?? '—',
-        'end' => $presentation['billing_period_end_display'] ?? '—',
-    ]);
-@endphp
-
 <article class="rounded-[1.5rem] border border-slate-200/80 bg-white p-4 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-5" data-tenant-invoice-card>
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div class="min-w-0 space-y-3">

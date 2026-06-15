@@ -7,6 +7,7 @@ namespace App\Livewire\Pages\Dashboard;
 use App\Filament\Support\Admin\Dashboard\BuildAdminAttentionDashboard;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Help\SetupChecklistBuilder;
+use App\Filament\Support\View\BladeViewData;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -50,10 +51,14 @@ final class AdminDashboard extends Component
 
     public function render(): View
     {
+        $setupChecklist = app(SetupChecklistBuilder::class)->forUser($this->user());
+
         return view('livewire.pages.dashboard.admin-dashboard', [
-            'dashboard' => $this->dashboard,
+            'attentionSections' => $this->attentionSections(),
+            'dashboard' => $this->decorateDashboard($this->dashboard),
             'showSubscriptionUsage' => $this->showSubscriptionUsage,
-            'setupChecklist' => app(SetupChecklistBuilder::class)->forUser($this->user()),
+            'setupChecklist' => $setupChecklist,
+            'setupChecklistProgress' => $this->setupChecklistProgress($setupChecklist),
         ]);
     }
 
@@ -142,5 +147,77 @@ final class AdminDashboard extends Component
                 ->handle($this->organizationId, $user->id)
                 ->toArray(),
         );
+    }
+
+    /**
+     * @return list<array{key: string, title: string, icon: string}>
+     */
+    private function attentionSections(): array
+    {
+        return [
+            ['key' => 'billing_cards', 'title' => __('dashboard.attention.sections.billing_progress'), 'icon' => 'heroicon-m-banknotes'],
+            ['key' => 'tenant_onboarding_cards', 'title' => __('dashboard.attention.sections.tenant_onboarding'), 'icon' => 'heroicon-m-user-plus'],
+            ['key' => 'configuration_health_cards', 'title' => __('dashboard.attention.sections.configuration_health'), 'icon' => 'heroicon-m-wrench-screwdriver'],
+            ['key' => 'contract_cards', 'title' => __('dashboard.attention.sections.contracts'), 'icon' => 'heroicon-m-document-text'],
+            ['key' => 'document_cards', 'title' => __('dashboard.attention.sections.documents'), 'icon' => 'heroicon-m-paper-clip'],
+            ['key' => 'move_out_cards', 'title' => __('dashboard.attention.sections.move_outs'), 'icon' => 'heroicon-m-arrow-right-start-on-rectangle'],
+            ['key' => 'data_integrity_cards', 'title' => __('dashboard.attention.sections.data_integrity'), 'icon' => 'heroicon-m-shield-exclamation'],
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $setupChecklist
+     * @return array{completed: int, total: int}
+     */
+    private function setupChecklistProgress(array $setupChecklist): array
+    {
+        return [
+            'completed' => count(array_filter($setupChecklist, fn (array $item): bool => (bool) ($item['complete'] ?? false))),
+            'total' => count($setupChecklist),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $dashboard
+     * @return array<string, mixed>
+     */
+    private function decorateDashboard(array $dashboard): array
+    {
+        $dashboard['top_cards'] = array_map(
+            fn (array $card): array => [
+                ...$card,
+                'tone_class' => BladeViewData::adminTopCardToneClass((string) ($card['tone'] ?? 'default')),
+            ],
+            $dashboard['top_cards'] ?? [],
+        );
+
+        $dashboard['needs_action_items'] = array_map(
+            fn (array $item): array => [
+                ...$item,
+                'priority_class' => BladeViewData::adminPriorityClass((string) ($item['priority'] ?? 'default')),
+            ],
+            $dashboard['needs_action_items'] ?? [],
+        );
+
+        $dashboard['billing_progress']['stages'] = array_map(
+            fn (array $stage): array => [
+                ...$stage,
+                'tone_class' => BladeViewData::adminStageClass((string) ($stage['tone'] ?? 'default')),
+            ],
+            $dashboard['billing_progress']['stages'] ?? [],
+        );
+
+        foreach ($this->attentionSections() as $section) {
+            $key = $section['key'];
+            $dashboard[$key] = array_map(
+                fn (array $card): array => [
+                    ...$card,
+                    'card_class' => BladeViewData::adminSectionCardClass((string) ($card['tone'] ?? 'default')),
+                ],
+                $dashboard[$key] ?? [],
+            );
+        }
+
+        return $dashboard;
     }
 }

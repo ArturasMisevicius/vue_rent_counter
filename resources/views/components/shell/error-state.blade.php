@@ -1,18 +1,3 @@
-@props([
-    'status',
-    'title',
-    'description',
-    'actionUrl',
-])
-
-@php
-    $user = auth()->user();
-
-    if ($user && filled($user->locale)) {
-        app()->setLocale($user->locale);
-    }
-@endphp
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

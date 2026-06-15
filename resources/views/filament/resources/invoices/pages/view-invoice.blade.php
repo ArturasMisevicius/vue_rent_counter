@@ -1,17 +1,15 @@
 <x-filament-panels::page>
-    @php($page = $this->pageData())
-    @php($presentation = $page['presentation'])
 
     <div class="space-y-6">
-        @if (filled($page['draft_notice'] ?? null))
+        @if (filled($this->pageData()['draft_notice'] ?? null))
             <div class="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-sm text-blue-900">
-                {{ $page['draft_notice'] }}
+                {{ $this->pageData()['draft_notice'] }}
             </div>
         @endif
 
-        @if (filled($page['overdue_notice'] ?? null))
+        @if (filled($this->pageData()['overdue_notice'] ?? null))
             <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-950">
-                {{ $page['overdue_notice'] }}
+                {{ $this->pageData()['overdue_notice'] }}
             </div>
         @endif
 
@@ -19,7 +17,7 @@
             <div class="grid gap-6 lg:grid-cols-2">
                 @foreach (['left', 'right'] as $column)
                     <dl class="space-y-4">
-                        @foreach ($page['summary'][$column] as $entry)
+                        @foreach ($this->pageData()['summary'][$column] as $entry)
                             <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
                                 <dt class="text-sm font-medium text-slate-500">{{ $entry['label'] }}</dt>
                                 <dd class="text-right text-sm text-slate-900">
@@ -41,16 +39,14 @@
         <div class="grid gap-6 lg:grid-cols-2">
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <p class="text-sm font-medium text-slate-500">{{ __('admin.invoices.fields.amount_paid') }}</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $presentation['paid_amount_display'] ?? '—' }}</p>
+                <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $this->presentation()['paid_amount_display'] ?? '—' }}</p>
             </section>
 
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <p class="text-sm font-medium text-slate-500">{{ __('admin.invoices.status_summaries.outstanding') }}</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $presentation['outstanding_amount_display'] ?? '—' }}</p>
+                <p class="mt-2 text-2xl font-semibold text-slate-950">{{ $this->presentation()['outstanding_amount_display'] ?? '—' }}</p>
             </section>
         </div>
-
-        @php($calculationPreview = $page['calculation_preview'] ?? ['items' => [], 'blocking_errors' => [], 'warnings' => []])
 
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -60,36 +56,36 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    @if (! empty($calculationPreview['blocking_errors']))
+                    @if (! empty($this->calculationPreview()['blocking_errors']))
                         <x-filament::badge color="danger">
-                            {{ __('admin.invoices.preview.blocking_count', ['count' => count($calculationPreview['blocking_errors'])]) }}
+                            {{ __('admin.invoices.preview.blocking_count', ['count' => count($this->calculationPreview()['blocking_errors'])]) }}
                         </x-filament::badge>
                     @endif
 
-                    @if (! empty($calculationPreview['warnings']))
+                    @if (! empty($this->calculationPreview()['warnings']))
                         <x-filament::badge color="warning">
-                            {{ __('admin.invoices.preview.warning_count', ['count' => count($calculationPreview['warnings'])]) }}
+                            {{ __('admin.invoices.preview.warning_count', ['count' => count($this->calculationPreview()['warnings'])]) }}
                         </x-filament::badge>
                     @endif
                 </div>
             </div>
 
-            @if (! empty($calculationPreview['blocking_errors']))
+            @if (! empty($this->calculationPreview()['blocking_errors']))
                 <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
                     <p class="font-semibold">{{ __('admin.invoices.preview.blocking_errors') }}</p>
                     <ul class="mt-2 list-disc space-y-1 ps-5">
-                        @foreach ($calculationPreview['blocking_errors'] as $issue)
+                        @foreach ($this->calculationPreview()['blocking_errors'] as $issue)
                             <li>{{ $issue['message'] }}</li>
                         @endforeach
                     </ul>
                 </div>
             @endif
 
-            @if (! empty($calculationPreview['warnings']))
+            @if (! empty($this->calculationPreview()['warnings']))
                 <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
                     <p class="font-semibold">{{ __('admin.invoices.preview.warnings') }}</p>
                     <ul class="mt-2 list-disc space-y-1 ps-5">
-                        @foreach ($calculationPreview['warnings'] as $issue)
+                        @foreach ($this->calculationPreview()['warnings'] as $issue)
                             <li>{{ $issue['message'] }}</li>
                         @endforeach
                     </ul>
@@ -113,7 +109,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse ($calculationPreview['items'] as $item)
+                        @forelse ($this->calculationPreview()['items'] as $item)
                             <tr>
                                 <td class="px-4 py-4">
                                     <x-filament::badge :color="$item['status'] === 'blocked' ? 'danger' : ($item['status'] === 'warning' ? 'warning' : 'success')">
@@ -182,7 +178,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse ($page['charge_rows'] as $row)
+                        @forelse ($this->pageData()['charge_rows'] as $row)
                             <tr @class([
                                 'bg-amber-50/60' => $row['is_adjustment'],
                             ])>
@@ -203,17 +199,17 @@
                     <tfoot class="border-t border-slate-200 bg-slate-50/60 text-sm">
                         <tr>
                             <th colspan="4" class="px-4 py-3 text-right font-medium text-slate-600">{{ __('admin.invoices.fields.subtotal') }}</th>
-                            <td class="px-4 py-3 text-right font-semibold text-slate-950">{{ $page['subtotal_display'] }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-slate-950">{{ $this->pageData()['subtotal_display'] }}</td>
                         </tr>
-                        @if (filled($page['adjustments_display'] ?? null))
+                        @if (filled($this->pageData()['adjustments_display'] ?? null))
                             <tr>
                                 <th colspan="4" class="px-4 py-3 text-right font-medium text-slate-600">{{ __('admin.invoices.fields.adjustments') }}</th>
-                                <td class="px-4 py-3 text-right font-semibold text-slate-950">{{ $page['adjustments_display'] }}</td>
+                                <td class="px-4 py-3 text-right font-semibold text-slate-950">{{ $this->pageData()['adjustments_display'] }}</td>
                             </tr>
                         @endif
                         <tr>
                             <th colspan="4" class="px-4 py-3 text-right text-base font-semibold text-slate-950">{{ __('admin.invoices.fields.total_amount') }}</th>
-                            <td class="px-4 py-3 text-right text-base font-semibold text-slate-950">{{ $page['total_display'] }}</td>
+                            <td class="px-4 py-3 text-right text-base font-semibold text-slate-950">{{ $this->pageData()['total_display'] }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -224,7 +220,7 @@
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 class="mb-4 text-lg font-semibold text-slate-950">{{ __('admin.invoices.sections.payment_history') }}</h2>
 
-                @forelse ($page['payment_history'] as $payment)
+                @forelse ($this->pageData()['payment_history'] as $payment)
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 not-first:mt-3">
                         <div class="flex items-start justify-between gap-4">
                             <div class="space-y-1">
@@ -247,20 +243,20 @@
                         </div>
                     </article>
                 @empty
-                    <p class="text-sm text-slate-500">{{ $page['payment_history_empty'] }}</p>
+                    <p class="text-sm text-slate-500">{{ $this->pageData()['payment_history_empty'] }}</p>
                 @endforelse
             </section>
 
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 class="mb-4 text-lg font-semibold text-slate-950">{{ __('admin.invoices.sections.email_history') }}</h2>
 
-                @forelse ($page['email_history'] as $email)
+                @forelse ($this->pageData()['email_history'] as $email)
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 not-first:mt-3">
                         <p class="font-medium text-slate-900">{{ $email['date'] }}</p>
                         <p class="mt-1 text-sm text-slate-500">{{ $email['recipient_email'] }}</p>
                     </article>
                 @empty
-                    <p class="text-sm text-slate-500">{{ $page['email_history_empty'] }}</p>
+                    <p class="text-sm text-slate-500">{{ $this->pageData()['email_history_empty'] }}</p>
                 @endforelse
             </section>
         </div>

@@ -24,17 +24,13 @@
                                         <p class="font-medium text-slate-950">{{ $row->group }}.{{ $row->key }}</p>
                                     </td>
                                     @foreach ($locales as $locale)
-                                        @php
-                                            $value = $row->values[$locale] ?? null;
-                                        @endphp
-
                                         <td class="px-4 py-4 align-top">
                                             <input
                                                 type="text"
                                                 wire:key="translation-cell-{{ $row->group }}-{{ str_replace('.', '-', $row->key) }}-{{ $locale }}"
                                                 wire:model.blur="draftValues.{{ $row->group }}.{{ $row->key }}.{{ $locale }}"
                                                 wire:change="saveValue('{{ $row->group }}', '{{ $row->key }}', '{{ $locale }}')"
-                                                class="w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 {{ blank($value) ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white' }}"
+                                                class="w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 {{ blank($row->values[$locale] ?? null) ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white' }}"
                                                 placeholder="{{ __('superadmin.translation_management.placeholders.missing_translation') }}"
                                             />
                                         </td>

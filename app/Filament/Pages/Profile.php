@@ -6,6 +6,7 @@ use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
 use App\Filament\Pages\Concerns\InteractsWithKycProfileForms;
 use App\Filament\Pages\Concerns\InteractsWithProfileAvatarForms;
 use App\Filament\Pages\Concerns\RefreshesOnShellLocaleUpdate;
+use App\Filament\Support\View\BladeViewData;
 use App\Models\User;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
@@ -57,5 +58,30 @@ class Profile extends Page
     public static function canAccess(): bool
     {
         return Auth::user() instanceof User;
+    }
+
+    public function profileFieldValue(string $key): string
+    {
+        return (string) ($this->profileForm[$key] ?? '');
+    }
+
+    public function kycFieldValue(string $key): string
+    {
+        return (string) ($this->kycForm[$key] ?? '');
+    }
+
+    public function kycChecked(string $key): bool
+    {
+        return (bool) ($this->kycForm[$key] ?? false);
+    }
+
+    public function canManageRiskFields(): bool
+    {
+        return $this->user()->isAdminLike();
+    }
+
+    public function avatarInitials(): string
+    {
+        return BladeViewData::initials($this->user()->name);
     }
 }

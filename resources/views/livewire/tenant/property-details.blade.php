@@ -1,23 +1,3 @@
-@php
-    $selectedYear = (string) ($summary['selected_year'] ?? 'all');
-    $selectedMonth = (string) ($summary['selected_month'] ?? 'all');
-    $selectedMonthLabel = $selectedMonth === 'all'
-        ? __('tenant.pages.property.all_months')
-        : \Illuminate\Support\Carbon::createFromDate(null, (int) $selectedMonth, 1)->translatedFormat('F');
-    $historyScope = $selectedYear === 'all'
-        ? __('tenant.pages.property.all_years')
-        : $selectedYear;
-
-    if ($selectedMonth !== 'all') {
-        $historyScope .= ' • '.$selectedMonthLabel;
-    }
-
-    $tenantContactLine = collect([
-        $summary['tenant_email'] ?? null,
-        $summary['tenant_phone'] ?? null,
-    ])->filter()->implode(' · ');
-@endphp
-
 <x-tenant.page>
     <x-shared.page-header icon="heroicon-m-home-modern" :title="__('tenant.pages.property.heading')" :subtitle="__('tenant.pages.property.description')">
         @if (($summary['has_assignment'] ?? false) && filled($summary['assigned_since'] ?? null))
@@ -205,8 +185,8 @@
 
                     <x-tenant.select-field id="propertyHistoryMonth" :label="__('tenant.pages.property.history_month')" wire:model.live="selectedMonth" class="min-w-0 flex-1 sm:min-w-[16rem]">
                             <option value="all">{{ __('tenant.pages.property.all_months') }}</option>
-                            @foreach ($summary['available_months'] as $month)
-                                <option value="{{ $month }}">{{ \Illuminate\Support\Carbon::createFromDate(null, (int) $month, 1)->translatedFormat('F') }}</option>
+                            @foreach ($availableMonths as $month)
+                                <option value="{{ $month['value'] }}">{{ $month['label'] }}</option>
                             @endforeach
                     </x-tenant.select-field>
                 </div>

@@ -1,29 +1,3 @@
-@props([
-    'id',
-    'label',
-    'value' => '',
-    'displayValue' => null,
-    'mode' => 'date',
-    'min' => null,
-    'max' => null,
-    'includeSeconds' => false,
-    'minuteStep' => 1,
-])
-
-@php
-    use App\Filament\Support\Formatting\LocalizedDateFormatter;
-
-    $locale = app()->getLocale();
-    $weekStartsOn = in_array($locale, ['lt', 'ru', 'es'], true) ? 1 : 0;
-    $hasTime = $mode === 'datetime';
-    $selectedDisplay = $displayValue
-        ?? (filled($value)
-            ? ($hasTime ? LocalizedDateFormatter::dateTime($value) : LocalizedDateFormatter::date($value))
-            : __('calendar.no_date_selected'));
-    $wireModelAttributes = $attributes->whereStartsWith('wire:model');
-    $rootAttributes = $attributes->whereDoesntStartWith('wire:model');
-@endphp
-
 <div
     data-calendar-picker
     data-locale="{{ $locale }}"
@@ -34,7 +8,7 @@
     data-max-date="{{ $max }}"
     data-empty-label="{{ __('calendar.no_date_selected') }}"
     data-select-date-label="{{ __('calendar.select_date') }}"
-    {{ $rootAttributes->class(['space-y-2']) }}
+    {{ $attributes->whereDoesntStartWith('wire:model')->class(['space-y-2']) }}
 >
     <label for="{{ $id }}" class="text-sm font-semibold text-slate-700">{{ $label }}</label>
 
@@ -43,7 +17,7 @@
         type="hidden"
         value="{{ $value }}"
         data-calendar-input
-        {{ $wireModelAttributes }}
+        {{ $attributes->whereStartsWith('wire:model') }}
     />
 
     <button

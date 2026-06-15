@@ -23,24 +23,20 @@
         <nav class="fi-sidebar-nav flex-1 overflow-y-auto" data-shell-nav="sidebar">
             <div class="space-y-6 px-4 py-6">
                 @foreach ($groups as $group)
-                    @php($groupKey = $group->key)
-
-                    <section wire:key="sidebar-group-{{ $groupKey }}" data-shell-group="{{ $groupKey }}" class="space-y-3">
+                    <section wire:key="sidebar-group-{{ $group->key }}" data-shell-group="{{ $group->key }}" class="space-y-3">
                         <p class="px-3 text-xs font-semibold uppercase tracking-[0.26em] text-white/45">
                             {{ $group->label }}
                         </p>
 
                         <div class="space-y-1">
                             @foreach ($group->items as $item)
-                                @php($itemRoute = $item->routeName)
-
                                 <a
                                     href="{{ $item->url }}"
-                                    wire:key="sidebar-item-{{ $groupKey }}-{{ $itemRoute }}"
+                                    wire:key="sidebar-item-{{ $group->key }}-{{ $item->routeName }}"
                                     wire:navigate
                                     @if ($item->active)
                                         aria-current="page"
-                                        data-shell-current="{{ $itemRoute }}"
+                                        data-shell-current="{{ $item->routeName }}"
                                     @endif
                                     @class([
                                         'block rounded-2xl px-3 py-3 text-sm font-semibold transition',

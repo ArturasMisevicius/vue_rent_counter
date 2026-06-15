@@ -1,20 +1,3 @@
-@props([
-    'user',
-    'compact' => false,
-])
-
-@php
-    $initials = collect(explode(' ', trim((string) $user->name)))
-        ->filter()
-        ->take(2)
-        ->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))
-        ->implode('');
-    $palette = app(\App\Filament\Support\Shell\UserAvatarColor::class)->for($user->name);
-    $avatarUrl = filled($user->avatar_path) && \Illuminate\Support\Facades\Route::has('profile.avatar.show')
-        ? route('profile.avatar.show', ['v' => $user->avatar_updated_at?->getTimestamp() ?? $user->updated_at?->getTimestamp()])
-        : null;
-@endphp
-
 @if ($compact)
     <span class="inline-flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-sm font-semibold text-white" data-shell-user-avatar-compact>
         @if ($avatarUrl)

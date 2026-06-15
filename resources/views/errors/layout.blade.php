@@ -1,8 +1,3 @@
-@php
-    $user = auth()->user();
-    $dashboardUrl = app(\App\Filament\Support\Shell\DashboardUrlResolver::class)->for($user, preferTenantDashboard: true);
-@endphp
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

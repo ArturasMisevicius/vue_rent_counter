@@ -1,15 +1,10 @@
-@php
-    $isList = is_array($data) && array_is_list($data);
-    $isScalarList = $isList && collect($data)->every(fn ($item) => ! is_array($item));
-@endphp
-
 @if (! is_array($data))
     <div class="text-sm text-slate-900">{{ filled($data) ? $data : '—' }}</div>
 @elseif ($data === [])
     <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
         {{ __('superadmin.users.dossier.no_values_recorded') }}
     </div>
-@elseif ($isScalarList)
+@elseif (array_is_list($data) && collect($data)->every(fn ($item) => ! is_array($item)))
     <ul class="space-y-2">
         @foreach ($data as $item)
             <li class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900">
@@ -17,7 +12,7 @@
             </li>
         @endforeach
     </ul>
-@elseif ($isList)
+@elseif (array_is_list($data))
     <div class="space-y-4">
         @foreach ($data as $index => $item)
             <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
@@ -36,8 +31,7 @@
         @foreach ($data as $key => $value)
             <div class="rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-4">
                 <dt class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    @php($fieldTranslationKey = 'superadmin.users.dossier.fields.'.\App\Filament\Support\Localization\LocalizedCodeLabel::segment((string) $key))
-                    {{ trans()->has($fieldTranslationKey) ? __($fieldTranslationKey) : \Illuminate\Support\Str::headline((string) $key) }}
+                    {{ \App\Filament\Support\View\BladeViewData::dossierFieldLabel((string) $key) }}
                 </dt>
                 <dd class="mt-3 text-sm text-slate-900">
                     @if (is_array($value))

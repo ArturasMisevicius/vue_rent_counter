@@ -1,11 +1,3 @@
-@props([
-    'groups' => [],
-])
-
-@php
-    $groups = collect($groups)->filter(fn ($group): bool => ! empty($group['readings'] ?? []));
-@endphp
-
 <x-tenant.card class="px-4 py-4 sm:px-5 sm:py-5" data-tenant-recent-readings>
     <x-tenant.section-heading
         icon="heroicon-m-clipboard-document-list"

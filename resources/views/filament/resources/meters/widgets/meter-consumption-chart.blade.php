@@ -33,16 +33,8 @@
                     points="{{ $points }}"
                 />
 
-                @foreach ($readings as $reading)
-                    @php
-                        $count = max($readings->count() - 1, 1);
-                        $chartWidth = $width - ($paddingX * 2);
-                        $chartHeight = $height - ($paddingY * 2);
-                        $range = max(((float) $maxValue) - ((float) $minValue), 1.0);
-                        $x = $paddingX + (($chartWidth / $count) * $loop->index);
-                        $y = $paddingY + ($chartHeight - ((((float) $reading->reading_value) - (float) $maxValue + $range) / $range * $chartHeight));
-                    @endphp
-                    <circle cx="{{ $x }}" cy="{{ $y }}" r="4" fill="#0f172a" />
+                @foreach (\App\Filament\Support\View\BladeViewData::meterChartPoints($readings, $width, $height, $paddingX, $paddingY, $minValue, $maxValue) as $point)
+                    <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="#0f172a" />
                 @endforeach
             </svg>
         </div>

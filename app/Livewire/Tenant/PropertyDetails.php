@@ -10,6 +10,7 @@ use App\Livewire\Concerns\AppliesShellLocale;
 use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -44,8 +45,16 @@ class PropertyDetails extends Component
     {
         abort_if(($this->summary['has_assignment'] ?? false) === false, 404);
 
+        $summary = $this->summary;
+
         return view('livewire.tenant.property-details', [
-            'summary' => $this->summary,
+            'availableMonths' => $this->availableMonths($summary),
+            'historyScope' => $this->historyScope($summary),
+            'summary' => $summary,
+            'tenantContactLine' => collect([
+                $summary['tenant_email'] ?? null,
+                $summary['tenant_phone'] ?? null,
+            ])->filter()->implode(' · '),
         ]);
     }
 
@@ -94,5 +103,38 @@ class PropertyDetails extends Component
         $tenant = $this->currentTenant();
 
         return app(TenantPropertyPresenter::class)->for($tenant, $this->selectedYear, $this->selectedMonth);
+    }
+
+    /**
+     * @param  array<string, mixed>  $summary
+     * @return list<array{value: string|int, label: string}>
+     */
+    private function availableMonths(array $summary): array
+    {
+        return collect($summary['available_months'] ?? [])
+            ->map(fn (string|int $month): array => [
+                'value' => $month,
+                'label' => Carbon::createFromDate(null, (int) $month, 1)->translatedFormat('F'),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $summary
+     */
+    private function historyScope(array $summary): string
+    {
+        $selectedYear = (string) ($summary['selected_year'] ?? 'all');
+        $selectedMonth = (string) ($summary['selected_month'] ?? 'all');
+        $historyScope = $selectedYear === 'all'
+            ? __('tenant.pages.property.all_years')
+            : $selectedYear;
+
+        if ($selectedMonth !== 'all') {
+            $historyScope .= ' • '.Carbon::createFromDate(null, (int) $selectedMonth, 1)->translatedFormat('F');
+        }
+
+        return $historyScope;
     }
 }

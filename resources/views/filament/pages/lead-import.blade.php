@@ -55,13 +55,12 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">
                             @forelse (array_slice($preview['rows'] ?? [], 0, 50) as $row)
-                                @php($data = $row['data'] ?? [])
                                 <tr>
                                     <td class="px-4 py-3 text-slate-600">{{ $row['row_number'] ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-900">{{ $data['listing_title'] ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-600">{{ $data['property_address'] ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-600">{{ $data['owner_phone'] ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-600">{{ $data['owner_email'] ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-900">{{ $row['data']['listing_title'] ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-600">{{ $row['data']['property_address'] ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-600">{{ $row['data']['owner_phone'] ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-600">{{ $row['data']['owner_email'] ?? '—' }}</td>
                                     <td class="px-4 py-3">
                                         <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{{ $row['status'] ?? '—' }}</span>
                                     </td>

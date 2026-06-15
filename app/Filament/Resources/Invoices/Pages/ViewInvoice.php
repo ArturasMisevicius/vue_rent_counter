@@ -70,6 +70,26 @@ class ViewInvoice extends ViewRecord
         return $this->pageDataCache ??= app(InvoiceViewPresenter::class)->present($this->record);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function presentation(): array
+    {
+        return $this->pageData()['presentation'] ?? [];
+    }
+
+    /**
+     * @return array{items: array<int, mixed>, blocking_errors: array<int, mixed>, warnings: array<int, mixed>}
+     */
+    public function calculationPreview(): array
+    {
+        return $this->pageData()['calculation_preview'] ?? [
+            'items' => [],
+            'blocking_errors' => [],
+            'warnings' => [],
+        ];
+    }
+
     protected function getHeaderActions(): array
     {
         if ($this->record->canEditFromAdminWorkspace()) {

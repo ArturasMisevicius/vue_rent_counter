@@ -47,6 +47,7 @@ class Topbar extends Component
 
         return view('livewire.shell.topbar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
+            'isPageContext' => $this->context === 'page',
             'navigationGroups' => $this->navigationGroupsFor($user, $navigationBuilder),
             'profileUrl' => $this->resolveProfileUrl($user),
             'roleLabel' => $user?->role?->label(),

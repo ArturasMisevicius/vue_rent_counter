@@ -1,5 +1,4 @@
 <x-filament-panels::page>
-    @php($integrity = $this->integrity)
 
     <div class="space-y-6">
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -10,15 +9,15 @@
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div class="rounded-md border border-slate-200 px-4 py-3">
                         <p class="text-xs font-semibold uppercase text-slate-500">{{ __('admin.billing_cleanup.summary.total') }}</p>
-                        <p class="mt-1 text-xl font-semibold text-slate-950">{{ $integrity['summary']['total'] }}</p>
+                        <p class="mt-1 text-xl font-semibold text-slate-950">{{ $this->integrity['summary']['total'] }}</p>
                     </div>
                     <div class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3">
                         <p class="text-xs font-semibold uppercase text-rose-700">{{ __('admin.billing_cleanup.summary.blocking') }}</p>
-                        <p class="mt-1 text-xl font-semibold text-rose-800">{{ $integrity['summary']['blocking'] }}</p>
+                        <p class="mt-1 text-xl font-semibold text-rose-800">{{ $this->integrity['summary']['blocking'] }}</p>
                     </div>
                     <div class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
                         <p class="text-xs font-semibold uppercase text-amber-800">{{ __('admin.billing_cleanup.summary.warning') }}</p>
-                        <p class="mt-1 text-xl font-semibold text-amber-900">{{ $integrity['summary']['warning'] }}</p>
+                        <p class="mt-1 text-xl font-semibold text-amber-900">{{ $this->integrity['summary']['warning'] }}</p>
                     </div>
                 </div>
             </div>
@@ -45,7 +44,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">
-                            @forelse ($integrity[$section] as $issue)
+                            @forelse ($this->integrity[$section] as $issue)
                                 <tr wire:key="billing-cleanup-{{ $section }}-{{ $issue['problem_type'] }}-{{ implode('-', $issue['entity_ids']) }}">
                                     <td class="px-4 py-4 font-medium text-slate-950">{{ __('admin.billing_cleanup.entity_types.'.$issue['entity_type']) }}</td>
                                     <td class="px-4 py-4 text-slate-700">{{ $issue['label'] }}</td>

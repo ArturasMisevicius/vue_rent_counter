@@ -1,12 +1,8 @@
-@php
-    use Illuminate\Support\Js;
-@endphp
-
 <div
     x-data="{
         matrix: $wire.entangle('matrix').live,
         selectedPreset: $wire.entangle('selectedPreset').live,
-        presets: {{ Js::from($presetMatrices) }},
+        presets: {{ \Illuminate\Support\Js::from($presetMatrices) }},
         detectPreset() {
             for (const [key, preset] of Object.entries(this.presets)) {
                 if (JSON.stringify(preset) === JSON.stringify(this.matrix)) {
@@ -94,25 +90,21 @@
                         </div>
                     @endforeach
 
-                    @foreach ($labels as $resource => $label)
-                        @php
-                            $resourceAvailability = $availability[$resource] ?? ['available' => true, 'reason' => null];
-                        @endphp
-
-                        <div class="bg-white px-4 py-3 text-sm font-medium text-gray-900 dark:bg-gray-900 dark:text-gray-100 {{ $resourceAvailability['available'] ? '' : 'opacity-60' }}"
-                             title="{{ $resourceAvailability['reason'] ?? '' }}">
-                            {{ $label }}
+                    @foreach ($permissionRows as $row)
+                        <div class="bg-white px-4 py-3 text-sm font-medium text-gray-900 dark:bg-gray-900 dark:text-gray-100 {{ $row['available'] ? '' : 'opacity-60' }}"
+                             title="{{ $row['reason'] ?? '' }}">
+                            {{ $row['label'] }}
                         </div>
 
                         @foreach (['can_create', 'can_edit', 'can_delete'] as $flag)
                             <label
-                                class="flex items-center justify-center bg-white px-4 py-3 dark:bg-gray-900 {{ $resourceAvailability['available'] ? '' : 'opacity-60' }}"
-                                title="{{ $resourceAvailability['reason'] ?? '' }}"
+                                class="flex items-center justify-center bg-white px-4 py-3 dark:bg-gray-900 {{ $row['available'] ? '' : 'opacity-60' }}"
+                                title="{{ $row['reason'] ?? '' }}"
                             >
                                 <input
                                     type="checkbox"
-                                    x-model="matrix.{{ $resource }}.{{ $flag }}"
-                                    @disabled(! $resourceAvailability['available'])
+                                    x-model="matrix.{{ $row['resource'] }}.{{ $flag }}"
+                                    @disabled(! $row['available'])
                                     class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-white/15 dark:bg-gray-950"
                                 >
                             </label>

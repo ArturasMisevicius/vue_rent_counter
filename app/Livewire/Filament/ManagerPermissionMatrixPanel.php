@@ -116,6 +116,7 @@ class ManagerPermissionMatrixPanel extends Component
             'labels' => ManagerPermissionCatalog::labels(),
             'manager' => $this->manager(),
             'organization' => $this->organization(),
+            'permissionRows' => $this->permissionRows(),
             'presetLabels' => collect(ManagerPermissionCatalog::presets())
                 ->mapWithKeys(fn (array $preset, string $key): array => [$key => $preset['name']])
                 ->all(),
@@ -206,6 +207,26 @@ class ManagerPermissionMatrixPanel extends Component
                 'name' => $user->name,
                 'email' => $user->email,
             ])
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{resource: string, label: string, available: bool, reason: string|null}>
+     */
+    private function permissionRows(): array
+    {
+        return collect(ManagerPermissionCatalog::labels())
+            ->map(function (string $label, string $resource): array {
+                $availability = $this->availability[$resource] ?? ['available' => true, 'reason' => null];
+
+                return [
+                    'resource' => $resource,
+                    'label' => $label,
+                    'available' => (bool) ($availability['available'] ?? true),
+                    'reason' => $availability['reason'] ?? null,
+                ];
+            })
+            ->values()
             ->all();
     }
 }

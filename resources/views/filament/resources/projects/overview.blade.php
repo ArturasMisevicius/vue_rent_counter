@@ -1,22 +1,9 @@
-@php
-    $varianceToneClasses = [
-        'danger' => 'bg-danger-50 text-danger-700 ring-danger-200 dark:bg-danger-500/10 dark:text-danger-300 dark:ring-danger-500/30',
-        'success' => 'bg-success-50 text-success-700 ring-success-200 dark:bg-success-500/10 dark:text-success-300 dark:ring-success-500/30',
-        'info' => 'bg-info-50 text-info-700 ring-info-200 dark:bg-info-500/10 dark:text-info-300 dark:ring-info-500/30',
-        'gray' => 'bg-gray-50 text-gray-700 ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10',
-        'warning' => 'bg-warning-50 text-warning-700 ring-warning-200 dark:bg-warning-500/10 dark:text-warning-300 dark:ring-warning-500/30',
-    ];
-
-    $scheduleToneClass = $varianceToneClasses[$schedule['variance_tone']] ?? $varianceToneClasses['gray'];
-    $budgetToneClass = $varianceToneClasses[$budget['variance_tone']] ?? $varianceToneClasses['gray'];
-@endphp
-
 <div class="space-y-6">
     <section class="grid gap-6 xl:grid-cols-[2fr,1fr]">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
                 <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.project_identity') }}</h2>
-                <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ $scheduleToneClass }}">{{ $schedule['variance_label'] }}</span>
+                <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ \App\Filament\Support\View\BladeViewData::projectVarianceToneClass((string) $schedule['variance_tone']) }}">{{ $schedule['variance_label'] }}</span>
             </div>
 
             <dl class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -130,7 +117,7 @@
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between">
                 <h2 class="text-base font-semibold text-gray-950 dark:text-white">{{ __('admin.projects.sections.budget_health') }}</h2>
-                <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ $budgetToneClass }}">{{ $budget['variance_label'] }}</span>
+                    <span class="rounded-full px-3 py-1 text-xs font-medium ring-1 {{ \App\Filament\Support\View\BladeViewData::projectVarianceToneClass((string) $budget['variance_tone']) }}">{{ $budget['variance_label'] }}</span>
             </div>
 
             <div class="space-y-4">

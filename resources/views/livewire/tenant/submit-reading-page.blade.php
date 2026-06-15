@@ -131,14 +131,10 @@
 
                         <div class="flex flex-col gap-4" data-tenant-reading-table>
                             @foreach ($readingRows as $row)
-                                @php
-                                    $meterId = (string) $row['id'];
-                                @endphp
-
                                 <x-tenant.reading-row
-                                    :meter-id="$meterId"
+                                    :meter-id="(string) $row['id']"
                                     :row="$row"
-                                    wire:key="tenant-reading-row-{{ $meterId }}"
+                                    wire:key="tenant-reading-row-{{ $row['id'] }}"
                                 />
                             @endforeach
                         </div>

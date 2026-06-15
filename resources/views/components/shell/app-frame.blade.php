@@ -6,8 +6,6 @@
     'breadcrumbs' => [],
 ])
 
-@php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

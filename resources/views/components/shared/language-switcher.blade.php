@@ -1,13 +1,3 @@
-@props([
-    'variant' => 'dark',
-])
-
-@php
-    $supportedLocales = app(\App\Filament\Support\Preferences\SupportedLocaleOptions::class)->labels();
-    $currentLocale = app()->getLocale();
-    $isLight = $variant === 'light';
-@endphp
-
 <div {{ $attributes->class(['flex items-center justify-end']) }}>
     <form
         method="POST"
@@ -21,19 +11,17 @@
         @csrf
 
         @forelse ($supportedLocales as $locale => $label)
-            @php($isActive = $currentLocale === $locale)
-
             <button
                 type="submit"
                 name="locale"
                 value="{{ $locale }}"
-                aria-current="{{ $isActive ? 'true' : 'false' }}"
+                aria-current="{{ $currentLocale === $locale ? 'true' : 'false' }}"
                 @class([
                     'rounded-md px-2.5 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition sm:px-3 sm:text-[0.72rem] sm:tracking-[0.22em]',
-                    'bg-white text-brand-ink shadow-sm' => $isActive && ! $isLight,
-                    'text-white/72 hover:bg-white/12 hover:text-white' => ! $isActive && ! $isLight,
-                    'bg-[#182131] text-white shadow-sm' => $isActive && $isLight,
-                    'text-[#5a6675] hover:bg-[#f6f0e6] hover:text-[#182131]' => ! $isActive && $isLight,
+                    'bg-white text-brand-ink shadow-sm' => $currentLocale === $locale && ! $isLight,
+                    'text-white/72 hover:bg-white/12 hover:text-white' => $currentLocale !== $locale && ! $isLight,
+                    'bg-[#182131] text-white shadow-sm' => $currentLocale === $locale && $isLight,
+                    'text-[#5a6675] hover:bg-[#f6f0e6] hover:text-[#182131]' => $currentLocale !== $locale && $isLight,
                 ])
             >
                 {{ $label }}

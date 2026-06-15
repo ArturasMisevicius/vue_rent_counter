@@ -1,13 +1,3 @@
-@php
-    $toneClasses = [
-        'default' => 'bg-slate-900',
-        'warning' => 'bg-amber-500',
-        'danger' => 'bg-red-600',
-        'info' => 'bg-sky-500',
-        'success' => 'bg-emerald-500',
-    ];
-@endphp
-
 <div class="space-y-6">
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -95,7 +85,7 @@
 
                             <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100">
                                 <div
-                                    class="h-full rounded-full {{ $toneClasses[$usage['tone']] ?? $toneClasses['default'] }}"
+                                    class="h-full rounded-full {{ \App\Filament\Support\View\BladeViewData::organizationUsageToneClass((string) ($usage['tone'] ?? 'default')) }}"
                                     style="width: {{ $usage['percentage'] }}%;"
                                 ></div>
                             </div>

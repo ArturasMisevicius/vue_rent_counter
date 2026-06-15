@@ -1,30 +1,29 @@
 <x-filament-panels::page>
-    @php($review = $this->review)
 
     <div class="space-y-6">
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <p class="text-sm font-medium text-slate-500">{{ $review['billing_period'] }}</p>
-                    <h2 class="mt-1 text-xl font-semibold text-slate-950">{{ $review['invoice_number'] }}</h2>
-                    <p class="mt-2 text-sm text-slate-600">{{ $review['invoice_status_label'] }} · {{ $review['approval_status'] ?? __('dashboard.not_available') }}</p>
+                    <p class="text-sm font-medium text-slate-500">{{ $this->review['billing_period'] }}</p>
+                    <h2 class="mt-1 text-xl font-semibold text-slate-950">{{ $this->review['invoice_number'] }}</h2>
+                    <p class="mt-2 text-sm text-slate-600">{{ $this->review['invoice_status_label'] }} · {{ $this->review['approval_status'] ?? __('dashboard.not_available') }}</p>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
                     <button type="button" wire:click="recalculateInvoice" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                         {{ __('admin.billing_review.actions.recalculate') }}
                     </button>
-                    @if ($review['can_approve'])
+                    @if ($this->review['can_approve'])
                         <button type="button" wire:click="approveInvoice" class="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
                             {{ __('admin.billing_review.actions.approve_invoice') }}
                         </button>
                     @endif
-                    @if ($review['missing_readings'] !== [])
+                    @if ($this->review['missing_readings'] !== [])
                         <button type="button" wire:click="sendReminder" class="rounded-md border border-amber-200 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50">
                             {{ __('admin.billing_review.actions.send_reminder') }}
                         </button>
                     @endif
-                    @if ($review['can_send'])
+                    @if ($this->review['can_send'])
                         <button type="button" wire:click="sendInvoice" class="rounded-md border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
                             {{ __('admin.billing_review.actions.send_invoice') }}
                         </button>
@@ -35,37 +34,37 @@
             <dl class="mt-5 grid gap-4 md:grid-cols-3">
                 <div class="rounded-lg bg-slate-50 p-4">
                     <dt class="text-xs font-semibold uppercase text-slate-500">{{ __('admin.billing_review.invoice_review.tenant_property') }}</dt>
-                    <dd class="mt-2 text-sm font-semibold text-slate-950">{{ $review['tenant_name'] }}</dd>
-                    <dd class="text-sm text-slate-600">{{ $review['property_name'] }}</dd>
+                    <dd class="mt-2 text-sm font-semibold text-slate-950">{{ $this->review['tenant_name'] }}</dd>
+                    <dd class="text-sm text-slate-600">{{ $this->review['property_name'] }}</dd>
                 </div>
                 <div class="rounded-lg bg-slate-50 p-4">
                     <dt class="text-xs font-semibold uppercase text-slate-500">{{ __('admin.billing_review.invoice_review.readings') }}</dt>
-                    <dd class="mt-2 text-sm font-semibold text-slate-950">{{ $review['readings_progress'] }}</dd>
-                    <dd class="text-sm text-slate-600">{{ __('admin.billing_review.invoice_review.submitted_count', ['count' => $review['submitted_readings_count']]) }}</dd>
+                    <dd class="mt-2 text-sm font-semibold text-slate-950">{{ $this->review['readings_progress'] }}</dd>
+                    <dd class="text-sm text-slate-600">{{ __('admin.billing_review.invoice_review.submitted_count', ['count' => $this->review['submitted_readings_count']]) }}</dd>
                 </div>
                 <div class="rounded-lg bg-slate-50 p-4">
                     <dt class="text-xs font-semibold uppercase text-slate-500">{{ __('admin.billing_review.invoice_review.preview_total') }}</dt>
-                    <dd class="mt-2 text-lg font-semibold text-slate-950">{{ $review['preview_total'] }} {{ $review['currency'] }}</dd>
+                    <dd class="mt-2 text-lg font-semibold text-slate-950">{{ $this->review['preview_total'] }} {{ $this->review['currency'] }}</dd>
                 </div>
             </dl>
         </section>
 
-        @if ($review['blocking_errors'] !== [])
+        @if ($this->review['blocking_errors'] !== [])
             <section class="rounded-lg border border-rose-200 bg-rose-50 p-5">
                 <h3 class="text-sm font-semibold text-rose-950">{{ __('admin.billing_review.invoice_review.blocking_errors') }}</h3>
                 <div class="mt-3 space-y-2 text-sm text-rose-900">
-                    @foreach ($review['blocking_errors'] as $error)
+                    @foreach ($this->review['blocking_errors'] as $error)
                         <p>{{ $error }}</p>
                     @endforeach
                 </div>
             </section>
         @endif
 
-        @if ($review['warnings'] !== [])
+        @if ($this->review['warnings'] !== [])
             <section class="rounded-lg border border-amber-200 bg-amber-50 p-5">
                 <h3 class="text-sm font-semibold text-amber-950">{{ __('admin.billing_review.invoice_review.warnings') }}</h3>
                 <div class="mt-3 space-y-2 text-sm text-amber-900">
-                    @foreach ($review['warnings'] as $warning)
+                    @foreach ($this->review['warnings'] as $warning)
                         <p>{{ $warning }}</p>
                     @endforeach
                 </div>
@@ -78,7 +77,7 @@
             </div>
 
             <div class="divide-y divide-slate-100">
-                @forelse ($review['submitted_readings'] as $reading)
+                @forelse ($this->review['submitted_readings'] as $reading)
                     <div wire:key="invoice-review-reading-{{ $reading['reading_id'] ?? $reading['meter_id'] }}" class="grid gap-4 px-5 py-4 xl:grid-cols-[minmax(0,1fr)_minmax(28rem,1.2fr)]">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
@@ -150,7 +149,7 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-base font-semibold text-slate-950">{{ __('admin.billing_review.invoice_review.missing_readings') }}</h3>
                 <div class="mt-4 space-y-3">
-                    @forelse ($review['missing_readings'] as $reading)
+                    @forelse ($this->review['missing_readings'] as $reading)
                         <div class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ $reading['meter_name'] }}</div>
                     @empty
                         <p class="text-sm text-slate-500">{{ __('admin.billing_review.invoice_review.no_missing_readings') }}</p>
@@ -161,16 +160,16 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-base font-semibold text-slate-950">{{ __('admin.billing_review.invoice_review.services_extra_charges') }}</h3>
                 <div class="mt-4 space-y-3">
-                    @foreach ($review['services'] as $service)
+                    @foreach ($this->review['services'] as $service)
                         <div class="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm">
                             <span class="font-medium text-slate-800">{{ $service['name'] }}</span>
-                            <span class="text-slate-600">{{ $service['preview_total'] }} {{ $review['currency'] }}</span>
+                            <span class="text-slate-600">{{ $service['preview_total'] }} {{ $this->review['currency'] }}</span>
                         </div>
                     @endforeach
-                    @foreach ($review['extra_charges'] as $charge)
+                    @foreach ($this->review['extra_charges'] as $charge)
                         <div class="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm">
                             <span class="font-medium text-slate-800">{{ $charge['description'] }}</span>
-                            <span class="text-slate-600">{{ $charge['total'] }} {{ $review['currency'] }}</span>
+                            <span class="text-slate-600">{{ $charge['total'] }} {{ $this->review['currency'] }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -181,11 +180,11 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-base font-semibold text-slate-950">{{ __('admin.billing_review.invoice_review.calculation_preview') }}</h3>
                 <div class="mt-4 space-y-3">
-                    @forelse ($review['calculation_preview'] as $item)
+                    @forelse ($this->review['calculation_preview'] as $item)
                         <div class="rounded-lg border border-slate-100 px-4 py-3">
                             <div class="flex items-start justify-between gap-4 text-sm">
                                 <span class="font-medium text-slate-900">{{ $item['description'] }}</span>
-                                <span class="font-semibold text-slate-950">{{ $item['total'] }} {{ $review['currency'] }}</span>
+                                <span class="font-semibold text-slate-950">{{ $item['total'] }} {{ $this->review['currency'] }}</span>
                             </div>
                             <p class="mt-1 text-xs text-slate-500">{{ $item['quantity'] }} {{ $item['unit'] }} · {{ $item['unit_price'] }}</p>
                         </div>
@@ -198,7 +197,7 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 class="text-base font-semibold text-slate-950">{{ __('admin.billing_review.invoice_review.history') }}</h3>
                 <div class="mt-4 space-y-3">
-                    @forelse ($review['history'] as $event)
+                    @forelse ($this->review['history'] as $event)
                         <div class="rounded-lg bg-slate-50 px-4 py-3 text-sm">
                             <p class="font-medium text-slate-900">{{ $event['label'] }}</p>
                             <p class="mt-1 text-xs text-slate-500">{{ $event['actor'] ?? __('dashboard.not_available') }} · {{ $event['at'] ?? $event['description'] }}</p>

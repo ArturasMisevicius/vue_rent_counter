@@ -3,10 +3,13 @@
 namespace App\View\Components\Shell;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Component;
 
 class AppFrame extends Component
 {
+    public ?string $cspNonce;
+
     /**
      * @param  array<int, mixed>  $breadcrumbs
      */
@@ -16,7 +19,9 @@ class AppFrame extends Component
         public ?string $heading = null,
         public bool $showTenantNavigation = false,
         public array $breadcrumbs = [],
-    ) {}
+    ) {
+        $this->cspNonce = Vite::cspNonce();
+    }
 
     public function render(): View
     {
