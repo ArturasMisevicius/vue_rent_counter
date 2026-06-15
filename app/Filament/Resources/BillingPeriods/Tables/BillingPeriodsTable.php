@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\BillingPeriods\Tables;
 
+use App\Filament\Actions\Admin\Billing\GenerateDraftInvoicesForBillingPeriod;
 use App\Filament\Actions\Admin\Invoices\OpenReadingInvoiceCycleAction;
 use App\Filament\Resources\BillingPeriods\BillingPeriodResource;
 use App\Models\BillingPeriod;
@@ -120,6 +121,85 @@ class BillingPeriodsTable
                                 'created' => $result['created']->count(),
                                 'notified' => $result['notified'],
                                 'skipped' => count($result['skipped']),
+                            ]))
+                            ->send();
+                    }),
+                Action::make('previewDraftInvoices')
+                    ->label(__('admin.billing_periods.actions.preview_draft_invoices'))
+                    ->icon('heroicon-m-eye')
+                    ->authorize(fn (BillingPeriod $record): bool => BillingPeriodResource::canEdit($record))
+                    ->visible(fn (BillingPeriod $record): bool => $record->starts_at !== null
+                        && $record->ends_at !== null
+                        && $record->reading_submission_deadline !== null)
+                    ->action(function (BillingPeriod $record, GenerateDraftInvoicesForBillingPeriod $generateDraftInvoices): void {
+                        $actor = self::currentUser();
+
+                        if (! $actor instanceof User) {
+                            abort(403);
+                        }
+
+                        $record->loadMissing('organization');
+
+                        if (! $record->organization instanceof Organization) {
+                            abort(403);
+                        }
+
+                        $result = $generateDraftInvoices->handle(
+                            organization: $record->organization,
+                            billingPeriod: $record,
+                            actor: $actor,
+                            dryRun: true,
+                            source: 'manual',
+                        );
+
+                        Notification::make()
+                            ->info()
+                            ->title(__('admin.billing_periods.messages.draft_invoice_preview', [
+                                'eligible' => $result['summary']['eligible'],
+                                'skipped' => $result['summary']['skipped'],
+                                'warnings' => $result['summary']['warnings'],
+                                'errors' => $result['summary']['errors'],
+                            ]))
+                            ->send();
+                    }),
+                Action::make('generateDraftInvoices')
+                    ->label(__('admin.billing_periods.actions.generate_draft_invoices'))
+                    ->icon('heroicon-m-document-plus')
+                    ->requiresConfirmation()
+                    ->modalHeading(__('admin.billing_periods.actions.generate_draft_invoices'))
+                    ->modalDescription(__('admin.billing_periods.actions.generate_draft_invoices_description'))
+                    ->authorize(fn (BillingPeriod $record): bool => BillingPeriodResource::canEdit($record))
+                    ->visible(fn (BillingPeriod $record): bool => $record->starts_at !== null
+                        && $record->ends_at !== null
+                        && $record->reading_submission_deadline !== null)
+                    ->action(function (BillingPeriod $record, GenerateDraftInvoicesForBillingPeriod $generateDraftInvoices): void {
+                        $actor = self::currentUser();
+
+                        if (! $actor instanceof User) {
+                            abort(403);
+                        }
+
+                        $record->loadMissing('organization');
+
+                        if (! $record->organization instanceof Organization) {
+                            abort(403);
+                        }
+
+                        $result = $generateDraftInvoices->handle(
+                            organization: $record->organization,
+                            billingPeriod: $record,
+                            actor: $actor,
+                            dryRun: false,
+                            source: 'manual',
+                        );
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin.billing_periods.messages.draft_invoices_generated', [
+                                'created' => $result['created']->count(),
+                                'notified' => $result['notified'],
+                                'skipped' => count($result['skipped']),
+                                'errors' => count($result['errors']),
                             ]))
                             ->send();
                     }),

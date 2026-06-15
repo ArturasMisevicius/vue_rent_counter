@@ -2,6 +2,55 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615075710 -->
+### Commit updates
+
+- added `app/Console/Commands/GenerateDraftInvoicesCommand.php`
+- added `app/Console/Commands/SendReadingRemindersCommand.php`
+- added `app/Filament/Actions/Admin/Billing/GenerateDraftInvoicesForBillingPeriod.php`
+- added `app/Filament/Actions/Admin/Settings/UpdateOrganizationBillingSettingsAction.php`
+- updated `app/Filament/Actions/Notifications/SendReadingReminders.php`
+- added `app/Filament/Pages/BillingSettings.php`
+- added `app/Filament/Resources/BillingGenerationLogs/BillingGenerationLogResource.php`
+- added `app/Filament/Resources/BillingGenerationLogs/Pages/ListBillingGenerationLogs.php`
+- added `app/Filament/Resources/BillingGenerationLogs/Pages/ViewBillingGenerationLog.php`
+- added `app/Filament/Resources/BillingGenerationLogs/Schemas/BillingGenerationLogInfolist.php`
+- added `app/Filament/Resources/BillingGenerationLogs/Tables/BillingGenerationLogsTable.php`
+- updated `app/Filament/Resources/BillingPeriods/Tables/BillingPeriodsTable.php`
+- added `app/Http/Requests/Admin/Settings/UpdateOrganizationBillingSettingsRequest.php`
+- added `app/Models/BillingGenerationLog.php`
+- added `app/Models/BillingGenerationLogItem.php`
+- updated `app/Models/BillingPeriod.php`
+- updated `app/Models/Organization.php`
+- updated `app/Models/OrganizationSetting.php`
+- added `app/Notifications/Billing/BillingGenerationSummaryNotification.php`
+- added `app/Policies/BillingGenerationLogPolicy.php`
+- updated `app/Services/Billing/InvoiceService.php`
+- updated `config/tenanto.php`
+- added `database/factories/BillingGenerationLogFactory.php`
+- added `database/factories/BillingGenerationLogItemFactory.php`
+- updated `database/factories/OrganizationSettingFactory.php`
+- added `database/migrations/2026_06_15_010000_add_billing_schedule_settings_and_generation_logs.php`
+- updated `docs/FEATURES.md`
+- updated `docs/operations/billing-reading-invoice-workflow.md`
+- updated `docs/operations/service-configuration-guide.md`
+- updated `lang/en/admin.php`
+- updated `lang/en/requests.php`
+- updated `lang/en/shell.php`
+- updated `lang/es/admin.php`
+- updated `lang/es/requests.php`
+- updated `lang/es/shell.php`
+- updated `lang/lt/admin.php`
+- updated `lang/lt/requests.php`
+- updated `lang/lt/shell.php`
+- updated `lang/ru/admin.php`
+- updated `lang/ru/requests.php`
+- updated `lang/ru/shell.php`
+- added `resources/views/filament/pages/billing-settings.blade.php`
+- updated `routes/console.php`
+- added `tests/Feature/Billing/AutomaticDraftInvoiceGenerationTest.php`
+<!-- changelog:auto:end:staged-20260615075710 -->
+
 <!-- changelog:auto:start:staged-20260615071011 -->
 ### Commit updates
 

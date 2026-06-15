@@ -264,6 +264,11 @@ class Organization extends Model
         return $this->hasMany(BillingPeriod::class);
     }
 
+    public function billingGenerationLogs(): HasMany
+    {
+        return $this->hasMany(BillingGenerationLog::class);
+    }
+
     public function extraChargeTypes(): HasMany
     {
         return $this->hasMany(ExtraChargeType::class);

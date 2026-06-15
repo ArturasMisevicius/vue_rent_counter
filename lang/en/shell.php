@@ -44,6 +44,7 @@ return [
             'profile' => 'Profile',
             'reports' => 'Reports',
             'settings' => 'Settings',
+            'billing_settings' => 'Billing Settings',
             'organization_users' => 'Organization Users',
             'team_managers' => 'Team / Managers',
             'projects' => 'Projects',
@@ -253,6 +254,29 @@ return [
         'messages' => [
             'organization_saved' => 'Organization settings have been updated.',
             'subscription_renewed' => 'Subscription has been renewed.',
+        ],
+        'billing' => [
+            'title' => 'Billing Settings',
+            'heading' => 'Billing Schedule',
+            'description' => 'Configure automatic draft invoice generation, reading deadlines, and notification timing for this organization.',
+            'fields' => [
+                'auto_generation_enabled' => 'Enable automatic draft invoice generation',
+                'billing_frequency' => 'Billing frequency',
+                'invoice_generation_day' => 'Invoice generation day',
+                'reading_deadline_day' => 'Reading deadline day',
+                'payment_due_days' => 'Payment due days after reading deadline',
+                'send_created_notification' => 'Notify tenants when readings are required',
+                'send_reminders' => 'Send reading reminders',
+                'reminder_days_before_deadline' => 'Reminder days before deadline',
+                'timezone' => 'Billing timezone',
+                'default_currency' => 'Default currency',
+            ],
+            'actions' => [
+                'save' => 'Save Billing Settings',
+            ],
+            'messages' => [
+                'saved' => 'Billing settings have been updated.',
+            ],
         ],
     ],
     'actions' => [

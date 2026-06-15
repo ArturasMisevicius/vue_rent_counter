@@ -56,6 +56,7 @@ return [
             'profile' => 'Perfil',
             'reports' => 'Informes',
             'settings' => 'Configuración',
+            'billing_settings' => 'Configuración de facturación',
             'organization_users' => 'Usuarios de organización',
             'team_managers' => 'Equipo / responsables',
             'projects' => 'Proyectos',
@@ -334,6 +335,29 @@ return [
             'organization_saved' => 'Organización configuración have been updated.',
             'notifications_saved' => 'Notification preferences have been updated.',
             'subscription_renewed' => 'Suscripción has been renewed.',
+        ],
+        'billing' => [
+            'title' => 'Configuración de facturación',
+            'heading' => 'Calendario de facturación',
+            'description' => 'Configura la generación automática de borradores de factura, los plazos de lectura y el momento de las notificaciones para esta organización.',
+            'fields' => [
+                'auto_generation_enabled' => 'Activar generación automática de borradores de factura',
+                'billing_frequency' => 'Frecuencia de facturación',
+                'invoice_generation_day' => 'Día de generación de factura',
+                'reading_deadline_day' => 'Día límite para lecturas',
+                'payment_due_days' => 'Días hasta el vencimiento tras el límite de lecturas',
+                'send_created_notification' => 'Notificar a inquilinos cuando se requieran lecturas',
+                'send_reminders' => 'Enviar recordatorios de lectura',
+                'reminder_days_before_deadline' => 'Días de recordatorio antes del límite',
+                'timezone' => 'Zona horaria de facturación',
+                'default_currency' => 'Moneda predeterminada',
+            ],
+            'actions' => [
+                'save' => 'Guardar configuración de facturación',
+            ],
+            'messages' => [
+                'saved' => 'La configuración de facturación se ha actualizado.',
+            ],
         ],
         'actions' => [
             'save' => 'Guardar cambios',

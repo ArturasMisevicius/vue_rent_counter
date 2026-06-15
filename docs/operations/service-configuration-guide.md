@@ -81,11 +81,14 @@
 
 Текущий рабочий сценарий для счета по показаниям:
 
-1. Админ или менеджер открывает период через `Open Reading Cycle`, либо cron запускает команду `billing:open-reading-invoice-cycle` по расписанию.
+1. Автоматический schedule запускает `billing:generate-draft-invoices`, либо admin/manager запускает `Generate Draft Invoices` из Billing Periods. Legacy flow `Open Reading Cycle` / `billing:open-reading-invoice-cycle` остается для ручной совместимости.
 2. Система создает или обновляет `BillingPeriod` для organization и выбранных дат, например `May 2026`.
 3. В `BillingPeriod` сохраняются `reading_submission_deadline`, `invoice_generation_date` и `payment_due_date`.
 4. Система находит активные назначения tenant/property с активными счетчиками за этот период.
-5. Для каждого подходящего назначения система создает пустой черновик счета с `automation_level = reading_request`, привязывает его к `BillingPeriod` и отправляет tenant уведомление.
+5. Для каждого подходящего назначения система создает пустой черновик счета, привязывает его к `BillingPeriod` и пишет generation log.
+   - Если есть meters и нет blocking configuration errors: `automation_level = reading_request`, `approval_status = waiting_for_readings`, tenant notification отправляется.
+   - Если есть только fixed services: `approval_status = ready_for_review`, tenant notification не отправляется.
+   - Если отсутствует tariff или есть другая blocking configuration error: `approval_status = configuration_error`, tenant notification не отправляется.
 6. Tenant открывает уведомление, вводит показания и отправляет форму.
 7. Счет получает статус проверки `readings_submitted`, а админы и менеджеры с правом редактировать счета получают уведомление.
 8. Проверяющий открывает счет и нажимает `Prepare from Readings`.
@@ -97,7 +100,7 @@
 
 Сейчас `invoice.due_date` у пустого `reading_request` используется как deadline ввода показаний. Отдельный `BillingPeriod.payment_due_date` уже хранится для следующего шага, где финальный счет сможет иметь собственный срок оплаты после проверки показаний.
 
-Пустой счет на этом шаге не является финальным счетом к оплате. Его `status = draft`, `automation_level = reading_request`, `approval_status = waiting_for_readings`. В `approval_metadata` сохраняется request snapshot:
+Пустой счет на этом шаге не является финальным счетом к оплате. Его `status = draft`; автоматический генератор хранит этап в `approval_status`: `waiting_for_readings`, `ready_for_review` или `configuration_error`. В `approval_metadata` сохраняется request snapshot:
 
 - tenant и property;
 - period и deadline для ввода показаний;
@@ -105,13 +108,14 @@
 - expected services;
 - required inputs, то есть конкретные счетчики, которые tenant должен заполнить.
 
-Уведомление tenant отправляется сразу после создания draft invoice:
+Уведомление tenant отправляется только если draft invoice готов к вводу показаний:
 
 - email notification через `InvoiceReadingRequestNotification`;
 - database notification, которая отображается в tenant portal;
 - ссылка ведет на форму ввода показаний для конкретного счета;
 - текст содержит расчетный период и deadline ввода показаний;
 - reminders отправляются только пока счет остается `waiting_for_readings` или старым совместимым `pending`; после `readings_submitted` reminders больше не уходят.
+- при `configuration_error` сначала исправьте service configuration/tariff; tenant notification блокируется.
 
 Tenant вводит показания только внутри конкретного draft invoice:
 
@@ -204,5 +208,7 @@ Tenant не может отправлять показания в свободн
 - Billing service: `app/Services/Billing/BillingService.php`
 - Tariff resolver: `app/Services/Billing/TariffResolver.php`
 - Invoice draft actions: `app/Filament/Actions/Admin/Invoices`
+- Automatic draft generation: `app/Filament/Actions/Admin/Billing/GenerateDraftInvoicesForBillingPeriod.php`
+- Generation logs: `app/Filament/Resources/BillingGenerationLogs`
 - Billing review: `app/Filament/Pages/BillingReviewCenter.php`
 - Tests: `tests/Feature/ServiceConfigurationWizardTest.php`, `tests/Feature/Billing`

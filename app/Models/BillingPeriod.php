@@ -133,4 +133,9 @@ class BillingPeriod extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function generationLogs(): HasMany
+    {
+        return $this->hasMany(BillingGenerationLog::class);
+    }
 }

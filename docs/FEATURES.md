@@ -121,14 +121,16 @@ Main files:
 
 Tenanto now uses an invoice-driven meter-reading cycle:
 
-1. Admin or authorized manager opens a reading cycle from Filament or `php artisan billing:open-reading-invoice-cycle`.
-2. `OpenReadingInvoiceCycleAction` resolves the `BillingPeriod`.
-3. Eligible tenant/property assignments receive draft invoices with `automation_level = reading_request` and `approval_status = waiting_for_readings`.
-4. Tenants receive `InvoiceReadingRequestNotification` and submit readings only against that request invoice.
-5. `CompleteReadingRequestInvoiceAction` marks the request `readings_submitted`.
-6. Billing reviewers use Billing Review Center to approve, reject, correct, request resubmission, prepare invoice lines, and finalize invoices.
-7. Finalized invoices become tenant-visible and can be downloaded or emailed.
-8. Payment proof, confirmation, rejection, voiding, overdue marking, and reminders are handled through billing actions and notifications.
+1. Organizations configure automatic billing in Settings -> Billing: frequency, generation day, reading deadline, payment due offset, reminder days, timezone, currency, and notification toggles.
+2. `php artisan billing:generate-draft-invoices` runs daily and uses `GenerateDraftInvoicesForBillingPeriod` to create or update the target `BillingPeriod`.
+3. Eligible tenant/property assignments receive one active draft invoice per period. Duplicate active invoices, inactive tenants, inactive assignments, and properties without billable services are logged and skipped.
+4. Metered drafts receive `automation_level = reading_request` and `approval_status = waiting_for_readings`; fixed-only drafts receive `approval_status = ready_for_review`; configuration errors receive `approval_status = configuration_error`.
+5. Tenants receive `InvoiceReadingRequestNotification` only when the invoice is ready for readings. Missing tariffs or other blocking configuration errors prevent tenant notification.
+6. Admins and managers can preview or manually generate from Billing Periods; both manual and scheduled runs use the same action and write Billing Generation Logs.
+7. `CompleteReadingRequestInvoiceAction` marks submitted reading requests as `readings_submitted`.
+8. Billing reviewers use Billing Review Center to approve, reject, correct, request resubmission, prepare invoice lines, and finalize invoices.
+9. Finalized invoices become tenant-visible and can be downloaded or emailed.
+10. Payment proof, confirmation, rejection, voiding, overdue marking, and reminders are handled through billing actions and notifications.
 
 Additional billing features:
 
@@ -145,12 +147,15 @@ Main files:
 - `app/Filament/Pages/BillingReviewCenter.php`
 - `app/Filament/Pages/BillingInvoiceReview.php`
 - `app/Filament/Pages/BillingCleanupCenter.php`
+- `app/Filament/Pages/BillingSettings.php`
+- `app/Filament/Actions/Admin/Billing`
 - `app/Filament/Actions/Admin/Invoices`
 - `app/Filament/Actions/Admin/BillingReview`
 - `app/Filament/Actions/Admin/BillingIntegrity`
 - `app/Filament/Actions/Tenant/Readings`
 - `app/Actions/Billing`
 - `app/Services/Billing`
+- `app/Console/Commands/GenerateDraftInvoicesCommand.php`
 - `app/Console/Commands/OpenReadingInvoiceCycleCommand.php`
 - `app/Console/Commands/MarkOverdueInvoicesCommand.php`
 - `app/Console/Commands/SendPaymentRemindersCommand.php`
@@ -349,8 +354,10 @@ Operations commands:
 - `ops:backup-restore-readiness`
 - `ops:release-readiness`
 - `ops:phase1-guardrails-branch-protection`
+- `billing:generate-draft-invoices`
 - `billing:open-reading-invoice-cycle`
 - `billing:mark-overdue-invoices`
+- `billing:send-reading-reminders`
 - `billing:send-payment-reminders`
 - `rental-contracts:maintain`
 - `kyc:maintain`

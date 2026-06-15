@@ -38,6 +38,10 @@ $organizationNavigation = [
         'label' => 'admin.billing_periods.plural',
     ],
     [
+        'route' => 'filament.admin.resources.billing-generation-logs.index',
+        'label' => 'admin.billing_generation.plural',
+    ],
+    [
         'route' => 'filament.admin.pages.billing-cleanup-center',
         'label' => 'admin.billing_cleanup.navigation',
     ],
@@ -67,6 +71,10 @@ $adminAccountNavigation = [
     [
         'route' => 'filament.admin.pages.settings',
         'label' => 'shell.navigation.items.settings',
+    ],
+    [
+        'route' => 'filament.admin.pages.settings.billing',
+        'label' => 'shell.navigation.items.billing_settings',
     ],
     [
         'route' => 'filament.admin.resources.organization-users.index',
@@ -260,6 +268,10 @@ return [
                             'label' => 'admin.billing_periods.plural',
                         ],
                         [
+                            'route' => 'filament.admin.resources.billing-generation-logs.index',
+                            'label' => 'admin.billing_generation.plural',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.payments.index',
                             'label' => 'admin.payments.plural',
                         ],
@@ -355,6 +367,10 @@ return [
                             'label' => 'admin.billing_periods.plural',
                         ],
                         [
+                            'route' => 'filament.admin.resources.billing-generation-logs.index',
+                            'label' => 'admin.billing_generation.plural',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.payments.index',
                             'label' => 'admin.payments.plural',
                         ],
@@ -448,6 +464,10 @@ return [
                         [
                             'route' => 'filament.admin.resources.billing-periods.index',
                             'label' => 'admin.billing_periods.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.billing-generation-logs.index',
+                            'label' => 'admin.billing_generation.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.payments.index',

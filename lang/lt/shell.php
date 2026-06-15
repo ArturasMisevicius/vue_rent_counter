@@ -44,6 +44,7 @@ return [
             'profile' => 'Profilis',
             'reports' => 'Ataskaitos',
             'settings' => 'Nustatymai',
+            'billing_settings' => 'Atsiskaitymo nustatymai',
             'organization_users' => 'Organizacijos naudotojai',
             'team_managers' => 'Komanda / vadovai',
             'projects' => 'Projektai',
@@ -241,6 +242,29 @@ return [
         'messages' => [
             'organization_saved' => 'Organizacijos nustatymai atnaujinti.',
             'subscription_renewed' => 'Prenumerata atnaujinta.',
+        ],
+        'billing' => [
+            'title' => 'Atsiskaitymo nustatymai',
+            'heading' => 'Atsiskaitymo grafikas',
+            'description' => 'Konfigūruokite automatinį sąskaitų juodraščių generavimą, rodmenų terminus ir pranešimų laiką šiai organizacijai.',
+            'fields' => [
+                'auto_generation_enabled' => 'Įjungti automatinį sąskaitų juodraščių generavimą',
+                'billing_frequency' => 'Atsiskaitymo dažnis',
+                'invoice_generation_day' => 'Sąskaitos generavimo diena',
+                'reading_deadline_day' => 'Rodmenų pateikimo termino diena',
+                'payment_due_days' => 'Mokėjimo termino dienos po rodmenų termino',
+                'send_created_notification' => 'Pranešti nuomininkams, kai reikia rodmenų',
+                'send_reminders' => 'Siųsti rodmenų priminimus',
+                'reminder_days_before_deadline' => 'Priminimo dienos iki termino',
+                'timezone' => 'Atsiskaitymo laiko juosta',
+                'default_currency' => 'Numatytoji valiuta',
+            ],
+            'actions' => [
+                'save' => 'Išsaugoti atsiskaitymo nustatymus',
+            ],
+            'messages' => [
+                'saved' => 'Atsiskaitymo nustatymai atnaujinti.',
+            ],
         ],
     ],
     'actions' => [

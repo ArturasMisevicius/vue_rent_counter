@@ -244,6 +244,89 @@ final class InvoiceService
     }
 
     /**
+     * @param  array<string, mixed>  $approvalMetadata
+     */
+    public function createAutomaticBillingPeriodDraft(
+        Organization $organization,
+        PropertyAssignment $assignment,
+        BillingPeriod $billingPeriod,
+        string $approvalStatus,
+        string $dueDate,
+        string $currency,
+        array $approvalMetadata,
+        ?User $actor = null,
+        string $generatedBy = 'billing:generate-draft-invoices',
+        string $automationLevel = 'automatic_draft',
+    ): Invoice {
+        return DB::transaction(function () use (
+            $organization,
+            $assignment,
+            $billingPeriod,
+            $approvalStatus,
+            $dueDate,
+            $currency,
+            $approvalMetadata,
+            $actor,
+            $generatedBy,
+            $automationLevel,
+        ): Invoice {
+            $invoice = Invoice::query()->create([
+                'organization_id' => $organization->id,
+                'billing_period_id' => $billingPeriod->id,
+                'property_id' => $assignment->property_id,
+                'tenant_user_id' => $assignment->tenant_user_id,
+                'property_assignment_id' => $assignment->id,
+                'invoice_number' => 'INV-TEMP-'.Str::uuid(),
+                'billing_period_start' => $billingPeriod->starts_at?->toDateString(),
+                'billing_period_end' => $billingPeriod->ends_at?->toDateString(),
+                'status' => InvoiceStatus::DRAFT,
+                'payment_status' => InvoicePaymentStatus::UNPAID,
+                'currency' => strtoupper($currency),
+                'total_amount' => $this->calculator->money('0'),
+                'amount_paid' => $this->calculator->money('0'),
+                'paid_amount' => $this->calculator->money('0'),
+                'balance_amount' => $this->calculator->money('0'),
+                'due_date' => $dueDate,
+                'items' => [],
+                'snapshot_data' => [],
+                'snapshot_created_at' => now(),
+                'generated_at' => now(),
+                'generated_by' => $actor !== null ? "user:{$actor->id}" : $generatedBy,
+                'approval_status' => $approvalStatus,
+                'automation_level' => $automationLevel,
+                'approval_metadata' => $approvalMetadata,
+                'notes' => __('admin.invoices.reading_request.invoice_note'),
+            ]);
+
+            $invoice->update([
+                'invoice_number' => $this->formattedInvoiceNumber($invoice),
+            ]);
+
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
+
+            $this->auditLogger->record(
+                AuditLogAction::CREATED,
+                $freshInvoice,
+                [
+                    'workspace' => $this->workspaceContext($freshInvoice),
+                    'context' => [
+                        'mutation' => 'invoice.automatic_billing_period_draft_created',
+                    ],
+                    'after' => $this->invoiceAuditSnapshot($freshInvoice),
+                ],
+                $actor?->id,
+                'Automatic billing period draft invoice created',
+            );
+
+            DB::afterCommit(function () use ($organization): void {
+                $this->dashboardCacheService->touchOrganization($organization->id);
+            });
+
+            return $freshInvoice;
+        });
+    }
+
+    /**
      * @param  array{items: array<int, array<string, mixed>>, total_amount: string|int|float}  $lineItemPayload
      */
     public function createGeneratedInvoice(

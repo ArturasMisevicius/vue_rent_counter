@@ -9,6 +9,8 @@ use App\Filament\Support\Notifications\DomainNotificationCatalog;
 use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\User;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -26,10 +28,16 @@ final class SendReadingReminders
     /**
      * @param  list<int>|null  $daysBeforeDeadline
      */
-    public function handle(?Organization $organization = null, ?array $daysBeforeDeadline = null): int
-    {
+    public function handle(
+        ?Organization $organization = null,
+        ?array $daysBeforeDeadline = null,
+        CarbonInterface|string|null $asOf = null,
+    ): int {
         $sent = 0;
         $milestones = $daysBeforeDeadline ?: self::DEFAULT_DAYS_BEFORE_DEADLINE;
+        $reminderDate = $asOf instanceof CarbonInterface
+            ? CarbonImmutable::parse($asOf->toDateString())
+            : CarbonImmutable::parse((string) ($asOf ?: today()->toDateString()));
 
         foreach ($milestones as $days) {
             Invoice::query()
@@ -53,7 +61,7 @@ final class SendReadingReminders
                 ->where('status', InvoiceStatus::DRAFT->value)
                 ->where('automation_level', 'reading_request')
                 ->whereIn('approval_status', ['waiting_for_readings', 'pending'])
-                ->whereDate('due_date', today()->addDays($days))
+                ->whereDate('due_date', $reminderDate->addDays($days)->toDateString())
                 ->when(
                     $organization instanceof Organization,
                     fn (Builder $query): Builder => $query->forOrganization($organization->id),
