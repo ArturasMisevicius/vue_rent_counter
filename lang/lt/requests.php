@@ -28,6 +28,7 @@ return [
         'country_code' => 'šalies kodas',
         'current_password' => 'dabartinis slaptažodis',
         'due_date' => 'mokėjimo terminas',
+        'invoice_generation_date' => 'sąskaitos generavimo data',
         'payment_due_date' => 'galutinės sąskaitos mokėjimo terminas',
         'email' => 'el. pašto adresas',
         'end_date' => 'pabaigos data',

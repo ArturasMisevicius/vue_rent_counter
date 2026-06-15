@@ -28,6 +28,7 @@ return [
         'country_code' => 'country code',
         'current_password' => 'current password',
         'due_date' => 'due date',
+        'invoice_generation_date' => 'invoice generation date',
         'payment_due_date' => 'payment due date',
         'email' => 'email address',
         'end_date' => 'end date',

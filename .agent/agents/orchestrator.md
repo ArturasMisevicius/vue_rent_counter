@@ -77,6 +77,7 @@ You are the master orchestrator agent. You coordinate multiple specialized agent
 | **MOBILE** | `mobile-developer` | ❌ frontend-specialist, backend-specialist |
 | **WEB** | `frontend-specialist` | ❌ mobile-developer |
 | **BACKEND** | `backend-specialist` | - |
+| **LARAVEL** | Laravel quality agents first | ❌ generic-only backend/database/testing review when a Laravel agent exists |
 | **TENANTO** | Tenanto-specific quality agents first | ❌ generic-only review when a Tenanto domain agent exists |
 
 ---
@@ -121,6 +122,31 @@ Before I coordinate the agents, I need to understand your requirements better:
 | `project-planner` | Planning | Task breakdown, milestones, roadmap |
 | `seo-specialist` | SEO & Marketing | SEO optimization, meta tags, analytics |
 | `game-developer` | Game Development | Unity, Godot, Unreal, Phaser, multiplayer |
+
+### Laravel Quality Agents
+
+When working in a Laravel repository, prefer these agents over generic backend/database/testing agents because they encode Laravel, Eloquent, Pest, Blade, Livewire, Filament, translation, and policy conventions.
+
+| Agent | Domain | Use When |
+|-------|--------|----------|
+| `laravel-code-quality-architect` | Code Quality | Controllers, actions, services, models, jobs, events, Laravel structure |
+| `laravel-translation-corrector` | Translations | Locale files, hardcoded UI strings, wrong-language or stale old translations |
+| `laravel-database-optimizer` | Database Performance | Eloquent queries, migrations, indexes, relationships, chunking, query plans |
+| `laravel-function-test-coverage-enforcer` | Test Coverage | Every changed function/behavior needs Pest coverage |
+| `laravel-privacy-compliance-auditor` | Privacy | Privacy folders/docs/pages, PII, cookies, retention, data export/delete claims |
+| `laravel-validation-policy-auditor` | Validation/Authz | Form Requests, policies, gates, route model binding, foreign-key scoping |
+| `laravel-livewire-filament-quality-auditor` | Laravel UI | Livewire, Filament, Blade, forms, tables, modals, accessibility, UI queries |
+
+Recommended Laravel review chains:
+
+| Change Type | Required Laravel Agents |
+|-------------|-------------------------|
+| General Laravel feature | `laravel-code-quality-architect`, `laravel-function-test-coverage-enforcer` |
+| Translations or UI copy | `laravel-translation-corrector`, `laravel-function-test-coverage-enforcer` |
+| Database or query optimization | `laravel-database-optimizer`, `laravel-function-test-coverage-enforcer` |
+| Validation or permissions | `laravel-validation-policy-auditor`, `laravel-function-test-coverage-enforcer` |
+| Livewire, Filament, Blade | `laravel-livewire-filament-quality-auditor`, `laravel-translation-corrector`, `laravel-function-test-coverage-enforcer` |
+| Privacy docs or privacy folder | `laravel-privacy-compliance-auditor`, `laravel-translation-corrector` |
 
 ### Tenanto Project Agents
 
@@ -177,6 +203,13 @@ Recommended review chains:
 | `explorer-agent` | Codebase discovery | ❌ Write operations |
 | `penetration-tester` | Security testing | ❌ Feature code |
 | `game-developer` | Game logic, scenes, assets | ❌ Web/mobile components |
+| `laravel-code-quality-architect` | Laravel structure review and focused refactors | ❌ Broad unrelated rewrites |
+| `laravel-translation-corrector` | Locale/UI text fixes | ❌ Business logic changes |
+| `laravel-database-optimizer` | Eloquent/schema performance fixes | ❌ Removing authorization scope for speed |
+| `laravel-function-test-coverage-enforcer` | Tests and coverage mapping | ❌ Production behavior rewrites except test scaffolding helpers |
+| `laravel-privacy-compliance-auditor` | Privacy docs and implementation audit | ❌ Legal promises not backed by code |
+| `laravel-validation-policy-auditor` | Request validation and backend authorization | ❌ UI-only permission fixes |
+| `laravel-livewire-filament-quality-auditor` | Livewire/Filament/Blade review | ❌ Domain workflow rewrites |
 | `tenanto-tenant-isolation-auditor` | Tenant/org/security review | ❌ Feature implementation |
 | `tenanto-billing-money-auditor` | Billing correctness review | ❌ UI copy or unrelated refactors |
 | `tenanto-filament-resource-auditor` | Filament review | ❌ Domain behavior changes |

@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\Attachments\AttachmentResource;
 use App\Filament\Resources\AuditLogs\AuditLogResource;
+use App\Filament\Resources\BillingPeriods\BillingPeriodResource;
 use App\Filament\Resources\Buildings\BuildingResource;
 use App\Filament\Resources\CommentReactions\CommentReactionResource;
 use App\Filament\Resources\Comments\CommentResource;
@@ -46,6 +47,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         AuditLogResource::class => [
             'pages' => ['index'],
             'test' => 'tests/Feature/Superadmin/AuditLogsResourceTest.php',
+        ],
+        BillingPeriodResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Billing/BillingPeriodWorkflowTest.php',
         ],
         BuildingResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

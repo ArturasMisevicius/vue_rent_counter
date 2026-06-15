@@ -28,6 +28,7 @@ return [
         'country_code' => 'código de país',
         'current_password' => 'contraseña actual',
         'due_date' => 'fecha de vencimiento',
+        'invoice_generation_date' => 'fecha de generación de factura',
         'payment_due_date' => 'fecha de vencimiento del pago',
         'email' => 'dirección de email',
         'end_date' => 'fecha de fin',

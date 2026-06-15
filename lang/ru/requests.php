@@ -28,6 +28,7 @@ return [
         'country_code' => 'код страны',
         'current_password' => 'текущий пароль',
         'due_date' => 'срок оплаты',
+        'invoice_generation_date' => 'дата генерации счета',
         'payment_due_date' => 'срок оплаты финального счета',
         'email' => 'адрес электронной почты',
         'end_date' => 'дата окончания',

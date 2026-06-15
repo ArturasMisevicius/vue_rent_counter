@@ -8,7 +8,7 @@
 
 Antigravity Kit is a modular system consisting of:
 
-- **30 Specialist Agents** - Role-based AI personas, including 10 Tenanto quality gatekeepers
+- **37 Specialist Agents** - Role-based AI personas, including Laravel and Tenanto quality gatekeepers
 - **90 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
@@ -19,7 +19,7 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 30 Specialist Agents
+├── agents/                  # 37 Specialist Agents
 ├── skills/                  # 90 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
@@ -28,7 +28,7 @@ Antigravity Kit is a modular system consisting of:
 
 ---
 
-## 🤖 Agents (30)
+## 🤖 Agents (37)
 
 Specialist AI personas for different domains.
 
@@ -54,6 +54,20 @@ Specialist AI personas for different domains.
 | `qa-automation-engineer` | E2E testing, CI pipelines  | webapp-testing, testing-patterns                         |
 | `code-archaeologist`     | Legacy code, refactoring   | clean-code, code-review-checklist                        |
 | `explorer-agent`         | Codebase analysis          | -                                                        |
+
+### Laravel Quality Agents
+
+Use these framework-specific agents for Laravel repositories before generic backend/database/testing agents. They are designed for Laravel, Eloquent, Pest, Blade, Livewire, Filament, translations, privacy documentation, and policy-backed backend enforcement.
+
+| Agent                                      | Focus                               | Skills Used                                                |
+| ------------------------------------------ | ----------------------------------- | ---------------------------------------------------------- |
+| `laravel-code-quality-architect`           | Laravel structure and code quality  | tenanto-laravel-stack, clean-code                          |
+| `laravel-translation-corrector`            | Locale quality and old fixes        | i18n-localization, tenanto-laravel-stack                   |
+| `laravel-database-optimizer`               | Eloquent and schema optimization    | tenanto-laravel-stack, database-design                     |
+| `laravel-function-test-coverage-enforcer`  | Function and behavior test coverage | testing-patterns, tdd-workflow                             |
+| `laravel-privacy-compliance-auditor`       | Privacy docs and implementation     | documentation-templates, security-best-practices           |
+| `laravel-validation-policy-auditor`        | Validation and authorization        | tenanto-laravel-stack, security-best-practices             |
+| `laravel-livewire-filament-quality-auditor`| Livewire, Filament, and Blade UI    | tenanto-laravel-stack, tailwind-patterns                   |
 
 ### Tenanto Quality Agents
 
