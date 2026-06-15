@@ -164,6 +164,7 @@ When working in `/Users/andrejprus/Herd/tenanto`, prefer these agents over gener
 | `tenanto-i18n-ui-auditor` | Localization | Blade, Livewire, Filament, notifications, validation, locale parity |
 | `tenanto-css-blade-hygiene-auditor` | CSS/Blade Hygiene | CSS-only styling, no SCSS/Sass/Less, no Blade `@php`, no inline styles |
 | `tenanto-mobile-responsive-auditor` | Mobile Responsive QA | iOS Safari, Android Chrome, tablets, viewports, touch targets, mobile UI verification |
+| `tenanto-package-freshness-auditor` | Package Freshness | Latest PHP/Composer and design/frontend package APIs, audits, compatibility, upgrade readiness |
 | `tenanto-docs-release-auditor` | Documentation | README, changelog, docs, feature inventory, operations guides, AI agent docs |
 | `tenanto-upgrade-compatibility-auditor` | Compatibility | Laravel, Filament, Livewire, PHP, Composer, Node, Vite, Tailwind upgrades |
 | `tenanto-permission-matrix-auditor` | Permissions | Role matrix, manager presets, permission enum, resolver, policies, forbidden audits |
@@ -189,6 +190,7 @@ Recommended review chains:
 | UI copy/localization | `tenanto-i18n-ui-auditor`, `tenanto-pest-coverage-engineer` |
 | CSS, Blade markup, inline style, or `@php` cleanup | `tenanto-css-blade-hygiene-auditor`, `laravel-livewire-filament-quality-auditor`, `tenanto-pest-coverage-engineer` |
 | Mobile/responsive UI or any user-visible UI code | `tenanto-mobile-responsive-auditor`, `tenanto-css-blade-hygiene-auditor`, `laravel-livewire-filament-quality-auditor`, `tenanto-pest-coverage-engineer` |
+| PHP or design package versions/APIs | `tenanto-package-freshness-auditor`, `tenanto-upgrade-compatibility-auditor`, `tenanto-pest-coverage-engineer` |
 | Docs/release/update notes | `tenanto-docs-release-auditor` |
 | Dependency upgrades | `tenanto-upgrade-compatibility-auditor`, `tenanto-pest-coverage-engineer` |
 | Permission matrix, manager presets, role access | `tenanto-permission-matrix-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
@@ -246,6 +248,7 @@ Recommended review chains:
 | `tenanto-i18n-ui-auditor` | Locale/UI text review | ❌ Business logic changes |
 | `tenanto-css-blade-hygiene-auditor` | CSS source and Blade hygiene review/refactor | ❌ Business workflows, authorization shortcuts, SCSS/Sass/Less sources |
 | `tenanto-mobile-responsive-auditor` | Mobile/responsive UI review and verification | ❌ Native app code, business workflow rewrites, authorization shortcuts |
+| `tenanto-package-freshness-auditor` | Package freshness and API compatibility review | ❌ Unapproved major upgrades, package churn without tests, non-official API claims |
 | `tenanto-docs-release-auditor` | Docs/release notes | ❌ Production code |
 | `tenanto-upgrade-compatibility-auditor` | Upgrade compatibility review | ❌ Feature implementation |
 | `tenanto-permission-matrix-auditor` | Permission contract review | ❌ UI-only permission fixes |
@@ -270,6 +273,7 @@ Recommended review chains:
 | `resources/views/**/*.blade.php` | `tenanto-css-blade-hygiene-auditor` for CSS/`@php` hygiene; `tenanto-mobile-responsive-auditor` for mobile QA; `laravel-livewire-filament-quality-auditor` for UI behavior | ❌ backend-only agents |
 | `resources/css/app.css`, `vite.config.*` | `tenanto-css-blade-hygiene-auditor`, `tenanto-mobile-responsive-auditor` | ❌ backend-only agents |
 | `app/Livewire/**`, `app/Filament/**` UI surfaces | `tenanto-mobile-responsive-auditor` for visible mobile effects plus the matching Laravel/Tenanto domain agent | ❌ generic-only review |
+| `composer.json`, `composer.lock`, `package.json`, `package-lock.json` | `tenanto-package-freshness-auditor`, `tenanto-upgrade-compatibility-auditor` | ❌ UI-only or domain-only agents |
 | `**/api/**`, `**/server/**` | `backend-specialist` | ❌ frontend |
 | `**/prisma/**`, `**/drizzle/**` | `database-architect` | ❌ frontend |
 

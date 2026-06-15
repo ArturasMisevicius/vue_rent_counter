@@ -8,7 +8,7 @@
 
 Antigravity Kit is a modular system consisting of:
 
-- **67 Agent Definition Files** - role-based personas, including 50 core/domain agents listed below
+- **68 Agent Definition Files** - role-based personas, including 51 core/domain agents listed below
 - **90 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
@@ -19,7 +19,7 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 67 agent definition files
+├── agents/                  # 68 agent definition files
 ├── skills/                  # 90 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
@@ -28,7 +28,7 @@ Antigravity Kit is a modular system consisting of:
 
 ---
 
-## 🤖 Core And Domain Agents (50)
+## 🤖 Core And Domain Agents (51)
 
 Specialist AI personas for different domains.
 
@@ -85,6 +85,7 @@ Use these project-specific agents before generic agents when the task touches Te
 | `tenanto-i18n-ui-auditor`              | Translation and UI copy       | tenanto-laravel-stack, i18n-localization                   |
 | `tenanto-css-blade-hygiene-auditor`    | CSS-only and Blade hygiene    | tenanto-laravel-stack, tailwind-patterns                   |
 | `tenanto-mobile-responsive-auditor`     | Mobile responsive QA          | tenanto-laravel-stack, mobile-design                       |
+| `tenanto-package-freshness-auditor`     | Package freshness and APIs    | tenanto-laravel-stack, php-upgrade                         |
 | `tenanto-docs-release-auditor`         | Docs and release truth        | documentation-templates, update-changelog-before-commit    |
 | `tenanto-upgrade-compatibility-auditor` | Framework/package upgrades    | tenanto-laravel-stack, deployment-procedures               |
 | `tenanto-permission-matrix-auditor`    | Role and permission matrix    | tenanto-tenant-security, security-best-practices           |

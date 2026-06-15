@@ -2,6 +2,14 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615064726 -->
+### Commit updates
+
+- updated `.agent/ARCHITECTURE.md`
+- updated `.agent/agents/orchestrator.md`
+- added `.agent/agents/tenanto-package-freshness-auditor.md`
+<!-- changelog:auto:end:staged-20260615064726 -->
+
 <!-- changelog:auto:start:staged-20260615064452 -->
 ### Commit updates
 
