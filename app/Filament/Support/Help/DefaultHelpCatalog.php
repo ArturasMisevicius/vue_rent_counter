@@ -122,7 +122,7 @@ final class DefaultHelpCatalog
                 'slug' => 'rental-contracts',
                 'category' => HelpArticleCategory::CONTRACTS->value,
                 'title' => 'Rental Contracts',
-                'body' => "What this feature does\nKeeps rental contract documents connected to tenants, property assignments, and tenant visibility rules.\n\nRequired setup\nTenant, active property assignment, contract dates, status, and uploaded file when available.\n\nStep-by-step flow\nAttach the contract to the tenant assignment, choose whether it is tenant-visible, configure expiry reminders, then renew or terminate when the agreement changes.\n\nCommon mistakes\nUploading a contract without an active assignment or making an internal-only document visible to the tenant.",
+                'body' => "What this feature does\nKeeps rental agreements as business records connected to the organization, tenant, property, active property assignment, contract dates, money values, uploaded private file, tenant visibility, and audit history.\n\nRequired setup\nChoose the tenant, property, active property assignment, contract number, status, start date, end date, signed date when known, rent amount, deposit amount, currency, tenant visibility, and notes. Active contracts require an active assignment and only one active contract is allowed for the same tenant and property unless you renew or terminate the old contract first.\n\nStep-by-step flow\n1. Open the tenant profile and use Rental Contracts to add the agreement.\n2. Upload the signed PDF or Word file. The file is stored privately and downloaded only through an authorized route.\n3. Decide if the tenant can see the contract in the portal. Internal notes stay admin-only; tenant-visible notes are shown to the tenant.\n4. Use the property profile rental history to inspect previous and current agreements for a unit.\n5. Terminate a contract with a reason when the agreement ends early.\n6. Renew from the current contract to create a new linked active contract while preserving the old history.\n7. Review dashboard attention cards for tenants without contracts, active contracts, contracts expiring soon, and expired contracts.\n\nImportant rules\nContract end date must be after the start date. Tenants can only view and download their own tenant-visible contracts. Hidden contracts and internal notes are never exposed in the tenant portal. Contract files must not be shared as public storage URLs. All create, update, upload, terminate, renew, archive, expiry, and reminder actions are audited or notification-backed.\n\nCommon mistakes\nCreating an active contract after the tenant moved out, uploading an unsupported file type, forgetting to mark a tenant-facing contract visible, renewing without checking the next date range, or using internal notes for information the tenant should see.",
                 'locale' => 'en',
                 'role' => HelpAudienceRole::ADMIN->value,
                 'tags' => ['contracts', 'documents', 'expiry reminders'],
@@ -185,6 +185,17 @@ final class DefaultHelpCatalog
                 'sort_order' => 30,
             ],
             [
+                'slug' => 'tenant-rental-contracts',
+                'category' => HelpArticleCategory::CONTRACTS->value,
+                'title' => 'How to View Rental Contracts',
+                'body' => "Your Documents page can show rental contracts that your property manager marked as visible to you. Each contract shows the contract number, status, property, period, rent amount, deposit amount, tenant-visible notes, and a download button when a private contract file is available.\n\nOnly your own visible contracts are listed. Internal admin notes, hidden contracts, and contracts for another tenant or organization are not available in the tenant portal. Contact your manager if a contract is missing or the dates, property, or amount look incorrect.",
+                'locale' => 'en',
+                'role' => HelpAudienceRole::TENANT->value,
+                'tags' => ['tenant contracts', 'download', 'documents'],
+                'is_active' => true,
+                'sort_order' => 35,
+            ],
+            [
                 'slug' => 'tenant-update-profile',
                 'category' => HelpArticleCategory::TENANTS->value,
                 'title' => 'How to Update Your Profile',
@@ -244,6 +255,7 @@ final class DefaultHelpCatalog
             ['page_key' => 'tenant.readings', 'article_slug' => 'tenant-submit-readings', 'role' => HelpAudienceRole::TENANT->value, 'sort_order' => 10],
             ['page_key' => 'tenant.invoices', 'article_slug' => 'tenant-view-invoices', 'role' => HelpAudienceRole::TENANT->value, 'sort_order' => 10],
             ['page_key' => 'tenant.documents', 'article_slug' => 'tenant-download-documents', 'role' => HelpAudienceRole::TENANT->value, 'sort_order' => 10],
+            ['page_key' => 'tenant.documents', 'article_slug' => 'tenant-rental-contracts', 'role' => HelpAudienceRole::TENANT->value, 'sort_order' => 20],
             ['page_key' => 'tenant.profile', 'article_slug' => 'tenant-update-profile', 'role' => HelpAudienceRole::TENANT->value, 'sort_order' => 10],
         ];
     }

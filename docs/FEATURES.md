@@ -240,19 +240,33 @@ Tenant KYC:
 
 Rental contracts:
 
-- Store/update, upload, renewal, termination, expiry, reminder, and tenant download actions.
+- Dedicated `RentalContract` records connect agreements to organization, tenant, property, active property assignment, contract number, status, dates, money values, tenant visibility, notes, creator/updater, and optional renewal source.
+- Supported statuses are `draft`, `active`, `expired`, `terminated`, `renewed`, and `cancelled`.
+- Admin tenant profiles expose a Rental Contracts panel for add, edit, upload, download, tenant-visible toggle, terminate, renew, and archive workflows.
+- Property profiles expose a Rental History panel so a unit's current and historical agreements can be reviewed from the property side.
+- Tenant portal documents include a rental contract section with metadata and private downloads for tenant-visible contracts only.
+- Contract files are stored on the private local disk under `rental-contracts` and are served through authorization-checked download routes, not public URLs.
+- Business rules block duplicate active contracts for the same tenant and property, require active assignments for active contracts, require end dates after start dates, require a termination reason, and keep internal notes out of the tenant portal.
+- Renewal creates a new linked active contract and marks the previous one renewed.
+- Expiry and reminder flows are handled by `rental-contracts:maintain`, which expires overdue contracts and sends 30/14/7 day reminders.
+- Admin dashboard/report cards track tenants without contracts, contracts expiring soon, expired contracts, and active contracts.
 - Assignment and move-out workflows can close or preserve contract state.
+- Create, update, upload, terminate, renew, archive, expiry, and reminder flows are audited or notification-backed.
 
 Main files:
 
 - `app/Filament/Resources/Tenants/RelationManagers/TenantDocumentsRelationManager.php`
 - `app/Filament/Resources/Tenants/RelationManagers/TenantKycDocumentsRelationManager.php`
+- `app/Filament/Resources/Tenants/RelationManagers/RentalContractsRelationManager.php`
+- `app/Filament/Resources/Properties/RelationManagers/RentalHistoryRelationManager.php`
 - `app/Filament/Resources/TenantKycProfiles`
 - `app/Filament/Actions/Admin/TenantDocuments`
 - `app/Filament/Actions/TenantDocuments`
 - `app/Filament/Actions/TenantKyc`
 - `app/Filament/Actions/Admin/RentalContracts`
 - `app/Livewire/Tenant/Documents.php`
+- `app/Livewire/Tenant/RentalContracts.php`
+- `app/Livewire/Tenant/DownloadRentalContractEndpoint.php`
 - `app/Livewire/Tenant/Verification.php`
 
 ## Move-Out And Occupancy

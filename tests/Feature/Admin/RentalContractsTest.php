@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\AuditLogAction;
+use App\Enums\ManagerMembershipStatus;
 use App\Enums\RentalContractStatus;
+use App\Enums\UserRole;
 use App\Filament\Actions\Admin\RentalContracts\CreateRentalContractAction;
 use App\Filament\Actions\Admin\RentalContracts\ExpireRentalContractsAction;
 use App\Filament\Actions\Admin\RentalContracts\RenewRentalContractAction;
@@ -14,9 +16,12 @@ use App\Filament\Support\RentalContracts\RentalContractFile;
 use App\Livewire\Tenant\RentalContracts;
 use App\Models\Attachment;
 use App\Models\AuditLog;
+use App\Models\OrganizationUser;
 use App\Models\RentalContract;
 use App\Models\User;
+use App\Notifications\RentalContracts\RentalContractAvailableNotification;
 use App\Notifications\RentalContracts\RentalContractExpiryReminderNotification;
+use App\Notifications\RentalContracts\RentalContractRenewedNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -69,6 +74,16 @@ it('requires manager rental contract permissions for write access', function () 
     $manager = User::factory()->manager()->create([
         'organization_id' => $workspace['organization']->id,
     ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $workspace['organization']->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
+        'status' => ManagerMembershipStatus::ACTIVE,
+        'is_active' => true,
+        'invited_by_user_id' => $workspace['admin']->id,
+        'accepted_at' => now(),
+        'left_at' => null,
+    ]);
 
     expect(fn () => createRentalContract($manager, [
         'tenant_id' => $assignment['tenant']->id,
@@ -107,6 +122,8 @@ it('shows tenants only their own visible rental contracts', function () {
         ->create([
             'contract_number' => 'RC-VISIBLE',
             'tenant_visible' => true,
+            'internal_notes' => 'Internal admin note',
+            'tenant_visible_notes' => 'Visible tenant note',
         ]);
 
     RentalContract::factory()
@@ -133,6 +150,8 @@ it('shows tenants only their own visible rental contracts', function () {
     Livewire::actingAs($tenantA['tenant'])
         ->test(RentalContracts::class)
         ->assertSeeText($visible->contract_number)
+        ->assertSeeText('Visible tenant note')
+        ->assertDontSeeText('Internal admin note')
         ->assertDontSeeText('RC-HIDDEN')
         ->assertDontSeeText('RC-OTHER-TENANT');
 });
@@ -178,6 +197,37 @@ it('protects rental contract file downloads across tenants and organizations', f
     actingAs($otherTenant);
     get(route('tenant.rental-contracts.download', [$contract, $attachment]))
         ->assertForbidden();
+
+    $hiddenContract = RentalContract::factory()
+        ->for($workspace['organization'])
+        ->for($assignment['tenant'], 'tenant')
+        ->for($assignment['property'])
+        ->for($assignment['assignment'], 'propertyAssignment')
+        ->hiddenFromTenant()
+        ->create([
+            'contract_number' => 'RC-HIDDEN-DOWNLOAD',
+            'status' => RentalContractStatus::DRAFT,
+        ]);
+
+    $hiddenPath = RentalContractFile::DIRECTORY.'/hidden-contract.pdf';
+    Storage::disk(RentalContractFile::DISK)->put($hiddenPath, 'hidden-pdf-content');
+
+    $hiddenAttachment = Attachment::factory()
+        ->for($workspace['organization'])
+        ->for($workspace['admin'], 'uploader')
+        ->for($hiddenContract, 'attachable')
+        ->create([
+            'document_type' => RentalContractFile::DOCUMENT_TYPE,
+            'filename' => 'hidden-contract.pdf',
+            'original_filename' => 'hidden-contract.pdf',
+            'mime_type' => 'application/pdf',
+            'disk' => RentalContractFile::DISK,
+            'path' => $hiddenPath,
+        ]);
+
+    actingAs($assignment['tenant']);
+    get(route('tenant.rental-contracts.download', [$hiddenContract, $hiddenAttachment]))
+        ->assertForbidden();
 });
 
 it('blocks duplicate active contracts and invalid end dates', function () {
@@ -209,6 +259,43 @@ it('blocks duplicate active contracts and invalid end dates', function () {
     ]))->toThrow(ValidationException::class);
 });
 
+it('requires active contracts to belong to an active tenant property assignment', function () {
+    $workspace = createOrgWithAdmin();
+    $assignment = createTenantInOrg($workspace['admin']);
+
+    $assignment['assignment']->forceFill([
+        'unassigned_at' => now()->subDay(),
+    ])->save();
+
+    expect(fn () => createRentalContract($workspace['admin'], [
+        'tenant_id' => $assignment['tenant']->id,
+        'property_id' => $assignment['property']->id,
+        'property_assignment_id' => $assignment['assignment']->id,
+        'contract_number' => 'RC-INACTIVE-ASSIGNMENT',
+    ]))->toThrow(ValidationException::class);
+});
+
+it('validates rental contract uploads on the server', function () {
+    Storage::fake(RentalContractFile::DISK);
+
+    $workspace = createOrgWithAdmin();
+    $assignment = createTenantInOrg($workspace['admin']);
+    $contract = createRentalContract($workspace['admin'], [
+        'tenant_id' => $assignment['tenant']->id,
+        'property_id' => $assignment['property']->id,
+        'property_assignment_id' => $assignment['assignment']->id,
+        'contract_number' => 'RC-UPLOAD-VALIDATION',
+    ]);
+
+    expect(fn () => app(UploadRentalContractFileAction::class)->handle(
+        $contract,
+        $workspace['admin'],
+        UploadedFile::fake()->create('contract.exe', 12, 'application/x-msdownload'),
+    ))->toThrow(ValidationException::class);
+
+    expect($contract->attachments()->exists())->toBeFalse();
+});
+
 it('requires a reason to terminate rental contracts', function () {
     $workspace = createOrgWithAdmin();
     $assignment = createTenantInOrg($workspace['admin']);
@@ -236,6 +323,8 @@ it('requires a reason to terminate rental contracts', function () {
 });
 
 it('renews a rental contract by linking the new contract to the old one', function () {
+    Notification::fake();
+
     $workspace = createOrgWithAdmin();
     $assignment = createTenantInOrg($workspace['admin']);
     $contract = createRentalContract($workspace['admin'], [
@@ -254,6 +343,8 @@ it('renews a rental contract by linking the new contract to the old one', functi
     expect($contract->fresh()->status)->toBe(RentalContractStatus::RENEWED)
         ->and($renewed->renewed_from_contract_id)->toBe($contract->id)
         ->and($renewed->status)->toBe(RentalContractStatus::ACTIVE);
+
+    Notification::assertSentTo($assignment['tenant'], RentalContractRenewedNotification::class);
 });
 
 it('sends rental contract expiry reminders', function () {
@@ -309,6 +400,8 @@ it('expires contracts and audits rental contract changes', function () {
             ->where('subject_id', $contract->id)
             ->where('action', AuditLogAction::UPDATED)
             ->exists())->toBeTrue();
+
+    Notification::assertSentTo($assignment['tenant'], RentalContractAvailableNotification::class);
 });
 
 /**

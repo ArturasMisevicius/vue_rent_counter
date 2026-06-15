@@ -14,6 +14,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class UploadRentalContractFileAction
@@ -108,6 +109,8 @@ class UploadRentalContractFileAction
     private function resolveUpload(array|string|UploadedFile $fileState): array
     {
         if ($fileState instanceof UploadedFile) {
+            $this->validateUploadedFile($fileState);
+
             return [
                 $fileState->store(RentalContractFile::DIRECTORY, RentalContractFile::DISK),
                 $fileState->getClientOriginalName(),
@@ -134,6 +137,25 @@ class UploadRentalContractFileAction
         }
 
         return is_string($state) && $state !== '' ? $state : null;
+    }
+
+    private function validateUploadedFile(UploadedFile $file): void
+    {
+        Validator::make(
+            [RentalContractFile::FIELD => $file],
+            [
+                RentalContractFile::FIELD => [
+                    'required',
+                    'file',
+                    'max:'.RentalContractFile::MAX_SIZE_KB,
+                    'mimetypes:'.implode(',', RentalContractFile::acceptedFileTypes()),
+                ],
+            ],
+            [],
+            [
+                RentalContractFile::FIELD => __('admin.rental_contracts.fields.file'),
+            ],
+        )->validate();
     }
 
     private function deleteAttachment(Attachment $attachment): void
