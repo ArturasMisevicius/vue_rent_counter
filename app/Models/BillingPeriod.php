@@ -16,6 +16,19 @@ class BillingPeriod extends Model
     /** @use HasFactory<BillingPeriodFactory> */
     use HasFactory;
 
+    private const WORKSPACE_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'starts_at',
+        'ends_at',
+        'reading_submission_deadline',
+        'invoice_generation_date',
+        'payment_due_date',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
@@ -57,6 +70,53 @@ class BillingPeriod extends Model
     public function scopeDueForReadingSubmission(Builder $query, string $date): Builder
     {
         return $query->whereDate('reading_submission_deadline', $date);
+    }
+
+    public function scopeOrderedForWorkspace(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('starts_at')
+            ->orderByDesc('id');
+    }
+
+    public function scopeWithWorkspaceCounts(Builder $query): Builder
+    {
+        return $query->withCount([
+            'invoices',
+            'invoices as reading_request_invoices_count' => fn (Builder $invoiceQuery): Builder => $invoiceQuery
+                ->where('automation_level', 'reading_request'),
+        ]);
+    }
+
+    public function scopeWithWorkspaceRelations(Builder $query, bool $includeOrganization = false): Builder
+    {
+        $query->withWorkspaceCounts();
+
+        if (! $includeOrganization) {
+            return $query;
+        }
+
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
+    public function scopeForWorkspaceIndex(Builder $query, bool $isSuperadmin, ?int $organizationId): Builder
+    {
+        $query = $query
+            ->select(self::WORKSPACE_COLUMNS)
+            ->withWorkspaceRelations($isSuperadmin)
+            ->orderedForWorkspace();
+
+        if ($isSuperadmin) {
+            return $query;
+        }
+
+        if ($organizationId === null) {
+            return $query->whereKey(-1);
+        }
+
+        return $query->forOrganization($organizationId);
     }
 
     public function organization(): BelongsTo

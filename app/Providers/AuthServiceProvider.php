@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AuditLog;
+use App\Models\BillingPeriod;
 use App\Models\Building;
 use App\Models\ExtraCharge;
 use App\Models\ExtraChargeType;
@@ -29,6 +30,7 @@ use App\Models\TaskAssignment;
 use App\Models\User;
 use App\Models\UtilityService;
 use App\Policies\AuditLogPolicy;
+use App\Policies\BillingPeriodPolicy;
 use App\Policies\BuildingPolicy;
 use App\Policies\ExtraChargePolicy;
 use App\Policies\ExtraChargeTypePolicy;
@@ -64,6 +66,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         AuditLog::class => AuditLogPolicy::class,
+        BillingPeriod::class => BillingPeriodPolicy::class,
         Building::class => BuildingPolicy::class,
         ExtraCharge::class => ExtraChargePolicy::class,
         ExtraChargeType::class => ExtraChargeTypePolicy::class,
