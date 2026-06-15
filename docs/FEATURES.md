@@ -2,7 +2,7 @@
 
 > **AI agent usage:** This is the current feature entrypoint for Tenanto. Read it after `AGENTS.md`, `docs/SESSION-BOOTSTRAP.md`, and `docs/AI-AGENT-DOCS.md`. Verify current code, routes, migrations, policies, tests, and translations before changing behavior.
 
-Updated on 2026-06-15 from the live checkout, `php artisan route:list`, `php artisan about`, `php artisan list --raw`, `php artisan migrate:status`, current file inventory, and the complete git history from `f12619cd` through `11162327`.
+Updated on 2026-06-15 from the live checkout, `php artisan route:list`, `php artisan about`, `php artisan list --raw`, `php artisan migrate:status`, current file inventory, and the complete git history from `f12619cd` through `8cbfc808`.
 
 ## Product Shape
 
