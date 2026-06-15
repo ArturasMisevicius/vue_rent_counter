@@ -254,6 +254,23 @@ it('does not approve an invoice with rejected readings', function (): void {
         ->toThrow(ValidationException::class);
 });
 
+it('does not approve an invoice with submitted but unapproved readings', function (): void {
+    $workspace = billingReviewWorkspace(['current_status' => MeterReadingValidationStatus::PENDING]);
+    $this->actingAs($workspace['admin']);
+
+    expect(fn () => app(ApproveInvoice::class)->handle($workspace['invoice'], $workspace['admin']))
+        ->toThrow(ValidationException::class);
+});
+
+it('does not approve an invoice with a missing previous reading', function (): void {
+    $workspace = billingReviewWorkspace();
+    $workspace['previous_reading']->delete();
+    $this->actingAs($workspace['admin']);
+
+    expect(fn () => app(ApproveInvoice::class)->handle($workspace['invoice'], $workspace['admin']))
+        ->toThrow(ValidationException::class);
+});
+
 it('does not approve an invoice with a missing tariff', function (): void {
     $workspace = billingReviewWorkspace(['with_tariff' => false, 'with_rate_schedule' => false]);
     $this->actingAs($workspace['admin']);
@@ -273,6 +290,28 @@ it('approves an invoice when all required readings are approved', function (): v
     expect($invoice->status)->toBe(InvoiceStatus::FINALIZED)
         ->and($invoice->approval_status)->toBe('approved')
         ->and($invoice->approved_by)->toBe($workspace['admin']->id);
+});
+
+it('requires explicit invoice warning acceptance before approval from the review center', function (): void {
+    Notification::fake();
+
+    $workspace = billingReviewWorkspace([
+        'previous_value' => '100',
+        'current_value' => '90',
+    ]);
+
+    Livewire::actingAs($workspace['admin'])
+        ->test(BillingReviewCenter::class)
+        ->call('approveInvoice', $workspace['invoice']->id)
+        ->assertHasErrors(['invoice']);
+
+    Livewire::actingAs($workspace['admin'])
+        ->test(BillingReviewCenter::class)
+        ->set("acceptInvoiceWarnings.{$workspace['invoice']->id}", true)
+        ->call('approveInvoice', $workspace['invoice']->id)
+        ->assertHasNoErrors();
+
+    expect($workspace['invoice']->fresh()->status)->toBe(InvoiceStatus::FINALIZED);
 });
 
 it('requires a correction reason', function (): void {

@@ -70,6 +70,11 @@ class BillingReviewCenter extends Page
      */
     public array $confirmNegativeConsumption = [];
 
+    /**
+     * @var array<int, bool>
+     */
+    public array $acceptInvoiceWarnings = [];
+
     public function mount(): void
     {
         abort_unless(static::canAccess(), 403);
@@ -227,7 +232,13 @@ class BillingReviewCenter extends Page
 
     public function approveInvoice(int $invoiceId, ApproveInvoice $approveInvoice): void
     {
-        $approveInvoice->handle($this->invoice($invoiceId), $this->user(), acceptWarnings: true);
+        $approveInvoice->handle(
+            $this->invoice($invoiceId),
+            $this->user(),
+            acceptWarnings: (bool) ($this->acceptInvoiceWarnings[$invoiceId] ?? false),
+        );
+
+        unset($this->acceptInvoiceWarnings[$invoiceId]);
 
         Notification::make()
             ->title(__('admin.billing_review.messages.invoice_approved'))

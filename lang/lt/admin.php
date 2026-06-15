@@ -2215,6 +2215,7 @@ return [
             'correct_reading' => 'Correct',
             'void_reading' => 'Void',
             'accept_warning' => 'Accept warning',
+            'accept_invoice_warnings' => 'Patvirtinti sąskaitos įspėjimus',
             'request_resubmission' => 'Request resubmission',
         ],
         'fields' => [

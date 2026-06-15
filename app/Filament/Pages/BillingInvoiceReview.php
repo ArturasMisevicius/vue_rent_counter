@@ -66,6 +66,8 @@ class BillingInvoiceReview extends Page
      */
     public array $voidReasons = [];
 
+    public bool $acceptInvoiceWarnings = false;
+
     public function mount(): void
     {
         abort_unless(static::canAccess(), 403);
@@ -179,7 +181,9 @@ class BillingInvoiceReview extends Page
 
     public function approveInvoice(ApproveInvoice $approveInvoice): void
     {
-        $approveInvoice->handle($this->invoice(), $this->user(), acceptWarnings: true);
+        $approveInvoice->handle($this->invoice(), $this->user(), acceptWarnings: $this->acceptInvoiceWarnings);
+
+        $this->acceptInvoiceWarnings = false;
 
         Notification::make()->title(__('admin.billing_review.messages.invoice_approved'))->success()->send();
     }

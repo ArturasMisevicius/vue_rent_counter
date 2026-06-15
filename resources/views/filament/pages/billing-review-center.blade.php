@@ -242,9 +242,18 @@
                                             {{ __('admin.billing_review.actions.recalculate') }}
                                         </button>
                                         @if ($invoice['can_approve'])
-                                            <button type="button" wire:click="approveInvoice({{ $invoice['invoice_id'] }})" class="rounded-md bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
-                                                {{ __('admin.billing_review.actions.approve_invoice') }}
-                                            </button>
+                                            <div class="flex flex-col gap-2">
+                                                @if ($invoice['warnings'] !== [])
+                                                    <label class="inline-flex items-center gap-2 text-xs font-medium text-amber-700">
+                                                        <input type="checkbox" wire:model="acceptInvoiceWarnings.{{ $invoice['invoice_id'] }}" class="rounded border-amber-300 text-slate-950">
+                                                        {{ __('admin.billing_review.actions.accept_invoice_warnings') }}
+                                                    </label>
+                                                @endif
+
+                                                <button type="button" wire:click="approveInvoice({{ $invoice['invoice_id'] }})" class="rounded-md bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
+                                                    {{ __('admin.billing_review.actions.approve_invoice') }}
+                                                </button>
+                                            </div>
                                         @endif
                                         @if ($invoice['missing_readings'] !== [])
                                             <button type="button" wire:click="sendReminder({{ $invoice['invoice_id'] }})" class="rounded-md border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-50">

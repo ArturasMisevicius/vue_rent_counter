@@ -2233,6 +2233,7 @@ return [
             'correct_reading' => 'Correct',
             'void_reading' => 'Void',
             'accept_warning' => 'Accept warning',
+            'accept_invoice_warnings' => 'Принять предупреждения по счету',
             'request_resubmission' => 'Request resubmission',
         ],
         'fields' => [

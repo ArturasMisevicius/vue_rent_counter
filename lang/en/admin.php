@@ -2442,6 +2442,7 @@ return [
             'correct_reading' => 'Correct',
             'void_reading' => 'Void',
             'accept_warning' => 'Accept warning',
+            'accept_invoice_warnings' => 'Accept invoice warnings',
             'request_resubmission' => 'Request resubmission',
         ],
         'fields' => [

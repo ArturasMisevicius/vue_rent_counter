@@ -14,9 +14,18 @@
                         {{ __('admin.billing_review.actions.recalculate') }}
                     </button>
                     @if ($this->review['can_approve'])
-                        <button type="button" wire:click="approveInvoice" class="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-                            {{ __('admin.billing_review.actions.approve_invoice') }}
-                        </button>
+                        <div class="flex flex-col gap-2">
+                            @if ($this->review['warnings'] !== [])
+                                <label class="inline-flex items-center gap-2 text-xs font-medium text-amber-700">
+                                    <input type="checkbox" wire:model="acceptInvoiceWarnings" class="rounded border-amber-300 text-slate-950">
+                                    {{ __('admin.billing_review.actions.accept_invoice_warnings') }}
+                                </label>
+                            @endif
+
+                            <button type="button" wire:click="approveInvoice" class="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                                {{ __('admin.billing_review.actions.approve_invoice') }}
+                            </button>
+                        </div>
                     @endif
                     @if ($this->review['missing_readings'] !== [])
                         <button type="button" wire:click="sendReminder" class="rounded-md border border-amber-200 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50">

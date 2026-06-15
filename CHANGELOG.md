@@ -2,6 +2,12 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615110523 -->
+### Commit updates
+
+- Updated: billing workflow, documentation, localization behavior, and Blade interface templates.
+<!-- changelog:auto:end:staged-20260615110523 -->
+
 <!-- changelog:auto:start:staged-20260615105650 -->
 ### Commit updates
 

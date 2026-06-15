@@ -74,7 +74,7 @@ Manual run находится в Billing -> Periods: `Preview Draft Invoices` д
 9. Reviewer подтверждает, отклоняет, исправляет показания или запрашивает повторную отправку. Rejection требует tenant-visible comment; correction/void требуют reason. Каждое изменение пишет `meter_reading_versions` и audit/activity log.
 10. Approval/correction делает reading billable и запускает пересчет invoice lines. Submitted/rejected/voided readings не используются для invoice total.
 11. Когда blocking errors устранены, invoice остается `draft`, но получает `approval_status = ready_for_review`.
-12. Reviewer финализирует invoice. После финализации счет становится обычным tenant-visible invoice для просмотра, PDF/download и дальнейшей оплаты/отправки.
+12. Reviewer финализирует invoice. Если остались только warnings, например отрицательный или необычно высокий расход, reviewer должен явно включить `Accept invoice warnings`; blocking errors принять нельзя. После финализации счет становится обычным tenant-visible invoice для просмотра, PDF/download и дальнейшей оплаты/отправки.
 
 ## Кто что делает
 
