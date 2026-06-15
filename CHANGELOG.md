@@ -2,6 +2,16 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615063537 -->
+### Commit updates
+
+- updated `.codex/hooks.json`
+- updated `.codex/hooks/auto-changelog-commit-push.sh`
+- updated `.githooks/commit-msg`
+- added `scripts/generate_commit_message.php`
+- added `tests/Feature/Console/GenerateCommitMessageScriptTest.php`
+<!-- changelog:auto:end:staged-20260615063537 -->
+
 <!-- changelog:auto:start:staged-20260615062849 -->
 ### Изменения Codex
 

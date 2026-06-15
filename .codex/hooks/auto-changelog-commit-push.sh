@@ -69,13 +69,28 @@ if ! git diff --cached --check; then
     exit 0
 fi
 
+message_file="$(git rev-parse --git-path codex-commit-message.txt)"
+
+if [[ -x scripts/generate_commit_message.php || -f scripts/generate_commit_message.php ]]; then
+    php scripts/generate_commit_message.php \
+        --subject="${CODEX_AUTO_PUSH_MESSAGE:-}" \
+        > "${message_file}"
+else
+    printf '%s\n\n%s\n' \
+        "${CODEX_AUTO_PUSH_MESSAGE:-chore: update Codex changes}" \
+        "Generated from the staged git diff." \
+        > "${message_file}"
+fi
+
+commit_subject="$(sed -n '1p' "${message_file}")"
+
 if [[ -x scripts/update_changelog.php || -f scripts/update_changelog.php ]]; then
-    CODEX_CHANGELOG_LANGUAGE="${CODEX_CHANGELOG_LANGUAGE:-ru}" \
+    CODEX_CHANGELOG_LANGUAGE="${CODEX_CHANGELOG_LANGUAGE:-en}" \
         php scripts/update_changelog.php \
         --mode=staged \
         --state-file=.git/tenanto-changelog-entry-id \
-        --language="${CODEX_CHANGELOG_LANGUAGE:-ru}" \
-        --title="${CODEX_CHANGELOG_TITLE:-Изменения Codex}"
+        --language="${CODEX_CHANGELOG_LANGUAGE:-en}" \
+        --title="${CODEX_CHANGELOG_TITLE:-${commit_subject}}"
     git add CHANGELOG.md
 fi
 
@@ -97,14 +112,14 @@ if git diff --cached --quiet --exit-code; then
     exit 0
 fi
 
-message_file="$(git rev-parse --git-path codex-commit-message.txt)"
-printf '%s\n\n%s\n' \
-    "${CODEX_AUTO_PUSH_MESSAGE:-chore: сохранить изменения Codex}" \
-    "Автоматический коммит Codex после завершения prompt. CHANGELOG.md обновлен на русском языке." \
-    > "${message_file}"
+if [[ -x scripts/generate_commit_message.php || -f scripts/generate_commit_message.php ]]; then
+    php scripts/generate_commit_message.php \
+        --subject="${CODEX_AUTO_PUSH_MESSAGE:-}" \
+        > "${message_file}"
+fi
 
-if ! CODEX_CHANGELOG_LANGUAGE="${CODEX_CHANGELOG_LANGUAGE:-ru}" \
-    CODEX_CHANGELOG_TITLE="${CODEX_CHANGELOG_TITLE:-Изменения Codex}" \
+if ! CODEX_CHANGELOG_LANGUAGE="${CODEX_CHANGELOG_LANGUAGE:-en}" \
+    CODEX_CHANGELOG_TITLE="${CODEX_CHANGELOG_TITLE:-${commit_subject}}" \
     CODEX_CHANGELOG_COMMIT_RUNNING=1 \
     git commit -F "${message_file}"; then
     log "skip: git commit failed"

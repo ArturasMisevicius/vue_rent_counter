@@ -2,7 +2,15 @@
 
 set -eu
 
-# Git does not include index changes made this late in the commit lifecycle.
-# Keep changelog mutation in pre-commit so the staged entry lands in the
-# current commit instead of being left behind for the next one.
+message_file="$1"
+
+if LC_ALL=C grep -n '[А-Яа-яЁё]' "$message_file" >/dev/null; then
+    {
+        echo "Commit messages must be written in English."
+        echo "Use scripts/generate_commit_message.php to generate a message from the staged diff."
+    } >&2
+
+    exit 1
+fi
+
 exit 0

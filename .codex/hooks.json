@@ -27,7 +27,7 @@
             "type": "command",
             "command": "bash '/Users/andrejprus/Herd/tenanto/.codex/hooks/auto-changelog-commit-push.sh'",
             "timeout": 600,
-            "statusMessage": "Updating Russian changelog, committing, and pushing"
+            "statusMessage": "Updating the English changelog, committing staged changes, and pushing"
           }
         ]
       }
