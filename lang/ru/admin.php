@@ -15,6 +15,39 @@ return [
         'save_changes' => 'Сохранить изменения',
         'close' => 'Закрыть',
     ],
+    'billing_periods' => [
+        'singular' => 'Расчетный период',
+        'plural' => 'Расчетные периоды',
+        'navigation' => 'Расчетные периоды',
+        'sections' => [
+            'period' => 'Период',
+            'schedule' => 'График биллинга',
+            'output' => 'Созданные документы',
+        ],
+        'fields' => [
+            'name' => 'Название',
+            'starts_at' => 'Начало',
+            'ends_at' => 'Конец',
+            'reading_submission_deadline' => 'Срок ввода показаний',
+            'invoice_generation_date' => 'Дата генерации счета',
+            'payment_due_date' => 'Срок оплаты',
+            'invoices_count' => 'Счета',
+            'reading_request_invoices_count' => 'Запросы показаний',
+        ],
+        'actions' => [
+            'new_period' => 'Новый расчетный период',
+            'open_reading_cycle' => 'Открыть цикл показаний',
+            'open_reading_cycle_description' => 'Создает черновики счетов-запросов для активных назначений tenant/property со счетчиками в этом периоде и уведомляет tenants о вводе показаний.',
+        ],
+        'messages' => [
+            'reading_cycle_opened' => 'Цикл показаний открыт: создано черновиков :created, уведомлений :notified, пропущено :skipped.',
+        ],
+        'empty_state' => [
+            'heading' => 'Расчетных периодов пока нет',
+            'description' => 'Создайте месячный период перед запросом показаний или генерацией счетов.',
+            'action' => 'Создать расчетный период',
+        ],
+    ],
     'projects' => [
         'singular' => 'Проект',
         'plural' => 'Проекты',

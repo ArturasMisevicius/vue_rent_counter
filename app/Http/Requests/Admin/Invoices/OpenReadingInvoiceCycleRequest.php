@@ -27,6 +27,7 @@ class OpenReadingInvoiceCycleRequest extends FormRequest
             'billing_period_start' => ['required', 'date'],
             'billing_period_end' => ['required', 'date', 'after_or_equal:billing_period_start'],
             'due_date' => ['required', 'date', 'after_or_equal:billing_period_end'],
+            'invoice_generation_date' => ['nullable', 'date', 'after_or_equal:billing_period_end'],
             'payment_due_date' => ['nullable', 'date', 'after_or_equal:due_date'],
         ];
     }
@@ -49,6 +50,10 @@ class OpenReadingInvoiceCycleRequest extends FormRequest
             'due_date.after_or_equal' => ['after_or_equal', 'due_date', [
                 'date' => $this->translateAttribute('billing_period_end'),
             ]],
+            'invoice_generation_date.date' => ['date', 'invoice_generation_date'],
+            'invoice_generation_date.after_or_equal' => ['after_or_equal', 'invoice_generation_date', [
+                'date' => $this->translateAttribute('billing_period_end'),
+            ]],
             'payment_due_date.date' => ['date', 'payment_due_date'],
             'payment_due_date.after_or_equal' => ['after_or_equal', 'payment_due_date', [
                 'date' => $this->translateAttribute('due_date'),
@@ -65,6 +70,7 @@ class OpenReadingInvoiceCycleRequest extends FormRequest
             'billing_period_start',
             'billing_period_end',
             'due_date',
+            'invoice_generation_date',
             'payment_due_date',
         ]);
     }
@@ -75,6 +81,7 @@ class OpenReadingInvoiceCycleRequest extends FormRequest
             'billing_period_start',
             'billing_period_end',
             'due_date',
+            'invoice_generation_date',
             'payment_due_date',
         ]);
     }

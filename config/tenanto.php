@@ -34,6 +34,10 @@ $organizationNavigation = [
         'label' => 'admin.invoices.plural',
     ],
     [
+        'route' => 'filament.admin.resources.billing-periods.index',
+        'label' => 'admin.billing_periods.plural',
+    ],
+    [
         'route' => 'filament.admin.pages.billing-cleanup-center',
         'label' => 'admin.billing_cleanup.navigation',
     ],
@@ -252,6 +256,10 @@ return [
                             'label' => 'admin.invoices.plural',
                         ],
                         [
+                            'route' => 'filament.admin.resources.billing-periods.index',
+                            'label' => 'admin.billing_periods.plural',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.payments.index',
                             'label' => 'admin.payments.plural',
                         ],
@@ -343,6 +351,10 @@ return [
                             'label' => 'admin.invoices.plural',
                         ],
                         [
+                            'route' => 'filament.admin.resources.billing-periods.index',
+                            'label' => 'admin.billing_periods.plural',
+                        ],
+                        [
                             'route' => 'filament.admin.resources.payments.index',
                             'label' => 'admin.payments.plural',
                         ],
@@ -432,6 +444,10 @@ return [
                         [
                             'route' => 'filament.admin.resources.invoices.index',
                             'label' => 'admin.invoices.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.billing-periods.index',
+                            'label' => 'admin.billing_periods.plural',
                         ],
                         [
                             'route' => 'filament.admin.resources.payments.index',

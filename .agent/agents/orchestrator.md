@@ -77,6 +77,7 @@ You are the master orchestrator agent. You coordinate multiple specialized agent
 | **MOBILE** | `mobile-developer` | ❌ frontend-specialist, backend-specialist |
 | **WEB** | `frontend-specialist` | ❌ mobile-developer |
 | **BACKEND** | `backend-specialist` | - |
+| **TENANTO** | Tenanto-specific quality agents first | ❌ generic-only review when a Tenanto domain agent exists |
 
 ---
 
@@ -121,6 +122,35 @@ Before I coordinate the agents, I need to understand your requirements better:
 | `seo-specialist` | SEO & Marketing | SEO optimization, meta tags, analytics |
 | `game-developer` | Game Development | Unity, Godot, Unreal, Phaser, multiplayer |
 
+### Tenanto Project Agents
+
+When working in `/Users/andrejprus/Herd/tenanto`, prefer these agents over generic equivalents because they encode the local Laravel, Filament, Livewire, tenant isolation, billing, and documentation rules.
+
+| Agent | Domain | Use When |
+|-------|--------|----------|
+| `tenanto-tenant-isolation-auditor` | Tenant Security | Tenant portal, KYC, documents, move-out, permissions, policies, impersonation |
+| `tenanto-billing-money-auditor` | Billing Correctness | Invoices, readings, tariffs, billing periods, payments, reports, exports |
+| `tenanto-filament-resource-auditor` | Filament Quality | Resources, pages, actions, relation managers, tables, forms, infolists |
+| `tenanto-query-performance-auditor` | Eloquent Performance | Lists, dashboards, reports, exports, relation badges, pagination, aggregates |
+| `tenanto-pest-coverage-engineer` | Pest Coverage | Focused feature/unit coverage, Livewire tests, Filament tests, security regressions |
+| `tenanto-architecture-simplifier` | Refactoring | Extract actions, support queries, presenters, scopes, requests, shared seams |
+| `tenanto-migration-schema-auditor` | Schema Safety | Migrations, indexes, foreign keys, ownership columns, enum/status schema |
+| `tenanto-i18n-ui-auditor` | Localization | Blade, Livewire, Filament, notifications, validation, locale parity |
+| `tenanto-docs-release-auditor` | Documentation | README, changelog, docs, feature inventory, operations guides, AI agent docs |
+| `tenanto-upgrade-compatibility-auditor` | Compatibility | Laravel, Filament, Livewire, PHP, Composer, Node, Vite, Tailwind upgrades |
+
+Recommended review chains:
+
+| Change Type | Required Tenanto Agents |
+|-------------|-------------------------|
+| Tenant portal, KYC, documents, move-out | `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
+| Billing, readings, invoices, reports | `tenanto-billing-money-auditor`, `tenanto-query-performance-auditor`, `tenanto-pest-coverage-engineer` |
+| Filament resource/page/action | `tenanto-filament-resource-auditor`, `tenanto-tenant-isolation-auditor`, `tenanto-pest-coverage-engineer` |
+| Migrations/schema | `tenanto-migration-schema-auditor`, `tenanto-query-performance-auditor` |
+| UI copy/localization | `tenanto-i18n-ui-auditor`, `tenanto-pest-coverage-engineer` |
+| Docs/release/update notes | `tenanto-docs-release-auditor` |
+| Dependency upgrades | `tenanto-upgrade-compatibility-auditor`, `tenanto-pest-coverage-engineer` |
+
 ---
 
 ## 🔴 AGENT BOUNDARY ENFORCEMENT (CRITICAL)
@@ -147,6 +177,16 @@ Before I coordinate the agents, I need to understand your requirements better:
 | `explorer-agent` | Codebase discovery | ❌ Write operations |
 | `penetration-tester` | Security testing | ❌ Feature code |
 | `game-developer` | Game logic, scenes, assets | ❌ Web/mobile components |
+| `tenanto-tenant-isolation-auditor` | Tenant/org/security review | ❌ Feature implementation |
+| `tenanto-billing-money-auditor` | Billing correctness review | ❌ UI copy or unrelated refactors |
+| `tenanto-filament-resource-auditor` | Filament review | ❌ Domain behavior changes |
+| `tenanto-query-performance-auditor` | Query/performance review | ❌ Security scope removal |
+| `tenanto-pest-coverage-engineer` | Test files and test strategy | ❌ Production behavior rewrites |
+| `tenanto-architecture-simplifier` | Focused refactors | ❌ Unrequested rewrites |
+| `tenanto-migration-schema-auditor` | Migration/schema review | ❌ UI or domain workflow code |
+| `tenanto-i18n-ui-auditor` | Locale/UI text review | ❌ Business logic changes |
+| `tenanto-docs-release-auditor` | Docs/release notes | ❌ Production code |
+| `tenanto-upgrade-compatibility-auditor` | Upgrade compatibility review | ❌ Feature implementation |
 
 ### File Type Ownership
 

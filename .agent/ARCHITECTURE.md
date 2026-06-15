@@ -8,7 +8,7 @@
 
 Antigravity Kit is a modular system consisting of:
 
-- **20 Specialist Agents** - Role-based AI personas
+- **30 Specialist Agents** - Role-based AI personas, including 10 Tenanto quality gatekeepers
 - **90 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
@@ -19,7 +19,7 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 20 Specialist Agents
+├── agents/                  # 30 Specialist Agents
 ├── skills/                  # 90 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
@@ -28,7 +28,7 @@ Antigravity Kit is a modular system consisting of:
 
 ---
 
-## 🤖 Agents (20)
+## 🤖 Agents (30)
 
 Specialist AI personas for different domains.
 
@@ -54,6 +54,23 @@ Specialist AI personas for different domains.
 | `qa-automation-engineer` | E2E testing, CI pipelines  | webapp-testing, testing-patterns                         |
 | `code-archaeologist`     | Legacy code, refactoring   | clean-code, code-review-checklist                        |
 | `explorer-agent`         | Codebase analysis          | -                                                        |
+
+### Tenanto Quality Agents
+
+Use these project-specific agents before generic agents when the task touches Tenanto's Laravel, Filament, Livewire, Blade, billing, tenant portal, permissions, or release documentation.
+
+| Agent                                  | Focus                         | Skills Used                                                |
+| -------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `tenanto-tenant-isolation-auditor`     | Tenant and org isolation      | tenanto-tenant-security, tenanto-laravel-stack             |
+| `tenanto-billing-money-auditor`        | Billing and money invariants  | tenanto-billing-reporting, tenanto-laravel-stack           |
+| `tenanto-filament-resource-auditor`    | Filament resource quality     | tenanto-laravel-stack, tenanto-tenant-security             |
+| `tenanto-query-performance-auditor`    | Eloquent query performance    | tenanto-laravel-stack, database-design                     |
+| `tenanto-pest-coverage-engineer`       | Focused Pest coverage         | tenanto-laravel-stack, pest-testing                        |
+| `tenanto-architecture-simplifier`      | Shared seams and refactoring  | tenanto-laravel-stack, clean-code                          |
+| `tenanto-migration-schema-auditor`     | Migration and schema safety   | tenanto-laravel-stack, database-design                     |
+| `tenanto-i18n-ui-auditor`              | Translation and UI copy       | tenanto-laravel-stack, i18n-localization                   |
+| `tenanto-docs-release-auditor`         | Docs and release truth        | documentation-templates, update-changelog-before-commit    |
+| `tenanto-upgrade-compatibility-auditor` | Framework/package upgrades    | tenanto-laravel-stack, deployment-procedures               |
 
 ---
 

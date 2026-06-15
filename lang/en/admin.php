@@ -17,6 +17,39 @@ return [
         'renew_subscription' => 'Renew Subscription',
         'close' => 'Close',
     ],
+    'billing_periods' => [
+        'singular' => 'Billing Period',
+        'plural' => 'Billing Periods',
+        'navigation' => 'Billing Periods',
+        'sections' => [
+            'period' => 'Period',
+            'schedule' => 'Billing schedule',
+            'output' => 'Generated output',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'starts_at' => 'Starts at',
+            'ends_at' => 'Ends at',
+            'reading_submission_deadline' => 'Reading submission deadline',
+            'invoice_generation_date' => 'Invoice generation date',
+            'payment_due_date' => 'Payment due date',
+            'invoices_count' => 'Invoices',
+            'reading_request_invoices_count' => 'Reading requests',
+        ],
+        'actions' => [
+            'new_period' => 'New Billing Period',
+            'open_reading_cycle' => 'Open Reading Cycle',
+            'open_reading_cycle_description' => 'Creates draft reading-request invoices for active metered tenant assignments in this period and notifies tenants to submit readings.',
+        ],
+        'messages' => [
+            'reading_cycle_opened' => 'Reading cycle opened: :created draft invoices, :notified notifications, :skipped skipped.',
+        ],
+        'empty_state' => [
+            'heading' => 'No billing periods yet',
+            'description' => 'Create the monthly period before asking tenants for readings or generating invoices.',
+            'action' => 'Create billing period',
+        ],
+    ],
     'tenant_kyc' => [
         'singular' => 'Tenant KYC Profile',
         'plural' => 'KYC Review Center',

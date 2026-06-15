@@ -29,7 +29,7 @@ class OpenReadingInvoiceCycleAction
     ) {}
 
     /**
-     * @param  array{billing_period_start: string, billing_period_end: string, due_date: string, payment_due_date?: string|null}  $attributes
+     * @param  array{billing_period_start: string, billing_period_end: string, due_date: string, invoice_generation_date?: string|null, payment_due_date?: string|null}  $attributes
      * @return array{
      *     billing_period: BillingPeriod,
      *     created: Collection<int, Invoice>,
@@ -54,6 +54,9 @@ class OpenReadingInvoiceCycleAction
         $periodStart = CarbonImmutable::parse((string) $validated['billing_period_start'])->startOfDay();
         $periodEnd = CarbonImmutable::parse((string) $validated['billing_period_end'])->endOfDay();
         $dueDate = CarbonImmutable::parse((string) $validated['due_date'])->toDateString();
+        $invoiceGenerationDate = filled($validated['invoice_generation_date'] ?? null)
+            ? CarbonImmutable::parse((string) $validated['invoice_generation_date'])->toDateString()
+            : null;
         $paymentDueDate = filled($validated['payment_due_date'] ?? null)
             ? CarbonImmutable::parse((string) $validated['payment_due_date'])->toDateString()
             : null;
@@ -62,6 +65,7 @@ class OpenReadingInvoiceCycleAction
             $periodStart,
             $periodEnd,
             $dueDate,
+            invoiceGenerationDate: $invoiceGenerationDate,
             paymentDueDate: $paymentDueDate,
         );
         $created = collect();

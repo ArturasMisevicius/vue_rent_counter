@@ -15,6 +15,39 @@ return [
         'clear_all_filters' => 'Limpiar todos los filtros',
         'close' => 'Cerrar',
     ],
+    'billing_periods' => [
+        'singular' => 'Periodo de facturación',
+        'plural' => 'Periodos de facturación',
+        'navigation' => 'Periodos de facturación',
+        'sections' => [
+            'period' => 'Periodo',
+            'schedule' => 'Calendario de facturación',
+            'output' => 'Documentos generados',
+        ],
+        'fields' => [
+            'name' => 'Nombre',
+            'starts_at' => 'Inicio',
+            'ends_at' => 'Fin',
+            'reading_submission_deadline' => 'Fecha límite para lecturas',
+            'invoice_generation_date' => 'Fecha de generación de factura',
+            'payment_due_date' => 'Fecha de pago',
+            'invoices_count' => 'Facturas',
+            'reading_request_invoices_count' => 'Solicitudes de lectura',
+        ],
+        'actions' => [
+            'new_period' => 'Nuevo periodo de facturación',
+            'open_reading_cycle' => 'Abrir ciclo de lecturas',
+            'open_reading_cycle_description' => 'Crea borradores de facturas de solicitud de lecturas para asignaciones tenant/property activas con medidores en este periodo y notifica a los inquilinos.',
+        ],
+        'messages' => [
+            'reading_cycle_opened' => 'Ciclo de lecturas abierto: :created borradores, :notified notificaciones, :skipped omitidos.',
+        ],
+        'empty_state' => [
+            'heading' => 'Aún no hay periodos de facturación',
+            'description' => 'Crea el periodo mensual antes de pedir lecturas o generar facturas.',
+            'action' => 'Crear periodo de facturación',
+        ],
+    ],
     'projects' => [
         'singular' => 'Proyecto',
         'plural' => 'Proyectos',

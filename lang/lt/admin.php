@@ -17,6 +17,39 @@ return [
         'renew_subscription' => 'Pratęsti prenumeratą',
         'close' => 'Uždaryti',
     ],
+    'billing_periods' => [
+        'singular' => 'Atsiskaitymo laikotarpis',
+        'plural' => 'Atsiskaitymo laikotarpiai',
+        'navigation' => 'Atsiskaitymo laikotarpiai',
+        'sections' => [
+            'period' => 'Laikotarpis',
+            'schedule' => 'Atsiskaitymo grafikas',
+            'output' => 'Sugeneruoti dokumentai',
+        ],
+        'fields' => [
+            'name' => 'Pavadinimas',
+            'starts_at' => 'Pradžia',
+            'ends_at' => 'Pabaiga',
+            'reading_submission_deadline' => 'Rodmenų pateikimo terminas',
+            'invoice_generation_date' => 'Sąskaitos generavimo data',
+            'payment_due_date' => 'Mokėjimo terminas',
+            'invoices_count' => 'Sąskaitos',
+            'reading_request_invoices_count' => 'Rodmenų užklausos',
+        ],
+        'actions' => [
+            'new_period' => 'Naujas atsiskaitymo laikotarpis',
+            'open_reading_cycle' => 'Atidaryti rodmenų ciklą',
+            'open_reading_cycle_description' => 'Sukuria juodraštines rodmenų užklausos sąskaitas aktyviems tenant/property priskyrimams su skaitikliais šiame laikotarpyje ir praneša nuomininkams pateikti rodmenis.',
+        ],
+        'messages' => [
+            'reading_cycle_opened' => 'Rodmenų ciklas atidarytas: sukurta juodraščių :created, pranešimų :notified, praleista :skipped.',
+        ],
+        'empty_state' => [
+            'heading' => 'Atsiskaitymo laikotarpių dar nėra',
+            'description' => 'Sukurkite mėnesio laikotarpį prieš prašydami rodmenų arba generuodami sąskaitas.',
+            'action' => 'Sukurti atsiskaitymo laikotarpį',
+        ],
+    ],
     'projects' => [
         'singular' => 'Projektas',
         'plural' => 'Projektai',
