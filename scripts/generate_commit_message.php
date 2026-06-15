@@ -32,7 +32,7 @@ $subject = $explicitSubject !== ''
     ? $explicitSubject
     : buildSubject($subjectChanges);
 
-echo $subject."\n\n".buildBody($changes, $repoRoot)."\n";
+echo $subject."\n\n".buildBody($subjectChanges, $repoRoot)."\n";
 
 /**
  * @return array<int, string>
@@ -126,79 +126,169 @@ function buildSubject(array $changes): string
  */
 function buildBody(array $changes, string $repoRoot): string
 {
-    $summary = summarizeChanges($changes);
     $lines = [
-        'Generated from the staged git diff so this message matches the files included in the commit.',
+        'Generated from the staged git diff and summarized by product or engineering intent, not by file name.',
         '',
-        'Staged summary:',
-        sprintf('- %s.', implode(', ', $summary)),
+        'Change summary:',
+        sprintf('- Scope: %s.', sentenceCase(inferScope($changes))),
     ];
+
+    foreach (describeChangeIntents($changes) as $line) {
+        $lines[] = '- '.$line.'.';
+    }
 
     $shortStat = trim(runGit($repoRoot, ['diff', '--cached', '--shortstat']));
 
     if ($shortStat !== '') {
-        $lines[] = '- Git diff: '.$shortStat.'.';
-    }
-
-    $lines[] = '';
-    $lines[] = 'Included changes:';
-
-    foreach ($changes as $change) {
-        $lines[] = '- '.describeChange($change);
+        $lines[] = '- Diff size: '.rtrim($shortStat, '.').'.';
     }
 
     return implode("\n", $lines);
 }
 
 /**
+ * @param  array<int, array{kind: string, paths: array<int, string>}>  $changes
+ * @return array<int, string>
+ */
+function describeChangeIntents(array $changes): array
+{
+    $groups = [
+        'A' => [],
+        'M' => [],
+        'D' => [],
+        'R' => [],
+        'C' => [],
+    ];
+
+    foreach ($changes as $change) {
+        $kind = normalizeChangeKind($change['kind']);
+        $path = selectedIntentPath($change);
+
+        $groups[$kind][] = inferIntentLabel($path);
+    }
+
+    $lines = [];
+
+    foreach ($groups as $kind => $labels) {
+        $labels = array_values(array_unique($labels));
+
+        if ($labels === []) {
+            continue;
+        }
+
+        $lines[] = match ($kind) {
+            'A' => 'Added '.joinIntentLabels($labels),
+            'D' => 'Removed '.joinIntentLabels($labels),
+            'R' => 'Reorganized '.joinIntentLabels($labels),
+            'C' => 'Reused '.joinIntentLabels($labels),
+            default => 'Updated '.joinIntentLabels($labels),
+        };
+    }
+
+    return $lines;
+}
+
+/**
  * @param  array{kind: string, paths: array<int, string>}  $change
  */
-function describeChange(array $change): string
+function selectedIntentPath(array $change): string
 {
-    $paths = $change['paths'];
+    if (in_array($change['kind'], ['R', 'C'], true)) {
+        return $change['paths'][1] ?? $change['paths'][0];
+    }
 
-    return match ($change['kind']) {
-        'A' => sprintf('Added `%s`', $paths[0]),
-        'D' => sprintf('Removed `%s`', $paths[0]),
-        'R' => sprintf('Renamed `%s` to `%s`', $paths[0], $paths[1]),
-        'C' => sprintf('Copied `%s` to `%s`', $paths[0], $paths[1]),
-        default => sprintf('Updated `%s`', $paths[0]),
+    return $change['paths'][0];
+}
+
+function normalizeChangeKind(string $kind): string
+{
+    return match ($kind) {
+        'A', 'D', 'R', 'C' => $kind,
+        default => 'M',
     };
 }
 
 /**
- * @param  array<int, array{kind: string, paths: array<int, string>}>  $changes
- * @return array<int, string>
+ * @param  array<int, string>  $labels
  */
-function summarizeChanges(array $changes): array
+function joinIntentLabels(array $labels): string
 {
-    $counts = [
-        'added' => 0,
-        'updated' => 0,
-        'removed' => 0,
-        'renamed' => 0,
-        'copied' => 0,
-    ];
-
-    foreach ($changes as $change) {
-        match ($change['kind']) {
-            'A' => $counts['added']++,
-            'D' => $counts['removed']++,
-            'R' => $counts['renamed']++,
-            'C' => $counts['copied']++,
-            default => $counts['updated']++,
-        };
+    if (count($labels) === 1) {
+        return $labels[0];
     }
 
-    $summary = [];
+    $last = (string) array_pop($labels);
 
-    foreach ($counts as $label => $count) {
-        if ($count > 0) {
-            $summary[] = sprintf('%d %s', $count, $label);
+    if (count($labels) === 1) {
+        return $labels[0].' and '.$last;
+    }
+
+    return implode(', ', $labels).', and '.$last;
+}
+
+function sentenceCase(string $value): string
+{
+    return ucfirst($value);
+}
+
+function inferIntentLabel(string $path): string
+{
+    if (str_starts_with($path, 'tests/')) {
+        return inferDomainIntent($path).' coverage';
+    }
+
+    return inferDomainIntent($path);
+}
+
+function inferDomainIntent(string $path): string
+{
+    $rules = [
+        'commit-message generation' => static fn (string $path): bool => str_contains($path, 'GenerateCommitMessage')
+            || str_contains($path, 'generate_commit_message'),
+        'commit-message enforcement' => static fn (string $path): bool => str_contains($path, 'commit-msg'),
+        'pre-commit quality gates' => static fn (string $path): bool => str_contains($path, 'pre-commit'),
+        'changelog automation' => static fn (string $path): bool => str_contains($path, 'update_changelog'),
+        'git hook installation' => static fn (string $path): bool => str_contains($path, 'install-git-hooks'),
+        'view hygiene guard' => static fn (string $path): bool => str_contains($path, 'ViewHygiene')
+            || str_contains($path, 'check_view_hygiene'),
+        'agent hook automation' => static fn (string $path): bool => str_starts_with($path, '.codex/hooks/'),
+        'agent configuration' => static fn (string $path): bool => str_contains($path, 'hooks.json')
+            || str_starts_with($path, '.agent/')
+            || str_starts_with($path, '.agents/')
+            || str_starts_with($path, '.ai/'),
+        'documentation' => static fn (string $path): bool => isDocumentationPath($path),
+        'localization behavior' => static fn (string $path): bool => str_starts_with($path, 'lang/')
+            || preg_match('/Translation|Locale|Language/', $path) === 1,
+        'billing period workflow' => static fn (string $path): bool => str_contains($path, 'BillingPeriod'),
+        'billing workflow' => static fn (string $path): bool => preg_match('/Billing|Invoice|MeterReading|Payment/', $path) === 1,
+        'tenant KYC workflow' => static fn (string $path): bool => preg_match('/TenantKyc|Kyc/', $path) === 1,
+        'tenant document workflow' => static fn (string $path): bool => preg_match('/TenantDocument|Document/', $path) === 1,
+        'move-out workflow' => static fn (string $path): bool => str_contains($path, 'MoveOut'),
+        'lead workflow' => static fn (string $path): bool => preg_match('/ListingLead|Lead/', $path) === 1,
+        'project collaboration' => static fn (string $path): bool => str_contains($path, 'Project'),
+        'authorization behavior' => static fn (string $path): bool => preg_match('/Policy|Permission|Authorization|Security/', $path) === 1,
+        'dashboard experience' => static fn (string $path): bool => str_contains($path, 'Dashboard'),
+        'Filament admin workflow' => static fn (string $path): bool => str_starts_with($path, 'app/Filament/'),
+        'Livewire UI workflow' => static fn (string $path): bool => str_starts_with($path, 'app/Livewire/'),
+        'Blade interface templates' => static fn (string $path): bool => str_starts_with($path, 'resources/views/'),
+        'frontend styling' => static fn (string $path): bool => str_starts_with($path, 'resources/css/')
+            || str_ends_with($path, '.css')
+            || str_contains($path, 'tailwind'),
+        'database schema or seed data' => static fn (string $path): bool => str_starts_with($path, 'database/'),
+        'route definitions' => static fn (string $path): bool => str_starts_with($path, 'routes/'),
+        'application configuration' => static fn (string $path): bool => str_starts_with($path, 'config/'),
+        'frontend build configuration' => static fn (string $path): bool => str_contains($path, 'package')
+            || str_contains($path, 'vite')
+            || str_contains($path, 'postcss'),
+    ];
+
+    foreach ($rules as $label => $matches) {
+        if ($matches($path)) {
+            return $label;
         }
     }
 
-    return $summary;
+    return isApplicationPath($path) ? 'application behavior' : 'project automation';
 }
 
 /**

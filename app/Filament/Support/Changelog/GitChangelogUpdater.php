@@ -42,7 +42,13 @@ final class GitChangelogUpdater
      */
     public function formatNameStatusLines(array $lines, string $language = 'en'): array
     {
-        $changes = [];
+        $groups = [
+            'A' => [],
+            'M' => [],
+            'D' => [],
+            'R' => [],
+            'C' => [],
+        ];
 
         foreach ($lines as $line) {
             $line = trim($line);
@@ -56,31 +62,39 @@ final class GitChangelogUpdater
             $kind = substr($status, 0, 1);
 
             if ($kind === 'R' && count($parts) >= 2) {
-                [$from, $to] = [$parts[0], $parts[1]];
+                $path = $parts[1];
 
-                if ($from === 'CHANGELOG.md' || $to === 'CHANGELOG.md') {
+                if ($this->isChangelogPath($parts[0]) || $this->isChangelogPath($path)) {
                     continue;
                 }
 
-                $changes[] = $language === 'ru'
-                    ? sprintf('- переименован `%s` в `%s`', $from, $to)
-                    : sprintf('- renamed `%s` to `%s`', $from, $to);
+                $groups['R'][] = $this->intentLabel($path, $language);
+
+                continue;
+            }
+
+            if ($kind === 'C' && count($parts) >= 2) {
+                $path = $parts[1];
+
+                if ($this->isChangelogPath($path)) {
+                    continue;
+                }
+
+                $groups['C'][] = $this->intentLabel($path, $language);
 
                 continue;
             }
 
             $path = $parts[0] ?? null;
 
-            if ($path === null || $path === 'CHANGELOG.md') {
+            if ($path === null || $this->isChangelogPath($path)) {
                 continue;
             }
 
-            $verb = $this->verbFor($kind, $language);
-
-            $changes[] = sprintf('- %s `%s`', $verb, $path);
+            $groups[$this->normalizeChangeKind($kind)][] = $this->intentLabel($path, $language);
         }
 
-        return array_values(array_unique($changes));
+        return $this->formatIntentGroups($groups, $language);
     }
 
     public function nextFinalEntryId(string $timestamp): string
@@ -99,21 +113,194 @@ final class GitChangelogUpdater
         );
     }
 
+    /**
+     * @param  array{A: array<int, string>, M: array<int, string>, D: array<int, string>, R: array<int, string>, C: array<int, string>}  $groups
+     * @return array<int, string>
+     */
+    private function formatIntentGroups(array $groups, string $language): array
+    {
+        $changes = [];
+
+        foreach ($groups as $kind => $labels) {
+            $labels = array_values(array_unique($labels));
+
+            if ($labels === []) {
+                continue;
+            }
+
+            $changes[] = sprintf(
+                '- %s: %s.',
+                $this->verbFor($kind, $language),
+                $this->joinLabels($labels, $language),
+            );
+        }
+
+        return $changes;
+    }
+
+    private function normalizeChangeKind(string $kind): string
+    {
+        return match ($kind) {
+            'A', 'D', 'R', 'C' => $kind,
+            default => 'M',
+        };
+    }
+
     private function verbFor(string $kind, string $language): string
     {
         if ($language === 'ru') {
             return match ($kind) {
-                'A' => 'добавлен',
-                'D' => 'удален',
-                default => 'обновлен',
+                'A' => 'Добавлено',
+                'D' => 'Удалено',
+                'R' => 'Перестроено',
+                'C' => 'Переиспользовано',
+                default => 'Обновлено',
             };
         }
 
         return match ($kind) {
-            'A' => 'added',
-            'D' => 'removed',
-            default => 'updated',
+            'A' => 'Added',
+            'D' => 'Removed',
+            'R' => 'Reorganized',
+            'C' => 'Reused',
+            default => 'Updated',
         };
+    }
+
+    /**
+     * @param  array<int, string>  $labels
+     */
+    private function joinLabels(array $labels, string $language): string
+    {
+        if (count($labels) === 1) {
+            return $labels[0];
+        }
+
+        $last = (string) array_pop($labels);
+        $glue = $language === 'ru' ? ' и ' : ' and ';
+
+        if (count($labels) === 1) {
+            return $labels[0].$glue.$last;
+        }
+
+        return implode(', ', $labels).($language === 'ru' ? ' и ' : ', and ').$last;
+    }
+
+    private function intentLabel(string $path, string $language): string
+    {
+        $label = $this->englishIntentLabel($path);
+
+        if ($language !== 'ru') {
+            return $label;
+        }
+
+        return $this->russianIntentLabel($label);
+    }
+
+    private function englishIntentLabel(string $path): string
+    {
+        $rules = [
+            'commit-message generation' => static fn (string $path): bool => str_contains($path, 'GenerateCommitMessage')
+                || str_contains($path, 'generate_commit_message'),
+            'commit-message enforcement' => static fn (string $path): bool => str_contains($path, 'commit-msg'),
+            'pre-commit quality gates' => static fn (string $path): bool => str_contains($path, 'pre-commit'),
+            'changelog automation' => static fn (string $path): bool => str_contains($path, 'update_changelog'),
+            'git hook installation' => static fn (string $path): bool => str_contains($path, 'install-git-hooks'),
+            'view hygiene guard' => static fn (string $path): bool => str_contains($path, 'ViewHygiene')
+                || str_contains($path, 'check_view_hygiene'),
+            'agent hook automation' => static fn (string $path): bool => str_starts_with($path, '.codex/hooks/'),
+            'agent configuration' => static fn (string $path): bool => str_contains($path, 'hooks.json')
+                || str_starts_with($path, '.agent/')
+                || str_starts_with($path, '.agents/')
+                || str_starts_with($path, '.ai/'),
+            'documentation' => fn (string $path): bool => $this->isDocumentationPath($path),
+            'localization behavior' => static fn (string $path): bool => str_starts_with($path, 'lang/')
+                || preg_match('/Translation|Locale|Language/', $path) === 1,
+            'billing period workflow' => static fn (string $path): bool => str_contains($path, 'BillingPeriod'),
+            'billing workflow' => static fn (string $path): bool => preg_match('/Billing|Invoice|MeterReading|Payment/', $path) === 1,
+            'tenant KYC workflow' => static fn (string $path): bool => preg_match('/TenantKyc|Kyc/', $path) === 1,
+            'tenant document workflow' => static fn (string $path): bool => preg_match('/TenantDocument|Document/', $path) === 1,
+            'move-out workflow' => static fn (string $path): bool => str_contains($path, 'MoveOut'),
+            'lead workflow' => static fn (string $path): bool => preg_match('/ListingLead|Lead/', $path) === 1,
+            'project collaboration' => static fn (string $path): bool => str_contains($path, 'Project'),
+            'authorization behavior' => static fn (string $path): bool => preg_match('/Policy|Permission|Authorization|Security/', $path) === 1,
+            'dashboard experience' => static fn (string $path): bool => str_contains($path, 'Dashboard'),
+            'Filament admin workflow' => static fn (string $path): bool => str_starts_with($path, 'app/Filament/'),
+            'Livewire UI workflow' => static fn (string $path): bool => str_starts_with($path, 'app/Livewire/'),
+            'Blade interface templates' => static fn (string $path): bool => str_starts_with($path, 'resources/views/'),
+            'frontend styling' => static fn (string $path): bool => str_starts_with($path, 'resources/css/')
+                || str_ends_with($path, '.css')
+                || str_contains($path, 'tailwind'),
+            'database schema or seed data' => static fn (string $path): bool => str_starts_with($path, 'database/'),
+            'route definitions' => static fn (string $path): bool => str_starts_with($path, 'routes/'),
+            'application configuration' => static fn (string $path): bool => str_starts_with($path, 'config/'),
+            'frontend build configuration' => static fn (string $path): bool => str_contains($path, 'package')
+                || str_contains($path, 'vite')
+                || str_contains($path, 'postcss'),
+        ];
+
+        foreach ($rules as $label => $matches) {
+            if ($matches($path)) {
+                return $label;
+            }
+        }
+
+        return str_starts_with($path, 'app/')
+            || str_starts_with($path, 'database/')
+            || str_starts_with($path, 'resources/')
+            || str_starts_with($path, 'routes/')
+            || str_starts_with($path, 'config/')
+                ? 'application behavior'
+                : 'project automation';
+    }
+
+    private function russianIntentLabel(string $label): string
+    {
+        return [
+            'commit-message generation' => 'генерация commit message',
+            'commit-message enforcement' => 'проверка commit message',
+            'pre-commit quality gates' => 'pre-commit проверки качества',
+            'changelog automation' => 'автоматизация changelog',
+            'git hook installation' => 'установка git hooks',
+            'view hygiene guard' => 'проверка Blade и CSS правил',
+            'agent hook automation' => 'автоматизация agent hooks',
+            'agent configuration' => 'настройки агентов',
+            'documentation' => 'документация',
+            'localization behavior' => 'локализация',
+            'billing period workflow' => 'процесс billing period',
+            'billing workflow' => 'billing workflow',
+            'tenant KYC workflow' => 'tenant KYC workflow',
+            'tenant document workflow' => 'tenant document workflow',
+            'move-out workflow' => 'move-out workflow',
+            'lead workflow' => 'lead workflow',
+            'project collaboration' => 'project collaboration',
+            'authorization behavior' => 'авторизация и безопасность',
+            'dashboard experience' => 'dashboard experience',
+            'Filament admin workflow' => 'Filament admin workflow',
+            'Livewire UI workflow' => 'Livewire UI workflow',
+            'Blade interface templates' => 'Blade templates',
+            'frontend styling' => 'frontend styling',
+            'database schema or seed data' => 'схема базы или seed data',
+            'route definitions' => 'routes',
+            'application configuration' => 'конфигурация приложения',
+            'frontend build configuration' => 'frontend build configuration',
+            'application behavior' => 'поведение приложения',
+            'project automation' => 'автоматизация проекта',
+        ][$label] ?? $label;
+    }
+
+    private function isDocumentationPath(string $path): bool
+    {
+        return $path === 'README.md'
+            || $path === 'CHANGELOG.md'
+            || $path === 'changelog.md'
+            || str_starts_with($path, 'docs/')
+            || str_ends_with($path, '.md');
+    }
+
+    private function isChangelogPath(string $path): bool
+    {
+        return $path === 'CHANGELOG.md' || $path === 'changelog.md';
     }
 
     private function insertEntry(string $markdown, string $date, string $block): string

@@ -7,8 +7,9 @@ use Symfony\Component\Process\Process;
 it('reuses the same staged entry id across repeated staged syncs until the state file is cleared', function (): void {
     $repo = fakeGitRepo();
 
-    file_put_contents($repo['path'].'/first.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'first.php']);
+    mkdir($repo['path'].'/app/Filament', 0777, true);
+    file_put_contents($repo['path'].'/app/Filament/First.php', "<?php\n");
+    runInRepo($repo['path'], ['git', 'add', 'app/Filament/First.php']);
 
     runUpdateChangelog($repo['path'], '20260328190000');
 
@@ -17,13 +18,14 @@ it('reuses the same staged entry id across repeated staged syncs until the state
     expect($firstRun)
         ->toContain('<!-- changelog:auto:start:staged-20260328190000 -->')
         ->toContain('### Commit updates')
-        ->toContain('- added `first.php`');
+        ->toContain('- Added: Filament admin workflow.');
 
-    runInRepo($repo['path'], ['git', 'reset', '--', 'first.php']);
-    unlink($repo['path'].'/first.php');
+    runInRepo($repo['path'], ['git', 'reset', '--', 'app/Filament/First.php']);
+    unlink($repo['path'].'/app/Filament/First.php');
 
-    file_put_contents($repo['path'].'/second.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'second.php']);
+    mkdir($repo['path'].'/docs', 0777, true);
+    file_put_contents($repo['path'].'/docs/second.md', "# Second\n");
+    runInRepo($repo['path'], ['git', 'add', 'docs/second.md']);
 
     runUpdateChangelog($repo['path'], '20260328190005');
 
@@ -31,22 +33,25 @@ it('reuses the same staged entry id across repeated staged syncs until the state
 
     expect(substr_count($secondRun, '<!-- changelog:auto:start:staged-'))->toBe(1)
         ->and($secondRun)->toContain('<!-- changelog:auto:start:staged-20260328190000 -->')
-        ->and($secondRun)->toContain('- added `second.php`')
-        ->and($secondRun)->not->toContain('- added `first.php`');
+        ->and($secondRun)->toContain('- Added: documentation.')
+        ->and($secondRun)->not->toContain('- Added: Filament admin workflow.')
+        ->and($secondRun)->not->toContain('docs/second.md');
 });
 
 it('appends a new staged entry after the hook state file is cleared', function (): void {
     $repo = fakeGitRepo();
 
-    file_put_contents($repo['path'].'/alpha.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'alpha.php']);
+    mkdir($repo['path'].'/app/Livewire', 0777, true);
+    file_put_contents($repo['path'].'/app/Livewire/Alpha.php', "<?php\n");
+    runInRepo($repo['path'], ['git', 'add', 'app/Livewire/Alpha.php']);
 
     runUpdateChangelog($repo['path'], '20260328191000');
 
     unlink($repo['state_file']);
 
-    file_put_contents($repo['path'].'/beta.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'beta.php']);
+    mkdir($repo['path'].'/config', 0777, true);
+    file_put_contents($repo['path'].'/config/beta.php', "<?php\n");
+    runInRepo($repo['path'], ['git', 'add', 'config/beta.php']);
 
     runUpdateChangelog($repo['path'], '20260328191500');
 
@@ -55,15 +60,18 @@ it('appends a new staged entry after the hook state file is cleared', function (
     expect($markdown)
         ->toContain('<!-- changelog:auto:start:staged-20260328191000 -->')
         ->toContain('<!-- changelog:auto:start:staged-20260328191500 -->')
-        ->toContain('- added `alpha.php`')
-        ->toContain('- added `beta.php`');
+        ->toContain('- Added: Livewire UI workflow.')
+        ->toContain('- Added: Livewire UI workflow and application configuration.')
+        ->not->toContain('app/Livewire/Alpha.php')
+        ->not->toContain('config/beta.php');
 });
 
 it('can write staged changelog entries in Russian', function (): void {
     $repo = fakeGitRepo();
 
-    file_put_contents($repo['path'].'/agent.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'agent.php']);
+    mkdir($repo['path'].'/.githooks', 0777, true);
+    file_put_contents($repo['path'].'/.githooks/commit-msg', "#!/bin/sh\n");
+    runInRepo($repo['path'], ['git', 'add', '.githooks/commit-msg']);
 
     runUpdateChangelog($repo['path'], '20260328192000', 'ru');
 
@@ -71,14 +79,16 @@ it('can write staged changelog entries in Russian', function (): void {
 
     expect($markdown)
         ->toContain('### Изменения Codex')
-        ->toContain('- добавлен `agent.php`');
+        ->toContain('- Добавлено: проверка commit message.')
+        ->not->toContain('.githooks/commit-msg');
 });
 
 it('can write pending changelog entries in Russian', function (): void {
     $repo = fakeGitRepo();
 
-    file_put_contents($repo['path'].'/pending.php', "<?php\n");
-    runInRepo($repo['path'], ['git', 'add', 'pending.php']);
+    mkdir($repo['path'].'/docs', 0777, true);
+    file_put_contents($repo['path'].'/docs/pending.md', "# Pending\n");
+    runInRepo($repo['path'], ['git', 'add', 'docs/pending.md']);
 
     $process = new Process([
         PHP_BINARY,
@@ -97,7 +107,8 @@ it('can write pending changelog entries in Russian', function (): void {
 
     expect($markdown)
         ->toContain('### Ожидающие staged-изменения')
-        ->toContain('- добавлен `pending.php`');
+        ->toContain('- Добавлено: документация.')
+        ->not->toContain('docs/pending.md');
 });
 
 /**

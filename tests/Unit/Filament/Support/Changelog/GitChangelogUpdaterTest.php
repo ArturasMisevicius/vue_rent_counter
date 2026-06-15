@@ -14,9 +14,9 @@ it('formats staged name-status lines into readable changelog bullets', function 
         "M\tCHANGELOG.md",
         '',
     ]))->toBe([
-        '- updated `app/Filament/Resources/Organizations/RelationManagers/UsersRelationManager.php`',
-        '- added `.githooks/pre-commit`',
-        '- renamed `old/path.php` to `new/path.php`',
+        '- Added: pre-commit quality gates.',
+        '- Updated: Filament admin workflow.',
+        '- Reorganized: project automation.',
     ]);
 });
 
@@ -31,10 +31,10 @@ it('formats staged name-status lines into Russian changelog bullets', function (
         "M\tCHANGELOG.md",
         '',
     ], 'ru'))->toBe([
-        '- обновлен `app/Filament/Resources/Organizations/RelationManagers/UsersRelationManager.php`',
-        '- добавлен `.codex/hooks/auto-changelog-commit-push.sh`',
-        '- удален `old/file.php`',
-        '- переименован `old/path.php` в `new/path.php`',
+        '- Добавлено: автоматизация agent hooks.',
+        '- Обновлено: Filament admin workflow.',
+        '- Удалено: автоматизация проекта.',
+        '- Перестроено: автоматизация проекта.',
     ]);
 });
 
@@ -42,16 +42,16 @@ it('creates todays changelog section with a pending entry block', function () {
     $updater = new GitChangelogUpdater;
 
     $updated = $updater->sync(
-        "# Changelog\n\n## 2026-03-27\n\n### Existing change\n\n- updated `README.md`\n",
+        "# Changelog\n\n## 2026-03-27\n\n### Existing change\n\n- Updated: documentation.\n",
         '2026-03-28',
         'pending',
         'Pending staged changes',
-        ['- updated `app/Filament/Support/Changelog/GitChangelogUpdater.php`'],
+        ['- Updated: changelog automation.'],
     );
 
     expect($updated)
         ->toContain("## 2026-03-28\n\n<!-- changelog:auto:start:pending -->")
-        ->toContain("### Pending staged changes\n\n- updated `app/Filament/Support/Changelog/GitChangelogUpdater.php`")
+        ->toContain("### Pending staged changes\n\n- Updated: changelog automation.")
         ->toContain('## 2026-03-27');
 });
 
@@ -63,13 +63,13 @@ it('does not confuse a titled date heading with the exact daily section', functi
         '2026-06-15',
         'pending',
         'Ожидающие staged-изменения',
-        ['- обновлен `docs/operations/billing-reading-invoice-workflow.md`'],
+        ['- Обновлено: документация.'],
     );
 
     expect($updated)
         ->toContain("## 2026-06-15\n\n<!-- changelog:auto:start:pending -->")
         ->toContain('## 2026-06-15 Documentation Reconstruction')
-        ->toContain('- обновлен `docs/operations/billing-reading-invoice-workflow.md`');
+        ->toContain('- Обновлено: документация.');
 });
 
 it('replaces the existing pending block on repeated pre-commit runs', function () {
@@ -83,12 +83,12 @@ it('replaces the existing pending block on repeated pre-commit runs', function (
 <!-- changelog:auto:start:pending -->
 ### Pending staged changes
 
-- updated `app/NewFile.php`
+- Updated: application behavior.
 <!-- changelog:auto:end:pending -->
 
 ### Existing change
 
-- updated `README.md`
+- Updated: documentation.
 MD;
 
     $updated = $updater->sync(
@@ -96,12 +96,12 @@ MD;
         '2026-03-28',
         'pending',
         'Pending staged changes',
-        ['- updated `app/NewFile.php`'],
+        ['- Updated: application behavior.'],
     );
 
     expect(substr_count($updated, '<!-- changelog:auto:start:pending -->'))->toBe(1)
-        ->and($updated)->toContain('- updated `app/NewFile.php`')
-        ->and($updated)->not->toContain('- updated `app/OldFile.php`');
+        ->and($updated)->toContain('- Updated: application behavior.')
+        ->and($updated)->not->toContain('- Updated: project automation.');
 });
 
 it('finalizes a pending block into a titled commit entry', function () {
@@ -115,7 +115,7 @@ it('finalizes a pending block into a titled commit entry', function () {
 <!-- changelog:auto:start:pending -->
 ### Pending staged changes
 
-- updated `app/NewFile.php`
+- Updated: application behavior.
 <!-- changelog:auto:end:pending -->
 MD;
 
@@ -124,7 +124,7 @@ MD;
         '2026-03-28',
         'commit-20260328180000',
         'feat: automate changelog updates before commit',
-        ['- updated `app/NewFile.php`'],
+        ['- Updated: application behavior.'],
         'pending',
     );
 

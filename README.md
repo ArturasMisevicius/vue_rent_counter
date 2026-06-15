@@ -202,7 +202,8 @@ Repo-local `.mcp.json` defines:
 ## Release Hygiene
 
 - Install git hooks with `scripts/install-git-hooks.sh` if they are not already active.
-- The changelog hook writes staged-file entries through `scripts/update_changelog.php`; this README/changelog refresh is a manual reconstruction requested by the user and is intentionally broader than one staged diff.
+- The changelog hook writes semantic staged summaries through `scripts/update_changelog.php`; this README/changelog refresh is a manual reconstruction requested by the user and is intentionally broader than one staged diff.
+- Empty/template commit messages are filled by `.githooks/prepare-commit-msg` through `scripts/generate_commit_message.php`; the generated text describes the functional intent, added/removed/updated behavior, and diff size without listing file names.
 - For code changes, update the closest docs in the same turn and run focused tests plus `vendor/bin/pint --dirty`.
 - For docs-only changes, run markdown diff checks:
 

@@ -2,6 +2,13 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615092151 -->
+### Commit updates
+
+- Added: commit-message enforcement.
+- Updated: documentation, Filament admin workflow, commit-message generation, and project automation.
+<!-- changelog:auto:end:staged-20260615092151 -->
+
 <!-- changelog:auto:start:staged-20260615075710 -->
 ### Commit updates
 
