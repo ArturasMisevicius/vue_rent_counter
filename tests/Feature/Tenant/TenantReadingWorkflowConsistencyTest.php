@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ImportMeterReadingsAction;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\SubmitReadingPage;
+use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
@@ -62,8 +64,21 @@ it('applies the same anomaly outcome to tenant submissions as the shared admin c
         submissionMethod: MeterReadingSubmissionMethod::ADMIN_MANUAL,
         notes: 'Admin reviewed the spike.',
     );
+    $readingRequestInvoice = Invoice::factory()
+        ->for($fixture->organization)
+        ->for($fixture->property)
+        ->for($fixture->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => $baseDate->addDays(61)->toDateString(),
+            'billing_period_end' => $readingDate,
+            'due_date' => $baseDate->addDays(130)->toDateString(),
+            'automation_level' => 'reading_request',
+            'approval_status' => 'waiting_for_readings',
+        ]);
 
     Livewire::actingAs($fixture->user)
+        ->withQueryParams(['invoice' => (string) $readingRequestInvoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $tenantMeter->id)
         ->set('readingValue', '750')
@@ -100,6 +115,18 @@ it('applies the same blocking validation to zero-value readings across tenant an
     /** @var Meter $meter */
     $meter = $fixture->meters->firstOrFail();
     $readingDate = now()->toDateString();
+    $readingRequestInvoice = Invoice::factory()
+        ->for($fixture->organization)
+        ->for($fixture->property)
+        ->for($fixture->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => now()->startOfMonth()->toDateString(),
+            'billing_period_end' => now()->endOfMonth()->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'automation_level' => 'reading_request',
+            'approval_status' => 'waiting_for_readings',
+        ]);
 
     expect(fn (): MeterReading => app(CreateMeterReadingAction::class)->handle(
         meter: $meter,
@@ -126,9 +153,11 @@ it('applies the same blocking validation to zero-value readings across tenant an
         readingValue: 0,
         readingDate: $readingDate,
         notes: 'Tenant attempted a zero-value reading.',
+        invoiceId: $readingRequestInvoice->id,
     ))->toThrow(ValidationException::class);
 
     Livewire::actingAs($fixture->user)
+        ->withQueryParams(['invoice' => (string) $readingRequestInvoice->id])
         ->test(SubmitReadingPage::class)
         ->set('meterId', (string) $meter->id)
         ->set('readingValue', '0')

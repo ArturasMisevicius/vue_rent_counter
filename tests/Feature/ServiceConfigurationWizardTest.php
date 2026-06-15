@@ -153,7 +153,7 @@ it('adds a valid fixed service to generated invoices', function (): void {
     expect($invoice->status)->toBe(InvoiceStatus::FINALIZED)
         ->and((float) $invoice->total_amount)->toBe(49.9)
         ->and($item->service_configuration_id)->toBe($configuration->id)
-        ->and($item->description_for_tenant)->toBe('Internet')
+        ->and($item->description_for_tenant)->toBe('Monthly internet access.')
         ->and($item->tenant_visible)->toBeTrue();
 });
 

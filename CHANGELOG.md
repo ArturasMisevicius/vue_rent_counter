@@ -2,6 +2,19 @@
 
 ## 2026-06-15
 
+<!-- changelog:auto:start:staged-20260615054630 -->
+### Изменения Codex
+
+- обновлен `README.md`
+- обновлен `app/Filament/Actions/Tenant/Readings/SubmitTenantReadingAction.php`
+- добавлен `docs/operations/billing-reading-invoice-workflow.md`
+- обновлен `tests/Feature/Admin/MeterReadingValidationRulesTest.php`
+- обновлен `tests/Feature/Security/TenantPortalIsolationTest.php`
+- обновлен `tests/Feature/ServiceConfigurationWizardTest.php`
+- обновлен `tests/Feature/Tenant/TenantReadingWorkflowConsistencyTest.php`
+- обновлен `tests/Feature/Tenant/TenantSubmitReadingTest.php`
+<!-- changelog:auto:end:staged-20260615054630 -->
+
 <!-- changelog:auto:start:staged-20260615053419 -->
 ### Изменения Codex
 

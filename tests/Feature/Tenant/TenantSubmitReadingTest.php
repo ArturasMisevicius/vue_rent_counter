@@ -3,6 +3,7 @@
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterType;
+use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Invoice;
 use App\Models\ManagerPermission;
@@ -14,6 +15,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 use Tests\Support\TenantPortalFixture;
@@ -56,6 +58,28 @@ it('requires an open reading request invoice before tenant readings can be submi
         ->call('submit')
         ->assertHasErrors(['readings'])
         ->assertSeeText('No open reading request');
+
+    expect(MeterReading::query()
+        ->where('meter_id', $meter->id)
+        ->where('submitted_by_user_id', $tenant->user->id)
+        ->exists())->toBeFalse();
+});
+
+it('rejects direct tenant reading action calls without an open reading request invoice', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    expect(fn () => app(SubmitTenantReadingAction::class)->handle(
+        tenant: $tenant->user,
+        meterId: $meter->id,
+        readingValue: '245.125',
+        readingDate: now()->toDateString(),
+    ))->toThrow(ValidationException::class, 'Readings can be submitted after your property manager opens a draft invoice request');
 
     expect(MeterReading::query()
         ->where('meter_id', $meter->id)

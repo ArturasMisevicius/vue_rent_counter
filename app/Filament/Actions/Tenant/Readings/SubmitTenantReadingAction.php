@@ -72,6 +72,12 @@ class SubmitTenantReadingAction
             tenantId: $tenant->id,
         );
 
+        if (! $invoice instanceof Invoice) {
+            throw ValidationException::withMessages([
+                'readingValue' => $this->readingRequestUnavailableMessage($invoiceId),
+            ]);
+        }
+
         $meter = Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
             ->forOrganization($workspace->organizationId)
@@ -92,57 +98,40 @@ class SubmitTenantReadingAction
 
         Gate::forUser($tenant)->authorize('view', $meter);
 
-        if ($invoice instanceof Invoice) {
-            return DB::transaction(function () use ($invoice, $meter, $tenant, $validated): MeterReading {
-                $lockedInvoice = $this->readingRequestInvoiceQuery(
-                    invoiceId: (int) $invoice->id,
-                    organizationId: (int) $invoice->organization_id,
-                    propertyId: (int) $invoice->property_id,
-                    tenantId: $tenant->id,
-                )
-                    ->lockForUpdate()
-                    ->first();
+        return DB::transaction(function () use ($invoice, $meter, $tenant, $validated): MeterReading {
+            $lockedInvoice = $this->readingRequestInvoiceQuery(
+                invoiceId: (int) $invoice->id,
+                organizationId: (int) $invoice->organization_id,
+                propertyId: (int) $invoice->property_id,
+                tenantId: $tenant->id,
+            )
+                ->lockForUpdate()
+                ->first();
 
-                if (! $lockedInvoice instanceof Invoice) {
-                    throw ValidationException::withMessages([
-                        'readingValue' => __('tenant.pages.readings.invoice_request_unavailable'),
-                    ]);
-                }
+            if (! $lockedInvoice instanceof Invoice) {
+                throw ValidationException::withMessages([
+                    'readingValue' => __('tenant.pages.readings.invoice_request_unavailable'),
+                ]);
+            }
 
-                $this->ensureMeterIsRequestedForInvoice($meter, $lockedInvoice);
-                $this->ensureReadingValuePassesBaseValidation($meter, $validated);
-                $this->ensureTenantHasNotSubmittedReadingForInvoicePeriod(
-                    tenant: $tenant,
-                    meter: $meter,
-                    invoice: $lockedInvoice,
-                    readingDate: (string) $validated['readingDate'],
-                );
+            $this->ensureMeterIsRequestedForInvoice($meter, $lockedInvoice);
+            $this->ensureReadingValuePassesBaseValidation($meter, $validated);
+            $this->ensureTenantHasNotSubmittedReadingForInvoicePeriod(
+                tenant: $tenant,
+                meter: $meter,
+                invoice: $lockedInvoice,
+                readingDate: (string) $validated['readingDate'],
+            );
 
-                return $this->createMeterReadingAction->handle(
-                    meter: $meter,
-                    readingValue: $validated['readingValue'],
-                    readingDate: $validated['readingDate'],
-                    submittedBy: $tenant,
-                    submissionMethod: MeterReadingSubmissionMethod::TENANT_PORTAL,
-                    notes: filled($validated['notes']) ? $validated['notes'] : null,
-                );
-            });
-        }
-
-        $this->ensureReadingValuePassesBaseValidation($meter, $validated);
-        $this->ensureTenantHasNotSubmittedReadingForDate(
-            meter: $meter,
-            readingDate: $validated['readingDate'],
-        );
-
-        return $this->createMeterReadingAction->handle(
-            meter: $meter,
-            readingValue: $validated['readingValue'],
-            readingDate: $validated['readingDate'],
-            submittedBy: $tenant,
-            submissionMethod: MeterReadingSubmissionMethod::TENANT_PORTAL,
-            notes: filled($validated['notes']) ? $validated['notes'] : null,
-        );
+            return $this->createMeterReadingAction->handle(
+                meter: $meter,
+                readingValue: $validated['readingValue'],
+                readingDate: $validated['readingDate'],
+                submittedBy: $tenant,
+                submissionMethod: MeterReadingSubmissionMethod::TENANT_PORTAL,
+                notes: filled($validated['notes']) ? $validated['notes'] : null,
+            );
+        });
     }
 
     /**
@@ -274,6 +263,15 @@ class SubmitTenantReadingAction
         $resolvedInvoiceId = (int) $invoiceId;
 
         return $resolvedInvoiceId > 0 ? $resolvedInvoiceId : null;
+    }
+
+    private function readingRequestUnavailableMessage(string|int|null $invoiceId): string
+    {
+        if (blank($invoiceId)) {
+            return __('tenant.pages.readings.no_open_request');
+        }
+
+        return __('tenant.pages.readings.invoice_request_unavailable');
     }
 
     private function ensureMeterIsRequestedForInvoice(Meter $meter, Invoice $invoice): void

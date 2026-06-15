@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Livewire\Tenant\InvoiceHistory;
 use App\Livewire\Tenant\SubmitMeterReading;
@@ -92,15 +93,27 @@ it('keeps the filament tenant portal and its actions isolated per tenant account
         ->call('downloadPdf', $foreignInvoice->id)
         ->assertForbidden();
 
+    $ownedReadingRequestInvoice = Invoice::factory()
+        ->for($tenantA->organization)
+        ->for($tenantA->property)
+        ->for($tenantA->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'automation_level' => 'reading_request',
+            'approval_status' => 'waiting_for_readings',
+        ]);
+
     expect(fn () => app(SubmitTenantReadingAction::class)->handle(
         tenant: $tenantA->user,
         meterId: $foreignMeter->id,
         readingValue: '245.125',
         readingDate: now()->toDateString(),
         notes: null,
+        invoiceId: $ownedReadingRequestInvoice->id,
     ))->toThrow(AuthorizationException::class);
 
     Livewire::actingAs($tenantA->user)
+        ->withQueryParams(['invoice' => (string) $ownedReadingRequestInvoice->id])
         ->test(SubmitMeterReading::class)
         ->set('meterId', (string) $foreignMeter->id)
         ->set('readingValue', '245.125')

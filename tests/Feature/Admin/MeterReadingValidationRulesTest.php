@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Actions\Admin\MeterReadings\ImportMeterReadingsAction;
@@ -7,6 +8,7 @@ use App\Filament\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
 use App\Models\Building;
+use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
@@ -168,6 +170,18 @@ it('applies the same flagged outcome to admin updates, tenant submissions, and b
         'reading_date' => $baseDate->addDays(120)->toDateString(),
         'submission_method' => MeterReadingSubmissionMethod::IMPORT->value,
     ]]);
+    $readingRequestInvoice = Invoice::factory()
+        ->for($fixture->organization)
+        ->for($fixture->property)
+        ->for($fixture->user, 'tenant')
+        ->create([
+            'status' => InvoiceStatus::DRAFT,
+            'billing_period_start' => $baseDate->addDays(91)->toDateString(),
+            'billing_period_end' => $baseDate->addDays(120)->toDateString(),
+            'due_date' => $baseDate->addDays(130)->toDateString(),
+            'automation_level' => 'reading_request',
+            'approval_status' => 'waiting_for_readings',
+        ]);
 
     $tenantReading = app(SubmitTenantReadingAction::class)->handle(
         $fixture->user,
@@ -175,6 +189,7 @@ it('applies the same flagged outcome to admin updates, tenant submissions, and b
         750,
         $baseDate->addDays(120)->toDateString(),
         'Tenant submitted the same spike.',
+        $readingRequestInvoice->id,
     );
 
     expect($updatedReading->validation_status)->toBe(MeterReadingValidationStatus::FLAGGED)

@@ -161,6 +161,8 @@ If Laravel-specific MCP servers are available in your editor or Codex session, t
 ## Additional Docs
 
 - Session bootstrap: [docs/SESSION-BOOTSTRAP.md](docs/SESSION-BOOTSTRAP.md)
+- Main billing workflow: [docs/operations/billing-reading-invoice-workflow.md](docs/operations/billing-reading-invoice-workflow.md)
+- Service configuration guide: [docs/operations/service-configuration-guide.md](docs/operations/service-configuration-guide.md)
 - Skills and MCP inventory: [docs/SKILLS-MCP-INVENTORY.md](docs/SKILLS-MCP-INVENTORY.md)
 - Delivery plans/specs index: [docs/superpowers/README.md](docs/superpowers/README.md)
 - AI assistant and repo instructions: [AGENTS.md](AGENTS.md)
