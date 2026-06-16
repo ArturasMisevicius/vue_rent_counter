@@ -98,6 +98,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Gate::define('view-trace-replay', fn (User $user): bool => $user->isSuperadmin());
+
         Gate::before(function (User $user): ?bool {
             if ($user->isSuperadmin()) {
                 return true;

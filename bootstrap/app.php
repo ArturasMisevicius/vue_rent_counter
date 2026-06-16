@@ -10,9 +10,11 @@ use App\Http\Middleware\EnsureUserIsTenant;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Http\Middleware\SetGuestLocale;
+use App\Http\Middleware\SetTraceReplayWorkspace;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use TraceReplay\Http\Middleware\TraceMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetGuestLocale::class,
             SecurityHeaders::class,
+            SetTraceReplayWorkspace::class,
+            TraceMiddleware::class,
         ]);
 
         $middleware->alias([

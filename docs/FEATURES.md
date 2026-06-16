@@ -374,6 +374,7 @@ Main files:
 Security features include:
 
 - Security headers and CSP report handling.
+- TraceReplay request, command, job, Livewire, cache, mail, notification, log, and HTTP tracing with a superadmin-only dashboard.
 - Public debug surface regression tests.
 - Tenant isolation and organization isolation tests.
 - Account status and tenant-only middleware.
@@ -401,6 +402,10 @@ Operations commands:
 - `ops:backup-restore-readiness`
 - `ops:release-readiness`
 - `ops:phase1-guardrails-branch-protection`
+- `trace-replay:doctor`
+- `trace-replay:export`
+- `trace-replay:install`
+- `trace-replay:prune`
 - `billing:generate-draft-invoices`
 - `billing:open-reading-invoice-cycle`
 - `billing:mark-overdue-invoices`

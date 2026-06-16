@@ -11,6 +11,7 @@ use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
+use App\Http\Middleware\SetTraceReplayWorkspace;
 use App\Livewire\Shell\Sidebar;
 use App\Livewire\Shell\Topbar;
 use App\Models\User;
@@ -35,6 +36,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TraceReplay\Http\Middleware\TraceMiddleware;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -87,6 +89,8 @@ class AppPanelProvider extends PanelProvider
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 SecurityHeaders::class,
+                SetTraceReplayWorkspace::class,
+                TraceMiddleware::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])

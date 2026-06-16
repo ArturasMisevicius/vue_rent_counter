@@ -266,6 +266,10 @@ Artisan::command('kyc:maintain', function (
 Schedule::command('model:prune', ['--model' => [SecurityViolation::class]])
     ->daily();
 
+Schedule::command('trace-replay:prune')
+    ->dailyAt('02:45')
+    ->withoutOverlapping();
+
 Schedule::command('erag:sync-disposable-email-list')
     ->dailyAt('03:30')
     ->withoutOverlapping();

@@ -256,14 +256,10 @@
 <!-- changelog:auto:end:staged-20260615062849 -->
 
 <!-- changelog:auto:start:pending -->
-### Ожидающие staged-изменения
+### Pending staged changes
 
-- обновлен `app/Filament/Resources/BillingPeriods/Pages/CreateBillingPeriod.php`
-- обновлен `app/Filament/Support/Admin/BillingPeriods/BillingPeriodScopeSnapshotBuilder.php`
-- обновлен `app/Filament/Support/Changelog/GitChangelogUpdater.php`
-- обновлен `docs/operations/billing-reading-invoice-workflow.md`
-- обновлен `tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php`
-- обновлен `tests/Unit/Filament/Support/Changelog/GitChangelogUpdaterTest.php`
+- Added: application behavior, application configuration, and project automation.
+- Updated: project automation, application behavior, documentation, Blade interface templates, and route definitions.
 <!-- changelog:auto:end:pending -->
 
 > **AI agent usage:** This changelog was reconstructed on 2026-06-15 from the full git history in this checkout. For exact file-level diffs, use `git show <hash>` or `git log --stat`. Normal future commits can continue using `scripts/update_changelog.php` and the git hooks for staged-diff entries.
