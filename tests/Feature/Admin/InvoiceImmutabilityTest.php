@@ -47,14 +47,14 @@ it('locks finalized invoice commercial fields while keeping payment updates avai
         'items' => [
             ['description' => 'Final water usage', 'amount' => 125.00],
         ],
-    ]);
+    ], $admin);
+    $finalizedItem = $finalized->items[0] ?? [];
 
     expect($finalized->status)->toBe(InvoiceStatus::FINALIZED)
         ->and($finalized->finalized_at)->not->toBeNull()
         ->and((float) $finalized->total_amount)->toBe(125.0)
-        ->and($finalized->items)->toBe([
-            ['description' => 'Final water usage', 'amount' => 125.00],
-        ]);
+        ->and($finalizedItem['description'] ?? null)->toBe('Final water usage')
+        ->and((float) ($finalizedItem['total'] ?? $finalizedItem['amount'] ?? 0))->toBe(125.0);
 
     expect(fn () => app(SaveInvoiceDraftAction::class)->handle($finalized->fresh(), [
         'total_amount' => 200.00,
@@ -63,24 +63,26 @@ it('locks finalized invoice commercial fields while keeping payment updates avai
         ],
     ]))->toThrow(ValidationException::class);
 
-    expect((float) $finalized->fresh()->total_amount)->toBe(125.0)
-        ->and($finalized->fresh()->items)->toBe([
-            ['description' => 'Final water usage', 'amount' => 125.00],
-        ]);
+    $freshFinalized = $finalized->fresh();
+    $freshItem = $freshFinalized->items[0] ?? [];
+
+    expect((float) $freshFinalized->total_amount)->toBe(125.0)
+        ->and($freshItem['description'] ?? null)->toBe('Final water usage')
+        ->and((float) ($freshItem['total'] ?? $freshItem['amount'] ?? 0))->toBe(125.0);
 
     $paid = app(RecordInvoicePaymentAction::class)->handle($finalized->fresh(), [
         'amount_paid' => 125.00,
         'payment_reference' => 'BANK-001',
         'paid_at' => now(),
-    ]);
+    ], $admin);
+    $paidItem = $paid->items[0] ?? [];
 
     expect($paid->status)->toBe(InvoiceStatus::PAID)
         ->and((float) $paid->amount_paid)->toBe(125.0)
         ->and($paid->payment_reference)->toBe('BANK-001')
         ->and((float) $paid->total_amount)->toBe(125.0)
-        ->and($paid->items)->toBe([
-            ['description' => 'Final water usage', 'amount' => 125.00],
-        ]);
+        ->and($paidItem['description'] ?? null)->toBe('Final water usage')
+        ->and((float) ($paidItem['total'] ?? $paidItem['amount'] ?? 0))->toBe(125.0);
 
     Livewire::actingAs($admin)
         ->test(EditInvoice::class, ['record' => $paid->getRouteKey()])

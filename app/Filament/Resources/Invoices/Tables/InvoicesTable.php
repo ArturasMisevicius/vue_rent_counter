@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Invoices\Tables;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
+use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
 use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
-use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\Admin\Invoices\InvoiceTablePresenter;
@@ -141,7 +141,7 @@ class InvoicesTable
                     ->visible(fn (Invoice $record): bool => $record->canFinalizeFromAdminWorkspace())
                     ->authorize(fn (Invoice $record): bool => InvoiceResource::canEdit($record))
                     ->action(function (Invoice $record, FinalizeInvoiceAction $finalizeInvoiceAction): void {
-                        $finalizeInvoiceAction->handle($record);
+                        $finalizeInvoiceAction->handle($record, actor: static::currentUser());
 
                         Notification::make()
                             ->title(__('admin.invoices.messages.finalized_named', [
@@ -184,7 +184,7 @@ class InvoicesTable
                             ->maxLength(255),
                     ])
                     ->action(function (Invoice $record, array $data, RecordInvoicePaymentAction $recordInvoicePaymentAction): void {
-                        $recordInvoicePaymentAction->handle($record, $data);
+                        $recordInvoicePaymentAction->handle($record, $data, static::currentUser());
 
                         Notification::make()
                             ->title(__('admin.invoices.messages.payment_recorded'))
@@ -209,8 +209,8 @@ class InvoicesTable
                             ->label(__('admin.invoices.fields.personal_message'))
                             ->rows(4),
                     ])
-                    ->action(function (Invoice $record, array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
-                        $sendInvoiceEmailAction->handle(
+                    ->action(function (Invoice $record, array $data, SendInvoiceToTenant $sendInvoiceToTenant): void {
+                        $sendInvoiceToTenant->handle(
                             $record,
                             static::currentUser(),
                             $data['recipient_email'] ?? null,

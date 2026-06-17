@@ -22,6 +22,6 @@ final readonly class ApproveInvoice
 
         $invoice = $this->recalculateInvoice->handle($invoice, $actor);
 
-        return $this->finalizeInvoiceAction->handle($invoice);
+        return $this->finalizeInvoiceAction->handle($invoice, actor: $actor);
     }
 }

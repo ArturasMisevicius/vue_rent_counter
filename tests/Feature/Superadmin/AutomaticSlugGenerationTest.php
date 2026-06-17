@@ -2,10 +2,15 @@
 
 use App\Filament\Resources\Tags\Pages\CreateTag;
 use App\Filament\Resources\Tags\Pages\EditTag;
+use App\Filament\Resources\Tags\Pages\ListTags;
+use App\Filament\Resources\Tags\Pages\ViewTag;
 use App\Models\Organization;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UtilityService;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Infolists\Components\ColorEntry;
+use Filament\Tables\Columns\ColorColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -100,4 +105,35 @@ it('hides tag slugs from list and view pages while keeping automatic generation'
         ->assertSuccessful()
         ->assertSeeText($tag->name)
         ->assertDontSeeText($tag->slug);
+});
+
+it('uses native Filament color components for tag colors', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create();
+    $tag = Tag::factory()->for($organization)->create([
+        'color' => '#3b82f6',
+    ]);
+
+    actingAs($superadmin);
+
+    Livewire::test(CreateTag::class)
+        ->assertFormFieldExists('color', fn (ColorPicker $field): bool => $field->getLabel() === __('superadmin.relation_resources.tags.fields.color')
+            && $field->getFormat() === 'hex');
+
+    Livewire::test(EditTag::class, ['record' => $tag->getRouteKey()])
+        ->assertFormFieldExists('color', fn (ColorPicker $field): bool => $field->getLabel() === __('superadmin.relation_resources.tags.fields.color')
+            && $field->getFormat() === 'hex')
+        ->fillForm([
+            'color' => '#16a34a',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($tag->fresh()->color)->toBe('#16a34a');
+
+    Livewire::test(ListTags::class)
+        ->assertTableColumnExists('color', fn (ColorColumn $column): bool => $column->getLabel() === __('superadmin.relation_resources.tags.fields.color'));
+
+    Livewire::test(ViewTag::class, ['record' => $tag->getRouteKey()])
+        ->assertSchemaComponentExists('color', 'infolist', fn (ColorEntry $entry): bool => $entry->getLabel() === __('superadmin.relation_resources.tags.fields.color'));
 });

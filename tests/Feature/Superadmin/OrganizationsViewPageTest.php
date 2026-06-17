@@ -76,7 +76,11 @@ it('renders the organization view page overview, actions, and tabs', function ()
         ->assertSeeText('7 of 10')
         ->assertSeeText('3 of 25')
         ->assertSeeText('4 of 12')
-        ->assertSeeText('5 of 8');
+        ->assertSeeText('5 of 8')
+        ->assertSee('class="flex w-full flex-col gap-6"', false)
+        ->assertDontSee('lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]', false)
+        ->assertDontSee('xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]', false)
+        ->assertDontSee('xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]', false);
 
     $this->actingAs($superadmin);
 

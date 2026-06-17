@@ -107,7 +107,7 @@ class CreateInvoice extends CreateRecord
             return $invoice;
         }
 
-        return app(FinalizeInvoiceAction::class)->handle($invoice);
+        return app(FinalizeInvoiceAction::class)->handle($invoice, actor: $actor instanceof User ? $actor : null);
     }
 
     protected function getFormActions(): array

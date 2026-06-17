@@ -143,7 +143,7 @@ final class BillingService implements BillingServiceInterface
         $validated = $request->validatePayload([
             ...$normalized,
             'organization_id' => $normalized['organization_id'] ?? $organization->id,
-        ], $actor ?? auth()->user());
+        ], $actor);
         $periodStart = $this->normalizeDate($validated['billing_period_start'])->startOfDay();
         $periodEnd = $this->normalizeDate($validated['billing_period_end'])->endOfDay();
         $assignment = $this->invoiceAssignment(
@@ -158,13 +158,13 @@ final class BillingService implements BillingServiceInterface
         return $this->invoiceService->createDraft($organization, $assignment, $validated, $actor);
     }
 
-    public function saveDraft(Invoice $invoice, array $attributes): Invoice
+    public function saveDraft(Invoice $invoice, array $attributes, ?User $actor = null): Invoice
     {
         $normalized = $this->normalizeDraftAttributes($attributes);
 
         $this->finalizedInvoiceGuard->ensureCanMutate($invoice, $normalized);
 
-        $validated = (new SaveInvoiceDraftRequest)->validatePayload($normalized, auth()->user());
+        $validated = (new SaveInvoiceDraftRequest)->validatePayload($normalized, $actor);
 
         if (! $this->finalizedInvoiceGuard->isImmutable($invoice) && ! array_key_exists('status', $validated)) {
             $validated['status'] = InvoiceStatus::DRAFT;
@@ -173,16 +173,16 @@ final class BillingService implements BillingServiceInterface
         return $this->invoiceService->updateDraft($invoice, $validated);
     }
 
-    public function finalize(Invoice $invoice, array $attributes = []): Invoice
+    public function finalize(Invoice $invoice, array $attributes = [], ?User $actor = null): Invoice
     {
         $approveWithWarnings = (bool) ($attributes['approve_with_warnings'] ?? false);
         unset($attributes['approve_with_warnings']);
 
         $beforeSnapshot = $this->invoiceAuditSnapshot($invoice);
-        $invoice = $this->saveDraft($invoice, $attributes);
+        $invoice = $this->saveDraft($invoice, $attributes, $actor);
         $this->invoiceApprovalValidator->ensureCanApprove($invoice, $approveWithWarnings);
 
-        return $this->invoiceService->markAsFinalized($invoice, auth()->user(), $beforeSnapshot);
+        return $this->invoiceService->markAsFinalized($invoice, $actor, $beforeSnapshot);
     }
 
     public function prepareReadingRequestInvoice(Invoice $invoice, ?User $actor = null): Invoice
@@ -232,7 +232,7 @@ final class BillingService implements BillingServiceInterface
 
     public function applyPayment(Invoice $invoice, array $attributes, ?User $actor = null): Invoice
     {
-        $validated = (new ProcessPaymentRequest)->validatePayload($attributes, $actor ?? auth()->user());
+        $validated = (new ProcessPaymentRequest)->validatePayload($attributes, $actor);
 
         if (! array_key_exists('amount_paid', $validated) && ! array_key_exists('paid_amount', $validated)) {
             throw ValidationException::withMessages([

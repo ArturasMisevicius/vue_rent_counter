@@ -7,8 +7,10 @@ use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Enums\UserRole;
 use App\Filament\Actions\Admin\BillingReview\ApproveInvoice;
 use App\Filament\Actions\Admin\BillingReview\ApproveReading;
+use App\Filament\Actions\Admin\BillingReview\CorrectMeterReading;
 use App\Filament\Actions\Admin\BillingReview\CorrectReading;
 use App\Filament\Actions\Admin\BillingReview\RecalculateInvoice;
 use App\Filament\Actions\Admin\BillingReview\RejectReading;
@@ -28,6 +30,7 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
+use App\Models\OrganizationUser;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\Provider;
@@ -64,6 +67,11 @@ it('allows managers to access the billing review center when allowed', function 
     $workspace = billingReviewWorkspace();
     $manager = User::factory()->manager()->create([
         'organization_id' => $workspace['organization']->id,
+    ]);
+    OrganizationUser::factory()->create([
+        'organization_id' => $workspace['organization']->id,
+        'user_id' => $manager->id,
+        'role' => UserRole::MANAGER->value,
     ]);
 
     ManagerPermission::syncForManager($manager, $workspace['organization'], [
@@ -377,7 +385,7 @@ it('creates audit and history records for billing review actions', function (): 
         ->and($approvedReading->approved_at)->not->toBeNull()
         ->and($approvedReading->versions()->where('event', 'approved')->exists())->toBeTrue();
 
-    $correctedReading = app(CorrectReading::class)->handle($workspace['current_reading']->fresh(), [
+    $correctedReading = app(CorrectMeterReading::class)->handle($workspace['current_reading']->fresh(), [
         'reading_value' => '126',
         'reason' => 'Photo correction',
     ], $workspace['admin']);

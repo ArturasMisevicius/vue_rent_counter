@@ -17,6 +17,7 @@ The command summarizes:
 - integration health from the probe suite;
 - backup and restore readiness via `php artisan ops:backup-restore-readiness`;
 - queue worker guidance for the configured connection;
+- architecture boundary readiness via `php artisan architecture:check`;
 - remaining manual checks for the release operator.
 
 ## Required Companion Checks
@@ -27,6 +28,7 @@ Run these commands as part of the release checklist:
 php artisan about
 php artisan route:list
 php artisan migrate:status
+php artisan architecture:check
 php artisan ops:backup-restore-readiness
 php artisan queue:work --once
 ```
@@ -51,6 +53,7 @@ Apply pending migrations before claiming the local database is release-ready for
 ## Manual Release Checks
 
 - Confirm the integration health page has no failed probes.
+- Confirm the architecture check ends with `Result: PASSED`.
 - Confirm the backup readiness command ends with `Result: READY`.
 - Confirm the target environment can run a real queue worker.
 - Confirm `php artisan schedule:list` includes expected billing, KYC, rental contract, project alert, and model prune maintenance commands where the environment depends on them.

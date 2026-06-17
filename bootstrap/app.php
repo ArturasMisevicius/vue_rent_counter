@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ArchitectureCheckCommand;
 use App\Console\Commands\SyncTranslationsCommand;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BlockBlockedIpAddresses;
@@ -11,10 +12,10 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Http\Middleware\SetGuestLocale;
 use App\Http\Middleware\SetTraceReplayWorkspace;
+use App\Http\Middleware\TraceReplayMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use TraceReplay\Http\Middleware\TraceMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withCommands([
+        ArchitectureCheckCommand::class,
         SyncTranslationsCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
@@ -35,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetGuestLocale::class,
             SecurityHeaders::class,
             SetTraceReplayWorkspace::class,
-            TraceMiddleware::class,
+            TraceReplayMiddleware::class,
         ]);
 
         $middleware->alias([

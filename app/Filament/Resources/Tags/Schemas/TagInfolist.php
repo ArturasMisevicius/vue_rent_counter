@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tags\Schemas;
 
 use App\Filament\Support\Localization\DatabaseContentLocalizer;
 use App\Models\Tag;
+use Filament\Infolists\Components\ColorEntry;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
@@ -18,7 +19,7 @@ class TagInfolist
                 TextEntry::make('name')
                     ->label(__('superadmin.relation_resources.tags.fields.name'))
                     ->state(fn (Tag $record): string => $record->displayName()),
-                TextEntry::make('color')
+                ColorEntry::make('color')
                     ->label(__('superadmin.relation_resources.tags.fields.color'))
                     ->placeholder('-'),
                 TextEntry::make('description')

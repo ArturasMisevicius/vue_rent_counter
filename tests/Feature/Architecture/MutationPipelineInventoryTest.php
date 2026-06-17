@@ -41,9 +41,9 @@ it('keeps representative mutation entrypoints delegated to shared request, actio
             'billingService->finalize(',
         ],
         'app/Filament/Actions/Admin/Invoices/RecordInvoicePaymentAction.php' => [
-            'BillingServiceInterface',
+            'CreateManualPayment',
             'SubscriptionLimitGuard',
-            'billingService->applyPayment(',
+            'createManualPayment->handle(',
         ],
         'app/Filament/Actions/Admin/Invoices/SaveInvoiceDraftAction.php' => [
             'BillingServiceInterface',

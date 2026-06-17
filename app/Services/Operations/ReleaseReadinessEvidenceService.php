@@ -6,12 +6,14 @@ namespace App\Services\Operations;
 
 use App\Enums\IntegrationHealthStatus;
 use App\Filament\Actions\Superadmin\Integration\RunIntegrationHealthChecksAction;
+use App\Services\Architecture\ArchitectureChecklist;
 
 final class ReleaseReadinessEvidenceService
 {
     public function __construct(
         private readonly RunIntegrationHealthChecksAction $runIntegrationHealthChecksAction,
         private readonly BackupRestoreReadinessService $backupRestoreReadinessService,
+        private readonly ArchitectureChecklist $architectureChecklist,
     ) {}
 
     /**
@@ -20,6 +22,7 @@ final class ReleaseReadinessEvidenceService
      *     integration_health: string,
      *     backup_and_restore: string,
      *     queue_worker: string,
+     *     architecture: string,
      *     manual_checks: string
      * }
      */
@@ -27,6 +30,7 @@ final class ReleaseReadinessEvidenceService
     {
         $checks = $this->runIntegrationHealthChecksAction->handle();
         $backupReadiness = $this->backupRestoreReadinessService->assess();
+        $architectureReadiness = $this->architectureChecklist->assess();
         $queueConnection = (string) config('queue.default', '');
         $queueDriver = (string) config("queue.connections.{$queueConnection}.driver", '');
 
@@ -46,12 +50,18 @@ final class ReleaseReadinessEvidenceService
                 $queueConnection,
             );
 
+        $architecture = $architectureReadiness['ready']
+            ? 'PASSED - php artisan architecture:check'
+            : 'FAILED - php artisan architecture:check';
+
         return [
             'ready' => $backupReadiness['ready']
+                && $architectureReadiness['ready']
                 && $checks->every(fn ($check): bool => $check->status !== IntegrationHealthStatus::FAILED),
             'integration_health' => $integrationHealth,
             'backup_and_restore' => $backupAndRestore,
             'queue_worker' => $queueWorker,
+            'architecture' => $architecture,
             'manual_checks' => 'Review /app/integration-health and the docs/operations runbooks before release.',
         ];
     }

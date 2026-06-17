@@ -25,7 +25,7 @@ class CreateInvoiceDraftAction
         $validated = $request->validatePayload([
             ...$attributes,
             'organization_id' => $attributes['organization_id'] ?? $organization->id,
-        ], $actor ?? auth()->user());
+        ], $actor);
 
         return $this->billingService->createDraft($organization, $validated, $actor);
     }

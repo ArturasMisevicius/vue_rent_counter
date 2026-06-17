@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -26,8 +27,9 @@ class TagsTable
                     ->label(__('superadmin.relation_resources.tags.fields.name'))
                     ->state(fn (Tag $record): string => $record->displayName())
                     ->searchable(),
-                TextColumn::make('color')
+                ColorColumn::make('color')
                     ->label(__('superadmin.relation_resources.tags.fields.color'))
+                    ->placeholder('-')
                     ->searchable(),
                 TextColumn::make('type')
                     ->label(__('superadmin.relation_resources.tags.fields.type'))

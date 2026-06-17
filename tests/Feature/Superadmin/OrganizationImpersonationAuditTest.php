@@ -88,6 +88,12 @@ it('records impersonation metadata on downstream audit entries and renders dual 
 
     app(StartOrganizationImpersonationAction::class)->handle($superadmin, $owner);
 
+    expect(AuditLog::query()
+        ->forSubject($owner)
+        ->forAction(AuditLogAction::IMPERSONATED)
+        ->where('metadata->context->mutation', 'impersonation.started')
+        ->exists())->toBeTrue();
+
     $organization->forceFill([
         'name' => 'Northwind Heights',
     ])->save();

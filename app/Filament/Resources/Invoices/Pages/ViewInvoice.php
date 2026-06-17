@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\Invoices\Pages;
 
 use App\Enums\PaymentMethod;
+use App\Filament\Actions\Admin\BillingReview\SendInvoiceToTenant;
 use App\Filament\Actions\Admin\Invoices\AddManualInvoiceAdjustment;
 use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
 use App\Filament\Actions\Admin\Invoices\RecalculateInvoice;
 use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
-use App\Filament\Actions\Admin\Invoices\SendInvoiceEmailAction;
 use App\Filament\Actions\Admin\Invoices\SendInvoiceReminderAction;
 use App\Filament\Actions\Admin\Invoices\UpdateInvoiceTenantDescriptions;
 use App\Filament\Resources\Invoices\InvoiceResource;
@@ -198,7 +198,7 @@ class ViewInvoice extends ViewRecord
                     ->modalDescription(__('admin.invoices.messages.finalize_confirmation'))
                     ->modalSubmitActionLabel(__('admin.invoices.actions.finalize_invoice'))
                     ->action(function (FinalizeInvoiceAction $finalizeInvoiceAction): void {
-                        $finalizeInvoiceAction->handle($this->record);
+                        $finalizeInvoiceAction->handle($this->record, actor: auth()->user());
                         $this->refreshRecord();
 
                         Notification::make()
@@ -221,7 +221,7 @@ class ViewInvoice extends ViewRecord
                     ->action(function (FinalizeInvoiceAction $finalizeInvoiceAction): void {
                         $finalizeInvoiceAction->handle($this->record, [
                             'approve_with_warnings' => true,
-                        ]);
+                        ], auth()->user());
                         $this->refreshRecord();
 
                         Notification::make()
@@ -268,7 +268,7 @@ class ViewInvoice extends ViewRecord
                         ->maxLength(255),
                 ])
                 ->action(function (array $data, RecordInvoicePaymentAction $recordInvoicePaymentAction): void {
-                    $recordInvoicePaymentAction->handle($this->record, $data);
+                    $recordInvoicePaymentAction->handle($this->record, $data, auth()->user());
                     $this->refreshRecord();
 
                     Notification::make()
@@ -295,8 +295,8 @@ class ViewInvoice extends ViewRecord
                         ->label(__('admin.invoices.fields.personal_message'))
                         ->rows(4),
                 ])
-                ->action(function (array $data, SendInvoiceEmailAction $sendInvoiceEmailAction): void {
-                    $sendInvoiceEmailAction->handle(
+                ->action(function (array $data, SendInvoiceToTenant $sendInvoiceToTenant): void {
+                    $sendInvoiceToTenant->handle(
                         $this->record,
                         auth()->user(),
                         $data['recipient_email'] ?? null,

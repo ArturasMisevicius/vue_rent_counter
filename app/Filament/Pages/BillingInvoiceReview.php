@@ -6,7 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Actions\Admin\BillingReview\ApproveInvoice;
 use App\Filament\Actions\Admin\BillingReview\ApproveReading;
-use App\Filament\Actions\Admin\BillingReview\CorrectReading;
+use App\Filament\Actions\Admin\BillingReview\CorrectMeterReading;
 use App\Filament\Actions\Admin\BillingReview\RecalculateInvoice;
 use App\Filament\Actions\Admin\BillingReview\RejectReading;
 use App\Filament\Actions\Admin\BillingReview\RequestReadingResubmission;
@@ -132,9 +132,9 @@ class BillingInvoiceReview extends Page
         Notification::make()->title(__('admin.billing_review.messages.reading_rejected'))->success()->send();
     }
 
-    public function correctReading(int $readingId, CorrectReading $correctReading): void
+    public function correctReading(int $readingId, CorrectMeterReading $correctMeterReading): void
     {
-        $correctReading->handle($this->reading($readingId), [
+        $correctMeterReading->handle($this->reading($readingId), [
             'reading_value' => $this->correctionValues[$readingId] ?? null,
             'reason' => $this->correctionReasons[$readingId] ?? null,
             'confirm_negative_consumption' => (bool) ($this->confirmNegativeConsumption[$readingId] ?? false),

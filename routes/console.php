@@ -55,6 +55,7 @@ Artisan::command('ops:release-readiness', function (ReleaseReadinessEvidenceServ
     $this->components->twoColumnDetail('Integration health', $report['integration_health']);
     $this->components->twoColumnDetail('Backup and restore', $report['backup_and_restore']);
     $this->components->twoColumnDetail('Queue worker', $report['queue_worker']);
+    $this->components->twoColumnDetail('Architecture', $report['architecture']);
     $this->components->twoColumnDetail('Manual checks', $report['manual_checks']);
 
     $this->newLine();

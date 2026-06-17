@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-17
+
+<!-- changelog:auto:start:staged-20260617074113 -->
+### Commit updates
+
+- Added: documentation, application behavior, billing workflow, and project automation.
+- Updated: project automation, billing workflow, Filament admin workflow, application behavior, application configuration, database schema or seed data, documentation, Blade interface templates, and route definitions.
+<!-- changelog:auto:end:staged-20260617074113 -->
+
 ## 2026-06-15
 
 <!-- changelog:auto:start:staged-20260615114411 -->

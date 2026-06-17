@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tags\Schemas;
 
 use App\Filament\Support\Localization\LocalizedCodeLabel;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -24,7 +25,7 @@ class TagForm
                 TextInput::make('name')
                     ->label(__('superadmin.relation_resources.tags.fields.name'))
                     ->required(),
-                TextInput::make('color')
+                ColorPicker::make('color')
                     ->label(__('superadmin.relation_resources.tags.fields.color')),
                 Textarea::make('description')
                     ->label(__('superadmin.relation_resources.tags.fields.description'))

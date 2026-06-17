@@ -44,12 +44,12 @@ interface BillingServiceInterface
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function saveDraft(Invoice $invoice, array $attributes): Invoice;
+    public function saveDraft(Invoice $invoice, array $attributes, ?User $actor = null): Invoice;
 
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function finalize(Invoice $invoice, array $attributes = []): Invoice;
+    public function finalize(Invoice $invoice, array $attributes = [], ?User $actor = null): Invoice;
 
     public function prepareReadingRequestInvoice(Invoice $invoice, ?User $actor = null): Invoice;
 

@@ -59,13 +59,16 @@ it('captures actor, workspace, and before-after context for invoice finalization
 
     $finalized = app(FinalizeInvoiceAction::class)->handle($invoice, [
         'total_amount' => 150.00,
-    ]);
+        'items' => [
+            ['description' => 'Final water usage', 'amount' => 150.00],
+        ],
+    ], $admin);
 
     $paid = app(RecordInvoicePaymentAction::class)->handle($finalized, [
         'amount_paid' => 150.00,
         'payment_reference' => 'BANK-150',
         'paid_at' => now()->toDateTimeString(),
-    ]);
+    ], $admin);
 
     $finalizationAudit = AuditLog::query()
         ->forSubject($invoice)
@@ -108,7 +111,7 @@ it('captures actor, workspace, and before-after context for invoice finalization
         ->and(data_get($paymentAudit?->metadata, 'before.amount_paid'))->toBe(0)
         ->and(data_get($paymentAudit?->metadata, 'after.amount_paid'))->toBe(150)
         ->and(data_get($paymentAudit?->metadata, 'after.payment_reference'))->toBe('BANK-150')
-        ->and(data_get($paymentAudit?->metadata, 'context.mutation'))->toBe('invoice.payment_recorded');
+        ->and(data_get($paymentAudit?->metadata, 'context.mutation'))->toBe('invoice.payment_confirmed');
 
     $finalizationActivity = OrganizationActivityLog::query()
         ->forOrganization($organization->id)
@@ -146,7 +149,7 @@ it('captures actor, workspace, and before-after context for invoice finalization
         ->not->toBeNull()
         ->user_id->toBe($admin->id)
         ->and(data_get($paymentActivity?->metadata, 'after.status'))->toBe($paid->status->value)
-        ->and(data_get($paymentActivity?->metadata, 'context.mutation'))->toBe('invoice.payment_recorded');
+        ->and(data_get($paymentActivity?->metadata, 'context.mutation'))->toBe('invoice.payment_confirmed');
 });
 
 it('records bulk invoice generation audits with actor and workspace context', function () {

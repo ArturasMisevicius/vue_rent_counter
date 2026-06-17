@@ -6,19 +6,19 @@ return [
     |--------------------------------------------------------------------------
     | Enable / Disable Trace-Replay
     |--------------------------------------------------------------------------
-    | Set TRACE_REPLAY_ENABLED=false in production .env to completely disable
-    | all tracing with zero overhead.
+    | Defaults to APP_DEBUG so local debugging can use TraceReplay without
+    | enabling it accidentally in production.
     */
-    'enabled' => env('TRACE_REPLAY_ENABLED', true),
+    'enabled' => env('TRACE_REPLAY_ENABLED', env('APP_DEBUG', false)),
 
     /*
     |--------------------------------------------------------------------------
     | Max Capture Size (Bytes)
     |--------------------------------------------------------------------------
     | Prevent DB bloat by truncating payloads larger than this limit.
-    | Default: 64 KB.
+    | Default: 16 KB.
     */
-    'max_payload_size' => env('TRACE_REPLAY_MAX_PAYLOAD_SIZE', 65536),
+    'max_payload_size' => env('TRACE_REPLAY_MAX_PAYLOAD_SIZE', 16384),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,7 +29,7 @@ return [
     | Pass forceSample: true to TraceReplay::start() for traces that must always
     | be captured.
     */
-    'sample_rate' => env('TRACE_REPLAY_SAMPLE_RATE', 1.0),
+    'sample_rate' => env('TRACE_REPLAY_SAMPLE_RATE', 0.1),
 
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ return [
     | When enabled, each step records the number and total time of DB queries
     | executed within the step closure.
     */
-    'track_db_queries' => env('TRACE_REPLAY_TRACK_DB', true),
+    'track_db_queries' => env('TRACE_REPLAY_TRACK_DB', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -167,8 +167,19 @@ return [
     | only when this flag is enabled.
     */
     'trace_bar' => [
-        'enabled' => env('TRACE_REPLAY_TRACE_BAR_ENABLED', env('APP_DEBUG', false)),
+        'enabled' => env('TRACE_REPLAY_TRACE_BAR_ENABLED', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Request Skips
+    |--------------------------------------------------------------------------
+    | Filament's dashboard and Livewire update endpoints are high-volume
+    | surfaces. Keep them out of automatic HTTP tracing unless explicitly
+    | enabled while debugging a narrow issue.
+    */
+    'skip_paths' => array_values(array_filter(array_map('trim', explode(',', env('TRACE_REPLAY_SKIP_PATHS', 'livewire/*'))))),
+    'skip_routes' => array_values(array_filter(array_map('trim', explode(',', env('TRACE_REPLAY_SKIP_ROUTES', 'filament.admin.pages.dashboard'))))),
 
     /*
     |--------------------------------------------------------------------------
@@ -222,12 +233,16 @@ return [
     | in traces without any manual instrumentation.
     */
     'auto_trace' => [
-        'jobs' => env('TRACE_REPLAY_AUTO_TRACE_JOBS', true),
-        'commands' => env('TRACE_REPLAY_AUTO_TRACE_COMMANDS', true),
-        'livewire' => env('TRACE_REPLAY_AUTO_TRACE_LIVEWIRE', true),
+        'jobs' => env('TRACE_REPLAY_AUTO_TRACE_JOBS', false),
+        'commands' => env('TRACE_REPLAY_AUTO_TRACE_COMMANDS', false),
+        'livewire' => env('TRACE_REPLAY_AUTO_TRACE_LIVEWIRE', false),
         'capture_job_payload' => env('TRACE_REPLAY_CAPTURE_JOB_PAYLOAD', false),
         // Artisan commands to exclude from auto-tracing (exact names)
         'exclude_commands' => [
+            'migrate', 'migrate:fresh', 'migrate:install', 'migrate:refresh',
+            'migrate:reset', 'migrate:rollback', 'migrate:status',
+            'optimize', 'optimize:clear', 'config:cache', 'route:cache',
+            'view:cache', 'cache:clear', 'filament:cache-components',
             'queue:work', 'queue:listen', 'horizon', 'schedule:run',
             'schedule:work', 'trace-replay:doctor', 'trace-replay:export',
             'trace-replay:install', 'trace-replay:prune',

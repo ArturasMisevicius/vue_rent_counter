@@ -134,6 +134,7 @@ Tenanto now uses an invoice-driven meter-reading cycle:
 11. Only approved or corrected readings update invoice line calculation; submitted, rejected, and voided readings do not affect invoice totals.
 12. Finalized invoices become tenant-visible and can be downloaded or emailed.
 13. Payment proof, confirmation, rejection, voiding, overdue marking, and reminders are handled through billing actions and notifications.
+14. Admin invoice payment recording creates a manual `InvoicePayment` and immediately confirms it through the same payment lifecycle actions used by the Payments resource.
 
 Additional billing features:
 
@@ -399,6 +400,7 @@ Main files:
 
 Operations commands:
 
+- `architecture:check`
 - `ops:backup-restore-readiness`
 - `ops:release-readiness`
 - `ops:phase1-guardrails-branch-protection`
@@ -437,6 +439,15 @@ High-value test families:
 - Browser smoke coverage: `tests/Browser`
 
 For docs-only changes, use markdown diff checks. For behavior changes, run the focused test file(s), then broaden to related feature folders.
+
+Architecture and module-boundary changes should also run:
+
+```bash
+php artisan architecture:check
+php artisan test tests/Feature/Architecture --compact
+```
+
+`architecture:check` verifies required architecture docs, ADRs, module contracts, PR template, sensitive policies, direct Filament mail/webhook shortcuts, and focused critical workflow action/test contracts.
 
 ## Known Current Caveats
 
